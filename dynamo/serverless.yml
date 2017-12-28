@@ -41,6 +41,7 @@ resources:
                   - "dynamodb.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+        Path: "/service-role/"
         Policies:
           -
             PolicyName: "appsyncrole-policy"
