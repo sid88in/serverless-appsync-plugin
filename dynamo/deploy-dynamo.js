@@ -73,13 +73,7 @@ appsync
 
         const schemaCreationparams = {
             apiId: appId /* required */,
-            definition:
-            'type Query { getTwitterFeed(handle: String!) : Tweets }' +
-            'schema { query : Query mutation: Mutation subscription: Subscription }' +
-            'type Tweet { tweet : String }' +
-            'type Tweets { name: String! screen_name: String! location: String! description: String! followers_count: Int! friends_count: Int! favourites_count: Int! posts : [Tweet] }' +
-            'type Mutation { createUserRecord(name: String!, screen_name: String!, location: String!, description: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, posts: [String]): Tweets }' +
-            'type Subscription { subscribeToTweeterUser(handle: String!): Tweets @aws_subscribe(mutations: ["createUserRecord"]) }' /* Strings will be Base-64 encoded on your behalf */ /* required */,
+            definition: '' // Todo: read this schema from text file.
         };
 
         /* STEP 3 : Create GraphQL Schema */
@@ -100,7 +94,6 @@ appsync
                 await appsync.getSchemaCreationStatus(schemaCreationparams).promise().then(function (data) {
                     console.log(data);
                     if(data['status'] === 'SUCCESS') {
-                        console.log("Yay");
                         success = true;
                     }
                 });
@@ -135,21 +128,14 @@ appsync
         console.log(schema.toString());
     })
     .then(function() {
-        const request = {
-            version: '2017-02-28',
-            operation: 'GetItem',
-            key: {
-                screen_name: { S: '$context.arguments.handle' },
-            },
-        };
 
         const resolverParams = {
             apiId: appId /* required */,
             dataSourceName: dataSourceName /* required */,
             fieldName: 'getTwitterFeed' /* required */,
-            requestMappingTemplate: JSON.stringify(request) /* required */,
+            requestMappingTemplate: '', /* Todo: read this template from text file. required */
             typeName: 'Query' /* required */,
-            responseMappingTemplate: '$utils.toJson($context.result)',
+            responseMappingTemplate: '', /* Todo: read this template from text file. required */
         };
 
         /* STEP 5 : Create Resolvers */
