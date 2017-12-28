@@ -211,3 +211,50 @@ $util.toJson($context.result)
    #end
 }
 ```
+
+# Lambda Integration
+
+## Schema
+```
+type Query {
+	getTwitterFeed(handle: String!, consumer_key: String, consumer_secret: String): Tweets
+}
+
+type Tweet {
+	tweet: String
+}
+
+type Tweets {
+	name: String!
+	screen_name: String!
+	location: String!
+	description: String!
+	followers_count: Int!
+	friends_count: Int!
+	favourites_count: Int!
+	posts: [Tweet]
+}
+
+schema {
+	query: Query
+}
+```
+
+## Resolver for Mutation - getTwitterFeed
+
+```
+## Request Mapping Template
+{
+    "version": "2017-02-28",
+    "operation": "Invoke",
+    "payload": {
+        "field": "getTwitterFeed",
+        "arguments":  $utils.toJson($context.arguments)
+    }
+}
+```
+
+```
+## Response Mapping Template
+$utils.toJson($context.result)
+```
