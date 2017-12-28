@@ -20,8 +20,3 @@ custom:
 functions:
   graphql:
     handler: handler.graphqlHandler
-    events:
-    - http:
-        path: graphql
-        method: post
-        cors: true

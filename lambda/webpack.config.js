@@ -13,7 +13,6 @@ module.exports = {
       {
         test: /\.js$/,
         use: [
-          'imports-loader?graphql',
           {
             loader: 'babel-loader',
             options: {
