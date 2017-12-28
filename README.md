@@ -157,6 +157,35 @@ $util.toJson($context.result)
 
 # ElasticSearch Integration
 
+# Schema
+
+```
+type Query {
+	getTwitterFeed(handle: String!): Tweets
+}
+
+type Tweet {
+	tweet: String
+}
+
+type Tweets {
+	name: String!
+	screen_name: String!
+	location: String!
+	description: String!
+	followers_count: Int!
+	friends_count: Int!
+	favourites_count: Int!
+	posts: [Tweet]
+}
+
+schema {
+	query: Query
+}
+
+```
+
+# Resolver for Query - getTwitterFeed 
 ```
 ## Request mapping template
 {
@@ -252,9 +281,7 @@ schema {
         "arguments":  $utils.toJson($context.arguments)
     }
 }
-```
 
-```
 ## Response Mapping Template
 $utils.toJson($context.result)
 ```

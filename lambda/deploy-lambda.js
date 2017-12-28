@@ -19,6 +19,7 @@ const dataSourceName = 'xxx';
 const dataSourceTable = 'xxx';
 const serviceRole = 'arn:aws:iam::xxx:role/service-role/xxx';
 const MAX_RETRIES = 10;
+const lambdaArn = 'xxx';
 let appId;
 let graphqlEndpoint;
 
@@ -56,11 +57,10 @@ appsync
         const datasourceParams = {
             apiId: appId /* required */,
             name: dataSourceName /* required */,
-            type: 'AMAZON_DYNAMODB' /* required */,
+            type: 'AWS_LAMBDA' /* required */,
             description: 'my first data source',
-            dynamodbConfig: {
-                awsRegion: awsRegion /* required */,
-                tableName: dataSourceTable /* required */,
+            lambdaConfig: {
+                lambdaFunctionArn: lambdaArn /* required */
             },
             serviceRoleArn: serviceRole
         };
@@ -74,12 +74,10 @@ appsync
         const schemaCreationparams = {
             apiId: appId /* required */,
             definition:
-            'type Query { getTwitterFeed(handle: String!) : Tweets }' +
-            'schema { query : Query mutation: Mutation subscription: Subscription }' +
+            'type Query { getTwitterFeed(handle: String!, consumer_key: String, consumer_secret: String) : Tweets }' +
+            'schema { query : Query }' +
             'type Tweet { tweet : String }' +
-            'type Tweets { name: String! screen_name: String! location: String! description: String! followers_count: Int! friends_count: Int! favourites_count: Int! posts : [Tweet] }' +
-            'type Mutation { createUserRecord(name: String!, screen_name: String!, location: String!, description: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, posts: [String]): Tweets }' +
-            'type Subscription { subscribeToTweeterUser(handle: String!): Tweets @aws_subscribe(mutations: ["createUserRecord"]) }' /* Strings will be Base-64 encoded on your behalf */ /* required */,
+            'type Tweets { name: String! screen_name: String! location: String! description: String! followers_count: Int! friends_count: Int! favourites_count: Int! posts : [Tweet] }'
         };
 
         /* STEP 3 : Create GraphQL Schema */
