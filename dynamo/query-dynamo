@@ -1,0 +1,44 @@
+
+#Mutation:
+
+mutation add {
+  createUserRecord(
+    name:"Siddharth",
+    screen_name:"sidg_sid",
+    description:"cool guy",
+    location: "new delhi",
+    favourites_count: 100,
+    friends_count: 100,
+    followers_count: 50,
+    posts: ["hello", "girl", "im good"]
+  ){
+    name
+    screen_name
+    description
+    location
+    favourites_count
+    friends_count
+    followers_count
+    posts{
+      tweet
+    }
+  }
+}
+
+
+#Query:
+
+query{
+    getTwitterFeed(handle: "Charles.Hills"){
+        name
+        location
+        description
+        screen_name
+        followers_count
+        friends_count
+        favourites_count
+        posts {
+            tweet
+        }
+    }
+}
