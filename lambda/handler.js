@@ -63,8 +63,6 @@ exports.graphqlHandler = (event, context, callback) => {
 
                             listOfTweets.posts = tweets;
 
-                            console.log(listOfTweets);
-
                             return listOfTweets;
                         })
                         .catch(error => error);
@@ -80,7 +78,11 @@ exports.graphqlHandler = (event, context, callback) => {
             const handle = event.arguments.handle;
             const consumer_key = event.arguments.consumer_key;
             const consumer_secret = event.arguments.consumer_secret;
-            callback(null, twitterEndpoint.getRawTweets(handle, consumer_key, consumer_secret));
+
+            const tweets = twitterEndpoint.getRawTweets(handle, consumer_key, consumer_secret).then(function (result) {
+                callback(null, result);
+            });
+
             break;
         default:
             callback("Unknown field, unable to resolve" + event.field, null);
