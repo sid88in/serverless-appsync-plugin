@@ -1,8 +1,8 @@
 # Insert tweets
-curl -s -H "Content-Type: application/json" -XPOST https://search-appsync-x7f52bmdmtw4wno2xxjhxc47eu.us-east-1.es.amazonaws.com/_bulk --data-binary "@users.json"; echo
+curl -s -H "Content-Type: application/json" -XPOST https://xxx.xxx.amazonaws.com/_bulk --data-binary "@users.json"; echo
 
 # Basic Stats
-https://search-appsync-x7f52bmdmtw4wno2xxjhxc47eu.us-east-1.es.amazonaws.com/_stats
+https://xxx.xxx.es.amazonaws.com/_stats
 
 # Bool Query
 
