@@ -47,7 +47,7 @@ const createGraphQLAPIParams = {
 appsync
     .createGraphqlApi(createGraphQLAPIParams)
     .promise()
-    .then(function(data) {
+    .then((data) => {
         console.log(data); // successful response
         console.log(data['graphqlApi']['apiId']);
         console.log(data['graphqlApi']['uris']['GRAPHQL']);
@@ -70,7 +70,7 @@ appsync
         /* STEP 2 : Attach DataSources to GRAPHQL EndPoint */
         return appsync.createDataSource(datasourceParams).promise();
     })
-    .then(function(data) {
+    .then((data) => {
         console.log(data);
 
         const file = fs.readFileSync("schema.txt", "utf8");
@@ -83,7 +83,7 @@ appsync
         /* STEP 3 : Create GraphQL Schema */
         return appsync.startSchemaCreation(schemaCreationparams).promise();
     })
-    .then(async function(data) {
+    .then(async (data) => {
         console.log(data);
 
         const schemaCreationparams = {
@@ -95,7 +95,7 @@ appsync
 
                 let success = false;
 
-                await appsync.getSchemaCreationStatus(schemaCreationparams).promise().then(function (data) {
+                await appsync.getSchemaCreationStatus(schemaCreationparams).promise().then((data) => {
                     console.log(data);
                     if(data['status'] === 'SUCCESS') {
                         success = true;
@@ -115,7 +115,7 @@ appsync
         }
 
     })
-    .then(function() {
+    .then(() => {
 
         const getSchemaParams = {
             apiId: appId /* required */,
@@ -125,13 +125,13 @@ appsync
         /* STEP 4 : GET Schema for GraphQL Endpoint */
         return appsync.getIntrospectionSchema(getSchemaParams).promise();
     })
-    .then(function(data) {
+    .then((data) => {
         console.log(data); // successful response
 
         const schema = new Buffer(data.schema, 'base64');
         console.log(schema.toString());
     })
-    .then(function() {
+    .then(() => {
 
         const requestMapping = fs.readFileSync("mapping-templates/getTwitterFeed-request-mapping-template.txt", "utf8");
         const responseMapping = fs.readFileSync("mapping-templates/getTwitterFeed-response-mapping-template.txt", "utf8");
@@ -148,7 +148,7 @@ appsync
         /* STEP 5 : Create Resolvers */
         return appsync.createResolver(resolverParams).promise();
     })
-    .then(function(data) {
+    .then((data) => {
         console.log(data);
 
         const listParams = {
@@ -158,9 +158,5 @@ appsync
 
         return appsync.listTypes(listParams).promise();
     })
-    .then(function(data) {
-        console.log(data);
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
+    .then((data) => console.log(data))
+    .catch((err) => console.log(err));
