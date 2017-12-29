@@ -16,7 +16,6 @@ const appsync = new AWS.AppSync({ apiVersion: '2017-07-25' });
 const graphQLAPIName = 'xxx';
 const awsRegion = 'us-east-1';
 const userPoolId = 'xxx';
-const dataSourceTable = 'xxx';
 const serviceRole = 'arn:aws:iam::xxx:role/service-role/xxx';
 const MAX_RETRIES = 10;
 let appId;
@@ -61,7 +60,7 @@ appsync
                 description: 'my first data source',
                 dynamodbConfig: {
                     awsRegion: awsRegion /* required */,
-                    tableName: dataSourceTable /* required */,
+                    tableName: 'users' /* required */,
                 },
                 serviceRoleArn: serviceRole
             }
