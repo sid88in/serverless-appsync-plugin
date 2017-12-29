@@ -4,6 +4,7 @@ const AWS = require('aws-sdk');
 AWS.config.update({ region: 'us-east-1' });
 AWS.config.setPromisesDependency(require('bluebird'));
 
+const fs = require('fs');
 const appsync = new AWS.AppSync({ apiVersion: '2017-07-25' });
 
 // For creating User Pool: Reference https://serverless-stack.com/chapters/create-a-cognito-user-pool.html
@@ -71,9 +72,11 @@ appsync
     .then(function(data) {
         console.log(data);
 
+        const file = fs.readFileSync("schema.txt", "utf8");
+
         const schemaCreationparams = {
             apiId: appId /* required */,
-            definition: '' // Todo: read this schema from text file.
+            definition: new Buffer(file)
         };
 
         /* STEP 3 : Create GraphQL Schema */
@@ -129,13 +132,33 @@ appsync
     })
     .then(function() {
 
+        const requestMapping = fs.readFileSync("mapping-templates/getTwitterFeed-request-mapping-template.txt", "utf8");
+        const responseMapping = fs.readFileSync("mapping-templates/getTwitterFeed-response-mapping-template.txt", "utf8");
+
         const resolverParams = {
             apiId: appId /* required */,
             dataSourceName: dataSourceName /* required */,
             fieldName: 'getTwitterFeed' /* required */,
-            requestMappingTemplate: '', /* Todo: read this template from text file. required */
+            requestMappingTemplate: requestMapping,  /* required */
             typeName: 'Query' /* required */,
-            responseMappingTemplate: '', /* Todo: read this template from text file. required */
+            responseMappingTemplate: responseMapping,  /* required */
+        };
+
+        /* STEP 5 : Create Resolvers */
+        return appsync.createResolver(resolverParams).promise();
+    })
+    .then(function() {
+
+        const requestMapping = fs.readFileSync("mapping-templates/createUserRecord-request-mapping-template.txt", "utf8");
+        const responseMapping = fs.readFileSync("mapping-templates/createUserRecord-response-mapping-template.txt", "utf8");
+
+        const resolverParams = {
+            apiId: appId /* required */,
+            dataSourceName: dataSourceName /* required */,
+            fieldName: 'createUserRecord' /* required */,
+            requestMappingTemplate: requestMapping,  /* required */
+            typeName: 'Mutation' /* required */,
+            responseMappingTemplate: responseMapping,  /* required */
         };
 
         /* STEP 5 : Create Resolvers */
