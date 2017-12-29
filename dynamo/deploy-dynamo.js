@@ -16,7 +16,6 @@ const appsync = new AWS.AppSync({ apiVersion: '2017-07-25' });
 const graphQLAPIName = 'xxx';
 const awsRegion = 'us-east-1';
 const userPoolId = 'xxx';
-const dataSourceName = 'xxx';
 const dataSourceTable = 'xxx';
 const serviceRole = 'arn:aws:iam::xxx:role/service-role/xxx';
 const MAX_RETRIES = 10;
@@ -46,7 +45,7 @@ const createGraphQLAPIParams = {
 appsync
     .createGraphqlApi(createGraphQLAPIParams)
     .promise()
-    .then((data) => {
+    .then(async (data) => {
         console.log(data); // successful response
         console.log(data['graphqlApi']['apiId']);
         console.log(data['graphqlApi']['uris']['GRAPHQL']);
@@ -54,23 +53,34 @@ appsync
         appId = data['graphqlApi']['apiId'];
         graphqlEndpoint = data['graphqlApi']['uris']['GRAPHQL'];
 
-        const datasourceParams = {
-            apiId: appId /* required */,
-            name: dataSourceName /* required */,
-            type: 'AMAZON_DYNAMODB' /* required */,
-            description: 'my first data source',
-            dynamodbConfig: {
-                awsRegion: awsRegion /* required */,
-                tableName: dataSourceTable /* required */,
-            },
-            serviceRoleArn: serviceRole
-        };
+        const datasourceParams = [
+            {
+                apiId: appId /* required */,
+                name: 'dynamo' /* required */,
+                type: 'AMAZON_DYNAMODB' /* required */,
+                description: 'my first data source',
+                dynamodbConfig: {
+                    awsRegion: awsRegion /* required */,
+                    tableName: dataSourceTable /* required */,
+                },
+                serviceRoleArn: serviceRole
+            }
+        ];
+
+        let dataSourceList = [];
+
+        for (let i = 0; i < datasourceParams.length; i++){
+            dataSourceList.push(appsync.createDataSource(datasourceParams[i]).promise());
+        }
 
         /* STEP 2 : Attach DataSources to GRAPHQL EndPoint */
-        return appsync.createDataSource(datasourceParams).promise();
+        await Promise.all(dataSourceList).then(function(data) {
+            console.log("all the datasources are created");
+            console.log(data);
+        });
+
     })
-    .then((data) => {
-        console.log(data);
+    .then(() => {
 
         const file = fs.readFileSync("schema.txt", "utf8");
 
@@ -130,42 +140,41 @@ appsync
         const schema = new Buffer(data.schema, 'base64');
         console.log(schema.toString());
     })
-    .then(() => {
+    .then(async () => {
 
-        const requestMapping = fs.readFileSync("mapping-templates/getTwitterFeed-request-mapping-template.txt", "utf8");
-        const responseMapping = fs.readFileSync("mapping-templates/getTwitterFeed-response-mapping-template.txt", "utf8");
+        const resolverParams = [
+            {
+                apiId: appId /* required */,
+                dataSourceName: 'dynamo' /* required */,
+                fieldName: 'getTwitterFeed' /* required */,
+                requestMappingTemplate: fs.readFileSync("mapping-templates/getTwitterFeed-request-mapping-template.txt", "utf8"),  /* required */
+                typeName: 'Query' /* required */,
+                responseMappingTemplate: fs.readFileSync("mapping-templates/getTwitterFeed-response-mapping-template.txt", "utf8"),  /* required */
+            },
+            {
+                apiId: appId /* required */,
+                dataSourceName: 'dynamo' /* required */,
+                fieldName: 'createUserRecord' /* required */,
+                requestMappingTemplate: fs.readFileSync("mapping-templates/createUserRecord-request-mapping-template.txt", "utf8"),  /* required */
+                typeName: 'Mutation' /* required */,
+                responseMappingTemplate: fs.readFileSync("mapping-templates/createUserRecord-response-mapping-template.txt", "utf8"),  /* required */
+            }
+        ];
 
-        const resolverParams = {
-            apiId: appId /* required */,
-            dataSourceName: dataSourceName /* required */,
-            fieldName: 'getTwitterFeed' /* required */,
-            requestMappingTemplate: requestMapping,  /* required */
-            typeName: 'Query' /* required */,
-            responseMappingTemplate: responseMapping,  /* required */
-        };
+        let resolverList = [];
 
-        /* STEP 5 : Create Resolvers */
-        return appsync.createResolver(resolverParams).promise();
-    })
-    .then(() => {
-
-        const requestMapping = fs.readFileSync("mapping-templates/createUserRecord-request-mapping-template.txt", "utf8");
-        const responseMapping = fs.readFileSync("mapping-templates/createUserRecord-response-mapping-template.txt", "utf8");
-
-        const resolverParams = {
-            apiId: appId /* required */,
-            dataSourceName: dataSourceName /* required */,
-            fieldName: 'createUserRecord' /* required */,
-            requestMappingTemplate: requestMapping,  /* required */
-            typeName: 'Mutation' /* required */,
-            responseMappingTemplate: responseMapping,  /* required */
-        };
+        for (let i = 0; i < resolverParams.length; i++){
+            resolverList.push(appsync.createResolver(resolverParams[i]).promise());
+        }
 
         /* STEP 5 : Create Resolvers */
-        return appsync.createResolver(resolverParams).promise();
+        await Promise.all(resolverList).then(function(data) {
+            console.log("all the resolvers are created");
+            console.log(data);
+        });
+
     })
-    .then((data) => {
-        console.log(data);
+    .then(() => {
 
         const listParams = {
             apiId: appId /* required */,
