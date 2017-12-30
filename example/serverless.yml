@@ -1,0 +1,14 @@
+service:
+  name: appsync-example
+  publish: false # disable auto-publishing to the Serverless platform
+
+plugins:
+  - serverless-appsync
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+
+functions:
+  hello:
+    handler: handler.hello
