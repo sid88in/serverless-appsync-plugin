@@ -12,3 +12,17 @@ provider:
 functions:
   hello:
     handler: handler.hello
+
+custom:
+   appSync:
+     # name:  # defaults to api
+     authenticationType: AMAZON_COGNITO_USER_POOLS
+     # region: # defaults to provider region
+     # mappingTemplates:
+     # schema: # defaults schema.graphql
+     serviceRole: something/something
+     dataSources:
+        name:
+          type: AMAZON_DYNAMODB
+          config:
+             tableName: 'users'

@@ -1,21 +1,26 @@
-'use strict';
+const getConfig = require('./get-config');
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
+    this.commands = {
+      'deploy-appsync': {
+        lifecycleEvents: ['deploy']
+      }
+    };
     this.hooks = {
-      'after:deploy:deploy': this.afterDeploy.bind(this)
+      'deploy-appsync:deploy': this.deployAppSync.bind(this)
     };
   }
 
-  afterDeploy() {
+  deployAppSync() {
     this.serverless.cli.log('Deploying AppSync Config');
-    // NOTE contains the parsed serverless.yml
-    console.log(this.serverless.service);
-    // NOTE returning a Promise is not required, but can be used
-    // to make sure all steps are executed before proceeding to the
-    // next step.
+    const config = getConfig(
+      this.serverless.service.custom.appSync,
+      this.serverless.service.provider
+    );
+    console.log(config);
     return new Promise((resolve, reject) => {
       resolve();
     });
