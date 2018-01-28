@@ -3,7 +3,7 @@ service:
   publish: false # disable auto-publishing to the Serverless platform
 
 plugins:
-  - serverless-appsync
+  - serverless-appsync-plugin
 
 provider:
   name: aws
