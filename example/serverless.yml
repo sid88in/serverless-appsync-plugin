@@ -14,15 +14,123 @@ functions:
     handler: handler.hello
 
 custom:
-   appSync:
-     # name:  # defaults to api
-     authenticationType: AMAZON_COGNITO_USER_POOLS
-     # region: # defaults to provider region
-     # mappingTemplates:
-     # schema: # defaults schema.graphql
-     serviceRole: something/something
-     dataSources:
-        name:
-          type: AMAZON_DYNAMODB
-          config:
-             tableName: 'users'
+  accountId: abc
+  appSync:
+    # name:  # defaults to api
+    authenticationType: AMAZON_COGNITO_USER_POOLS
+    # region: # defaults to provider region
+    # mappingTemplates:
+    # schema: # defaults schema.graphql
+    serviceRole: something/something
+    dataSources:
+      name:
+        type: AMAZON_DYNAMODB
+        config:
+           tableName: 'users'
+
+resources:
+  Resources:
+    UserTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        KeySchema:
+          -
+            AttributeName: handle
+            KeyType: HASH
+        AttributeDefinitions:
+          -
+            AttributeName: handle
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 'Users'
+    TweetsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        KeySchema:
+          -
+            AttributeName: tweet_id
+            KeyType: HASH
+        AttributeDefinitions:
+          -
+            AttributeName: tweet_id
+            AttributeType: S
+          -
+            AttributeName: handle
+            AttributeType: S
+          -
+            AttributeName: retweet_count
+            AttributeType: N
+          -
+            AttributeName: created_at
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 'Tweets'
+        GlobalSecondaryIndexes:
+          -
+            IndexName: top-index
+            KeySchema:
+              -
+                AttributeName: handle
+                KeyType: HASH
+              -
+                AttributeName: retweet_count
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          -
+            IndexName: tweet-index
+            KeySchema:
+              -
+                AttributeName: handle
+                KeyType: HASH
+              -
+                AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+    AppSyncServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Dynamo-AppSyncServiceRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "appsync.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "dynamodb:Query"
+                    - "dynamodb:BatchWriteItem"
+                    - "dynamodb:GetItem"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:PutItem"
+                    - "dynamodb:Scan"
+                    - "dynamodb:UpdateItem"
+                  Resource:
+                    # TODO replace with { "Ref" : "AWS::AccountNumber" }
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Users"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Users/*"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Tweets"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Tweets/*"
