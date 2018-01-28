@@ -130,7 +130,7 @@ resources:
                     - "dynamodb:UpdateItem"
                   Resource:
                     # TODO replace with { "Ref" : "AWS::AccountNumber" }
-                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Users"
-                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Users/*"
-                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Tweets"
-                    - "arn:aws:dynamodb:us-east-1:${self:custom.account_id}:table/Tweets/*"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Users"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Users/*"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Tweets"
+                    - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Tweets/*"
