@@ -1,5 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { mapObjIndexed, pipe, values, merge } = require('ramda');
+
+const objectToArrayWithNameProp = pipe(
+  mapObjIndexed((item, key) => merge({ name: key }, item)),
+  values
+);
 
 module.exports = (config, provider, servicePath) => {
   // TODO verify authenticationType
@@ -36,6 +42,8 @@ module.exports = (config, provider, servicePath) => {
     encoding: 'utf8'
   });
 
+  const dataSources = objectToArrayWithNameProp(config.dataSources);
+
   return {
     name: config.name || 'api',
     region: provider.region,
@@ -43,7 +51,7 @@ module.exports = (config, provider, servicePath) => {
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
     // TODO verify dataSources structure
-    dataSources: config.dataSources,
+    dataSources,
     mappingTemplates
   };
 };

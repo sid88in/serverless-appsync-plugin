@@ -5,7 +5,16 @@ exports[`authenticationType is missing 1`] = `"appSync property \`authentication
 exports[`returns valid config 1`] = `
 Object {
   "authenticationType": "AWS_IAM",
-  "dataSources": undefined,
+  "dataSources": Array [
+    Object {
+      "name": "users",
+      "type": "AMAZON_DYNAMODB",
+    },
+    Object {
+      "name": "tweets",
+      "type": "AMAZON_DYNAMODB",
+    },
+  ],
   "mappingTemplates": Object {
     "createTweet-request-mapping-template.txt": "{
     \\"version\\" : \\"2017-02-28\\",

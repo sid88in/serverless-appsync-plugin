@@ -25,7 +25,15 @@ test('returns valid config', () => {
     getConfig(
       {
         authenticationType: 'AWS_IAM',
-        serviceRole: '1234'
+        serviceRole: '1234',
+        dataSources: {
+          users: {
+            type: 'AMAZON_DYNAMODB'
+          },
+          tweets: {
+            type: 'AMAZON_DYNAMODB'
+          }
+        }
       },
       { region: 'us-east-1' },
       servicePath

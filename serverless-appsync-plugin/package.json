@@ -12,5 +12,7 @@
   "devDependencies": {
     "jest": "^22.1.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ramda": "^0.25.0"
+  }
 }
