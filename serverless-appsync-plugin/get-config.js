@@ -18,8 +18,6 @@ module.exports = (config, provider, servicePath) => {
     );
   }
 
-  // TODO verify dataSources structure
-
   const mappingTemplatePath = path.join(
     servicePath,
     config.mappingTemplates || 'mapping-templates'
@@ -33,12 +31,18 @@ module.exports = (config, provider, servicePath) => {
     return obj;
   }, {});
 
+  const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
+  const schemaContent = fs.readFileSync(schemaPath, {
+    encoding: 'utf8'
+  });
+
   return {
     name: config.name || 'api',
     region: provider.region,
     authenticationType: config.authenticationType,
-    schema: config.schema || 'schema.graphql',
+    schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
+    // TODO verify dataSources structure
     dataSources: config.dataSources,
     mappingTemplates
   };
