@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`authenticationType is missing 1`] = `"appSync property \`authenticationType\` is required."`;
+
+exports[`returns valid config 1`] = `
+Object {
+  "authenticationType": "AWS_IAM",
+  "dataSources": undefined,
+  "mappingTemplates": Object {},
+  "name": "api",
+  "region": "us-east-1",
+  "schema": "schema.graphql",
+}
+`;
+
+exports[`serviceRole is missing 1`] = `"appSync property \`serviceRole\` is required."`;

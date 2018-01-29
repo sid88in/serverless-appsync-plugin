@@ -1,0 +1,15 @@
+{
+  "name": "serverless-appsync-plugin",
+  "version": "0.0.1",
+  "description": "AWS AppSync support for the Serverless Framework",
+  "main": "index.js",
+  "repository": "https://github.com/sid88in/serverless-appsync-plugin",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^22.1.4"
+  }
+}

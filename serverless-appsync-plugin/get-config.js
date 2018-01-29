@@ -1,10 +1,10 @@
 module.exports = (config, provider) => {
   // TODO verify authenticationType
-  if (!config.serviceRole) {
-    throw new Error('appSync property `serviceRole` is required.');
-  }
   if (!config.authenticationType) {
     throw new Error('appSync property `authenticationType` is required.');
+  }
+  if (!config.serviceRole) {
+    throw new Error('appSync property `serviceRole` is required.');
   }
 
   // TODO verify dataSources structure
