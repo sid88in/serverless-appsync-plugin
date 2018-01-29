@@ -1,0 +1,271 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`authenticationType is missing 1`] = `"appSync property \`authenticationType\` is required."`;
+
+exports[`returns valid config 1`] = `
+Object {
+  "authenticationType": "AWS_IAM",
+  "dataSources": Array [
+    Object {
+      "name": "users",
+      "type": "AMAZON_DYNAMODB",
+    },
+    Object {
+      "name": "tweets",
+      "type": "AMAZON_DYNAMODB",
+    },
+  ],
+  "mappingTemplates": Object {
+    "createTweet-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"PutItem\\",
+    \\"key\\" : {
+        \\"handle\\" : { \\"S\\" : \\"\${context.identity.username}\\" },
+        \\"tweet_id\\" : { \\"S\\" : \\"$util.autoId()\\" }
+    },
+    \\"attributeValues\\" : {
+        \\"tweet\\" : { \\"S\\" : \\"\${context.arguments.tweet}\\" },
+        \\"retweeted\\": { \\"BOOL\\" : false },
+        \\"favorited\\": { \\"BOOL\\" : false },
+        \\"retweet_count\\": { \\"N\\" : 0},
+        \\"created_at\\": {\\"S\\" : \\"\${context.arguments.created_at}\\" }
+    }
+}",
+    "createTweet-response-mapping-template.txt": "$utils.toJson($context.result)",
+    "deleteTweet-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"DeleteItem\\",
+    \\"key\\" : {
+        \\"tweet_id\\" : { \\"S\\" : \\"\${context.arguments.tweet_id}\\" }
+    }
+}",
+    "deleteTweet-response-mapping-template.txt": "$util.toJson($context.result)",
+    "getUserInfo-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"Query\\",
+    \\"query\\" : {
+        \\"expression\\": \\"handle = :handle\\",
+        \\"expressionValues\\" : {
+            \\":handle\\" : {
+                \\"S\\" : \\"\${context.arguments.handle}\\"
+            }
+        }
+    }
+}",
+    "getUserInfo-response-mapping-template.txt": "$util.toJson($context.result.items[0])",
+    "meInfo-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"Query\\",
+    \\"query\\" : {
+        \\"expression\\": \\"handle = :handle\\",
+        \\"expressionValues\\" : {
+            \\":handle\\" : {
+                \\"S\\" : \\"\${context.identity.username}\\"
+            }
+        }
+    }
+}",
+    "meInfo-response-mapping-template.txt": "$util.toJson($context.result.items[0])",
+    "reTweet-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"UpdateItem\\",
+    \\"key\\" : {
+        \\"tweet_id\\" : { \\"S\\" : \\"\${context.arguments.tweet_id}\\" }
+    },
+    \\"update\\" : {
+        \\"expression\\" : \\"ADD retweet_count :inc\\",
+        \\"expressionValues\\": {
+        	\\":inc\\" : { \\"N\\" : 1 }
+        }
+    }
+}",
+    "reTweet-response-mapping-template.txt": "$utils.toJson($context.result)",
+    "topTweet-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"Query\\",
+    \\"query\\" : {
+        ## Provide a query expression. **
+        \\"expression\\": \\"handle = :handle\\",
+        \\"expressionValues\\" : {
+            \\":handle\\" : {
+                \\"S\\" : \\"\${context.identity.username}\\"
+            }
+        }
+    },
+    ## Provide a secondary index name or remove the next line to query the table directly. **
+    \\"index\\": \\"top-index\\",
+    ## Add 'limit' and 'nextToken' arguments to this field in your schema to implement pagination. **
+    \\"limit\\": 1,
+    \\"scanIndexForward\\": false
+}",
+    "topTweet-response-mapping-template.txt": "$util.toJson($context.result.items[0])",
+    "tweets-request-mapping-template.txt": "{
+    \\"version\\": \\"2017-02-28\\",
+    \\"operation\\": \\"Query\\",
+    \\"query\\": {
+        \\"expression\\": \\"handle = :handle\\",
+        \\"expressionValues\\": {
+            \\":handle\\": {
+                \\"S\\": \\"$context.identity.username\\"
+            }
+        }
+    },
+    ## Provide a secondary index name or remove the next line to query the table directly. **
+    \\"index\\": \\"tweet-index\\",
+    \\"limit\\": #if($context.arguments.limit) $context.arguments.limit #else 10 #end,
+    \\"nextToken\\": #if($context.arguments.nextToken) \\"$context.arguments.nextToken\\" #else null #end,
+    \\"scanIndexForward\\": false
+}",
+    "tweets-response-mapping-template.txt": "{
+    \\"items\\": $util.toJson($context.result.items),
+    \\"nextToken\\": $util.toJson($context.result.nextToken)
+}",
+    "updateTweet-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"UpdateItem\\",
+    \\"key\\" : {
+        \\"tweet_id\\" : { \\"S\\" : \\"\${context.arguments.tweet_id}\\" }
+    },
+    \\"update\\" : {
+        \\"expression\\" : \\"SET tweet = :tweet\\",
+        \\"expressionValues\\": {
+        	\\":tweet\\" : { \\"S\\" : \\"\${context.arguments.tweet}\\" }
+        }
+    }
+}",
+    "updateTweet-response-mapping-template.txt": "$utils.toJson($context.result)",
+    "updateUserInfo-request-mapping-template.txt": "{
+    \\"version\\" : \\"2017-02-28\\",
+    \\"operation\\" : \\"UpdateItem\\",
+    \\"key\\" : {
+        \\"handle\\" : { \\"S\\" : \\"\${context.identity.username}\\" }
+    },
+    \\"update\\" : {
+        \\"expression\\" : \\"SET followers = :followers, #name = :name, #location = :location, description = :description, followers_count = :followers_count, friends_count = :friends_count, favourites_count = :favourites_count\\",
+        \\"expressionNames\\": {
+            \\"#name\\" : \\"name\\",
+            \\"#location\\" : \\"location\\"
+        },
+        \\"expressionValues\\": {
+            #set($followersList = [])
+            #foreach ( $follower in $context.arguments.followers )
+              #set( $element =
+              \${followersList.add(
+              {
+                \\"S\\" : $follower
+              })}
+              )
+            #end
+        	\\":name\\" : { \\"S\\" : \\"\${context.arguments.name}\\" },
+            \\":location\\" : { \\"S\\" : \\"\${context.arguments.location}\\" },
+        	\\":description\\" : { \\"S\\" : \\"\${context.arguments.description}\\" },
+            \\":followers_count\\" : { \\"N\\" : \${context.arguments.followers_count} },
+            \\":friends_count\\" : { \\"N\\" : \${context.arguments.friends_count} },
+            \\":favourites_count\\" : { \\"N\\" : \${context.arguments.favourites_count} },
+            \\":followers\\" : { \\"L\\" : $utils.toJson($followersList) }
+        }
+    }
+}",
+    "updateUserInfo-response-mapping-template.txt": "$utils.toJson($context.result)",
+  },
+  "name": "api",
+  "region": "us-east-1",
+  "schema": "type Mutation {
+	# Create a tweet for a user
+	# consumer keys and tokens are not required for dynamo integration
+	createTweet(
+		tweet: String!,
+		consumer_key: String,
+		consumer_secret: String,
+		access_token_key: String,
+		access_token_secret: String,
+		created_at: String!
+	): Tweet!
+
+	# Delete User Tweet
+	deleteTweet(
+	    tweet_id: String!,
+	    consumer_key: String,
+        consumer_secret: String,
+        access_token_key: String,
+        access_token_secret: String
+    ): Tweet!
+
+	# Retweet existing Tweet
+	reTweet(
+	    tweet_id: String!,
+	    consumer_key: String,
+        consumer_secret: String,
+        access_token_key: String,
+        access_token_secret: String
+    ): Tweet!
+
+	# Update existing Tweet
+	updateTweet(tweet_id: String!, tweet: String!): Tweet!
+
+    # Create user info is available in dynamo integration
+	updateUserInfo(
+		location: String!,
+		description: String!,
+		name: String!,
+		followers_count: Int!,
+		friends_count: Int!,
+		favourites_count: Int!,
+		followers: [String!]!
+	): User!
+}
+
+type Query {
+	meInfo(consumer_key: String, consumer_secret: String): User!
+	getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
+
+	# search functionality is available in elasticsearch integration
+	searchAllTweetsByKeyword(keyword: String!): TweetConnection
+}
+
+type Subscription {
+	addTweet: Tweet
+		@aws_subscribe(mutations: [\\"createTweet\\"])
+}
+
+type Tweet {
+	tweet_id: String!
+	tweet: String!
+	retweeted: Boolean
+	retweet_count: Int
+	favorited: Boolean
+	created_at: String!
+}
+
+type TweetConnection {
+	items: [Tweet!]!
+	nextToken: String
+}
+
+type User {
+	name: String!
+	handle: String!
+	location: String!
+	description: String!
+	followers_count: Int!
+	friends_count: Int!
+	favourites_count: Int!
+	followers: [String!]!
+	topTweet: Tweet
+	tweets(limit: Int!, nextToken: String): TweetConnection
+
+	# search functionality is available in elasticsearch integration
+    searchTweetsByKeyword(keyword: String!): TweetConnection
+}
+
+schema {
+	query: Query
+	mutation: Mutation
+	subscription: Subscription
+}
+",
+  "userPoolConfig": undefined,
+}
+`;
+
+exports[`serviceRole is missing 1`] = `"appSync property \`serviceRole\` is required."`;

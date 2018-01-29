@@ -1,0 +1,23 @@
+{
+  "name": "serverless-appsync-plugin",
+  "version": "0.0.1",
+  "description": "AWS AppSync support for the Serverless Framework",
+  "main": "index.js",
+  "repository": "https://github.com/sid88in/serverless-appsync-plugin",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "jest": "^22.1.4"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
+    "ramda": "^0.25.0"
+  }
+}
