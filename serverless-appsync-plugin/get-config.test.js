@@ -1,7 +1,10 @@
 const getConfig = require('./get-config');
+const path = require('path');
+
+const servicePath = path.join(__dirname, '..', 'example');
 
 test('authenticationType is missing', () => {
-  const run = () => getConfig({}, {});
+  const run = () => getConfig({}, {}, servicePath);
   expect(run).toThrowErrorMatchingSnapshot();
 });
 
@@ -11,7 +14,8 @@ test('serviceRole is missing', () => {
       {
         authenticationType: 'AWS_IAM'
       },
-      {}
+      {},
+      servicePath
     );
   expect(run).toThrowErrorMatchingSnapshot();
 });
@@ -23,7 +27,8 @@ test('returns valid config', () => {
         authenticationType: 'AWS_IAM',
         serviceRole: '1234'
       },
-      { region: 'us-east-1' }
+      { region: 'us-east-1' },
+      servicePath
     )
   ).toMatchSnapshot();
 });

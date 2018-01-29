@@ -18,7 +18,8 @@ class ServerlessAppsyncPlugin {
     this.serverless.cli.log('Deploying AppSync Config');
     const config = getConfig(
       this.serverless.service.custom.appSync,
-      this.serverless.service.provider
+      this.serverless.service.provider,
+      this.serverless.config.servicePath
     );
     console.log(config);
     return new Promise((resolve, reject) => {

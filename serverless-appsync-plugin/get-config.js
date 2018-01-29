@@ -1,4 +1,6 @@
-module.exports = (config, provider) => {
+const path = require('path');
+
+module.exports = (config, provider, servicePath) => {
   // TODO verify authenticationType
   if (!config.authenticationType) {
     throw new Error('appSync property `authenticationType` is required.');
@@ -9,8 +11,13 @@ module.exports = (config, provider) => {
 
   // TODO verify dataSources structure
 
+  const mappingTemplatePath = path.join(
+    servicePath,
+    config.mappingTemplates || 'mapping-templates'
+  );
+  // console.log(mappingTemplatePath);
   // TODO read out mapping templates from
-  // path.join(serviceDir, mapping-templates)
+
   const mappingTemplates = {};
 
   return {
