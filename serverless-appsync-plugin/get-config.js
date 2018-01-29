@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 
 module.exports = (config, provider, servicePath) => {
@@ -23,10 +24,14 @@ module.exports = (config, provider, servicePath) => {
     servicePath,
     config.mappingTemplates || 'mapping-templates'
   );
-  // console.log(mappingTemplatePath);
-  // TODO read out mapping templates from
+  const fileNames = fs.readdirSync(mappingTemplatePath);
 
-  const mappingTemplates = {};
+  const mappingTemplates = fileNames.reduce((obj, fileName) => {
+    obj[fileName] = fs.readFileSync(path.join(mappingTemplatePath, fileName), {
+      encoding: 'utf8'
+    });
+    return obj;
+  }, {});
 
   return {
     name: config.name || 'api',
