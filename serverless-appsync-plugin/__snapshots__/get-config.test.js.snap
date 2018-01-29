@@ -10,6 +10,7 @@ Object {
   "name": "api",
   "region": "us-east-1",
   "schema": "schema.graphql",
+  "userPoolConfig": undefined,
 }
 `;
 

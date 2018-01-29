@@ -8,6 +8,14 @@ module.exports = (config, provider, servicePath) => {
   if (!config.serviceRole) {
     throw new Error('appSync property `serviceRole` is required.');
   }
+  if (
+    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' &&
+    !config.userPoolConfig
+  ) {
+    throw new Error(
+      'appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.'
+    );
+  }
 
   // TODO verify dataSources structure
 
@@ -25,6 +33,7 @@ module.exports = (config, provider, servicePath) => {
     region: provider.region,
     authenticationType: config.authenticationType,
     schema: config.schema || 'schema.graphql',
+    userPoolConfig: config.userPoolConfig,
     dataSources: config.dataSources,
     mappingTemplates
   };
