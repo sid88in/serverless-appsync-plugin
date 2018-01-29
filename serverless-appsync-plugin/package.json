@@ -16,6 +16,8 @@
     "jest": "^22.1.4"
   },
   "dependencies": {
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
     "ramda": "^0.25.0"
   }
 }
