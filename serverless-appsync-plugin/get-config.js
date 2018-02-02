@@ -24,18 +24,7 @@ module.exports = (config, provider, servicePath) => {
     );
   }
 
-  const mappingTemplatePath = path.join(
-    servicePath,
-    config.mappingTemplates || 'mapping-templates'
-  );
-  const fileNames = fs.readdirSync(mappingTemplatePath);
-
-  const mappingTemplates = fileNames.reduce((obj, fileName) => {
-    obj[fileName] = fs.readFileSync(path.join(mappingTemplatePath, fileName), {
-      encoding: 'utf8'
-    });
-    return obj;
-  }, {});
+  const mappingTemplates = config.mappingTemplates || []
 
   const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
   const schemaContent = fs.readFileSync(schemaPath, {
