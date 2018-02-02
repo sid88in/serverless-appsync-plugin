@@ -144,138 +144,27 @@ class ServerlessAppsyncPlugin {
 
   createResolvers() {
     this.serverless.cli.log('Creating resolvers...');
+    const resolvedConfig = this.serverless.service.custom.appSync.resolvedConfig;
     const awsResult = this.serverless.service.custom.appSync.awsResult;
-
-    // TODO: make this configurable?!
+    // TODO: make this more configurable?!
     // TODO: make calls async
-    const resolverParams = [
-      {
+    // eslint-disable-next-line arrow-body-style
+    const resolverParams = resolvedConfig.mappingTemplates.map((tpl) => {
+      return {
         apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Users',
-        fieldName: 'getUserInfo',
+        dataSourceName: tpl.dataSource,
+        fieldName: tpl.field,
         requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/getUserInfo-request-mapping-template.txt',
+          `${resolvedConfig.mappingTemplatesLocation}/${tpl.request}`,
           'utf8',
         ),
-        typeName: 'Query',
+        typeName: tpl.type,
         responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/getUserInfo-response-mapping-template.txt',
+          `${resolvedConfig.mappingTemplatesLocation}/${tpl.response}`,
           'utf8',
         ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Users',
-        fieldName: 'meInfo',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/meInfo-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Query',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/meInfo-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'topTweet',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/topTweet-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'User',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/topTweet-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'tweets',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/tweets-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'User',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/tweets-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'createTweet',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/createTweet-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Mutation',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/createTweet-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'deleteTweet',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/deleteTweet-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Mutation',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/deleteTweet-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'reTweet',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/reTweet-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Mutation',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/reTweet-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Tweets',
-        fieldName: 'updateTweet',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/updateTweet-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Mutation',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/updateTweet-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        dataSourceName: 'Users',
-        fieldName: 'updateUserInfo',
-        requestMappingTemplate: fs.readFileSync(
-          'mapping-templates/updateUserInfo-request-mapping-template.txt',
-          'utf8',
-        ),
-        typeName: 'Mutation',
-        responseMappingTemplate: fs.readFileSync(
-          'mapping-templates/updateUserInfo-response-mapping-template.txt',
-          'utf8',
-        ),
-      },
-    ];
+      };
+    });
 
     return BbPromise.map(resolverParams, params =>
       this.provider.request('AppSync', 'createResolver', params));

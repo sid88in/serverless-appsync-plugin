@@ -24,18 +24,8 @@ module.exports = (config, provider, servicePath) => {
     );
   }
 
-  const mappingTemplatePath = path.join(
-    servicePath,
-    config.mappingTemplates || 'mapping-templates'
-  );
-  const fileNames = fs.readdirSync(mappingTemplatePath);
-
-  const mappingTemplates = fileNames.reduce((obj, fileName) => {
-    obj[fileName] = fs.readFileSync(path.join(mappingTemplatePath, fileName), {
-      encoding: 'utf8'
-    });
-    return obj;
-  }, {});
+  const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates'
+  const mappingTemplates = config.mappingTemplates || []
 
   const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
   const schemaContent = fs.readFileSync(schemaPath, {
@@ -53,6 +43,7 @@ module.exports = (config, provider, servicePath) => {
     serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
+    mappingTemplatesLocation,
     mappingTemplates
   };
 };
