@@ -44,8 +44,8 @@ class ServerlessAppsyncPlugin {
       name: resolvedConfig.name,
       userPoolConfig: {
         awsRegion: resolvedConfig.region,
-        defaultAction: resolvedConfig.defaultAction,
-        userPoolId: resolvedConfig.userPoolId,
+        defaultAction: resolvedConfig.userPoolConfig.defaultAction,
+        userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       },
     }).then((data) => {
       this.serverless.cli.log(`GraphQL API ID: ${data.graphqlApi.apiId}`);
@@ -94,10 +94,10 @@ class ServerlessAppsyncPlugin {
     this.serverless.cli.log('Creating GraphQL Schema');
     const resolvedConfig = this.serverless.service.custom.appSync.resolvedConfig;
     const awsResult = this.serverless.service.custom.appSync.awsResult;
-
+    const schema = Buffer.from(resolvedConfig.schema);
     return this.provider.request('AppSync', 'startSchemaCreation', {
       apiId: awsResult.graphqlApi.apiId,
-      schema: resolvedConfig.schema,
+      definition: schema,
     });
   }
 
@@ -106,22 +106,26 @@ class ServerlessAppsyncPlugin {
     let isReady = false;
 
     return new BbPromise((resolve, reject) => {
-      async.whilst(
+      async.until(
         () => isReady,
+        // eslint-disable-next-line arrow-body-style
         (callback) => {
-          // eslint-disable-next-line arrow-body-style
-          setTimeout(() => {
-            return this.provider.request('AppSync', 'getSchemaCreationStatus', {
-              apiId: awsResult.graphqlApi.apiId,
-            }).then((result) => {
-              if (result.status === 'SUCCESS') {
-                isReady = true;
-              }
-              return callback();
-            }).catch((error) => {
-              reject(error);
-            });
-          }, 5000);
+          return this.provider.request('AppSync', 'getSchemaCreationStatus', {
+            apiId: awsResult.graphqlApi.apiId,
+          }).then((result) => {
+            this.serverless.cli.log(result.status);
+            if (result.status === 'SUCCESS') {
+              this.serverless.cli.log('schema for GraphQL endpoint created...');
+              isReady = true;
+            }
+            if (result.status === 'FAILED') {
+              this.serverless.cli.log('Creating schema for GraphQL endpoint failed...');
+              reject(result.details);
+            }
+            callback();
+          }).catch((error) => {
+            reject(error);
+          });
         },
         () => resolve(),
       );

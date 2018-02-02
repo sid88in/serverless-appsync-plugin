@@ -50,6 +50,7 @@ module.exports = (config, provider, servicePath) => {
     authenticationType: config.authenticationType,
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
+    serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
     mappingTemplates
