@@ -155,12 +155,12 @@ class ServerlessAppsyncPlugin {
         dataSourceName: tpl.dataSource,
         fieldName: tpl.field,
         requestMappingTemplate: fs.readFileSync(
-          `mapping-templates/${tpl.request}`,
+          `${resolvedConfig.mappingTemplatesLocation}/${tpl.request}`,
           'utf8',
         ),
         typeName: tpl.type,
         responseMappingTemplate: fs.readFileSync(
-          `mapping-templates/${tpl.response}`,
+          `${resolvedConfig.mappingTemplatesLocation}/${tpl.response}`,
           'utf8',
         ),
       };

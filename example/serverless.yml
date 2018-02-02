@@ -19,6 +19,7 @@ custom:
     # name:  # defaults to api
     authenticationType: AMAZON_COGNITO_USER_POOLS
     # region: # defaults to provider region
+    # mappingTemplatesLocation: # defailts to mapping-templates
     mappingTemplates:
       - dataSource: Users
         type: Query

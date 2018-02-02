@@ -24,6 +24,7 @@ module.exports = (config, provider, servicePath) => {
     );
   }
 
+  const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates'
   const mappingTemplates = config.mappingTemplates || []
 
   const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
@@ -42,6 +43,7 @@ module.exports = (config, provider, servicePath) => {
     serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
+    mappingTemplatesLocation,
     mappingTemplates
   };
 };
