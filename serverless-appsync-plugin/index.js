@@ -60,31 +60,50 @@ class ServerlessAppsyncPlugin {
     const resolvedConfig = this.serverless.service.custom.appSync.resolvedConfig;
     const awsResult = this.serverless.service.custom.appSync.awsResult;
 
-    // TODO: make this configurable?!
-    const datasourceParams = [
-      {
+    // TODO: make this more configurable?!
+    // eslint-disable-next-line arrow-body-style
+    const datasourceParams = resolvedConfig.dataSources.map((ds) => {
+      let config;
+      switch (ds.type) {
+        case 'AWS_LAMBDA':
+          config = {
+            lambdaConfig: {
+              lambdaFunctionArn: ds.config.lambdaFunctionArn,
+            },
+          };
+          break;
+        case 'AMAZON_DYNAMODB':
+          config = {
+            dynamodbConfig: {
+              awsRegion: resolvedConfig.region,
+              tableName: ds.config.tableName,
+            },
+          };
+          if (ds.config.useCallerCredentials) {
+            Object.assign(config, { useCallerCredentials: ds.config.useCallerCredentials });
+          }
+          break;
+        case 'AMAZON_ELASTICSEARCH':
+          config = {
+            elasticsearchConfig: {
+              awsRegion: resolvedConfig.region,
+              endpoint: ds.config.endpoint,
+            },
+          };
+          break;
+        default:
+          this.serverless.cli.log('Data Source Type not supported', ds.type);
+      }
+      const dataSource = {
         apiId: awsResult.graphqlApi.apiId,
-        name: 'Users',
-        type: 'AMAZON_DYNAMODB',
-        description: 'Store user info',
-        dynamodbConfig: {
-          awsRegion: resolvedConfig.region,
-          tableName: 'Users',
-        },
+        name: ds.name,
+        type: ds.type,
+        description: ds.description,
         serviceRoleArn: resolvedConfig.serviceRoleArn,
-      },
-      {
-        apiId: awsResult.graphqlApi.apiId,
-        name: 'Tweets',
-        type: 'AMAZON_DYNAMODB',
-        description: 'Store user info',
-        dynamodbConfig: {
-          awsRegion: resolvedConfig.region,
-          tableName: 'Tweets',
-        },
-        serviceRoleArn: resolvedConfig.serviceRoleArn,
-      },
-    ];
+      };
+      Object.assign(dataSource, config);
+      return dataSource;
+    });
 
     return BbPromise.map(datasourceParams, params =>
       this.provider.request('AppSync', 'createDataSource', params));

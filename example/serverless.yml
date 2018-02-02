@@ -69,10 +69,18 @@ custom:
     # schema: # defaults schema.graphql
     serviceRole: something/something
     dataSources:
-      users:
-        type: AMAZON_DYNAMODB
+      - type: AMAZON_DYNAMODB
+        name: Users
+        description: 'Users table'
         config:
-           tableName: 'users'
+           tableName: 'Users'
+           # useCallerCredentials: # Set to TRUE to use Amazon Cognito credentials with this data source
+      - type: AMAZON_DYNAMODB
+        name: Tweets
+        description: 'Tweets table'
+        config:
+           tableName: 'Tweets'
+           # useCallerCredentials: # Set to TRUE to use Amazon Cognito credentials with this data source
 
 resources:
   Resources:
