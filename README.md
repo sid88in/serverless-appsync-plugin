@@ -1,26 +1,40 @@
 # serverless-appsync-plugin
 serverless plugin for appsync
 
-# Todo: Steps to use this plugin:
+# Steps to use this plugin:
 
-```
+1) cd SOME_SERVERLESS_APP_FOLDER
+2) add schema.graphql (GraphQL SDL format)
+2) Add custom config to serverless.yml:
+
+```yaml
 plugins:
    - serverless-appsync-plugin
 
 custom:
-   appsync:
-     name:  # defaults to api
-     authenticationType: API_KEY | AWS_IAM | AMAZON_COGNITO_USER_POOLS # required
-     region: # defaults to provider region
-     mappingTemplates: 
-     schema: # defaults schema.graphql
-     serviceRole: # required
-     dataSources:
-        name:
-          type: AWS_LAMBDA | AMAZON_DYNAMODB | AMAZON_ELASTICSEARCH
-          config:
-             tableName: 'Users' # required
+  accountId: 1234567...
+  appsync:
+    name:  # defaults to api
+    authenticationType: AMAZON_COGNITO_USER_POOLS # | API_KEY | AWS_IAM # required
+    userPoolConfig:
+      awsRegion: # required - example: us-REGION-1
+      defaultAction: # required - example: ALLOW
+      userPoolId: # required - example: us-east-1_ABCD1234
+    # region: # defaults to provider region
+    # mappingTemplates: # defaults to mapping-templates
+    schema: # defaults to schema.graphql
+    serviceRole: # required - example: "arn:aws:iam::${self:custom.accountId}:role/EXAMPLE-Role"
+    dataSources:
+      - type: AMAZON_DYNAMODB
+        name: Users
+        description: 'Users table'
+        config:
+           tableName: 'Users'
 ```
+
+3) npm install --save serverless-appsync-plugin
+4) serverless deploy
+5) serverless deploy-appsync
 
 # Contributions:
 
