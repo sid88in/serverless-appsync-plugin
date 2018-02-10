@@ -4,20 +4,25 @@ service:
 
 plugins:
   - serverless-appsync-plugin
+  - serverless-webpack
 
 provider:
   name: aws
   runtime: nodejs6.10
 
 functions:
-  hello:
-    handler: handler.hello
+  graphql:
+    handler: handler.graphqlHandler
 
 custom:
   accountId: abc
   appSync:
     # name:  # defaults to api
     authenticationType: AMAZON_COGNITO_USER_POOLS
+    userPoolConfig:
+      awsRegion: # required # region
+      defaultAction: # ALLOW
+      userPoolId: # required # user pool ID
     # region: # defaults to provider region
     # mappingTemplatesLocation: # defailts to mapping-templates
     mappingTemplates:
@@ -26,11 +31,16 @@ custom:
         field: getUserInfo
         request: "getUserInfo-request-mapping-template.txt"
         response: "getUserInfo-response-mapping-template.txt"
-      - dataSource: Users
+      - dataSource: Lambda_MeInfo
         type: Query
         field: meInfo
         request: "meInfo-request-mapping-template.txt"
         response: "meInfo-response-mapping-template.txt"
+      - dataSource: ElasticSearch
+        type: Query
+        field: searchAllTweetsByKeyword
+        request: "searchAllTweetsByKeyword-request-mapping-template.txt"
+        response: "searchAllTweetsByKeyword-response-mapping-template.txt"
       - dataSource: Tweets
         type: User
         field: topTweet
@@ -67,12 +77,33 @@ custom:
         request: "updateUserInfo-request-mapping-template.txt"
         response: "updateUserInfo-response-mapping-template.txt"
     # schema: # defaults schema.graphql
-    serviceRole: something/something
+    serviceRole: "AppSyncServiceRole"
     dataSources:
-      users:
-        type: AMAZON_DYNAMODB
+      - type: AMAZON_DYNAMODB
+        name: Users
+        description: 'Users table'
         config:
-           tableName: 'users'
+          tableName: 'Users'
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+      - type: AMAZON_DYNAMODB
+        name: Tweets
+        description: 'Tweets table'
+        config:
+          tableName: 'Tweets'
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+      - type: AMAZON_ELASTICSEARCH
+        name: ElasticSearch
+        description: 'ElasticSearch'
+        config:
+          endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/ElasticSearch-${self:custom.appSync.serviceRole}"
+      - type: AWS_LAMBDA
+        name: Lambda_MeInfo
+        description: 'Lambda DataSource'
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
+
 
 resources:
   Resources:
@@ -144,10 +175,10 @@ resources:
             ProvisionedThroughput:
               ReadCapacityUnits: 1
               WriteCapacityUnits: 1
-    AppSyncServiceRole:
+    AppSyncDynamoDBServiceRole:
       Type: "AWS::IAM::Role"
       Properties:
-        RoleName: "Dynamo-AppSyncServiceRole"
+        RoleName: "Dynamo-${self:custom.appSync.serviceRole}"
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -160,7 +191,7 @@ resources:
                 - "sts:AssumeRole"
         Policies:
           -
-            PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+            PolicyName: "Dynamo-${self:custom.appSync.serviceRole}-Policy"
             PolicyDocument:
               Version: "2012-10-17"
               Statement:
@@ -180,3 +211,56 @@ resources:
                     - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Users/*"
                     - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Tweets"
                     - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/Tweets/*"
+    AppSyncLambdaServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Lambda-${self:custom.appSync.serviceRole}"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "appsync.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "Lambda-${self:custom.appSync.serviceRole}-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "lambda:invokeFunction"
+                  Resource:
+                    - "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
+                    - "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql:*"
+    AppSyncESServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "ElasticSearch-${self:custom.appSync.serviceRole}"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "appsync.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          -
+            PolicyName: "ElasticSearch-${self:custom.appSync.serviceRole}-Policy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                    - "es:*"
+                  Resource:
+                    - "arn:aws:es:us-east-1:${self:custom.accountId}:domain/appsync/*"
