@@ -23,13 +23,40 @@ custom:
     # region: # defaults to provider region
     # mappingTemplates: # defaults to mapping-templates
     schema: # defaults to schema.graphql
-    serviceRole: # required - example: "arn:aws:iam::${self:custom.accountId}:role/EXAMPLE-Role"
+    serviceRole: "AppSyncServiceRole"
     dataSources:
       - type: AMAZON_DYNAMODB
         name: Users
         description: 'Users table'
         config:
-           tableName: 'Users'
+          tableName: 'Users'
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+      - type: AMAZON_DYNAMODB
+        name: Tweets
+        description: 'Tweets table'
+        config:
+          tableName: 'Tweets'
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+      - type: AMAZON_ELASTICSEARCH
+        name: ElasticSearch
+        description: 'ElasticSearch'
+        config:
+          endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/ElasticSearch-${self:custom.appSync.serviceRole}"
+      - type: AWS_LAMBDA
+        name: Lambda_MeInfo
+        description: 'Lambda DataSource'
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
+
+
+#NOTE Role resources created in serverless should reference the serviceRole defined above
+...
+    AppSyncDynamoDBServiceRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Dynamo-${self:custom.appSync.serviceRole}"
 ```
 
 4) npm install --save serverless-appsync-plugin
