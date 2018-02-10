@@ -1,0 +1,32 @@
+{
+  "name": "serverless-appsync-plugin-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serverless-appsync-plugin": "0.0.1",
+    "babel-polyfill": "^6.26.0",
+    "bluebird": "^3.5.1",
+    "node-fetch": "^1.7.3",
+    "oauth": "^0.9.15",
+    "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "body-parser": "^1.15.2",
+    "cors": "2.8.4",
+    "env-cmd": "^5.0.0",
+    "imports-loader": "^0.7.1",
+    "jest": "^21.2.1",
+    "serverless-webpack": "^4.1.0",
+    "webpack": "^3.8.1",
+    "webpack-node-externals": "^1.6.0"
+  }
+}

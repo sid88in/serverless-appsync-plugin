@@ -5,7 +5,7 @@ serverless plugin for appsync
 
 1) cd SOME_SERVERLESS_APP_FOLDER
 2) add schema.graphql (GraphQL SDL format)
-2) Add custom config to serverless.yml:
+3) Add custom config to serverless.yml:
 
 ```yaml
 plugins:
@@ -32,9 +32,10 @@ custom:
            tableName: 'Users'
 ```
 
-3) npm install --save serverless-appsync-plugin
-4) serverless deploy
-5) serverless deploy-appsync
+4) npm install --save serverless-appsync-plugin
+5) **NOTE** if you are planning on using elastic search, for the time being you'll need to create a domain separately to obtain an ElasticSearch endpoint config once it is ready ***before the next step***
+6) serverless deploy
+7) serverless deploy-appsync
 
 # Contributions:
 

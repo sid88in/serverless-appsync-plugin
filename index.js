@@ -99,7 +99,7 @@ class ServerlessAppsyncPlugin {
         name: ds.name,
         type: ds.type,
         description: ds.description,
-        serviceRoleArn: resolvedConfig.serviceRoleArn,
+        serviceRoleArn: ds.config.serviceRoleArn,
       };
       Object.assign(dataSource, config);
       return dataSource;
