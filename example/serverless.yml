@@ -24,7 +24,7 @@ custom:
       defaultAction: # ALLOW
       userPoolId: # required # user pool ID
     # region: # defaults to provider region
-    # mappingTemplatesLocation: # defailts to mapping-templates
+    # mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: Users
         type: Query

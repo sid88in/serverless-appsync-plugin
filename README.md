@@ -1,46 +1,77 @@
 # serverless-appsync-plugin
-serverless plugin for appsync
+
+![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
 
 # Steps to use this plugin:
 
-1) cd SOME_SERVERLESS_APP_FOLDER
-2) add schema.graphql (GraphQL SDL format)
-3) Add custom config to serverless.yml:
+*Step 1*
+
+In your root directory, install this plugin:
+
+```yml
+yarn add serverless-appsync-plugin
+```
+
+*Step 2*
+
+Create schema.graphql
+
+*Step 3*
+
+Add custom config to serverless.yml:
 
 ```yaml
 plugins:
    - serverless-appsync-plugin
 
 custom:
-  accountId: 1234567...
-  appsync:
+  accountId: abc
+  appSync:
     name:  # defaults to api
-    authenticationType: AMAZON_COGNITO_USER_POOLS # | API_KEY | AWS_IAM # required
+    authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
-      awsRegion: # required - example: us-REGION-1
-      defaultAction: # required - example: ALLOW
-      userPoolId: # required - example: us-east-1_ABCD1234
-    # region: # defaults to provider region
-    # mappingTemplates: # defaults to mapping-templates
-    schema: # defaults to schema.graphql
-    serviceRole: # required - example: "arn:aws:iam::${self:custom.accountId}:role/EXAMPLE-Role"
+      awsRegion: # required # region
+      defaultAction: # ALLOW
+      userPoolId: # required # user pool ID
+      region: # defaults to provider region
+    mappingTemplatesLocation: # defaults to mapping-templates
+    mappingTemplates:
+      - dataSource: # data source name
+        type: # Query, Mutation, Subscription
+        field: getUserInfo
+        request: # request mapping template name
+        response: # response mapping template name
+    schema: # defaults schema.graphql
+    serviceRole: "AppSyncServiceRole"
     dataSources:
       - type: AMAZON_DYNAMODB
-        name: Users
-        description: 'Users table'
+        name: # data source name
+        description: # DynamoDB Table Description
         config:
-           tableName: 'Users'
+          tableName: # DynamoDB Table Name
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/dynamo-${self:custom.appSync.serviceRole}"
+      - type: AMAZON_ELASTICSEARCH
+        name: # data source name
+        description: 'ElasticSearch'
+        config:
+          endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/elasticSearch-${self:custom.appSync.serviceRole}"
+      - type: AWS_LAMBDA
+        name: # data source name
+        description: 'Lambda DataSource'
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
+          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
 ```
 
-4) npm install --save serverless-appsync-plugin
-5) **NOTE** if you are planning on using elastic search, for the time being you'll need to create a domain separately to obtain an ElasticSearch endpoint config once it is ready ***before the next step***
-6) serverless deploy
-7) serverless deploy-appsync
+**NOTE** Please create data sources and other resources in serverless.yml file
+**NOTE** if you are planning on using elastic search, for the time being you'll need to create a domain separately to obtain an ElasticSearch endpoint config once it is ready ***before the next step***
+
 
 # Contributions:
 
-If you have any questions, please feel free to reach out to me directly on twitter (@sidg_sid).
+If you have any questions, please feel free to reach out to me directly on twitter [Sid Gupta](https://twitter.com/sidg_sid).
 
-Big Thanks! Nik Graf (@nikgraf), Philipp Müns (@pmmuens) and Jon Patel (@superpatell) for helping to build this plugin.
+Big Thanks! [Nik Graf](https://twitter.com/nikgraf), [Philipp Müns](https://twitter.com/pmmuens) and [Jon Patel](https://twitter.com/superpatell) for helping to build this plugin.
 
 We are always looking for open source contributions. So, feel free to create issues/contribute to this repo.
