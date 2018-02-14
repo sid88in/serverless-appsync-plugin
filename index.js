@@ -38,7 +38,6 @@ class ServerlessAppsyncPlugin {
         BbPromise.bind(this)
           .then(this.loadConfig)
           .then(this.updateGraphQLEndpoint)
-          .then(this.getDataSources)
           .then(this.cleanupDataSources)
           .then(this.updateDataSources)
           .then(this.createGraphQLSchema)
@@ -271,38 +270,37 @@ class ServerlessAppsyncPlugin {
     });
   }
 
-  getDataSources() {
+  cleanupDataSources() {
     const awsResult = this.serverless.service.custom.appSync.awsResult;
+    const resolvedConfig = this.serverless.service.custom.appSync
+      .resolvedConfig;
 
+    // Grab the data sources from the config
+    const newDataSources = resolvedConfig.dataSources.map(ds => ds.name);
+
+    // Get the old data sources from the API
     return this.provider
       .request("AppSync", "listDataSources", {
         apiId: awsResult.graphqlApi.apiId
       })
       .then(result => {
-        return result.dataSources.map(ds => ds.name);
-      });
-  }
+        const dataSources = result.dataSources.map(ds => ds.name);
+        const removedDataSources = dataSources.filter(
+          ds => !newDataSources.includes(ds)
+        );
 
-  cleanupDataSources(dataSources) {
-    const awsResult = this.serverless.service.custom.appSync.awsResult;
-    const resolvedConfig = this.serverless.service.custom.appSync
-      .resolvedConfig;
-
-    const newDataSources = resolvedConfig.dataSources.map(ds => ds.name);
-    const removedDataSources = dataSources.filter(
-      ds => !newDataSources.includes(ds)
-    );
-
-    return BbPromise.map(removedDataSources, dataSource => {
-      return this.provider
-        .request("AppSync", "deleteDataSource", {
-          apiId: awsResult.graphqlApi.apiId,
-          name: dataSource
-        })
-        .then(() => {
-          this.serverless.cli.log(`Deleted data source: ${dataSource}`);
+        // Remove all the data sources that aren't defined anymore
+        return BbPromise.map(removedDataSources, dataSource => {
+          return this.provider
+            .request("AppSync", "deleteDataSource", {
+              apiId: awsResult.graphqlApi.apiId,
+              name: dataSource
+            })
+            .then(() => {
+              this.serverless.cli.log(`Deleted data source: ${dataSource}`);
+            });
         });
-    });
+      });
   }
 
   createGraphQLSchema() {
