@@ -13,3 +13,4 @@ users.json
 .idea
 # vim
 *.swp
+.vscode/settings.json
