@@ -38,7 +38,7 @@ class ServerlessAppsyncPlugin {
         BbPromise.bind(this)
           .then(this.loadConfig)
           .then(this.updateGraphQLEndpoint)
-          .then(this.getInitialTypes)
+          .then(this.cleanupDataSources)
           .then(this.updateDataSources)
           .then(this.createGraphQLSchema)
           .then(this.monitorGraphQLSchemaCreation)
@@ -268,6 +268,39 @@ class ServerlessAppsyncPlugin {
           }
         });
     });
+  }
+
+  cleanupDataSources() {
+    const awsResult = this.serverless.service.custom.appSync.awsResult;
+    const resolvedConfig = this.serverless.service.custom.appSync
+      .resolvedConfig;
+
+    // Grab the data sources from the config
+    const newDataSources = resolvedConfig.dataSources.map(ds => ds.name);
+
+    // Get the old data sources from the API
+    return this.provider
+      .request("AppSync", "listDataSources", {
+        apiId: awsResult.graphqlApi.apiId
+      })
+      .then(result => {
+        const dataSources = result.dataSources.map(ds => ds.name);
+        const removedDataSources = dataSources.filter(
+          ds => !newDataSources.includes(ds)
+        );
+
+        // Remove all the data sources that aren't defined anymore
+        return BbPromise.map(removedDataSources, dataSource => {
+          return this.provider
+            .request("AppSync", "deleteDataSource", {
+              apiId: awsResult.graphqlApi.apiId,
+              name: dataSource
+            })
+            .then(() => {
+              this.serverless.cli.log(`Deleted data source: ${dataSource}`);
+            });
+        });
+      });
   }
 
   createGraphQLSchema() {
