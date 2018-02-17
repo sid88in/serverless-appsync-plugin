@@ -10,12 +10,15 @@ class ServerlessAppsyncPlugin {
     this.provider = this.serverless.getProvider("aws");
     this.commands = {
       "delete-appsync": {
+        usage: 'Helps you delete AppSync API',
         lifecycleEvents: ["delete"]
       },
       "deploy-appsync": {
+        usage: 'Helps you deploy AppSync API',
         lifecycleEvents: ["deploy"]
       },
       "update-appsync": {
+        usage: 'Helps you update AppSync API',
         lifecycleEvents: ["update"]
       }
     };
@@ -100,6 +103,22 @@ class ServerlessAppsyncPlugin {
         // NOTE: storing the config in the appSync object
         this.serverless.service.custom.appSync.awsResult = data;
       });
+  }
+
+  createAPIKey(){
+      this.serverless.cli.log("Creating API Key...");
+      const resolvedConfig = this.serverless.service.custom.appSync
+          .resolvedConfig;
+      const awsResult = this.serverless.service.custom.appSync.awsResult;
+
+      return this.provider
+          .request("AppSync", "createApiKey", {
+              apiId: awsResult.graphqlApi.apiId,
+              expires: resolvedConfig.apiKeyExpiryInDays,
+          })
+          .then(data => {
+              this.serverless.cli.log(`GraphQL API Key: ${data.apiKey.id}`);
+          });
   }
 
   updateGraphQLEndpoint() {
