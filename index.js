@@ -166,6 +166,9 @@ class ServerlessAppsyncPlugin {
             }
           };
           break;
+        case "NONE":
+          config = {};
+          break;
         default:
           this.serverless.cli.log("Data Source Type not supported", ds.type);
       }
@@ -224,6 +227,9 @@ class ServerlessAppsyncPlugin {
               endpoint: ds.config.endpoint
             }
           };
+          break;
+        case "NONE":
+          config = {};
           break;
         default:
           this.serverless.cli.log("Data Source Type not supported", ds.type);
