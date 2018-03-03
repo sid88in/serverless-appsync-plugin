@@ -95,6 +95,21 @@ class ServerlessAppsyncPlugin {
           });
   }
 
+  updateAPIKey(){
+      this.serverless.cli.log("Updating API Key...");
+      const resolvedConfig = this.serverless.service.custom.appSync
+          .resolvedConfig;
+
+      return this.provider
+          .request("AppSync", "updateApiKey", {
+              apiId: resolvedConfig.apiId,
+              id: resolvedConfig.apiKey
+          })
+          .then(data => {
+              this.serverless.cli.log(`GraphQL API Key: ${data.apiKey.id}`);
+          });
+  }
+
   createGraphQLEndpoint() {
     this.serverless.cli.log("Creating GraphQL Endpoint...");
     const resolvedConfig = this.serverless.service.custom.appSync
@@ -134,17 +149,22 @@ class ServerlessAppsyncPlugin {
     const resolvedConfig = this.serverless.service.custom.appSync
       .resolvedConfig;
 
-    return this.provider
-      .request("AppSync", "updateGraphqlApi", {
+    let config = {
         apiId: resolvedConfig.apiId,
         authenticationType: resolvedConfig.authenticationType,
         name: resolvedConfig.name,
-        userPoolConfig: {
-          awsRegion: resolvedConfig.region,
-          defaultAction: resolvedConfig.userPoolConfig.defaultAction,
-          userPoolId: resolvedConfig.userPoolConfig.userPoolId
+    };
+
+    if(resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS'){
+        config.userPoolConfig = {
+            awsRegion: resolvedConfig.region,
+            defaultAction: resolvedConfig.userPoolConfig.defaultAction,
+            userPoolId: resolvedConfig.userPoolConfig.userPoolId
         }
-      })
+    }
+
+    return this.provider
+      .request("AppSync", "updateGraphqlApi", config)
       .then(data => {
         this.serverless.cli.log(`GraphQL API ID: ${data.graphqlApi.apiId}`);
         this.serverless.cli.log(
@@ -152,6 +172,10 @@ class ServerlessAppsyncPlugin {
         );
         // NOTE: storing the config in the appSync object
         this.serverless.service.custom.appSync.awsResult = data;
+
+        if (resolvedConfig.authenticationType === 'API_KEY') {
+              this.updateAPIKey();
+        }
       });
   }
 
