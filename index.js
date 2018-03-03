@@ -122,6 +122,10 @@ class ServerlessAppsyncPlugin {
         );
         // NOTE: storing the config in the appSync object
         this.serverless.service.custom.appSync.awsResult = data;
+
+        if (resolvedConfig.authenticationType === 'API_KEY') {
+            this.createAPIKey();
+        }
       });
   }
 
