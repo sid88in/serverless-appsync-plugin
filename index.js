@@ -80,31 +80,6 @@ class ServerlessAppsyncPlugin {
       });
   }
 
-  createGraphQLEndpoint() {
-    this.serverless.cli.log("Creating GraphQL Endpoint...");
-    const resolvedConfig = this.serverless.service.custom.appSync
-      .resolvedConfig;
-
-    return this.provider
-      .request("AppSync", "createGraphqlApi", {
-        authenticationType: resolvedConfig.authenticationType,
-        name: resolvedConfig.name,
-        userPoolConfig: {
-          awsRegion: resolvedConfig.region,
-          defaultAction: resolvedConfig.userPoolConfig.defaultAction,
-          userPoolId: resolvedConfig.userPoolConfig.userPoolId
-        }
-      })
-      .then(data => {
-        this.serverless.cli.log(`GraphQL API ID: ${data.graphqlApi.apiId}`);
-        this.serverless.cli.log(
-          `GraphQL Endpoint: ${data.graphqlApi.uris.GRAPHQL}`
-        );
-        // NOTE: storing the config in the appSync object
-        this.serverless.service.custom.appSync.awsResult = data;
-      });
-  }
-
   createAPIKey(){
       this.serverless.cli.log("Creating API Key...");
       const resolvedConfig = this.serverless.service.custom.appSync
@@ -114,11 +89,40 @@ class ServerlessAppsyncPlugin {
       return this.provider
           .request("AppSync", "createApiKey", {
               apiId: awsResult.graphqlApi.apiId,
-              expires: resolvedConfig.apiKeyExpiryInDays,
           })
           .then(data => {
               this.serverless.cli.log(`GraphQL API Key: ${data.apiKey.id}`);
           });
+  }
+
+  createGraphQLEndpoint() {
+    this.serverless.cli.log("Creating GraphQL Endpoint...");
+    const resolvedConfig = this.serverless.service.custom.appSync
+      .resolvedConfig;
+
+       let config = {
+            authenticationType: resolvedConfig.authenticationType,
+            name: resolvedConfig.name,
+       };
+
+       if(resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS'){
+            config.userPoolConfig = {
+                awsRegion: resolvedConfig.region,
+                defaultAction: resolvedConfig.userPoolConfig.defaultAction,
+                userPoolId: resolvedConfig.userPoolConfig.userPoolId
+           }
+       }
+
+    return this.provider
+      .request("AppSync", "createGraphqlApi", config)
+      .then(data => {
+        this.serverless.cli.log(`GraphQL API ID: ${data.graphqlApi.apiId}`);
+        this.serverless.cli.log(
+          `GraphQL Endpoint: ${data.graphqlApi.uris.GRAPHQL}`
+        );
+        // NOTE: storing the config in the appSync object
+        this.serverless.service.custom.appSync.awsResult = data;
+      });
   }
 
   updateGraphQLEndpoint() {
