@@ -12,31 +12,29 @@ test('serviceRole is missing', () => {
   const run = () =>
     getConfig(
       {
-        authenticationType: 'AWS_IAM'
+        authenticationType: 'AWS_IAM',
       },
       {},
-      servicePath
+      servicePath,
     );
   expect(run).toThrowErrorMatchingSnapshot();
 });
 
 test('returns valid config', () => {
-  expect(
-    getConfig(
-      {
-        authenticationType: 'AWS_IAM',
-        serviceRole: '1234',
-        dataSources: {
-          users: {
-            type: 'AMAZON_DYNAMODB'
-          },
-          tweets: {
-            type: 'AMAZON_DYNAMODB'
-          }
-        }
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      serviceRole: '1234',
+      dataSources: {
+        users: {
+          type: 'AMAZON_DYNAMODB',
+        },
+        tweets: {
+          type: 'AMAZON_DYNAMODB',
+        },
       },
-      { region: 'us-east-1' },
-      servicePath
-    )
-  ).toMatchSnapshot();
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
 });
