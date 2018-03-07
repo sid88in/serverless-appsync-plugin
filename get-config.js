@@ -1,10 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const { mapObjIndexed, pipe, values, merge } = require('ramda');
+const {
+  mapObjIndexed,
+  pipe,
+  values,
+  merge,
+} = require('ramda');
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed((item, key) => merge({ name: key }, item)),
-  values
+  values,
 );
 
 module.exports = (config, provider, servicePath) => {
@@ -19,17 +24,15 @@ module.exports = (config, provider, servicePath) => {
     config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' &&
     !config.userPoolConfig
   ) {
-    throw new Error(
-      'appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.'
-    );
+    throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
   }
 
-  const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates'
-  const mappingTemplates = config.mappingTemplates || []
+  const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
+  const mappingTemplates = config.mappingTemplates || [];
 
   const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
   const schemaContent = fs.readFileSync(schemaPath, {
-    encoding: 'utf8'
+    encoding: 'utf8',
   });
 
   const dataSources = objectToArrayWithNameProp(config.dataSources);
@@ -45,6 +48,6 @@ module.exports = (config, provider, servicePath) => {
     // TODO verify dataSources structure
     dataSources,
     mappingTemplatesLocation,
-    mappingTemplates
+    mappingTemplates,
   };
 };
