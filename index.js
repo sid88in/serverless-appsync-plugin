@@ -377,7 +377,8 @@ class ServerlessAppsyncPlugin {
                 this.serverless.cli.log('Creating schema for GraphQL endpoint failed...');
                 reject(result.details);
               }
-              callback();
+              // returning to avoid warnings
+              return callback();
             })
             .catch((error) => {
               reject(error);
