@@ -110,7 +110,7 @@ class ServerlessAppsyncPlugin {
     const resolvedConfig = this.serverless.service.custom.appSync
       .resolvedConfig;
 
-    let config = {
+    const config = {
       authenticationType: resolvedConfig.authenticationType,
       name: resolvedConfig.name,
     };
@@ -142,7 +142,7 @@ class ServerlessAppsyncPlugin {
     const resolvedConfig = this.serverless.service.custom.appSync
       .resolvedConfig;
 
-    let config = {
+    const config = {
       apiId: resolvedConfig.apiId,
       authenticationType: resolvedConfig.authenticationType,
       name: resolvedConfig.name,
@@ -292,6 +292,7 @@ class ServerlessAppsyncPlugin {
       .then(() => {
         this.serverless.cli.log(`Updated data source: ${resolver.name}`);
       })
+      // eslint-disable-next-line consistent-return
       .catch((error) => {
         switch (error.statusCode) {
           case 404:
@@ -458,6 +459,7 @@ class ServerlessAppsyncPlugin {
       .then(() => {
         this.serverless.cli.log(`Updated resolver on field: ${params.fieldName}`);
       })
+      // eslint-disable-next-line consistent-return
       .catch((error) => {
         switch (error.statusCode) {
           case 404:
