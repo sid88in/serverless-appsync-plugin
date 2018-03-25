@@ -1,43 +1,43 @@
-import "babel-polyfill";
-import { OAuth2 } from "oauth";
+import 'babel-polyfill';
+import { OAuth2 } from 'oauth';
 
-const Twitter = require("twitter");
+const Twitter = require('twitter');
 
 async function getFollowing(handle, consumerKey, consumerSecret) {
-  const url = "friends/list";
+  const url = 'friends/list';
 
   const oauth2 = new OAuth2(
     consumerKey,
     consumerSecret,
-    "https://api.twitter.com/",
+    'https://api.twitter.com/',
     null,
-    "oauth2/token",
-    null
+    'oauth2/token',
+    null,
   );
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     oauth2.getOAuthAccessToken(
-      "",
+      '',
       {
-        grant_type: "client_credentials"
+        grant_type: 'client_credentials',
       },
       (error, accessToken) => {
         resolve(accessToken);
-      }
+      },
     );
   })
-    .then(accessToken => {
+    .then((accessToken) => {
       const client = new Twitter({
         consumer_key: consumerKey,
         consumer_secret: consumerSecret,
-        bearer_token: accessToken
+        bearer_token: accessToken,
       });
 
       const params = { screen_name: handle };
 
       return client
         .get(url, params)
-        .then(followers => {
+        .then((followers) => {
           // console.log(followers);
           const followerArray = [];
 
@@ -49,7 +49,7 @@ async function getFollowing(handle, consumerKey, consumerSecret) {
 
           return followerArray;
         })
-        .catch(error => {
+        .catch((error) => {
           throw error;
         });
     })
@@ -57,81 +57,79 @@ async function getFollowing(handle, consumerKey, consumerSecret) {
 }
 
 async function getRawTweets(handle, consumerKey, consumerSecret) {
-  const url = "statuses/user_timeline";
+  const url = 'statuses/user_timeline';
 
   const oauth2 = new OAuth2(
     consumerKey,
     consumerSecret,
-    "https://api.twitter.com/",
+    'https://api.twitter.com/',
     null,
-    "oauth2/token",
-    null
+    'oauth2/token',
+    null,
   );
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     oauth2.getOAuthAccessToken(
-      "",
+      '',
       {
-        grant_type: "client_credentials"
+        grant_type: 'client_credentials',
       },
       (error, accessToken) => {
         resolve(accessToken);
-      }
+      },
     );
   })
-    .then(accessToken => {
+    .then((accessToken) => {
       const client = new Twitter({
         consumer_key: consumerKey,
         consumer_secret: consumerSecret,
-        bearer_token: accessToken
+        bearer_token: accessToken,
       });
 
       const params = { screen_name: handle };
 
       return client
         .get(url, params)
-        .then(tweets => {
+        .then((tweets) => {
           const tweetArray = [];
           let listOfTweets;
 
-          return getFollowing(handle, consumerKey, consumerSecret).then(
-            data => {
-              if (tweets.length >= 1) {
-                listOfTweets = {
-                  name: tweets[0].user.name,
-                  handle: tweets[0].user.screen_name,
-                  location: tweets[0].user.location,
-                  description: tweets[0].user.description,
-                  followers_count: tweets[0].user.followers_count,
-                  friends_count: tweets[0].user.friends_count,
-                  favourites_count: tweets[0].user.favourites_count,
-                  following: data
-                };
-              }
-
-              for (let i = 0; i < tweets.length; i += 1) {
-                const t = {
-                  tweet: tweets[i].text,
-                  tweet_id: tweets[i].id_str,
-                  favorited: tweets[i].favorited,
-                  retweeted: tweets[i].retweeted,
-                  retweet_count: tweets[i].retweet_count
-                };
-
-                tweetArray.push(t);
-              }
-
-              tweetArray.sort((a, b) => b.retweet_count - a.retweet_count);
-
-              const [topTweet] = tweetArray;
-              listOfTweets.topTweet = topTweet;
-              listOfTweets.tweets = { items: tweetArray };
-
-              return listOfTweets;
+          return getFollowing(handle, consumerKey, consumerSecret).then((data) => {
+            if (tweets.length >= 1) {
+              listOfTweets = {
+                name: tweets[0].user.name,
+                handle: tweets[0].user.screen_name,
+                location: tweets[0].user.location,
+                description: tweets[0].user.description,
+                followers_count: tweets[0].user.followers_count,
+                friends_count: tweets[0].user.friends_count,
+                favourites_count: tweets[0].user.favourites_count,
+                following: data,
+              };
             }
-          );
+
+            for (let i = 0; i < tweets.length; i += 1) {
+              const t = {
+                tweet: tweets[i].text,
+                tweet_id: tweets[i].id_str,
+                favorited: tweets[i].favorited,
+                retweeted: tweets[i].retweeted,
+                retweet_count: tweets[i].retweet_count,
+              };
+
+              tweetArray.push(t);
+            }
+
+            tweetArray.sort((a, b) => b.retweet_count - a.retweet_count);
+
+            const [topTweet] = tweetArray;
+            listOfTweets.topTweet = topTweet;
+            listOfTweets.tweets = { items: tweetArray };
+
+            return listOfTweets;
+          });
         })
-        .catch(error => {
+        .catch((error) => {
           throw error;
         });
     })
@@ -143,22 +141,22 @@ async function postTweet(
   consumerKey,
   consumerSecret,
   accessTokenKey,
-  accessTokenSecret
+  accessTokenSecret,
 ) {
-  const url = "statuses/update";
+  const url = 'statuses/update';
 
   const client = new Twitter({
     consumer_key: consumerKey,
     consumer_secret: consumerSecret,
     access_token_key: accessTokenKey,
-    access_token_secret: accessTokenSecret
+    access_token_secret: accessTokenSecret,
   });
 
   const params = { status: tweet };
 
   return client
     .post(url, params)
-    .then(response => {
+    .then((response) => {
       console.log(response);
 
       return {
@@ -166,10 +164,10 @@ async function postTweet(
         tweet_id: response.id_str,
         retweeted: false,
         retweet_count: 0,
-        favorited: false
+        favorited: false,
       };
     })
-    .catch(error => {
+    .catch((error) => {
       throw error;
     });
 }
@@ -179,22 +177,22 @@ async function deleteTweet(
   consumerKey,
   consumerSecret,
   accessTokenKey,
-  accessTokenSecret
+  accessTokenSecret,
 ) {
-  const url = "statuses/destroy";
+  const url = 'statuses/destroy';
 
   const client = new Twitter({
     consumer_key: consumerKey,
     consumer_secret: consumerSecret,
     access_token_key: accessTokenKey,
-    access_token_secret: accessTokenSecret
+    access_token_secret: accessTokenSecret,
   });
 
   const params = { id: tweetId };
 
   return client
     .post(url, params)
-    .then(tweet => {
+    .then((tweet) => {
       console.log(tweet);
 
       return {
@@ -202,10 +200,10 @@ async function deleteTweet(
         tweet_id: tweet.id_str,
         retweeted: tweet.retweeted,
         retweet_count: tweet.retweet_count,
-        favorited: tweet.favorited
+        favorited: tweet.favorited,
       };
     })
-    .catch(error => {
+    .catch((error) => {
       throw error;
     });
 }
@@ -215,22 +213,22 @@ async function reTweet(
   consumerKey,
   consumerSecret,
   accessTokenKey,
-  accessTokenSecret
+  accessTokenSecret,
 ) {
-  const url = "statuses/retweet";
+  const url = 'statuses/retweet';
 
   const client = new Twitter({
     consumer_key: consumerKey,
     consumer_secret: consumerSecret,
     access_token_key: accessTokenKey,
-    access_token_secret: accessTokenSecret
+    access_token_secret: accessTokenSecret,
   });
 
   const params = { id: tweetId };
 
   return client
     .post(url, params)
-    .then(tweet => {
+    .then((tweet) => {
       console.log(tweet);
 
       return {
@@ -238,72 +236,70 @@ async function reTweet(
         tweet_id: tweet.id_str,
         retweeted: tweet.retweeted,
         retweet_count: tweet.retweet_count,
-        favorited: tweet.favorited
+        favorited: tweet.favorited,
       };
     })
-    .catch(error => {
+    .catch((error) => {
       throw error;
     });
 }
 
 exports.graphqlHandler = (event, context, callback) => {
-  console.log("Received event {}", JSON.stringify(event, 3));
+  console.log('Received event {}', JSON.stringify(event, 3));
 
   const consumerKey = event.arguments.consumer_key;
   const consumerSecret = event.arguments.consumer_secret;
 
-  console.log("Got an Invoke Request.");
+  console.log('Got an Invoke Request.');
   switch (event.field) {
-    case "getUserInfo": {
-      getRawTweets(event.arguments.handle, consumerKey, consumerSecret).then(
-        result => {
-          callback(null, result);
-        }
-      );
-
-      break;
-    }
-    case "meInfo": {
-      getRawTweets(event.handle, consumerKey, consumerSecret).then(result => {
+    case 'getUserInfo': {
+      getRawTweets(event.arguments.handle, consumerKey, consumerSecret).then((result) => {
         callback(null, result);
       });
 
       break;
     }
-    case "createTweet": {
+    case 'meInfo': {
+      getRawTweets(event.handle, consumerKey, consumerSecret).then((result) => {
+        callback(null, result);
+      });
+
+      break;
+    }
+    case 'createTweet': {
       postTweet(
         event.arguments.tweet,
         consumerKey,
         consumerSecret,
         event.arguments.access_token_key,
-        event.arguments.access_token_secret
-      ).then(result => {
+        event.arguments.access_token_secret,
+      ).then((result) => {
         callback(null, result);
       });
 
       break;
     }
-    case "deleteTweet": {
+    case 'deleteTweet': {
       deleteTweet(
         event.arguments.tweet_id,
         consumerKey,
         consumerSecret,
         event.arguments.access_token_key,
-        event.arguments.access_token_secret
-      ).then(result => {
+        event.arguments.access_token_secret,
+      ).then((result) => {
         callback(null, result);
       });
 
       break;
     }
-    case "reTweet": {
+    case 'reTweet': {
       reTweet(
         event.arguments.tweet_id,
         consumerKey,
         consumerSecret,
         event.arguments.access_token_key,
-        event.arguments.access_token_secret
-      ).then(result => {
+        event.arguments.access_token_secret,
+      ).then((result) => {
         callback(null, result);
       });
 
