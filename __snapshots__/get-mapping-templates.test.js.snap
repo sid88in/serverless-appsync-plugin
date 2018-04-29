@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Returns valid mapping templates conf 1`] = `
+Array [
+  Object {
+    "dataSource": "Lambda",
+    "field": "meInfo",
+    "request": "meInfo-request-mapping-template.txt",
+    "response": "response-mapping-template.txt",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "Lambda",
+    "field": "deleteTweet",
+    "request": "deleteTweet-request-mapping-template.txt",
+    "response": "response-mapping-template.txt",
+    "type": "Mutation",
+  },
+]
+`;
