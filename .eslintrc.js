@@ -12,6 +12,6 @@ module.exports = {
     "no-shadow": "off",
   },
   "env": {
-   "jest": true
-   }
+    "jest": true,
+  },
 };

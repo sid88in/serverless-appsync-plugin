@@ -2,6 +2,7 @@ const fs = require('fs');
 const BbPromise = require('bluebird');
 const async = require('async');
 const getConfig = require('./get-config');
+const getMappingTemplates = require('./get-mapping-templates');
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -400,14 +401,16 @@ class ServerlessAppsyncPlugin {
     });
   }
 
-  createResolvers() {
+  async createResolvers() {
     this.serverless.cli.log('Creating resolvers...');
     const resolvedConfig = this.serverless.service.custom.appSync
       .resolvedConfig;
     const awsResult = this.serverless.service.custom.appSync.awsResult;
 
+    const mappingTemplates = await getMappingTemplates(this.serverless.service.custom.appSync);
+
     // eslint-disable-next-line arrow-body-style
-    const resolverParams = resolvedConfig.mappingTemplates.map((tpl) => {
+    const resolverParams = mappingTemplates.map((tpl) => {
       return {
         apiId: awsResult.graphqlApi.apiId,
         dataSourceName: tpl.dataSource,
@@ -430,14 +433,16 @@ class ServerlessAppsyncPlugin {
       }));
   }
 
-  updateResolvers() {
+  async updateResolvers() {
     this.serverless.cli.log('Updating resolvers...');
     const resolvedConfig = this.serverless.service.custom.appSync
       .resolvedConfig;
     const awsResult = this.serverless.service.custom.appSync.awsResult;
 
+    const mappingTemplates = await getMappingTemplates(this.serverless.service.custom.appSync);
+
     // eslint-disable-next-line arrow-body-style
-    const resolverParams = resolvedConfig.mappingTemplates.map((tpl) => {
+    const resolverParams = mappingTemplates.map((tpl) => {
       return {
         apiId: awsResult.graphqlApi.apiId,
         dataSourceName: tpl.dataSource,

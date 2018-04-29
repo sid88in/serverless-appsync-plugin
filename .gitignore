@@ -14,3 +14,5 @@ users.json
 # vim
 *.swp
 .vscode/settings.json
+__test__mapping-templates
+lib/codegen/.appsync

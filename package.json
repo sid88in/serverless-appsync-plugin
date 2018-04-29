@@ -11,6 +11,8 @@
     "lint": "eslint . --fix"
   },
   "devDependencies": {
+    "apollo-codegen": "^0.19.1",
+    "ejs": "^2.5.9",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
