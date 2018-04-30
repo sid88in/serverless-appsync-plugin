@@ -190,7 +190,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_DYNAMODB':
           config = {
             dynamodbConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               tableName: ds.config.tableName,
             },
           };
@@ -203,7 +203,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_ELASTICSEARCH':
           config = {
             elasticsearchConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               endpoint: ds.config.endpoint,
             },
           };

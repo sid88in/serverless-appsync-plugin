@@ -86,6 +86,7 @@ custom:
         description: # DynamoDB Table Description
         config:
           tableName: # DynamoDB Table Name
+          awsRegion: # required # region
           serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/dynamo-${self:custom.appSync.serviceRole}"
       - type: AMAZON_ELASTICSEARCH
         name: # data source name
@@ -93,10 +94,12 @@ custom:
         config:
           endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
           serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/elasticSearch-${self:custom.appSync.serviceRole}"
+          awsRegion: # required # region
       - type: AWS_LAMBDA
         name: # data source name
         description: 'Lambda DataSource'
         config:
+          
           lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
           serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
 ```
