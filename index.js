@@ -216,6 +216,7 @@ class ServerlessAppsyncPlugin {
       }
       const dataSource = {
         apiId: awsResult.graphqlApi.apiId,
+        awsRegion: ds.config.awsRegion,
         name: ds.name,
         type: ds.type,
         description: ds.description,
@@ -251,7 +252,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_DYNAMODB':
           config = {
             dynamodbConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               tableName: ds.config.tableName,
             },
           };
@@ -264,7 +265,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_ELASTICSEARCH':
           config = {
             elasticsearchConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               endpoint: ds.config.endpoint,
             },
           };
@@ -279,6 +280,7 @@ class ServerlessAppsyncPlugin {
         apiId: awsResult.graphqlApi.apiId,
         name: ds.name,
         type: ds.type,
+        awsRegion: ds.config.awsRegion,
         description: ds.description,
         serviceRoleArn: ds.config.serviceRoleArn,
       };
