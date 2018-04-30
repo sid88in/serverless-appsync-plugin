@@ -117,7 +117,7 @@ class ServerlessAppsyncPlugin {
 
     if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
       config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
+        awsRegion: resolvedConfig.userPoolConfig.awsRegion,
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       };
@@ -150,7 +150,7 @@ class ServerlessAppsyncPlugin {
 
     if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
       config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
+        awsRegion: resolvedConfig.userPoolConfig.awsRegion,
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       };
