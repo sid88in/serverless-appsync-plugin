@@ -216,7 +216,6 @@ class ServerlessAppsyncPlugin {
       }
       const dataSource = {
         apiId: awsResult.graphqlApi.apiId,
-        awsRegion: ds.config.awsRegion,
         name: ds.name,
         type: ds.type,
         description: ds.description,
@@ -280,7 +279,6 @@ class ServerlessAppsyncPlugin {
         apiId: awsResult.graphqlApi.apiId,
         name: ds.name,
         type: ds.type,
-        awsRegion: ds.config.awsRegion,
         description: ds.description,
         serviceRoleArn: ds.config.serviceRoleArn,
       };
