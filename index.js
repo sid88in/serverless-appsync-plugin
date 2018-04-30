@@ -117,7 +117,7 @@ class ServerlessAppsyncPlugin {
 
     if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
       config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
+        awsRegion: resolvedConfig.userPoolConfig.awsRegion,
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       };
@@ -150,7 +150,7 @@ class ServerlessAppsyncPlugin {
 
     if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
       config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
+        awsRegion: resolvedConfig.userPoolConfig.awsRegion,
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       };
@@ -190,7 +190,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_DYNAMODB':
           config = {
             dynamodbConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               tableName: ds.config.tableName,
             },
           };
@@ -203,7 +203,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_ELASTICSEARCH':
           config = {
             elasticsearchConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               endpoint: ds.config.endpoint,
             },
           };
@@ -251,7 +251,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_DYNAMODB':
           config = {
             dynamodbConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               tableName: ds.config.tableName,
             },
           };
@@ -264,7 +264,7 @@ class ServerlessAppsyncPlugin {
         case 'AMAZON_ELASTICSEARCH':
           config = {
             elasticsearchConfig: {
-              awsRegion: resolvedConfig.region,
+              awsRegion: ds.config.awsRegion,
               endpoint: ds.config.endpoint,
             },
           };
