@@ -153,7 +153,7 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
       }
-      return Object.assign({}, acc, { [`GraphQlDs${this.getCfnName(ds.name)}`]: resource });
+      return Object.assign({}, acc, { [this.getDataSourceCfnName(ds.name)]: resource });
     }, {});
   }
 
@@ -181,7 +181,7 @@ class ServerlessAppsyncPlugin {
             ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
             TypeName: tpl.type,
             FieldName: tpl.field,
-            DataSourceName: tpl.dataSource,
+            DataSourceName: { 'Fn::GetAtt': [this.getDataSourceCfnName(tpl.dataSource), 'Name'] },
             RequestMappingTemplate: fs.readFileSync(reqTemplPath, 'utf8'),
             ResponseMappingTemplate: fs.readFileSync(respTemplPath, 'utf8'),
           },
@@ -211,6 +211,10 @@ class ServerlessAppsyncPlugin {
 
   getCfnName(name) {
     return name.replace(/[^a-zA-Z0-9]/, '');
+  }
+
+  getDataSourceCfnName(name) {
+    return `GraphQlDs${this.getCfnName(name)}`;
   }
 }
 
