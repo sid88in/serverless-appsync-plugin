@@ -48,6 +48,10 @@ class ServerlessAppsyncPlugin {
     Object.assign(resources, this.getDataSourceResources(config));
     Object.assign(resources, this.getResolverResources(config));
     Object.assign(resources, this.getResolverResources(config));
+
+    const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
+    Object.assign(outputs, this.getGraphQlApiOutputs(config));
+    Object.assign(outputs, this.getApiKeyOutputs(config));
   }
 
   getGraphQlApiEndpointResource(config) {
@@ -148,6 +152,25 @@ class ServerlessAppsyncPlugin {
         },
       });
     }, {});
+  }
+
+  getGraphQlApiOutputs() {
+    return {
+      GraphQlApiUrl: {
+        Value: { 'Fn::GetAtt': ['GraphQlApi', 'GraphQLUrl'] },
+      },
+    };
+  }
+
+  getApiKeyOutputs(config) {
+    if (config.authenticationType !== 'API_KEY') {
+      return {};
+    }
+    return {
+      GraphQlApiKeyDefault: {
+        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      },
+    };
   }
 }
 
