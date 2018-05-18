@@ -78,26 +78,26 @@ custom:
         request: # request mapping template name
         response: # response mapping template name
     schema: # defaults schema.graphql
-    serviceRole: "AppSyncServiceRole"
+    serviceRole: "AppSyncServiceRole" # AppSyncServiceRole is a role defined by amazon and available in all accounts
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
         description: # DynamoDB Table Description
         config:
-          tableName: # DynamoDB Table Name
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/dynamo-${self:custom.appSync.serviceRole}"
+          tableName: { Ref: MyTable } # Where MyTable is a dynamodb table defined in Resources
+          serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] } # Where AppSyncDynamoDBServiceRole is an IAM role defined in Resources
       - type: AMAZON_ELASTICSEARCH
         name: # data source name
         description: 'ElasticSearch'
         config:
           endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/elasticSearch-${self:custom.appSync.serviceRole}"
+          serviceRoleArn: { Fn::GetAtt: [AppSyncESServiceRole, Arn] } # Where AppSyncESServiceRole is an IAM role defined in Resources
       - type: AWS_LAMBDA
         name: # data source name
         description: 'Lambda DataSource'
         config:
-          lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
+          lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] } # Where GraphqlLambdaFunction is the lambda function cloudformation resource created by serverless for the serverless function named graphql
+          serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] } # Where AppSyncLambdaServiceRole is an IAM role defined in Resources
 ```
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
