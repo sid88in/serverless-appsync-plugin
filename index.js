@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const getConfig = require('./get-config');
 
+const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
+
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
@@ -23,7 +25,8 @@ class ServerlessAppsyncPlugin {
     };
 
     const generateMigrationErrorMessage = command => () => {
-      throw new this.serverless.classes.Error(`${command} is no longer supported. TODO add migration instructions`);
+      throw new this.serverless.classes.Error(`serverless-appsync: ${command} `
+        + `is no longer supported. See ${MIGRATION_DOCS} for more information`);
     };
     this.hooks = {
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
