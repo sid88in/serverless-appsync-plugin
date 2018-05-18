@@ -116,8 +116,8 @@ This command will all AppSync resources in the same cloudformation template used
 
 If you have any questions, please feel free to reach out to me directly on Twitter <a target="_blank" href="https://twitter.com/sidg_sid">Sid Gupta</a>.
 
-<a id="cfn-migration"></a>
 ## 👷 Migration from versions prior to 1.0
+<a id="cfn-migration"></a>
 
 If you have previously used versions of this plugin prior to 1.0, you will need
 to perform some additional manual steps in order to continue use of this
