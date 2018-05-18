@@ -9,7 +9,7 @@ class ServerlessAppsyncPlugin {
     this.provider = this.serverless.getProvider('aws');
     this.commands = {
       'delete-appsync': {
-        usage: 'DEPRECATED: Helps you delete AppSync API',
+        usage: 'Helps you delete AppSync API',
         lifecycleEvents: ['delete'],
       },
       'deploy-appsync': {
@@ -26,19 +26,52 @@ class ServerlessAppsyncPlugin {
       throw new this.serverless.classes.Error(`${command} is no longer supported. TODO add migration instructions`);
     };
     this.hooks = {
-      'delete-appsync:delete': () => generateMigrationErrorMessage('delete-appsync'),
-      'deploy-appsync:deploy': () => generateMigrationErrorMessage('deploy-appsync'),
-      'update-appsync:update': () => generateMigrationErrorMessage('update-appsync'),
+      'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
+      'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
+      'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
       'before:deploy:deploy': () => this.addResources(),
     };
   }
 
-  async addResources() {
-    const config = getConfig(
+  loadConfig() {
+    return getConfig(
       this.serverless.service.custom.appSync,
       this.serverless.service.provider,
       this.serverless.config.servicePath,
     );
+  }
+
+  deleteGraphQLEndpoint() {
+    const config = this.loadConfig();
+    const { apiId } = config;
+    if (!apiId) {
+      throw new this.serverless.classes.Error('serverless-appsync: no apiId is defined. If you are not '
+        + `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} ' 
+        + 'for more information`);
+    }
+
+    this.serverless.cli.log('Deleting GraphQL Endpoint...');
+    return this.provider
+      .request('AppSync', 'deleteGraphqlApi', {
+        apiId,
+      })
+      .then((data) => {
+        if (data) {
+          this.serverless.cli.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
+        }
+      });
+  }
+
+  addResources() {
+    const config = this.loadConfig();
+
+    if (config.apiId) {
+      this.serverless.cli.log('WARNING: serverless-appsync has been updated in a breaking way and your '
+        + 'service is configured using a reference to an existing apiKey in '
+        + '`custom.appSync` which is used in the legacy deploy scripts. This deploy will create '
+        + `new graphql resources and WILL NOT update your existing api. See ${MIGRATION_DOCS} for `
+        + 'more information');
+    }
 
     const resources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
 
