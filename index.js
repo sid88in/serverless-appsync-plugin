@@ -88,7 +88,7 @@ class ServerlessAppsyncPlugin {
   }
 
   getDataSourceResources(config) {
-    return config.dataSources.reduce((ds, acc) => {
+    return config.dataSources.reduce((acc, ds) => {
       const resource = {
         Type: 'AWS::AppSync::DataSource',
         Properties: {
@@ -100,17 +100,17 @@ class ServerlessAppsyncPlugin {
         },
       };
       if (ds.type === 'AWS_LAMBDA') {
-        resource.LambdaConfig = {
+        resource.Properties.LambdaConfig = {
           LambdaFunctionArn: ds.config.lambdaFunctionArn,
         };
       } else if (ds.type === 'AMAZON_DYNAMODB') {
-        resource.DynamoDBConfig = {
+        resource.Properties.DynamoDBConfig = {
           AwsRegion: config.region,
           TableName: ds.config.tableName,
           UseCallerCredentials: !!ds.config.useCallerCredentials,
         };
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
-        resource.ElasticsearchConfig = {
+        resource.Properties.ElasticsearchConfig = {
           AwsRegion: config.region,
           Endpoint: ds.config.endpoint,
         };
@@ -138,7 +138,7 @@ class ServerlessAppsyncPlugin {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
       return Object.assign({}, acc, {
-        [`GraphQlResolver${tpl.fieldName}`]: {
+        [`GraphQlResolver${tpl.field}`]: {
           Type: 'AWS::AppSync::Resolver',
           DependsOn: 'GraphQlSchema',
           Properties: {
