@@ -153,7 +153,7 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
       }
-      return Object.assign({}, acc, { [`GraphQlDs${ds.name}`]: resource });
+      return Object.assign({}, acc, { [`GraphQlDs${this.getCfnName(ds.name)}`]: resource });
     }, {});
   }
 
@@ -174,7 +174,7 @@ class ServerlessAppsyncPlugin {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
       return Object.assign({}, acc, {
-        [`GraphQlResolver${tpl.field}`]: {
+        [`GraphQlResolver${this.getCfnName(tpl.field)}`]: {
           Type: 'AWS::AppSync::Resolver',
           DependsOn: 'GraphQlSchema',
           Properties: {
@@ -207,6 +207,10 @@ class ServerlessAppsyncPlugin {
         Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
       },
     };
+  }
+
+  getCfnName(name) {
+    return name.replace(/[^a-zA-Z0-9]/, '');
   }
 }
 
