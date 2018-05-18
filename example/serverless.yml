@@ -18,7 +18,6 @@ custom:
   accountId: abc
   appSync:
     # name:  # defaults to api
-    # apiId # only required for update-appsync
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # required # region

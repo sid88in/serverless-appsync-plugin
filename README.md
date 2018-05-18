@@ -4,15 +4,15 @@
   <br>
 </h1>
 
-Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elastic Search</a>; you have everything you need to get started developing your AppSync API's locally. 
+Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elastic Search</a>; you have everything you need to get started developing your AppSync API's locally.
 
 <div align="center">Find AppSync examples in the <a href="https://github.com/serverless/serverless-graphql/tree/master/app-backend/appsync" target="_blank"> Serverless-GraphQL</a> Repo 👈</div>
 
 # Introduction
 
-> *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)  
-> *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)  
-> *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)  
+> *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
+> *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
+> *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
 
 ![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
 
@@ -54,7 +54,7 @@ Add ```serverless-appsync-plugin``` to the plugins section of ```serverless.yml`
 ```
 plugins:
    - serverless-appsync-plugin
-```  
+```
 
 Add the following example config to the custom section of ```serverless.yml```
 
@@ -63,7 +63,6 @@ custom:
   accountId: abc # found here https://console.aws.amazon.com/billing/home?#/account
   appSync:
     name:  # defaults to api
-    # apiId # only required for update-appsync/delete-appsync
     # apiKey # only required for update-appsync/delete-appsync
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
@@ -105,27 +104,9 @@ custom:
 
 ## ▶️ Usage
 
-### `serverless deploy-appsync`
+### `serverless deploy`
 
-This command will **deploy** a new AppSync API endpoint using the ```name``` specified in the custom section of ```serverless.yml``` under ```appSync```.
-
-### `serverless update-appsync`
-
-This command will **update** an existing AppSync API endpoint using the ```apiId``` specified in the custom section of ```serverless.yml``` under ```appSync```. (Data sources/resolvers will be **automatically** created if they don't already exist)
-
-### `serverless delete-appsync`
-
-This command will **delete** an existing AppSync API endpoint using the ```apiId``` specified in the custom section of ```serverless.yml``` under ```appSync```.
-
----
-
-> If the ```apiId``` you are trying to update or delete does not exist, an error will be thrown. Login to your AWS AppSync dashboard; retrieve the API ID that you are trying to update or delete, and set it as the ```apiId``` in ```serverless.yml```
-
-```
-custom:
-  appSync:
-    apiId: xxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+This command will all AppSync resources in the same cloudformation template used by the other serverless resources
 
 ## 📝 Notes
 
@@ -135,6 +116,28 @@ custom:
 
 If you have any questions, please feel free to reach out to me directly on Twitter <a target="_blank" href="https://twitter.com/sidg_sid">Sid Gupta</a>.
 
+## 👷 Migration from versions prior to 1.0
+
+If you have previously used versions of this plugin prior to 1.0, you will need
+to perform some additional manual steps in order to continue use of this
+plugin (it will be worth it).  This change removes the `sls *-appsync`
+commands in favor of adding AppSync resources directly to the serverless
+cloudformation stack. What this means for your existing APIs is that
+they can no longer be updated.  The good news is that you will
+no longer need to use separate commands to deploy vs update and update
+your serverless config with the created `apiId`.
+
+The rough steps for migration are as follows:
+1. Run `sls deploy` to create the new AppSync api and make note
+of the endpoint returned as part of the stack outputs. *If you were
+using an `API_KEY` auth type, you will also need the new api key which
+is also included in the stack outputs.*
+2. Update existing consumers of your API to use the new endpoint. *If
+you're using an api key, this will also need updated*
+3. After verifying all existing consumers are updated, run `sls delete-appsync`
+to cleanup the old resources
+4. Remove the `apiId` line from `custom.appSync` in `serverless.yml`
+5. 🍹
 
 ## ❤️ Credits
 
