@@ -19,7 +19,5 @@
   "dependencies": {
     "ramda": "^0.25.0"
   },
-  "peerDependencies": {
-    "serverless": "1.*"
-  }
+  "peerDependencies": {}
 }
