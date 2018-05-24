@@ -49,7 +49,7 @@ class ServerlessAppsyncPlugin {
     const { apiId } = config;
     if (!apiId) {
       throw new this.serverless.classes.Error('serverless-appsync: no apiId is defined. If you are not '
-        + `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} ' 
+        + `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
         + 'for more information`);
     }
 
@@ -77,12 +77,10 @@ class ServerlessAppsyncPlugin {
     }
 
     const resources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
-
     Object.assign(resources, this.getGraphQlApiEndpointResource(config));
     Object.assign(resources, this.getApiKeyResources(config));
     Object.assign(resources, this.getGraphQLSchemaResource(config));
     Object.assign(resources, this.getDataSourceResources(config));
-    Object.assign(resources, this.getResolverResources(config));
     Object.assign(resources, this.getResolverResources(config));
 
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
@@ -132,7 +130,7 @@ class ServerlessAppsyncPlugin {
           Name: ds.name,
           Description: ds.description,
           Type: ds.type,
-          ServiceRoleArn: ds.config.serviceRoleArn,
+          ServiceRoleArn: ds.type === 'NONE' ? undefined : ds.config.serviceRoleArn,
         },
       };
       if (ds.type === 'AWS_LAMBDA') {
