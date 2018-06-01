@@ -121,6 +121,13 @@ class ServerlessAppsyncPlugin {
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
       };
+    } else if (resolvedConfig.authenticationType === 'OPENID_CONNECT') {
+      config.openIDConnectConfig = {
+        issuer: resolvedConfig.openIDConnectConfig.issuer,
+        clientId: resolvedConfig.openIDConnectConfig.clientId,
+        iatTTL: resolvedConfig.openIDConnectConfig.iatTTL,
+        authTTL: resolvedConfig.openIDConnectConfig.authTTL,
+      };
     }
 
     return this.provider
@@ -153,6 +160,13 @@ class ServerlessAppsyncPlugin {
         awsRegion: resolvedConfig.region,
         defaultAction: resolvedConfig.userPoolConfig.defaultAction,
         userPoolId: resolvedConfig.userPoolConfig.userPoolId,
+      };
+    } else if (resolvedConfig.authenticationType === 'OPENID_CONNECT') {
+      config.openIDConnectConfig = {
+        issuer: resolvedConfig.openIDConnectConfig.issuer,
+        clientId: resolvedConfig.openIDConnectConfig.clientId,
+        iatTTL: resolvedConfig.openIDConnectConfig.iatTTL,
+        authTTL: resolvedConfig.openIDConnectConfig.authTTL,
       };
     }
 

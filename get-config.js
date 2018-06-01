@@ -45,6 +45,7 @@ module.exports = (config, provider, servicePath) => {
     authenticationType: config.authenticationType,
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
+    openIDConnectConfig: config.openIDConnectConfig,
     serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
