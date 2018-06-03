@@ -18,7 +18,6 @@ custom:
   accountId: abc
   appSync:
     # name:  # defaults to api
-    # apiId # only required for update-appsync
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # required # region
@@ -84,26 +83,26 @@ custom:
         name: Users
         description: 'Users table'
         config:
-          tableName: 'Users'
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+          tableName: { Ref: UserTable }
+          serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] }
       - type: AMAZON_DYNAMODB
         name: Tweets
         description: 'Tweets table'
         config:
-          tableName: 'Tweets'
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Dynamo-${self:custom.appSync.serviceRole}"
+          tableName: { Ref: TweetsTable }
+          serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] }
       - type: AMAZON_ELASTICSEARCH
         name: ElasticSearch
         description: 'ElasticSearch'
         config:
           endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/ElasticSearch-${self:custom.appSync.serviceRole}"
+          serviceRoleArn: { Fn::GetAtt: [AppSyncESServiceRole, Arn] }
       - type: AWS_LAMBDA
         name: Lambda_MeInfo
         description: 'Lambda DataSource'
         config:
-          lambdaFunctionArn: "arn:aws:lambda:us-east-1:${self:custom.accountId}:function:appsync-example-dev-graphql"
-          serviceRoleArn: "arn:aws:iam::${self:custom.accountId}:role/Lambda-${self:custom.appSync.serviceRole}"
+          lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] }
+          serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] }
 
 
 resources:
