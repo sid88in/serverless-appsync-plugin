@@ -100,7 +100,7 @@ class ServerlessAppsyncPlugin {
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
           },
-          OpenIdConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
+          OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
             Issuer: config.openIdConnectConfig.issuer,
             ClientId: config.openIdConnectConfig.clientId,
             IatTTL: config.openIdConnectConfig.iatTTL,
