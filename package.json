@@ -1,5 +1,5 @@
 {
-  "name": "serverless-appsync-plugin",
+  "name": "@snapstrat/serverless-appsync-plugin",
   "version": "1.0.0",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "index.js",

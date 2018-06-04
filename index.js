@@ -100,24 +100,15 @@ class ServerlessAppsyncPlugin {
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
           },
+          OpenIdConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
+            Issuer: config.openIdConnectConfig.issuer,
+            ClientId: config.openIdConnectConfig.clientId,
+            IatTTL: config.openIdConnectConfig.iatTTL,
+            AuthTTL: config.openIdConnectConfig.authTTL,
+          },
         },
       },
     };
-
-    if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
-      config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
-        defaultAction: resolvedConfig.userPoolConfig.defaultAction,
-        userPoolId: resolvedConfig.userPoolConfig.userPoolId,
-      };
-    } else if (resolvedConfig.authenticationType === 'OPENID_CONNECT') {
-      config.openIDConnectConfig = {
-        issuer: resolvedConfig.openIDConnectConfig.issuer,
-        clientId: resolvedConfig.openIDConnectConfig.clientId,
-        iatTTL: resolvedConfig.openIDConnectConfig.iatTTL,
-        authTTL: resolvedConfig.openIDConnectConfig.authTTL,
-      };
-    }
   }
 
   getApiKeyResources(config) {
@@ -134,21 +125,6 @@ class ServerlessAppsyncPlugin {
         },
       },
     };
-
-    if (resolvedConfig.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
-      config.userPoolConfig = {
-        awsRegion: resolvedConfig.region,
-        defaultAction: resolvedConfig.userPoolConfig.defaultAction,
-        userPoolId: resolvedConfig.userPoolConfig.userPoolId,
-      };
-    } else if (resolvedConfig.authenticationType === 'OPENID_CONNECT') {
-      config.openIDConnectConfig = {
-        issuer: resolvedConfig.openIDConnectConfig.issuer,
-        clientId: resolvedConfig.openIDConnectConfig.clientId,
-        iatTTL: resolvedConfig.openIDConnectConfig.iatTTL,
-        authTTL: resolvedConfig.openIDConnectConfig.authTTL,
-      };
-    }
   }
 
   getDataSourceResources(config) {
