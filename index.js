@@ -100,6 +100,12 @@ class ServerlessAppsyncPlugin {
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
           },
+          OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
+            Issuer: config.openIdConnectConfig.issuer,
+            ClientId: config.openIdConnectConfig.clientId,
+            IatTTL: config.openIdConnectConfig.iatTTL,
+            AuthTTL: config.openIdConnectConfig.authTTL,
+          },
           LogConfig: !config.logConfig ? undefined : {
             CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn,
             FieldLogLevel: config.logConfig.level,

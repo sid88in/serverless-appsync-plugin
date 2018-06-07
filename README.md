@@ -64,12 +64,19 @@ custom:
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
-    authenticationType: AMAZON_COGNITO_USER_POOLS
+    authenticationType: API_KEY or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
+    # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # required # region
       defaultAction: # ALLOW
       userPoolId: # required # user pool ID
       region: # defaults to provider region
+    # if OPENID_CONNECT
+    openIdConnectConfig:
+      issuer: 
+      clientId: 
+      iatTTL: 
+      authTTL: 
     logConfig:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL

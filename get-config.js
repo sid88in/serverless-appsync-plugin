@@ -13,9 +13,13 @@ const objectToArrayWithNameProp = pipe(
 );
 
 module.exports = (config, provider, servicePath) => {
-  // TODO verify authenticationType
-  if (!config.authenticationType) {
-    throw new Error('appSync property `authenticationType` is required.');
+  if (!(
+    config.authenticationType === 'API_KEY' ||
+    config.authenticationType === 'AWS_IAM' ||
+    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
+    config.authenticationType === 'OPENID_CONNECT'
+  )) {
+    throw new Error('appSync property `authenticationType` is missing or invalid.');
   }
   if (!config.serviceRole) {
     throw new Error('appSync property `serviceRole` is required.');
@@ -25,6 +29,12 @@ module.exports = (config, provider, servicePath) => {
     !config.userPoolConfig
   ) {
     throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
+  }
+  if (
+    config.authenticationType === 'OPENID_CONNECT' &&
+    !config.openIdConnectConfig
+  ) {
+    throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
   }
   if (config.logConfig && !config.logConfig.loggingRoleArn) {
     throw new Error('logConfig property `loggingRoleArn` is required when logConfig exists.');
@@ -51,6 +61,7 @@ module.exports = (config, provider, servicePath) => {
     authenticationType: config.authenticationType,
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
+    openIdConnectConfig: config.openIdConnectConfig,
     serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
