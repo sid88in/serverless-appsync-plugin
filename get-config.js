@@ -36,6 +36,12 @@ module.exports = (config, provider, servicePath) => {
   ) {
     throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
   }
+  if (config.logConfig && !config.logConfig.loggingRoleArn) {
+    throw new Error('logConfig property `loggingRoleArn` is required when logConfig exists.');
+  }
+  if (config.logConfig && !config.logConfig.level) {
+    throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
+  }
 
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
   const mappingTemplates = config.mappingTemplates || [];
@@ -61,5 +67,6 @@ module.exports = (config, provider, servicePath) => {
     dataSources,
     mappingTemplatesLocation,
     mappingTemplates,
+    logConfig: config.logConfig,
   };
 };
