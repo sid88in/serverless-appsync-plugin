@@ -100,6 +100,10 @@ class ServerlessAppsyncPlugin {
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
           },
+          LogConfig: !config.logConfig ? undefined : {
+            CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn,
+            FieldLogLevel: config.logConfig.level,
+          },
         },
       },
     };
