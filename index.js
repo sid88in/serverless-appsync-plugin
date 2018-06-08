@@ -218,7 +218,7 @@ class ServerlessAppsyncPlugin {
   }
 
   getCfnName(name) {
-    return name.replace(/[^a-zA-Z0-9]/, '');
+    return name.replace(/[^a-zA-Z0-9]/g, '');
   }
 
   getDataSourceCfnName(name) {
