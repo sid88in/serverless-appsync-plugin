@@ -182,7 +182,7 @@ class ServerlessAppsyncPlugin {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
       return Object.assign({}, acc, {
-        [`GraphQlResolver${this.getCfnName(tpl.field)}`]: {
+        [`GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`]: {
           Type: 'AWS::AppSync::Resolver',
           DependsOn: 'GraphQlSchema',
           Properties: {
