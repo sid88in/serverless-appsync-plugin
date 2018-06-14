@@ -64,7 +64,7 @@ custom:
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
-    authenticationType: API_KEY or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
+    authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # required # region
