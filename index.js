@@ -149,13 +149,13 @@ class ServerlessAppsyncPlugin {
         };
       } else if (ds.type === 'AMAZON_DYNAMODB') {
         resource.Properties.DynamoDBConfig = {
-          AwsRegion: config.region,
+          AwsRegion: ds.config.region || config.region,
           TableName: ds.config.tableName,
           UseCallerCredentials: !!ds.config.useCallerCredentials,
         };
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
-          AwsRegion: config.region,
+          AwsRegion:ds.config.region || config.region,
           Endpoint: ds.config.endpoint,
         };
       } else if (ds.type !== 'NONE') {
