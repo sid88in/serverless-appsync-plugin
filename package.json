@@ -17,6 +17,7 @@
     "jest": "^22.1.4"
   },
   "dependencies": {
+    "graphql": "^0.13.2",
     "ramda": "^0.25.0"
   },
   "peerDependencies": {}
