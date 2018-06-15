@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { validateSchema, printError, parse, buildASTSchema } = require('graphql');
 const getConfig = require('./get-config');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -29,6 +30,7 @@ class ServerlessAppsyncPlugin {
         + `is no longer supported. See ${MIGRATION_DOCS} for more information`);
     };
     this.hooks = {
+      'before:deploy:initialize': () => this.validateSchema(),
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
@@ -42,6 +44,20 @@ class ServerlessAppsyncPlugin {
       this.serverless.service.provider,
       this.serverless.config.servicePath,
     );
+  }
+
+  validateSchema() {
+    const { schema } = this.loadConfig();
+    const ast = buildASTSchema(parse(schema));
+    const errors = validateSchema(ast);
+    if (!errors.length) {
+      return;
+    }
+
+    errors.forEach((error) => {
+      this.serverless.cli.log(printError(error));
+    });
+    throw new this.serverless.classes.Error('Cannot proceed invalid graphql SDL');
   }
 
   deleteGraphQLEndpoint() {
