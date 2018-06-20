@@ -96,6 +96,7 @@ custom:
         config:
           tableName: { Ref: MyTable } # Where MyTable is a dynamodb table defined in Resources
           serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] } # Where AppSyncDynamoDBServiceRole is an IAM role defined in Resources
+          region: # Overwrite default region for this data source
       - type: AMAZON_ELASTICSEARCH
         name: # data source name
         description: 'ElasticSearch'
