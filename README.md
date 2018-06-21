@@ -116,7 +116,7 @@ custom:
 
 ### `serverless deploy`
 
-This command will all AppSync resources in the same cloudformation template used by the other serverless resources
+This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
 
 ## 📝 Notes
 
