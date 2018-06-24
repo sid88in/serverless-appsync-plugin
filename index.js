@@ -1,7 +1,10 @@
 const fs = require('fs');
+const Hapi = require('hapi');
+const { graphqlHapi, graphiqlHapi } = require('apollo-server-hapi');
 const path = require('path');
 const { validateSchema, printError, parse, buildASTSchema } = require('graphql');
 const getConfig = require('./get-config');
+const { makeExecutableSchema } = require('graphql-tools');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 
@@ -23,6 +26,11 @@ class ServerlessAppsyncPlugin {
         usage: 'DEPRECATED: Helps you update AppSync API',
         lifecycleEvents: ['update'],
       },
+      // TODO: this conflicts with serverless offline
+      'offline': {
+        usage: 'Allows you to run App Sync Offline',
+        lifecycleEvents: ['offline'],
+      }
     };
 
     const generateMigrationErrorMessage = command => () => {
@@ -35,6 +43,7 @@ class ServerlessAppsyncPlugin {
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
       'before:deploy:deploy': () => this.addResources(),
+      'offline:offline': () => this.offline(),
     };
   }
 
@@ -58,6 +67,77 @@ class ServerlessAppsyncPlugin {
       this.serverless.cli.log(printError(error));
     });
     throw new this.serverless.classes.Error('Cannot proceed invalid graphql SDL');
+  }
+
+  offline() {
+    this.serverless.cli.log('Starting offline');
+
+    // TODO: validate schema
+    // TODO: fetch the resolvers
+
+    process.env.IS_OFFLINE = true;
+
+    return Promise.resolve(this._createServer())
+    .then(() => this._listen())
+    .then(() => this._listenForSigInt())
+    .then(() => this.end())
+    .catch(e => console.error(e));
+  }
+
+  _createServer() {
+    this.server = new Hapi.server({
+      // TODO from CLI options
+      host: 'localhost',
+      port: 7000,
+    });
+
+    this.server.register({
+      plugin: graphiqlHapi,
+      options: {
+        path: '/graphiql',
+        graphiqlOptions: {
+          endpointURL: '/graphql'
+        },
+      },
+    })
+
+    const config = this.loadConfig();
+
+    this.server.register({
+      plugin: graphqlHapi,
+      options: {
+        path: '/graphql',
+        graphqlOptions: {
+          schema: makeExecutableSchema({typeDefs: config.schema}),
+        },
+        route: {
+          cors: true,
+        },
+      },
+    })
+
+    return this.server;
+  }
+
+  _listen() {
+    console.log('listening')
+    return this.server.start();
+  }
+
+  _listenForSigInt() {
+    // Listen for ctrl+c to stop the server
+    return new Promise(resolve => {
+      process.on('SIGINT', () => {
+        this.serverless.cli.log('Offline Halting...');
+        resolve();
+      });
+    });
+  }
+
+  end() {
+    this.serverless.cli.log('Halting offline server');
+    this.server.stop({ timeout: 5000 })
+      .then(() => process.exit(this.exitCode));
   }
 
   deleteGraphQLEndpoint() {
