@@ -46,8 +46,26 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  validateSchema() {
+  getSchema() {
     const { schema } = this.loadConfig();
+
+    const awsTypes = `
+      scalar AWSDate
+      scalar AWSTime
+      scalar AWSDateTime
+      scalar AWSTimestamp
+      scalar AWSEmail
+      scalar AWSJSON
+      scalar AWSURL
+      scalar AWSPhone
+      scalar AWSIPAddress
+    `;
+
+    return `${schema} ${awsTypes}`;
+  }
+
+  validateSchema() {
+    const schema = this.getSchema();
     const ast = buildASTSchema(parse(schema));
     const errors = validateSchema(ast);
     if (!errors.length) {
