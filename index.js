@@ -174,6 +174,10 @@ class ServerlessAppsyncPlugin {
           AwsRegion:ds.config.region || config.region,
           Endpoint: ds.config.endpoint,
         };
+      } else if (ds.type === 'HTTP') {
+        resource.Properties.HttpConfig = {
+          Endpoint: ds.config.endpoint,
+        };
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
       }

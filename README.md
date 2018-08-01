@@ -109,6 +109,11 @@ custom:
         config:
           lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] } # Where GraphqlLambdaFunction is the lambda function cloudformation resource created by serverless for the serverless function named graphql
           serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] } # Where AppSyncLambdaServiceRole is an IAM role defined in Resources
+      - type: HTTP
+        name: # data source name
+        description: 'Http endpoint'
+        config:
+          endpoint: # required # "https://{DOMAIN}/{PATH}"
 ```
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
