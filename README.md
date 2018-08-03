@@ -127,6 +127,7 @@ This command will deploy all AppSync resources in the same CloudFormation templa
 ## 📝 Notes
 
 * If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elastic Search</a>, you will need to create an Elastic Search domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
+* When writing custom mapping-templates, try using `.vtl` over `.txt` (e.g. `getUser-request-mapping-template.vtl`). Then try out the [vscode-velocity](https://marketplace.visualstudio.com/items?itemName=sodatea.velocity) plugin for the [VSCode](https://code.visualstudio.com/) text editor which will give you `syntax highlighting`.
 
 ## 🎁 Contributing
 
