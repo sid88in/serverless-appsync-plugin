@@ -1,10 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  mapObjIndexed,
-  pipe,
-  values,
-  merge,
+  mapObjIndexed, pipe, values, merge,
 } = require('ramda');
 
 const objectToArrayWithNameProp = pipe(
@@ -13,27 +10,23 @@ const objectToArrayWithNameProp = pipe(
 );
 
 module.exports = (config, provider, servicePath) => {
-  if (!(
-    config.authenticationType === 'API_KEY' ||
-    config.authenticationType === 'AWS_IAM' ||
-    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
-    config.authenticationType === 'OPENID_CONNECT'
-  )) {
+  if (
+    !(
+      config.authenticationType === 'API_KEY' ||
+      config.authenticationType === 'AWS_IAM' ||
+      config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
+      config.authenticationType === 'OPENID_CONNECT'
+    )
+  ) {
     throw new Error('appSync property `authenticationType` is missing or invalid.');
   }
   if (!config.serviceRole) {
     throw new Error('appSync property `serviceRole` is required.');
   }
-  if (
-    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' &&
-    !config.userPoolConfig
-  ) {
+  if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' && !config.userPoolConfig) {
     throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
   }
-  if (
-    config.authenticationType === 'OPENID_CONNECT' &&
-    !config.openIdConnectConfig
-  ) {
+  if (config.authenticationType === 'OPENID_CONNECT' && !config.openIdConnectConfig) {
     throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
   }
   if (config.logConfig && !config.logConfig.loggingRoleArn) {
@@ -46,7 +39,12 @@ module.exports = (config, provider, servicePath) => {
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
   const mappingTemplates = config.mappingTemplates || [];
 
-  const schemaPath = path.join(servicePath, config.schema || 'schema.graphql');
+  const schemaPath = path.join(
+    servicePath,
+    '../serverless-appsync-plugin/example/',
+    config.schema || 'schema.graphql',
+  );
+
   const schemaContent = fs.readFileSync(schemaPath, {
     encoding: 'utf8',
   });

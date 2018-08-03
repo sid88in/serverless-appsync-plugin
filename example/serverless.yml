@@ -29,53 +29,53 @@ custom:
       - dataSource: Users
         type: Query
         field: getUserInfo
-        request: "getUserInfo-request-mapping-template.txt"
-        response: "getUserInfo-response-mapping-template.txt"
+        request: "getUserInfo-request-mapping-template.vtl"
+        response: "getUserInfo-response-mapping-template.vtl"
       - dataSource: Lambda_MeInfo
         type: Query
         field: meInfo
-        request: "meInfo-request-mapping-template.txt"
-        response: "meInfo-response-mapping-template.txt"
+        request: "meInfo-request-mapping-template.vtl"
+        response: "meInfo-response-mapping-template.vtl"
       - dataSource: ElasticSearch
         type: Query
         field: searchAllTweetsByKeyword
-        request: "searchAllTweetsByKeyword-request-mapping-template.txt"
-        response: "searchAllTweetsByKeyword-response-mapping-template.txt"
+        request: "searchAllTweetsByKeyword-request-mapping-template.vtl"
+        response: "searchAllTweetsByKeyword-response-mapping-template.vtl"
       - dataSource: Tweets
         type: User
         field: topTweet
-        request: "topTweet-request-mapping-template.txt"
-        response: "topTweet-response-mapping-template.txt"
+        request: "topTweet-request-mapping-template.vtl"
+        response: "topTweet-response-mapping-template.vtl"
       - dataSource: Tweets
         type: User
         field: tweets
-        request: "tweets-request-mapping-template.txt"
-        response: "tweets-response-mapping-template.txt"
+        request: "tweets-request-mapping-template.vtl"
+        response: "tweets-response-mapping-template.vtl"
       - dataSource: Tweets
         type: Mutation
         field: createTweet
-        request: "createTweet-request-mapping-template.txt"
-        response: "createTweet-response-mapping-template.txt"
+        request: "createTweet-request-mapping-template.vtl"
+        response: "createTweet-response-mapping-template.vtl"
       - dataSource: Tweets
         type: Mutation
         field: deleteTweet
-        request: "deleteTweet-request-mapping-template.txt"
-        response: "deleteTweet-response-mapping-template.txt"
+        request: "deleteTweet-request-mapping-template.vtl"
+        response: "deleteTweet-response-mapping-template.vtl"
       - dataSource: Tweets
         type: Mutation
         field: reTweet
-        request: "reTweet-request-mapping-template.txt"
-        response: "reTweet-response-mapping-template.txt"
+        request: "reTweet-request-mapping-template.vtl"
+        response: "reTweet-response-mapping-template.vtl"
       - dataSource: Tweets
         type: Mutation
         field: updateTweet
-        request: "updateTweet-request-mapping-template.txt"
-        response: "updateTweet-response-mapping-template.txt"
+        request: "updateTweet-request-mapping-template.vtl"
+        response: "updateTweet-response-mapping-template.vtl"
       - dataSource: Users
         type: Mutation
         field: updateUserInfo
-        request: "updateUserInfo-request-mapping-template.txt"
-        response: "updateUserInfo-response-mapping-template.txt"
+        request: "updateUserInfo-request-mapping-template.vtl"
+        response: "updateUserInfo-response-mapping-template.vtl"
     # schema: # defaults schema.graphql
     serviceRole: "AppSyncServiceRole"
     dataSources:
