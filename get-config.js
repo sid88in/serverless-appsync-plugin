@@ -41,7 +41,6 @@ module.exports = (config, provider, servicePath) => {
 
   const schemaPath = path.join(
     servicePath,
-    '../serverless-appsync-plugin/example/',
     config.schema || 'schema.graphql',
   );
 
