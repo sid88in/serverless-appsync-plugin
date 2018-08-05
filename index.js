@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { validateSchema, printError, parse, buildASTSchema } = require('graphql');
+const {
+  validateSchema, printError, parse, buildASTSchema,
+} = require('graphql');
 const getConfig = require('./get-config');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -189,7 +191,7 @@ class ServerlessAppsyncPlugin {
         };
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
-          AwsRegion:ds.config.region || config.region,
+          AwsRegion: ds.config.region || config.region,
           Endpoint: ds.config.endpoint,
         };
       } else if (ds.type === 'HTTP') {
@@ -219,6 +221,9 @@ class ServerlessAppsyncPlugin {
     return config.mappingTemplates.reduce((acc, tpl) => {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
+      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
+
       return Object.assign({}, acc, {
         [`GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`]: {
           Type: 'AWS::AppSync::Resolver',
@@ -228,8 +233,8 @@ class ServerlessAppsyncPlugin {
             TypeName: tpl.type,
             FieldName: tpl.field,
             DataSourceName: { 'Fn::GetAtt': [this.getDataSourceCfnName(tpl.dataSource), 'Name'] },
-            RequestMappingTemplate: fs.readFileSync(reqTemplPath, 'utf8'),
-            ResponseMappingTemplate: fs.readFileSync(respTemplPath, 'utf8'),
+            RequestMappingTemplate: this.processTemplate(requestTemplate, config),
+            ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
           },
         },
       });
@@ -261,6 +266,34 @@ class ServerlessAppsyncPlugin {
 
   getDataSourceCfnName(name) {
     return `GraphQlDs${this.getCfnName(name)}`;
+  }
+
+  processTemplate(template, config) {
+    const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
+    const configVariables = Object.keys(config.substitutions);
+    const templateVariables = [];
+    let searchResult;
+    // eslint-disable-next-line no-cond-assign
+    while ((searchResult = variableSyntax.exec(template)) !== null) {
+      templateVariables.push(searchResult[1]);
+    }
+
+    const substitutions = configVariables
+      .filter(value => templateVariables.indexOf(value) > -1)
+      .filter((value, index, array) => array.indexOf(value) === index)
+      .reduce((accum, value) => {
+        // accum[value] = config.substitutions[value];
+        //
+        // return accum;
+        return Object.assign(accum, { [value]: config.substitutions[value] });
+      }, {});
+
+    // if there are substitutions for this template then add fn:sub
+    if (Object.keys(substitutions).length > 0) {
+      return { 'Fn::Sub': [template, substitutions] };
+    }
+
+    return template;
   }
 }
 
