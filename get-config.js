@@ -42,13 +42,9 @@ module.exports = (config, provider, servicePath) => {
   if (config.logConfig && !config.logConfig.level) {
     throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
   }
-  // if (typeof config.substitutions === 'object') {
-  //   Object.values(config.substitutions).forEach((value) => {
-  //     if (typeof value === 'object') {
-  //       throw new Error('Currently only primitive types are supported for substitutions');
-  //     }
-  //   });
-  // }
+  if (config.substitutions && typeof config.substitutions !== 'object') {
+    throw new Error('substitutions property must be an object');
+  }
 
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
   const mappingTemplates = config.mappingTemplates || [];

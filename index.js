@@ -269,6 +269,7 @@ class ServerlessAppsyncPlugin {
   }
 
   processTemplate(template, config) {
+    // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
     const configVariables = Object.keys(config.substitutions);
     const templateVariables = [];
@@ -281,12 +282,10 @@ class ServerlessAppsyncPlugin {
     const substitutions = configVariables
       .filter(value => templateVariables.indexOf(value) > -1)
       .filter((value, index, array) => array.indexOf(value) === index)
-      .reduce((accum, value) => {
-        // accum[value] = config.substitutions[value];
-        //
-        // return accum;
-        return Object.assign(accum, { [value]: config.substitutions[value] });
-      }, {});
+      .reduce(
+        (accum, value) => Object.assign(accum, { [value]: config.substitutions[value] }),
+        {},
+      );
 
     // if there are substitutions for this template then add fn:sub
     if (Object.keys(substitutions).length > 0) {
