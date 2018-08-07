@@ -114,6 +114,10 @@ custom:
         description: 'Http endpoint'
         config:
           endpoint: # required # "https://{DOMAIN}/{PATH}"
+    substitutions: # allows to pass variables from here to velocity templates
+      # ${exampleVar1} will be replaced with given value in all mapping templates
+      exampleVar1: "${self:service.name}"
+      exampleVar2: {'Fn::ImportValue': 'Some-external-stuff'}
 ```
 
 > Be sure to replace all variables that have been commented out, or have an empty value.

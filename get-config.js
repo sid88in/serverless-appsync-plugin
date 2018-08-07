@@ -35,6 +35,9 @@ module.exports = (config, provider, servicePath) => {
   if (config.logConfig && !config.logConfig.level) {
     throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
   }
+  if (config.substitutions && typeof config.substitutions !== 'object') {
+    throw new Error('substitutions property must be an object');
+  }
 
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
   const mappingTemplates = config.mappingTemplates || [];
@@ -65,5 +68,6 @@ module.exports = (config, provider, servicePath) => {
     mappingTemplatesLocation,
     mappingTemplates,
     logConfig: config.logConfig,
+    substitutions: config.substitutions,
   };
 };
