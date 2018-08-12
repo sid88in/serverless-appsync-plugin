@@ -68,6 +68,6 @@ module.exports = (config, provider, servicePath) => {
     mappingTemplatesLocation,
     mappingTemplates,
     logConfig: config.logConfig,
-    substitutions: config.substitutions,
+    substitutions: config.substitutions || {},
   };
 };
