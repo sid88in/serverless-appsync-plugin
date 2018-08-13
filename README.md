@@ -96,6 +96,14 @@ custom:
         config:
           tableName: { Ref: MyTable } # Where MyTable is a dynamodb table defined in Resources
           serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] } # Where AppSyncDynamoDBServiceRole is an IAM role defined in Resources
+          iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:GetItem"
+              Resource:
+                - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable"
+                - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*"
+              
           region: # Overwrite default region for this data source
       - type: AMAZON_ELASTICSEARCH
         name: # data source name
@@ -103,12 +111,25 @@ custom:
         config:
           endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
           serviceRoleArn: { Fn::GetAtt: [AppSyncESServiceRole, Arn] } # Where AppSyncESServiceRole is an IAM role defined in Resources
+          iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
+            - Effect: "Allow"
+              Action:
+                - "es:ESHttpGet"
+              Resource:
+                - "arn:aws:es:{REGION}:{ACCOUNT_ID}:{DOMAIN}"
       - type: AWS_LAMBDA
         name: # data source name
         description: 'Lambda DataSource'
         config:
           lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] } # Where GraphqlLambdaFunction is the lambda function cloudformation resource created by serverless for the serverless function named graphql
           serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] } # Where AppSyncLambdaServiceRole is an IAM role defined in Resources
+          iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
+            - Effect: "Allow"
+              Action:
+                - "lambda:invokeFunction"
+              Resource:
+                - "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
+                - "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction:*"
       - type: HTTP
         name: # data source name
         description: 'Http endpoint'

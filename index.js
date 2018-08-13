@@ -116,6 +116,7 @@ class ServerlessAppsyncPlugin {
     Object.assign(resources, this.getGraphQlApiEndpointResource(config));
     Object.assign(resources, this.getApiKeyResources(config));
     Object.assign(resources, this.getGraphQLSchemaResource(config));
+    Object.assign(resources, this.getDataSourceIamRolesResouces(config));
     Object.assign(resources, this.getDataSourceResources(config));
     Object.assign(resources, this.getResolverResources(config));
 
@@ -166,6 +167,152 @@ class ServerlessAppsyncPlugin {
       },
     };
   }
+  
+  getDataSourceIamRolesResouces(config) {
+    
+    return config.dataSources.reduce((acc, ds) => {
+      
+      // Only generate DataSource Roles for compatible types
+      // and if `serviceRoleArn` not provided
+      if (
+        ['AWS_LAMBDA', 'AMAZON_DYNAMODB', 'AMAZON_ELASTICSEARCH'].indexOf(ds.type) === -1
+        || (ds.config && ds.config.serviceRoleArn)
+      ) {
+        return acc;
+      }
+      
+      let statements;
+      
+      if (ds.config && ds.config.iamRoleStatements) {
+        statements = ds.config.iamRoleStatements;
+      } else {
+        // Try to generate default statements for the given DataSource.
+        statements = this.getDefaultDataSourcePolicyStatements(ds, config);
+        
+        // If we could not generate it, skip this step.
+        if (false === statements) {
+          return acc;
+        }
+      }
+      
+      const resource = {
+        Type: 'AWS::IAM::Role',
+        Properties: {
+          "AssumeRolePolicyDocument": {
+            "Version" : "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "appsync.amazonaws.com" ]
+                },
+                "Action": [ "sts:AssumeRole" ]
+              }
+            ]
+          },
+          Policies: [
+            {
+              PolicyName: this.getDataSourceCfnName(ds.name) + "Policy",
+              PolicyDocument: {
+                Version: "2012-10-17",
+                Statement: statements,
+              }
+            },
+          ]
+        }
+      };
+      
+      return Object.assign({}, acc, { [this.getDataSourceCfnName(ds.name) + "Role"]: resource });
+    }, {});
+  }
+  
+  getDefaultDataSourcePolicyStatements(ds, config) {
+    
+    const defaultStatement = {
+      Effect: "Allow",
+      Action: [],
+      Resource: []
+    };
+  
+    switch (ds.type) {
+      case 'AWS_LAMBDA':
+        // Allow "invoke" for the Datasource's function and its aliases/versions
+        defaultStatement.Action = ["lambda:invokeFunction"];
+        defaultStatement.Resource = [
+          ds.config.lambdaFunctionArn,
+          { "Fn::Join" : [ ":", [ ds.config.lambdaFunctionArn, '*' ] ] }
+        ];
+        break;
+        
+      case 'AMAZON_DYNAMODB':
+        // Allow any action on the Datasource's table
+        defaultStatement.Action = [
+          "dynamodb:DeleteItem",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:UpdateItem",
+        ];
+        
+        const resourceArn = {
+          "Fn::Join" : [
+            ":",
+            [
+              'arn',
+              'aws',
+              'dynamodb',
+              ds.config.region || config.region,
+              { "Ref" : "AWS::AccountId" },
+              { "Fn::Join" : [ "/", ['table',  ds.config.tableName] ] },
+            ]
+          ]
+        };
+        
+        defaultStatement.Resource = [
+          resourceArn,
+          { "Fn::Join" : [ "/", [resourceArn, '*'] ] },
+        ];
+        break;
+        
+      case 'AMAZON_ELASTICSEARCH':
+        // Allow any action on the Datasource's ES endpoint
+        defaultStatement.Action = [
+          "es:ESHttpDelete",
+          "es:ESHttpGet",
+          "es:ESHttpHead",
+          "es:ESHttpPost",
+          "es:ESHttpPut",
+        ];
+        
+        const rx = /^https:\/\/([a-z0-9\-]+\.\w{2}\-[a-z]+\-\d\.es\.amazonaws\.com)$/;
+        const result = rx.exec(ds.config.endpoint);
+        
+        if (!result) {
+          throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
+        }
+        
+        defaultStatement.Resource = [
+          {
+            "Fn::Join" : [ ":", [
+              'arn',
+              'aws',
+              'es',
+              ds.config.region || config.region,
+              { "Ref" : "AWS::AccountId" },
+              `domain/${result[1]}`
+            ]]
+          },
+        ];
+        break;
+        
+      default:
+        // unknown or non compatible type
+        return false;
+    }
+    
+    return [defaultStatement];
+  }
 
   getDataSourceResources(config) {
     return config.dataSources.reduce((acc, ds) => {
@@ -176,9 +323,21 @@ class ServerlessAppsyncPlugin {
           Name: ds.name,
           Description: ds.description,
           Type: ds.type,
-          ServiceRoleArn: ds.type === 'NONE' ? undefined : ds.config.serviceRoleArn,
         },
       };
+
+      // If a serviceRoleArn was given for this DataAsouce, use it
+      if (ds.config && ds.config.serviceRoleArn) {
+        resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
+      } else {
+        const roleResouceName = this.getDataSourceCfnName(ds.name) + "Role";
+        // If a Role Resource was generated for this DataSource, use it
+        const role = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResouceName];
+        if (role) {
+          resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [roleResouceName, 'Arn'] }
+        }
+      }
+      
       if (ds.type === 'AWS_LAMBDA') {
         resource.Properties.LambdaConfig = {
           LambdaFunctionArn: ds.config.lambdaFunctionArn,

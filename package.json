@@ -14,7 +14,8 @@
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "jest": "^22.1.4"
+    "jest": "^22.1.4",
+    "serverless": "^1.30.0"
   },
   "dependencies": {
     "graphql": "^0.13.2",
