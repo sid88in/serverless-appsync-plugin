@@ -20,5 +20,8 @@
     "graphql": "^0.13.2",
     "ramda": "^0.25.0"
   },
-  "peerDependencies": {}
+  "peerDependencies": {},
+  "jest": {
+    "testEnvironment": "node"
+  }
 }

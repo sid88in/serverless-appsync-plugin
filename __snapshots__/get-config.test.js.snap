@@ -118,6 +118,7 @@ schema {
 }
 ",
   "serviceRoleArn": "1234",
+  "substitutions": Object {},
   "userPoolConfig": undefined,
 }
 `;
