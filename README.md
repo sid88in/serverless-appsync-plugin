@@ -90,7 +90,6 @@ custom:
         request: # request mapping template name
         response: # response mapping template name
     schema: # defaults schema.graphql
-    serviceRole: "AppSyncServiceRole" # AppSyncServiceRole is a role defined by amazon and available in all accounts
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name

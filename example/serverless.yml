@@ -77,7 +77,6 @@ custom:
         request: "updateUserInfo-request-mapping-template.vtl"
         response: "updateUserInfo-response-mapping-template.vtl"
     # schema: # defaults schema.graphql
-    serviceRole: "AppSyncServiceRole"
     dataSources:
       - type: AMAZON_DYNAMODB
         name: Users
