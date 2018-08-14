@@ -20,9 +20,6 @@ module.exports = (config, provider, servicePath) => {
   ) {
     throw new Error('appSync property `authenticationType` is missing or invalid.');
   }
-  if (!config.serviceRole) {
-    throw new Error('appSync property `serviceRole` is required.');
-  }
   if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' && !config.userPoolConfig) {
     throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
   }
@@ -62,7 +59,6 @@ module.exports = (config, provider, servicePath) => {
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
     openIdConnectConfig: config.openIdConnectConfig,
-    serviceRoleArn: config.serviceRole,
     // TODO verify dataSources structure
     dataSources,
     mappingTemplatesLocation,

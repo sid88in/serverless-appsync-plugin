@@ -2,6 +2,8 @@
 
 exports[`authenticationType is missing 1`] = `"appSync property \`authenticationType\` is missing or invalid."`;
 
+exports[`authenticationType is missing 2`] = `"appSync property \`authenticationType\` is missing or invalid."`;
+
 exports[`returns valid config 1`] = `
 Object {
   "apiId": undefined,
@@ -117,10 +119,7 @@ schema {
 	subscription: Subscription
 }
 ",
-  "serviceRoleArn": "1234",
   "substitutions": Object {},
   "userPoolConfig": undefined,
 }
 `;
-
-exports[`serviceRole is missing 1`] = `"appSync property \`serviceRole\` is required."`;

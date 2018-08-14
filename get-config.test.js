@@ -8,11 +8,10 @@ test('authenticationType is missing', () => {
   expect(run).toThrowErrorMatchingSnapshot();
 });
 
-test('serviceRole is missing', () => {
+test('authenticationType is missing', () => {
   const run = () =>
     getConfig(
       {
-        authenticationType: 'AWS_IAM',
       },
       {},
       servicePath,
@@ -24,7 +23,6 @@ test('returns valid config', () => {
   expect(getConfig(
     {
       authenticationType: 'AWS_IAM',
-      serviceRole: '1234',
       dataSources: {
         users: {
           type: 'AMAZON_DYNAMODB',

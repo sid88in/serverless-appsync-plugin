@@ -1,0 +1,495 @@
+const Serverless = require('serverless/lib/Serverless');
+const ServerlessAppsyncPlugin = require('.');
+
+describe("iamRoleStatements", () => {
+  
+  let serverless;
+  let plugin;
+  let config;
+  
+  beforeEach(() => {
+    serverless = new Serverless();
+    plugin = new  ServerlessAppsyncPlugin(serverless, {});
+    config = {
+      name: 'api',
+      dataSources: []
+    };
+  });
+  
+  test("getDataSourceIamRolesResouces with Specific statementss", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AWS_LAMBDA',
+            name: 'LambdaSource',
+            description: 'My Lambda Source',
+            config: {
+              lambdaFunctionArn: "{ Fn::GetAtt: [MyTestFunctionLambdaFunction, Arn] }",
+              iamRoleStatements: [
+                {
+                  Effect: "Allow",
+                  Action: ["lambda:invokeFunction"],
+                  Resource: [
+                    "arn:aws:lambda:us-east-1:123456789012:function:myTestFunction",
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            description: 'My DynamoDb Source',
+            config: {
+              tableName: "myTable",
+              iamRoleStatements: [
+                {
+                  Effect: "Allow",
+                  Action: [
+                    "dynamodb:Query",
+                    "dynamodb:Scan",
+                  ],
+                  Resource: [
+                    "arn:aws:dynamodb:us-east-1:123456789012:table/myTable",
+                    "arn:aws:dynamodb:us-east-1:123456789012:table/myTable/*",
+                  ],
+                },
+              ],
+            }
+          },
+          {
+            type: 'AMAZON_ELASTICSEARCH',
+            name: 'ElasticSearchSource',
+            description: 'My ElasticSearch Source',
+            config: {
+              region: "us-east-1",
+              endpoint: "https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+              iamRoleStatements: [
+                {
+                  Effect: "Allow",
+                  Action: [
+                    "ES:ESHttpGet",
+                  ],
+                  Resource: [
+                    "arn:aws:es:us-east-1:123456789012:domain/my-domain",
+                  ],
+                },
+              ],
+            }
+          },
+        ]
+      }
+    );
+    
+    const roles = plugin.getDataSourceIamRolesResouces(config);
+    expect(roles).toEqual(
+      {
+        "GraphQlDsLambdaSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsLambdaSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "lambda:invokeFunction",
+                      ],
+                      "Resource": [
+                        "arn:aws:lambda:us-east-1:123456789012:function:myTestFunction",
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        "GraphQlDsDynamoDbSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsDynamoDbSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                      ],
+                      "Resource": [
+                        "arn:aws:dynamodb:us-east-1:123456789012:table/myTable",
+                        "arn:aws:dynamodb:us-east-1:123456789012:table/myTable/*",
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        "GraphQlDsElasticSearchSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsElasticSearchSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      Action: [
+                        "ES:ESHttpGet",
+                      ],
+                      Resource: [
+                        "arn:aws:es:us-east-1:123456789012:domain/my-domain",
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    );
+  });
+  
+  
+  test("getDataSourceIamRolesResouces with Default generated statements", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AWS_LAMBDA',
+            name: 'LambdaSource',
+            description: 'My Lambda Source',
+            config: {
+              lambdaFunctionArn: "{ Fn::GetAtt: [MyTestFunctionLambdaFunction, Arn] }",
+            },
+          },
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            description: 'My DynamoDb Source',
+            config: {
+              tableName: "myTable",
+              region: "us-east-1",
+            }
+          },
+          {
+            type: 'AMAZON_ELASTICSEARCH',
+            name: 'ElasticSearchSource',
+            description: 'My ElasticSearch Source',
+            config: {
+              region: "us-east-1",
+              endpoint: "https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+            }
+          },
+        ],
+      },
+    );
+    
+    const roles = plugin.getDataSourceIamRolesResouces(config);
+    expect(roles).toEqual(
+      {
+        "GraphQlDsLambdaSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsLambdaSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "lambda:invokeFunction",
+                      ],
+                      "Resource": [
+                        "{ Fn::GetAtt: [MyTestFunctionLambdaFunction, Arn] }",
+                        {
+                          "Fn::Join" : [
+                            ":",
+                            [
+                              "{ Fn::GetAtt: [MyTestFunctionLambdaFunction, Arn] }",
+                              '*'
+                            ],
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        "GraphQlDsDynamoDbSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsDynamoDbSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:DeleteItem",
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                        "dynamodb:UpdateItem",
+                      ],
+                      "Resource": [
+                        { "Fn::Join" : [ ":", [
+                          'arn',
+                          'aws',
+                          'dynamodb',
+                          'us-east-1',
+                          { "Ref" : "AWS::AccountId" },
+                          { "Fn::Join" : [ "/", ['table',  'myTable'] ] },
+                          ]]
+                        },
+                        { "Fn::Join" : [ "/", [
+                          { "Fn::Join" : [ ":", [
+                            'arn',
+                            'aws',
+                            'dynamodb',
+                            'us-east-1',
+                            { "Ref" : "AWS::AccountId" },
+                            { "Fn::Join" : [ "/", ['table',  'myTable'] ] },
+                            ]]
+                          },
+                          '*'
+                        ] ] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        "GraphQlDsElasticSearchSourceRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:AssumeRole",
+                  ],
+                  "Principal": {
+                    "Service": [
+                      "appsync.amazonaws.com",
+                    ],
+                  },
+                },
+              ],
+            },
+            "Policies": [
+              {
+                "PolicyName": "GraphQlDsElasticSearchSourcePolicy",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      Action: [
+                        "es:ESHttpDelete",
+                        "es:ESHttpGet",
+                        "es:ESHttpHead",
+                        "es:ESHttpPost",
+                        "es:ESHttpPut",
+                      ],
+                      Resource: [
+                        {
+                          "Fn::Join" : [ ":", [
+                            'arn',
+                            'aws',
+                            'es',
+                            'us-east-1',
+                            { "Ref" : "AWS::AccountId" },
+                            "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com"
+                          ]]
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    );
+  });
+  
+  test("using a serviceRoleArn should not generate any new Role", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AWS_LAMBDA',
+            name: 'LambdaSource',
+            description: 'My Lambda Source',
+            config: {
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+              lambdaFunctionArn: "{ Fn::GetAtt: [MyTestFunctionLambdaFunction, Arn] }",
+            },
+          },
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            description: 'My DynamoDb Source',
+            config: {
+              tableName: "myTable",
+              region: "us-east-1",
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+            }
+          },
+          {
+            type: 'AMAZON_ELASTICSEARCH',
+            name: 'ElasticSearchSource',
+            description: 'My ElasticSearch Source',
+            config: {
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myEsRole",
+              region: "us-east-1",
+              endpoint: "https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+            }
+          },
+        ],
+      },
+    );
+    
+    const roles = plugin.getDataSourceIamRolesResouces(config);
+    expect(roles).toEqual({});
+  });
+  
+  test("Datasources of type NONE or HTTP should not generate any default role", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'NONE',
+            name: 'NoneSource',
+          },
+          {
+            type: 'HTTP',
+            name: 'HttpSource',
+            config: {
+              endpoint: "https://www.example.com/api",
+            }
+          },
+        ],
+      },
+    );
+    
+    const roles = plugin.getDataSourceIamRolesResouces(config);
+    expect(roles).toEqual({});
+  });
+  
+});
