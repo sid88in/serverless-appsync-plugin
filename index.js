@@ -116,6 +116,7 @@ class ServerlessAppsyncPlugin {
     Object.assign(resources, this.getGraphQlApiEndpointResource(config));
     Object.assign(resources, this.getApiKeyResources(config));
     Object.assign(resources, this.getGraphQLSchemaResource(config));
+    Object.assign(resources, this.getCloudWatchLogsRole(config));
     Object.assign(resources, this.getDataSourceIamRolesResouces(config));
     Object.assign(resources, this.getDataSourceResources(config));
     Object.assign(resources, this.getResolverResources(config));
@@ -144,7 +145,7 @@ class ServerlessAppsyncPlugin {
             AuthTTL: config.openIdConnectConfig.authTTL,
           },
           LogConfig: !config.logConfig ? undefined : {
-            CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn,
+            CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn || { "Fn::GetAtt": ["GraphQlApiCloudWatchLogsRole", "Arn"] },
             FieldLogLevel: config.logConfig.level,
           },
         },
@@ -165,6 +166,61 @@ class ServerlessAppsyncPlugin {
           Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
         },
       },
+    };
+  }
+  
+  getCloudWatchLogsRole(config) {
+    if (!config.logConfig || config.logConfig.loggingRoleArn) {
+      return {};
+    }
+  
+    return {
+      "GraphQlApiCloudWatchLogsRole": {
+        Type: 'AWS::IAM::Role',
+        Properties: {
+          "AssumeRolePolicyDocument": {
+            "Version" : "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": [ "appsync.amazonaws.com" ]
+                },
+                "Action": [ "sts:AssumeRole" ]
+              }
+            ]
+          },
+          Policies: [
+            {
+              PolicyName: "GraphQlApiCloudWatchLogsPolicy",
+              PolicyDocument: {
+                Version: "2012-10-17",
+                Statement: [
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ],
+                    "Resource": [
+                      {
+                        "Fn::Sub" : [
+                          "arn:aws:logs:${region}:${accountId}:*",
+                          {
+                            region: config.region,
+                            accountId: { "Ref" : "AWS::AccountId" },
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+              }
+            },
+          ]
+        }
+      }
     };
   }
   
