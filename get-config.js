@@ -26,9 +26,7 @@ module.exports = (config, provider, servicePath) => {
   if (config.authenticationType === 'OPENID_CONNECT' && !config.openIdConnectConfig) {
     throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
   }
-  if (config.logConfig && !config.logConfig.loggingRoleArn) {
-    throw new Error('logConfig property `loggingRoleArn` is required when logConfig exists.');
-  }
+  
   if (config.logConfig && !config.logConfig.level) {
     throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
   }
