@@ -72,6 +72,7 @@ custom:
       awsRegion: # required # region
       defaultAction: # ALLOW
       userPoolId: # required # user pool ID
+      appIdClientRegex: # optional
       region: # defaults to provider region
     # if OPENID_CONNECT
     openIdConnectConfig:
