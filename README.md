@@ -85,7 +85,7 @@ custom:
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
-        type: # Query, Mutation, Subscription
+        type: # type name in schema (e.g. Query, Mutation, Subscription)
         field: getUserInfo
         request: # request mapping template name
         response: # response mapping template name
