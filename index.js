@@ -137,6 +137,7 @@ class ServerlessAppsyncPlugin {
             AwsRegion: config.region,
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
+            AppIdClientRegex: config.userPoolConfig.appIdClientRegex,
           },
           OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
             Issuer: config.openIdConnectConfig.issuer,
