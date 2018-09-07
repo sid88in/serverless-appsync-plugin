@@ -22,13 +22,21 @@ class ServerlessAppsyncPlugin {
         usage: 'Runs a local graphql playground instance using your appsync config',
         options: {
           username: {
-            usage: 'Specify your cognito username',
+            usage: 'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'u',
             required: false,
           },
           password: {
-            usage: 'Specify your cognito password',
+            usage: 'Specify your password (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'p',
+            required: false,
+          },
+          jwtToken: {
+            usage: 'Specify your jwtToken (for OPENID_CONNECT authType)',
+            required: false,
+          },
+          apiKey: {
+            usage: 'Specify your appsync api key (for API_KEY authType)',
             required: false,
           },
           port: {

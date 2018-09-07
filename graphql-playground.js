@@ -4,7 +4,7 @@ const koaPlayground = require('graphql-playground-middleware-koa').default;
 
 const { getServerlessStackName, getValue } = require('./get-stack-value');
 
-function getGraphqlEndpoint(service, provider) {
+function getOutputValue(service, provider, key) {
   return provider
     .request(
       'CloudFormation',
@@ -15,9 +15,9 @@ function getGraphqlEndpoint(service, provider) {
     )
     .then((result) => {
       const stack = result.Stacks.pop();
-      const output = stack.Outputs.find(o => o.OutputKey === 'GraphQlApiUrl');
+      const output = stack.Outputs.find(o => o.OutputKey === key);
       if (!output) {
-        throw new Error('GraphQlApiUrl: Output not found in serverless stack');
+        throw new Error(`Output ${key}: not found in serverless stack`);
       }
 
       return output.OutputValue;
@@ -25,47 +25,67 @@ function getGraphqlEndpoint(service, provider) {
 }
 
 function getHeaders(service, provider, config, options) {
-  if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
-    if (!options.username || !options.password) {
-      throw new Error('Username and Password required for authentication type - AMAZON_COGNITO_USER_POOLS');
-    }
+  switch (config.authenticationType) {
+    case 'AMAZON_COGNITO_USER_POOLS': {
+      if (!options.username || !options.password) {
+        throw new Error('Username and Password required for authentication type - AMAZON_COGNITO_USER_POOLS');
+      }
 
-    return Promise.all([
-      getValue(service, provider, config.userPoolConfig.userPoolId, 'userPoolId'),
-      getValue(service, provider, config.userPoolConfig.playgroundClientId, 'playgroundClientId'),
-    ])
-      .then(([UserPoolId, ClientId]) => {
-        const cognito = new AWS.CognitoIdentityServiceProvider(provider.getCredentials());
-        return cognito
-          .adminInitiateAuth({
-            AuthFlow: 'ADMIN_NO_SRP_AUTH',
-            UserPoolId,
-            ClientId,
-            AuthParameters: {
-              USERNAME: options.username,
-              PASSWORD: options.password,
-            },
-          })
-          .promise();
-      })
-      .then(({ AuthenticationResult }) => {
-        if (!AuthenticationResult) {
-          throw new Error('Authentication Failed');
+      return Promise.all([
+        getValue(service, provider, config.userPoolConfig.userPoolId, 'userPoolId'),
+        getValue(service, provider, options.playgroundClientId || config.userPoolConfig.playgroundClientId, 'playgroundClientId'),
+      ])
+        .then(([UserPoolId, ClientId]) => {
+          const cognito = new AWS.CognitoIdentityServiceProvider(provider.getCredentials());
+          return cognito
+            .adminInitiateAuth({
+              AuthFlow: 'ADMIN_NO_SRP_AUTH',
+              UserPoolId,
+              ClientId,
+              AuthParameters: {
+                USERNAME: options.username,
+                PASSWORD: options.password,
+              },
+            })
+            .promise();
+        })
+        .then(({ AuthenticationResult }) => {
+          if (!AuthenticationResult) {
+            throw new Error('Authentication Failed');
+          }
+
+          return {
+            Authorization: AuthenticationResult.IdToken,
+          };
+        });
+    }
+    case 'API_KEY': {
+      return getOutputValue(service, provider, 'GraphQlApiKeyDefault').then(apiKey => ({
+        'X-Api-Key': apiKey,
+      }), () => {
+        if (options.apiKey) {
+          return { 'X-Api-Key': options.apiKey };
         }
 
-        return {
-          Authorization: AuthenticationResult.IdToken,
-        };
+        throw new Error('ApiKey required for authentication type (either as GraphQLApiKeyDefault output or as --apiKey option) - API_KEY');
       });
-  }
+    }
+    case 'OPENID_CONNECT': {
+      if (!options.jwtToken) {
+        throw new Error('jwtToken required for authentication type - OPENID_CONNECT');
+      }
 
-  return Promise.reject(new Error(`Authentication Type ${config.authenticationType} Not Supported for Graphiql`));
+      return Promise.resolve({ Authorization: options.jwtToken });
+    }
+    default:
+      throw new Error(`Authentication Type ${config.authenticationType} Not Supported for Graphiql`);
+  }
 }
 
 function runGraphqlPlayground(service, provider, config, options) {
   return Promise.all([
     getHeaders(service, provider, config, options),
-    getGraphqlEndpoint(service, provider),
+    getOutputValue(service, provider, 'GraphQlApiUrl'),
   ]).then(([headers, endpoint]) => {
     const app = new Koa();
     app.use(koaPlayground({
