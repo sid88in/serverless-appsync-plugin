@@ -151,6 +151,18 @@ custom:
 
 This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
 
+### `serverless graphql-playground`
+
+This command will start a local graphql-playground server which is connected to your AppSync endpoint. The required options for the command are different depending on your AppSync authenticationType.
+
+For API_KEY, either the GraphQLApiKeyDefault output or the --apiKey option is required
+
+For AMAZON_COGNITO_USER_POOLS, the -u/--username and -p/--password arguments are required. The cognito user pool client id can be provided with the --clientId option or directly in the yaml file (```custom.appSync.userPoolConfig.playgroundClientId```)
+
+For OPENID_CONNECT, the --jwtToken option is required.
+
+The AWS_IAM authenticationType is not currently supported.
+
 ## 📝 Notes
 
 * If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elastic Search</a>, you will need to create an Elastic Search domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.

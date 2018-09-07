@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "graphql": "^0.13.2",
+    "graphql-playground-middleware-koa": "^1.6.4",
+    "koa": "^2.5.2",
     "ramda": "^0.25.0"
   },
   "peerDependencies": {},
