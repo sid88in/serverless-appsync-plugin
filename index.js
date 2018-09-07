@@ -21,6 +21,10 @@ class ServerlessAppsyncPlugin {
       'graphql-playground': {
         usage: 'Runs a local graphql playground instance using your appsync config',
         options: {
+          clientId: {
+            usage: 'Specify your cognito client id (for AMAZON_COGNITO_USER_POOLS authType)',
+            required: false,
+          },
           username: {
             usage: 'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'u',

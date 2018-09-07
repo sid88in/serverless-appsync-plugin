@@ -32,8 +32,8 @@ function getHeaders(service, provider, config, options) {
       }
 
       return Promise.all([
-        getValue(service, provider, config.userPoolConfig.userPoolId, 'userPoolId'),
-        getValue(service, provider, options.playgroundClientId || config.userPoolConfig.playgroundClientId, 'playgroundClientId'),
+        getValue(service, provider, config.userPoolConfig.userPoolId, 'userPoolConfig.userPoolId'),
+        getValue(service, provider, options.clientId || config.userPoolConfig.playgroundClientId, 'userPoolConfig.playgroundClientId'),
       ])
         .then(([UserPoolId, ClientId]) => {
           const cognito = new AWS.CognitoIdentityServiceProvider(provider.getCredentials());
