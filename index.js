@@ -3,6 +3,7 @@ const path = require('path');
 const {
   validateSchema, printError, parse, buildASTSchema,
 } = require('graphql');
+const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -16,6 +17,26 @@ class ServerlessAppsyncPlugin {
       'delete-appsync': {
         usage: 'Helps you delete AppSync API',
         lifecycleEvents: ['delete'],
+      },
+      'graphql-playground': {
+        usage: 'Runs a local graphql playground instance using your appsync config',
+        options: {
+          username: {
+            usage: 'Specify your cognito username',
+            shortcut: 'u',
+            required: false,
+          },
+          password: {
+            usage: 'Specify your cognito password',
+            shortcut: 'p',
+            required: false,
+          },
+          port: {
+            usage: 'Specify the local port graphql playground should run from',
+            required: false,
+          },
+        },
+        lifecycleEvents: ['run'],
       },
       'deploy-appsync': {
         usage: 'DEPRECATED: Helps you deploy AppSync API',
@@ -34,6 +55,7 @@ class ServerlessAppsyncPlugin {
     this.hooks = {
       'before:deploy:initialize': () => this.validateSchema(),
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
+      'graphql-playground:run': () => this.runGraphqlPlayground(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
       'before:deploy:deploy': () => this.addResources(),
@@ -99,6 +121,12 @@ class ServerlessAppsyncPlugin {
           this.serverless.cli.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
         }
       });
+  }
+
+  runGraphqlPlayground() {
+    runPlayground(this.serverless.service, this.provider, this.loadConfig(), this.options).then((url) => {
+      this.serverless.cli.log(`Graphql Playground Server Running at: ${url}`);
+    });
   }
 
   addResources() {
