@@ -195,6 +195,10 @@ to cleanup the old resources
 4. Remove the `apiId` line from `custom.appSync` in `serverless.yml`
 5. 🍹
 
+## Youtube Video by Foo Bar :)
+
+[![Alt text](https://www.youtube.com/watch?v=eTUYqI_LCQ4)](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
+
 ## ❤️ Credits
 
 Big Thanks to <a target="_blank" href="https://twitter.com/nikgraf">Nik Graf</a>, <a target="_blank" href="https://twitter.com/pmmuens">Philipp Müns</a>, <a target="_blank" href="https://twitter.com/superpatell">Jon Patel</a> and my favourite <a target="_blank" href="https://twitter.com/lolcoolkat">coolest kat ever</a> for helping to build this plugin!
