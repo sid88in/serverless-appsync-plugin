@@ -197,7 +197,7 @@ to cleanup the old resources
 
 ## Youtube Video by Foo Bar :)
 
-[![Alt text](https://www.youtube.com/watch?v=eTUYqI_LCQ4)](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
+[![Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
 ## ❤️ Credits
 
