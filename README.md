@@ -171,6 +171,39 @@ The AWS_IAM authenticationType is not currently supported.
 
 * If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elastic Search</a>, you will need to create an Elastic Search domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
 
+## Offline support
+
+You can use [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to autostart an [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless) which depends on [Serverless-AppSync-Plugin](https://github.com/sid88in/serverless-appsync-plugin) with DynamoDB and Lambda resolver support:
+### Install Plugin
+`npm install --save serverless-appsync-offline`
+### Minimal Options (serverless.yml)
+```yml
+custom:
+  appsync-offline:
+    port: 62222
+    dynamodb:
+      server:
+        port: 8000
+```
+### Start local enviroment
+
+If you use `serverless-offline`:
+
+`sls offline start`
+
+otherwise:
+
+`sls appsync-offline start`
+
+the result is:
+
+```
+Serverless: dynamoDB started: http://localhost:8000/
+Serverless: AppSync started: http://localhost:62222/graphql
+```
+
+Go to [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to get further configuration options.
+
 ## 🎁 Contributing
 
 If you have any questions, please feel free to reach out to me directly on Twitter <a target="_blank" href="https://twitter.com/sidg_sid">Sid Gupta</a>.
