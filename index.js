@@ -345,8 +345,8 @@ class ServerlessAppsyncPlugin {
           ]
         }
       };
-      
-      return Object.assign({}, acc, { [this.getLogicalId(ds, RESOURCE_DATASOURCE_ROLE)]: resource });
+      // NOTE: No two AppSync APIs should share datasources. For potential fine-grain access implementation.
+      return Object.assign({}, acc, { [this.getLogicalId(config, this.getLogicalId(ds, RESOURCE_DATASOURCE_ROLE))]: resource });
     }, {});
   }
   
@@ -454,7 +454,7 @@ class ServerlessAppsyncPlugin {
       if (ds.config && ds.config.serviceRoleArn) {
         resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
       } else {
-        const dataSourceRoleLogicalId = this.getLogicalId(ds, RESOURCE_DATASOURCE_ROLE);
+        const dataSourceRoleLogicalId = this.getLogicalId(config, this.getLogicalId(ds, RESOURCE_DATASOURCE_ROLE));
         // If a Role Resource was generated for this DataSource, use it
         const role = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[dataSourceRoleLogicalId];
         if (role) {
@@ -484,7 +484,8 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
       }
-      return Object.assign({}, acc, { [this.getLogicalId(ds, RESOURCE_DATASOURCE)]: resource });
+      // NOTE: No two AppSync APIs should share datasources. For potential fine-grain access implementation.
+      return Object.assign({}, acc, { [this.getLogicalId(config, this.getLogicalId(ds, RESOURCE_DATASOURCE))]: resource });
     }, {});
   }
 
