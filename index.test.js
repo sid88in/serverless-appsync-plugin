@@ -9,7 +9,7 @@ beforeEach(() => {
   serverless = new Serverless();
   plugin = new  ServerlessAppsyncPlugin(serverless, {});
   config = {
-    name: 'api',
+    name: 'myApi',
     dataSources: [],
     region: 'us-east-1',
   };
@@ -29,7 +29,7 @@ describe("appsync config", () => {
     const role = plugin.getCloudWatchLogsRole(config);
     expect(role).toEqual(
       {
-        "GraphQlApiCloudWatchLogsRole": {
+        "MyApiGraphQlApiCloudWatchLogsRole": {
           Type: 'AWS::IAM::Role',
           Properties: {
             "AssumeRolePolicyDocument": {
@@ -173,7 +173,7 @@ describe("iamRoleStatements", () => {
     const roles = plugin.getDataSourceIamRolesResouces(config);
     expect(roles).toEqual(
       {
-        "GraphQlDsLambdaSourceRole": {
+        "MyApiLambdaSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -213,7 +213,7 @@ describe("iamRoleStatements", () => {
             ],
           },
         },
-        "GraphQlDsDynamoDbSourceRole": {
+        "MyApiDynamoDbSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -255,7 +255,7 @@ describe("iamRoleStatements", () => {
             ],
           },
         },
-        "GraphQlDsElasticSearchSourceRole": {
+        "MyApiElasticSearchSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -339,7 +339,7 @@ describe("iamRoleStatements", () => {
     const roles = plugin.getDataSourceIamRolesResouces(config);
     expect(roles).toEqual(
       {
-        "GraphQlDsLambdaSourceRole": {
+        "MyApiLambdaSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -388,7 +388,7 @@ describe("iamRoleStatements", () => {
             ],
           },
         },
-        "GraphQlDsDynamoDbSourceRole": {
+        "MyApiDynamoDbSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -453,7 +453,7 @@ describe("iamRoleStatements", () => {
             ],
           },
         },
-        "GraphQlDsElasticSearchSourceRole": {
+        "MyApiElasticSearchSourceGraphQlDsRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
