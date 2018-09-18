@@ -67,7 +67,9 @@ const getConfig = (config, provider, servicePath) => {
 };
 
 module.exports = (config, provider, servicePath) => {
-  if (config.constructor === Array) {
+  if (!config) {
+    return [];
+  } else if (config.constructor === Array) {
     return config.map(apiConfig => getConfig(apiConfig, provider, servicePath));
   } else {
     const singleConfig = getConfig(config, provider, servicePath);

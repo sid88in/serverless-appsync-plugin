@@ -115,12 +115,10 @@ class ServerlessAppsyncPlugin {
       const currentErrors = validateSchema(currentAst);
       if (!currentErrors.length) {
         return accumulatedErrors;
-      } else if (!accumulatedErrors.length) {
-        return currentErrors;
       } else {
         return accumulatedErrors.concat(currentErrors || []);
       }
-    });
+    }, []);
     if (!errors.length) {
       return;
     }
@@ -532,7 +530,7 @@ class ServerlessAppsyncPlugin {
     if (config.isSingleConfig) {
       // This will ensure people with CloudFormation stack dependencies on the previous
       // version of the plugin doesn't break their {@code deleteGraphQLEndpoint} functionality
-        return this.getCfnName(resourceType);
+      return this.getCfnName(resourceType);
     } else {
       return this.getCfnName(config.name[0].toUpperCase() + config.name.slice(1) + resourceType);
     }
