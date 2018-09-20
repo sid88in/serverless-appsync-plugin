@@ -5,29 +5,27 @@ exports[`authenticationType is missing 1`] = `"appSync property \`authentication
 exports[`authenticationType is missing 2`] = `"appSync property \`authenticationType\` is missing or invalid."`;
 
 exports[`returns valid config 1`] = `
-Array [
-  Object {
-    "apiId": undefined,
-    "apiKey": undefined,
-    "authenticationType": "AWS_IAM",
-    "dataSources": Array [
-      Object {
-        "name": "users",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "tweets",
-        "type": "AMAZON_DYNAMODB",
-      },
-    ],
-    "isSingleConfig": true,
-    "logConfig": undefined,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
-    "name": "api",
-    "openIdConnectConfig": undefined,
-    "region": "us-east-1",
-    "schema": "type Mutation {
+Object {
+  "apiId": undefined,
+  "apiKey": undefined,
+  "authenticationType": "AWS_IAM",
+  "dataSources": Array [
+    Object {
+      "name": "users",
+      "type": "AMAZON_DYNAMODB",
+    },
+    Object {
+      "name": "tweets",
+      "type": "AMAZON_DYNAMODB",
+    },
+  ],
+  "logConfig": undefined,
+  "mappingTemplates": Array [],
+  "mappingTemplatesLocation": "mapping-templates",
+  "name": "api",
+  "openIdConnectConfig": undefined,
+  "region": "us-east-1",
+  "schema": "type Mutation {
 	# Create a tweet for a user
 	# consumer keys and tokens are not required for dynamo integration
 	createTweet(
@@ -121,8 +119,7 @@ schema {
 	subscription: Subscription
 }
 ",
-    "substitutions": Object {},
-    "userPoolConfig": undefined,
-  },
-]
+  "substitutions": Object {},
+  "userPoolConfig": undefined,
+}
 `;
