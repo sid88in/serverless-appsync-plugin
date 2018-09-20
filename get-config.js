@@ -9,7 +9,7 @@ const objectToArrayWithNameProp = pipe(
   values,
 );
 
-const getConfig = (config, provider, servicePath) => {
+module.exports = (config, provider, servicePath) => {
   if (
     !(
       config.authenticationType === 'API_KEY' ||
@@ -64,16 +64,4 @@ const getConfig = (config, provider, servicePath) => {
     logConfig: config.logConfig,
     substitutions: config.substitutions || {},
   };
-};
-
-module.exports = (config, provider, servicePath) => {
-  if (!config) {
-    return [];
-  } else if (config.constructor === Array) {
-    return config.map(apiConfig => getConfig(apiConfig, provider, servicePath));
-  } else {
-    const singleConfig = getConfig(config, provider, servicePath);
-    singleConfig.isSingleConfig = true;
-    return [singleConfig];
-  }
 };
