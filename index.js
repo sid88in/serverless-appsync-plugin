@@ -247,10 +247,9 @@ class ServerlessAppsyncPlugin {
                     "Resource": [
                       {
                         "Fn::Sub" : [
-                          "arn:aws:logs:${region}:${accountId}:*",
+                          "arn:aws:logs:${region}:${AWS::AccountId}:*",
                           {
-                            region: config.region,
-                            accountId: { "Ref" : "AWS::AccountId" },
+                            region: config.region
                           }
                         ]
                       }

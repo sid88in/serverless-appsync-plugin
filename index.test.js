@@ -60,10 +60,9 @@ describe("appsync config", () => {
                       "Resource": [
                         {
                           "Fn::Sub" : [
-                            "arn:aws:logs:${region}:${accountId}:*",
+                            "arn:aws:logs:${region}:${AWS::AccountId}:*",
                             {
-                              region: 'us-east-1',
-                              accountId: { "Ref" : "AWS::AccountId" },
+                              region: 'us-east-1'
                             }
                           ]
                         }
