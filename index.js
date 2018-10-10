@@ -64,8 +64,10 @@ class ServerlessAppsyncPlugin {
       throw new this.serverless.classes.Error(`serverless-appsync: ${command} `
         + `is no longer supported. See ${MIGRATION_DOCS} for more information`);
     };
+    // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
+    // by package:initialize.
     this.hooks = {
-      'before:deploy:initialize': () => this.validateSchema(),
+      'package:initialize': () => this.validateSchema(),
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
       'graphql-playground:run': () => this.runGraphqlPlayground(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
@@ -209,12 +211,12 @@ class ServerlessAppsyncPlugin {
       },
     };
   }
-  
+
   getCloudWatchLogsRole(config) {
     if (!config.logConfig || config.logConfig.loggingRoleArn) {
       return {};
     }
-  
+
     return {
       "GraphQlApiCloudWatchLogsRole": {
         Type: 'AWS::IAM::Role',
@@ -264,11 +266,11 @@ class ServerlessAppsyncPlugin {
       }
     };
   }
-  
+
   getDataSourceIamRolesResouces(config) {
-    
+
     return config.dataSources.reduce((acc, ds) => {
-      
+
       // Only generate DataSource Roles for compatible types
       // and if `serviceRoleArn` not provided
       if (
@@ -277,21 +279,21 @@ class ServerlessAppsyncPlugin {
       ) {
         return acc;
       }
-      
+
       let statements;
-      
+
       if (ds.config && ds.config.iamRoleStatements) {
         statements = ds.config.iamRoleStatements;
       } else {
         // Try to generate default statements for the given DataSource.
         statements = this.getDefaultDataSourcePolicyStatements(ds, config);
-        
+
         // If we could not generate it, skip this step.
         if (false === statements) {
           return acc;
         }
       }
-      
+
       const resource = {
         Type: 'AWS::IAM::Role',
         Properties: {
@@ -318,19 +320,19 @@ class ServerlessAppsyncPlugin {
           ]
         }
       };
-      
+
       return Object.assign({}, acc, { [this.getDataSourceCfnName(ds.name) + "Role"]: resource });
     }, {});
   }
-  
+
   getDefaultDataSourcePolicyStatements(ds, config) {
-    
+
     const defaultStatement = {
       Effect: "Allow",
       Action: [],
       Resource: []
     };
-  
+
     switch (ds.type) {
       case 'AWS_LAMBDA':
         // Allow "invoke" for the Datasource's function and its aliases/versions
@@ -340,7 +342,7 @@ class ServerlessAppsyncPlugin {
           { "Fn::Join" : [ ":", [ ds.config.lambdaFunctionArn, '*' ] ] }
         ];
         break;
-        
+
       case 'AMAZON_DYNAMODB':
         // Allow any action on the Datasource's table
         defaultStatement.Action = [
@@ -351,7 +353,7 @@ class ServerlessAppsyncPlugin {
           "dynamodb:Scan",
           "dynamodb:UpdateItem",
         ];
-        
+
         const resourceArn = {
           "Fn::Join" : [
             ":",
@@ -365,13 +367,13 @@ class ServerlessAppsyncPlugin {
             ]
           ]
         };
-        
+
         defaultStatement.Resource = [
           resourceArn,
           { "Fn::Join" : [ "/", [resourceArn, '*'] ] },
         ];
         break;
-        
+
       case 'AMAZON_ELASTICSEARCH':
         // Allow any action on the Datasource's ES endpoint
         defaultStatement.Action = [
@@ -381,14 +383,14 @@ class ServerlessAppsyncPlugin {
           "es:ESHttpPost",
           "es:ESHttpPut",
         ];
-        
+
         const rx = /^https:\/\/([a-z0-9\-]+\.\w{2}\-[a-z]+\-\d\.es\.amazonaws\.com)$/;
         const result = rx.exec(ds.config.endpoint);
-        
+
         if (!result) {
           throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
         }
-        
+
         defaultStatement.Resource = [
           {
             "Fn::Join" : [ ":", [
@@ -402,12 +404,12 @@ class ServerlessAppsyncPlugin {
           },
         ];
         break;
-        
+
       default:
         // unknown or non compatible type
         return false;
     }
-    
+
     return [defaultStatement];
   }
 
@@ -434,7 +436,7 @@ class ServerlessAppsyncPlugin {
           resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [roleResouceName, 'Arn'] }
         }
       }
-      
+
       if (ds.type === 'AWS_LAMBDA') {
         resource.Properties.LambdaConfig = {
           LambdaFunctionArn: ds.config.lambdaFunctionArn,
