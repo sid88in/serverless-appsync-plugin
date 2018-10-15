@@ -66,7 +66,6 @@ Add the following example config to the custom section of ```serverless.yml```
 
 ```yaml
 custom:
-  accountId: abc # found here https://console.aws.amazon.com/billing/home?#/account
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
