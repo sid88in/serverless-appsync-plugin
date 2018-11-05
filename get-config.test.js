@@ -34,5 +34,5 @@ test('returns valid config', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )).toMatchSnapshot();
+  )[0]).toMatchSnapshot();
 });

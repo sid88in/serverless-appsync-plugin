@@ -12,6 +12,7 @@ beforeEach(() => {
     name: 'api',
     dataSources: [],
     region: 'us-east-1',
+    isSingleConfig: true,
   };
 });
 

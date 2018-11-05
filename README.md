@@ -148,6 +148,37 @@ custom:
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
 
+#### Multiple APIs
+
+If you have multiple APIs and do not want to split this up into another CloudFormation stack, simply change the `appSync` configuration property from an object into an array of objects:
+
+```yaml
+custom:
+  appSync:
+    - name: private-appsync-endpoint
+      schema: AppSync/schema.graphql # or something like AppSync/private/schema.graphql
+      authenticationType: OPENID_CONNECT
+      openIdConnectConfig:
+      ...
+      serviceRole: AuthenticatedAppSyncServiceRole
+      dataSources:
+      ...
+      mappingTemplatesLocation: ...
+      mappingTemplates:
+      ...
+    - name: public-appsync-endpoint
+      schema: AppSync/schema.graphql # or something like AppSync/public/schema.graphql
+      authenticationType: NONE # or API_KEY, you get the idea
+      serviceRole: PublicAppSyncServiceRole
+      dataSources:
+      ...
+      mappingTemplatesLocation: ...
+      mappingTemplates:
+      ...
+```
+
+> Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
+
 ## ▶️ Usage
 
 ### `serverless deploy`
