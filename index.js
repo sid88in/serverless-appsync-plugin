@@ -36,7 +36,7 @@ class ServerlessAppsyncPlugin {
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
-      'before:deploy:deploy': () => this.addResources(),
+      'after:aws:package:finalize:mergeCustomProviderResources': () => this.addResources(),
     };
   }
 
