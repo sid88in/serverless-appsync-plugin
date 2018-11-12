@@ -72,7 +72,7 @@ class ServerlessAppsyncPlugin {
       'graphql-playground:run': () => this.runGraphqlPlayground(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
-      'before:deploy:deploy': () => this.addResources(),
+      'after:aws:package:finalize:mergeCustomProviderResources': () => this.addResources(),
     };
   }
 
