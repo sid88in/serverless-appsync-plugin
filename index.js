@@ -7,6 +7,11 @@ const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
+const RESOURCE_API = "GraphQLApi";
+const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = "GraphQlApiCloudWatchLogsRole";
+const RESOURCE_API_KEY = "GraphQlApiKeyDefault";
+const RESOURCE_SCHEMA = "GraphQlSchema";
+const RESOURCE_URL = "GraphQlApiUrl";
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -67,7 +72,7 @@ class ServerlessAppsyncPlugin {
     // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
     // by package:initialize.
     this.hooks = {
-      'package:initialize': () => this.validateSchema(),
+      'package:initialize': () => this.validateSchemas(),
       'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
       'graphql-playground:run': () => this.runGraphqlPlayground(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
@@ -84,8 +89,8 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  getSchema() {
-    const { schema } = this.loadConfig();
+  getSchemas() {
+    const config = this.loadConfig();
 
     const awsTypes = `
       scalar AWSDate
@@ -99,13 +104,20 @@ class ServerlessAppsyncPlugin {
       scalar AWSIPAddress
     `;
 
-    return `${schema} ${awsTypes}`;
+    return config.map(apiConfig => `${apiConfig.schema} ${awsTypes}`);
   }
 
-  validateSchema() {
-    const schema = this.getSchema();
-    const ast = buildASTSchema(parse(schema));
-    const errors = validateSchema(ast);
+  validateSchemas() {
+    const schemas = this.getSchemas();
+    const asts = schemas.map(schema => buildASTSchema(parse(schema)));
+    const errors = asts.reduce((accumulatedErrors, currentAst) => {
+      const currentErrors = validateSchema(currentAst);
+      if (!currentErrors.length) {
+        return accumulatedErrors;
+      } else {
+        return accumulatedErrors.concat(currentErrors || []);
+      }
+    }, []);
     if (!errors.length) {
       return;
     }
@@ -113,32 +125,36 @@ class ServerlessAppsyncPlugin {
     errors.forEach((error) => {
       this.serverless.cli.log(printError(error));
     });
-    throw new this.serverless.classes.Error('Cannot proceed invalid graphql SDL');
+    throw new this.serverless.classes.Error('Cannot proceed invalid graphql SDL in one or more schemas.');
   }
 
   deleteGraphQLEndpoint() {
     const config = this.loadConfig();
-    const { apiId } = config;
-    if (!apiId) {
-      throw new this.serverless.classes.Error('serverless-appsync: no apiId is defined. If you are not '
-        + `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
+    return Promise.all(config.map(apiConfig => {
+      const { apiId } = apiConfig;
+      if (!apiId) {
+        throw new this.serverless.classes.Error('serverless-appsync: no apiId is defined. If you are not '
+          + `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
         + 'for more information`);
-    }
+      }
 
-    this.serverless.cli.log('Deleting GraphQL Endpoint...');
-    return this.provider
-      .request('AppSync', 'deleteGraphqlApi', {
-        apiId,
-      })
-      .then((data) => {
-        if (data) {
-          this.serverless.cli.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
-        }
-      });
+      this.serverless.cli.log(`Deleting GraphQL Endpoint (${apiId})...`);
+      return this.provider
+        .request('AppSync', 'deleteGraphqlApi', {
+          apiId,
+        })
+        .then((data) => {
+          if (data) {
+            this.serverless.cli.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
+          }
+        });
+    }));
   }
 
   runGraphqlPlayground() {
-    runPlayground(this.serverless.service, this.provider, this.loadConfig(), this.options).then((url) => {
+    // Use the first config or config map
+    const firstConfig = this.loadConfig()[0];
+    runPlayground(this.serverless.service, this.provider, firstConfig, this.options).then((url) => {
       this.serverless.cli.log(`Graphql Playground Server Running at: ${url}`);
     });
   }
@@ -146,31 +162,37 @@ class ServerlessAppsyncPlugin {
   addResources() {
     const config = this.loadConfig();
 
-    if (config.apiId) {
-      this.serverless.cli.log('WARNING: serverless-appsync has been updated in a breaking way and your '
-        + 'service is configured using a reference to an existing apiKey in '
-        + '`custom.appSync` which is used in the legacy deploy scripts. This deploy will create '
-        + `new graphql resources and WILL NOT update your existing api. See ${MIGRATION_DOCS} for `
-        + 'more information');
-    }
-
     const resources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
-    Object.assign(resources, this.getGraphQlApiEndpointResource(config));
-    Object.assign(resources, this.getApiKeyResources(config));
-    Object.assign(resources, this.getGraphQLSchemaResource(config));
-    Object.assign(resources, this.getCloudWatchLogsRole(config));
-    Object.assign(resources, this.getDataSourceIamRolesResouces(config));
-    Object.assign(resources, this.getDataSourceResources(config));
-    Object.assign(resources, this.getResolverResources(config));
-
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
-    Object.assign(outputs, this.getGraphQlApiOutputs(config));
-    Object.assign(outputs, this.getApiKeyOutputs(config));
+
+    config.forEach(apiConfig => {
+      if (apiConfig.apiId) {
+        this.serverless.cli.log('WARNING: serverless-appsync has been updated in a breaking way and your '
+          + 'service is configured using a reference to an existing apiKey in '
+          + '`custom.appSync` which is used in the legacy deploy scripts. This deploy will create '
+          + `new graphql resources and WILL NOT update your existing api. See ${MIGRATION_DOCS} for `
+          + 'more information');
+      }
+
+
+      Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
+      Object.assign(resources, this.getApiKeyResources(apiConfig));
+      Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
+      Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
+      Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
+      Object.assign(resources, this.getDataSourceResources(apiConfig));
+      Object.assign(resources, this.getResolverResources(apiConfig));
+
+      Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
+      Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
+    });
   }
 
   getGraphQlApiEndpointResource(config) {
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+    const logicalIdCloudWatchLogsRole = this.getLogicalId(config, RESOURCE_API_CLOUDWATCH_LOGS_ROLE);
     return {
-      GraphQlApi: {
+      [logicalIdGraphQLApi]: {
         Type: 'AWS::AppSync::GraphQLApi',
         Properties: {
           Name: config.name,
@@ -188,7 +210,9 @@ class ServerlessAppsyncPlugin {
             AuthTTL: config.openIdConnectConfig.authTTL,
           },
           LogConfig: !config.logConfig ? undefined : {
-            CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn || { "Fn::GetAtt": ["GraphQlApiCloudWatchLogsRole", "Arn"] },
+            CloudWatchLogsRoleArn:
+              config.logConfig.loggingRoleArn ||
+              { "Fn::GetAtt": [logicalIdCloudWatchLogsRole, "Arn"] },
             FieldLogLevel: config.logConfig.level,
           },
         },
@@ -200,12 +224,14 @@ class ServerlessAppsyncPlugin {
     if (config.authenticationType !== 'API_KEY') {
       return {};
     }
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
     return {
-      GraphQlApiKeyDefault: {
+      [logicalIdApiKey]: {
         Type: 'AWS::AppSync::ApiKey',
         Properties: {
-          ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
-          Description: 'serverless-appsync-plugin: Default',
+          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+          Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
           Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
         },
       },
@@ -217,8 +243,9 @@ class ServerlessAppsyncPlugin {
       return {};
     }
 
+    const logicalIdCloudWatchLogsRole = this.getLogicalId(config, RESOURCE_API_CLOUDWATCH_LOGS_ROLE);
     return {
-      "GraphQlApiCloudWatchLogsRole": {
+      [logicalIdCloudWatchLogsRole]: {
         Type: 'AWS::IAM::Role',
         Properties: {
           "AssumeRolePolicyDocument": {
@@ -320,7 +347,8 @@ class ServerlessAppsyncPlugin {
         }
       };
 
-      return Object.assign({}, acc, { [this.getDataSourceCfnName(ds.name) + "Role"]: resource });
+      const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(ds.name) + "Role");
+      return Object.assign({}, acc, { [logicalIdDataSource]: resource });
     }, {});
   }
 
@@ -413,26 +441,27 @@ class ServerlessAppsyncPlugin {
   }
 
   getDataSourceResources(config) {
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     return config.dataSources.reduce((acc, ds) => {
       const resource = {
         Type: 'AWS::AppSync::DataSource',
         Properties: {
-          ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
           Name: ds.name,
           Description: ds.description,
           Type: ds.type,
         },
       };
 
-      // If a serviceRoleArn was given for this DataAsouce, use it
+      // If a serviceRoleArn was given for this DataSource, use it
       if (ds.config && ds.config.serviceRoleArn) {
         resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
       } else {
-        const roleResouceName = this.getDataSourceCfnName(ds.name) + "Role";
+        const logicalIdDataSourceRole = this.getLogicalId(config, this.getDataSourceCfnName(ds.name) + "Role");
         // If a Role Resource was generated for this DataSource, use it
-        const role = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[roleResouceName];
+        const role = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[logicalIdDataSourceRole];
         if (role) {
-          resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [roleResouceName, 'Arn'] }
+          resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [logicalIdDataSourceRole, 'Arn'] }
         }
       }
 
@@ -458,17 +487,20 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
       }
-      return Object.assign({}, acc, { [this.getDataSourceCfnName(ds.name)]: resource });
+      const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(ds.name));
+      return Object.assign({}, acc, { [logicalIdDataSource]: resource });
     }, {});
   }
 
   getGraphQLSchemaResource(config) {
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+    const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
     return {
-      GraphQlSchema: {
+      [logicalIdGraphQLSchema]: {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
           Definition: config.schema,
-          ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         },
       },
     };
@@ -481,15 +513,22 @@ class ServerlessAppsyncPlugin {
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
       const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
 
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+      const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
+      const logicalIdResolver = this.getLogicalId(
+        config,
+        `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`
+      );
+      const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource));
       return Object.assign({}, acc, {
-        [`GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`]: {
+        [logicalIdResolver]: {
           Type: 'AWS::AppSync::Resolver',
-          DependsOn: 'GraphQlSchema',
+          DependsOn: logicalIdGraphQLSchema,
           Properties: {
-            ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             TypeName: tpl.type,
             FieldName: tpl.field,
-            DataSourceName: { 'Fn::GetAtt': [this.getDataSourceCfnName(tpl.dataSource), 'Name'] },
+            DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
             RequestMappingTemplate: this.processTemplate(requestTemplate, config),
             ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
           },
@@ -498,10 +537,25 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getGraphQlApiOutputs() {
+  getLogicalId(config, resourceType) {
+    // Similar to serverless' implementation of functions
+    // (e.g. getUser becomes GetUserLambdaFunction for CloudFormation logical ID,
+    //  myService becomes MyServiceGraphQLApi or `MyService${resourceType}`)
+    if (config.isSingleConfig) {
+      // This will ensure people with CloudFormation stack dependencies on the previous
+      // version of the plugin doesn't break their {@code deleteGraphQLEndpoint} functionality
+      return this.getCfnName(resourceType);
+    } else {
+      return this.getCfnName(config.name[0].toUpperCase() + config.name.slice(1) + resourceType);
+    }
+  }
+
+  getGraphQlApiOutputs(config) {
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+    const logicalIdGraphQLApiUrlOutput = this.getLogicalId(config, RESOURCE_URL);
     return {
-      GraphQlApiUrl: {
-        Value: { 'Fn::GetAtt': ['GraphQlApi', 'GraphQLUrl'] },
+      [logicalIdGraphQLApiUrlOutput]: {
+        Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
       },
     };
   }
@@ -510,9 +564,11 @@ class ServerlessAppsyncPlugin {
     if (config.authenticationType !== 'API_KEY') {
       return {};
     }
+    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+    const logicalIdApiKeyOutput = logicalIdApiKey;
     return {
-      GraphQlApiKeyDefault: {
-        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      [logicalIdApiKeyOutput]: {
+        Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
       },
     };
   }

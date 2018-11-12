@@ -19,6 +19,7 @@ Object {
       "type": "AMAZON_DYNAMODB",
     },
   ],
+  "isSingleConfig": true,
   "logConfig": undefined,
   "mappingTemplates": Array [],
   "mappingTemplatesLocation": "mapping-templates",
