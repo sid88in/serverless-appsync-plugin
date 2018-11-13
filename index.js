@@ -7,7 +7,7 @@ const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
-const RESOURCE_API = "GraphQLApi";
+const RESOURCE_API = "GraphQlApi";
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = "GraphQlApiCloudWatchLogsRole";
 const RESOURCE_API_KEY = "GraphQlApiKeyDefault";
 const RESOURCE_SCHEMA = "GraphQlSchema";
