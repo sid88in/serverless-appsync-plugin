@@ -198,7 +198,7 @@ class ServerlessAppsyncPlugin {
           Name: config.name,
           AuthenticationType: config.authenticationType,
           UserPoolConfig: config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS' ? undefined : {
-            AwsRegion: config.region,
+            AwsRegion: config.userPoolConfig.awsRegion || config.region,
             DefaultAction: config.userPoolConfig.defaultAction,
             UserPoolId: config.userPoolConfig.userPoolId,
             AppIdClientRegex: config.userPoolConfig.appIdClientRegex,

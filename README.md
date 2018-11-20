@@ -75,11 +75,10 @@ custom:
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
-      awsRegion: # required # region
+      awsRegion: # defaults to provider region
       defaultAction: # ALLOW
       userPoolId: # required # user pool ID
       appIdClientRegex: # optional
-      region: # defaults to provider region
     # if OPENID_CONNECT
     openIdConnectConfig:
       issuer:

@@ -20,10 +20,9 @@ custom:
     # name:  # defaults to api
     authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
-      awsRegion: # required # region
+      awsRegion: # defaults to provider region
       defaultAction: # ALLOW
       userPoolId: # required # user pool ID
-    # region: # defaults to provider region
     # mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: Users
