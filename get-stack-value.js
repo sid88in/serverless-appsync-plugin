@@ -13,8 +13,6 @@ function getValue(service, provider, value, name) {
         {
           StackName: getServerlessStackName(service, provider)
         },
-        provider.getStage(),
-        provider.getRegion()
       )
       .then(result => {
         const resource = result.StackResourceSummaries.find(

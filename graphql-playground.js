@@ -10,8 +10,6 @@ function getOutputValue(service, provider, key) {
       'CloudFormation',
       'describeStacks',
       { StackName: getServerlessStackName(service, provider) },
-      provider.getStage(),
-      provider.getRegion(),
     )
     .then((result) => {
       const stack = result.Stacks.pop();
