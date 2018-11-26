@@ -548,7 +548,15 @@ class ServerlessAppsyncPlugin {
         config,
         `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`
       );
-      
+
+      const sharedResolverProperties = {
+        ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        TypeName: tpl.type,
+        FieldName: tpl.field,
+        RequestMappingTemplate: this.processTemplate(requestTemplate, config),
+        ResponseMappingTemplate: this.processTemplate(responseTemplate, config)
+      }
+
       const uniqueResolverProperties =
         tpl.kind === 'PIPELINE'
           ? {
@@ -564,19 +572,14 @@ class ServerlessAppsyncPlugin {
               }
             }
           : { DataSourceName: { 'Fn::GetAtt': [this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource)), 'Name'] } };
+
+      const Properties = Object.assign(sharedResolverProperties, uniqueResolverProperties);
       
       return Object.assign({}, acc, {
         [logicalIdResolver]: {
           Type: 'AWS::AppSync::Resolver',
           DependsOn: logicalIdGraphQLSchema,
-          Properties: {
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            TypeName: tpl.type,
-            FieldName: tpl.field,
-            RequestMappingTemplate: this.processTemplate(requestTemplate, config),
-            ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
-            ...uniqueResolverProperties
-          }
+          Properties
         }
       });
     }, {});
