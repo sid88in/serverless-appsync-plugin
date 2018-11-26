@@ -34,7 +34,9 @@ const getConfig = (config, provider, servicePath) => {
     throw new Error('substitutions property must be an object');
   }
 
+  const functionConfigurationsLocation = config.functionConfigurationsLocation || 'functionConfigurations';
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
+  const functionConfigurations = config.functionConfigurations || 'functionConfigurations';
   const mappingTemplates = config.mappingTemplates || [];
 
   const schemaPath = path.join(
@@ -61,6 +63,8 @@ const getConfig = (config, provider, servicePath) => {
     dataSources,
     mappingTemplatesLocation,
     mappingTemplates,
+    functionConfigurationsLocation,
+    functionConfigurations,
     logConfig: config.logConfig,
     substitutions: config.substitutions || {},
   };
