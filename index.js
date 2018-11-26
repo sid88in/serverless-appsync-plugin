@@ -181,6 +181,7 @@ class ServerlessAppsyncPlugin {
       Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
       Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
       Object.assign(resources, this.getDataSourceResources(apiConfig));
+      Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
       Object.assign(resources, this.getResolverResources(apiConfig));
 
       Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
@@ -505,7 +506,35 @@ class ServerlessAppsyncPlugin {
       },
     };
   }
+  getFunctionConfigurationResources(config) {
+    return config.functionConfigurations.reduce((acc, tpl) => {
+      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
+      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
+      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
 
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+      const logicalIdFunctionConfiguration = this.getLogicalId(
+        config,
+        `GraphQlFunctionConfiguration${this.getCfnName(tpl.name)}`
+      );
+      const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource));
+      return Object.assign({}, acc, {
+        [logicalIdFunctionConfiguration]: {
+          Type: 'AWS::AppSync::FunctionConfiguration',
+          Properties: {
+            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            Name: logicalIdFunctionConfiguration,
+            DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+            RequestMappingTemplate: this.processTemplate(requestTemplate, config),
+            ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+            FunctionVersion: '2018-05-29'
+          }
+        }
+      });
+    }, {});
+  }
+  
   getResolverResources(config) {
     return config.mappingTemplates.reduce((acc, tpl) => {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
@@ -519,6 +548,32 @@ class ServerlessAppsyncPlugin {
         config,
         `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`
       );
+      if (tpl.kind === 'PIPELINE') {
+        return Object.assign({}, acc, {
+          [logicalIdResolver]: {
+            Type: 'AWS::AppSync::Resolver',
+            DependsOn: logicalIdGraphQLSchema,
+            Properties: {
+              ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+              TypeName: tpl.type,
+              FieldName: tpl.field,
+              RequestMappingTemplate: this.processTemplate(requestTemplate, config),
+              ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+              Kind: 'PIPELINE',
+              PipelineConfig: {
+                Functions: tpl.functions.map(functionAttributeName => {
+                  const logicalIdDataSource = this.getLogicalId(
+                    config,
+                    `GraphQlFunctionConfiguration${this.getCfnName(functionAttributeName)}`
+                  );
+                  return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
+                })
+              }
+            }
+          }
+        });
+      }
+
       const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource));
       return Object.assign({}, acc, {
         [logicalIdResolver]: {
