@@ -36,7 +36,7 @@ const getConfig = (config, provider, servicePath) => {
 
   const functionConfigurationsLocation = config.functionConfigurationsLocation || 'function-configurations';
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
-  const functionConfigurations = config.functionConfigurations || 'function-configurations';
+  const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
   const schemaPath = path.join(
