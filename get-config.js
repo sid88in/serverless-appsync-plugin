@@ -34,9 +34,9 @@ const getConfig = (config, provider, servicePath) => {
     throw new Error('substitutions property must be an object');
   }
 
-  const functionConfigurationsLocation = config.functionConfigurationsLocation || 'functionConfigurations';
+  const functionConfigurationsLocation = config.functionConfigurationsLocation || 'function-configurations';
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
-  const functionConfigurations = config.functionConfigurations || 'functionConfigurations';
+  const functionConfigurations = config.functionConfigurations || 'function-configurations';
   const mappingTemplates = config.mappingTemplates || [];
 
   const schemaPath = path.join(
