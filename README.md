@@ -95,6 +95,7 @@ custom:
         field: getUserInfo
         request: # request mapping template name
         response: # response mapping template name
+      - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     schema: # defaults schema.graphql
     dataSources:
       - type: AMAZON_DYNAMODB

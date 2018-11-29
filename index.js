@@ -509,7 +509,8 @@ class ServerlessAppsyncPlugin {
     };
   }
   getFunctionConfigurationResources(config) {
-    return config.functionConfigurations.reduce((acc, tpl) => {
+    const flattenedFunctionConfigurationResources = config.functionConfigurations.reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
+    return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
@@ -538,7 +539,8 @@ class ServerlessAppsyncPlugin {
   }
   
   getResolverResources(config) {
-    return config.mappingTemplates.reduce((acc, tpl) => {
+    const flattenedMappingTemplates = config.mappingTemplates.reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
+    return flattenedMappingTemplates.reduce((acc, tpl) => {
       const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request);
       const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response);
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
