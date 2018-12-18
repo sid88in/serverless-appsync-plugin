@@ -382,6 +382,8 @@ class ServerlessAppsyncPlugin {
           "dynamodb:Query",
           "dynamodb:Scan",
           "dynamodb:UpdateItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem"
         ];
 
         const resourceArn = {
