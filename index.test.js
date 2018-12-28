@@ -422,6 +422,8 @@ describe("iamRoleStatements", () => {
                         "dynamodb:Query",
                         "dynamodb:Scan",
                         "dynamodb:UpdateItem",
+                        "dynamodb:BatchGetItem",
+                        "dynamodb:BatchWriteItem"
                       ],
                       "Resource": [
                         { "Fn::Join" : [ ":", [
