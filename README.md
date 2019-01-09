@@ -76,7 +76,7 @@ custom:
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # defaults to provider region
-      defaultAction: # ALLOW
+      defaultAction: # required # ALLOW or DENY
       userPoolId: # required # user pool ID
       appIdClientRegex: # optional
     # if OPENID_CONNECT
@@ -196,7 +196,7 @@ Then provide the names of the functions in the mappingTemplate to match the name
 
 ```
 custom:
-  appSync: 
+  appSync:
     mappingTemplates:
       - type: Query
         field: testPipelineQuery
@@ -204,7 +204,7 @@ custom:
         response: 'common-response.vtl'
         kind: PIPELINE
         functions:
-          - authorizeFunction 
+          - authorizeFunction
           - fetchDataFunction
     functionConfigurations:
       - dataSource: graphqlLambda

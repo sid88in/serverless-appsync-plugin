@@ -194,6 +194,15 @@ class ServerlessAppsyncPlugin {
   getGraphQlApiEndpointResource(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdCloudWatchLogsRole = this.getLogicalId(config, RESOURCE_API_CLOUDWATCH_LOGS_ROLE);
+
+    if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
+      if (!config.userPoolConfig.defaultAction) {
+        throw new this.serverless.classes.Error('userPoolConfig defaultAction is required');
+      } else if (['ALLOW', 'DENY'].indexOf(config.userPoolConfig.defaultAction) === -1) {
+        throw new this.serverless.classes.Error('userPoolConfig defaultAction must be either ALLOW or DENY');
+      }
+    }
+
     return {
       [logicalIdGraphQLApi]: {
         Type: 'AWS::AppSync::GraphQLApi',
@@ -539,7 +548,7 @@ class ServerlessAppsyncPlugin {
       });
     }, {});
   }
-  
+
   getResolverResources(config) {
     const flattenedMappingTemplates = config.mappingTemplates.reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedMappingTemplates.reduce((acc, tpl) => {
@@ -580,7 +589,7 @@ class ServerlessAppsyncPlugin {
           : { DataSourceName: { 'Fn::GetAtt': [this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource)), 'Name'] } };
 
       const Properties = Object.assign(sharedResolverProperties, uniqueResolverProperties);
-      
+
       return Object.assign({}, acc, {
         [logicalIdResolver]: {
           Type: 'AWS::AppSync::Resolver',
