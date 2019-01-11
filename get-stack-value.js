@@ -3,30 +3,28 @@ function getServerlessStackName(service, provider) {
 }
 
 function getValue(service, provider, value, name) {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return Promise.resolve(value);
-  } else if (typeof value.Ref === "string") {
+  } else if (value && typeof value.Ref === 'string') {
     return provider
       .request(
-        "CloudFormation",
-        "listStackResources",
+        'CloudFormation',
+        'listStackResources',
         {
-          StackName: getServerlessStackName(service, provider)
+          StackName: getServerlessStackName(service, provider),
         },
       )
-      .then(result => {
-        const resource = result.StackResourceSummaries.find(
-          r => r.LogicalResourceId === value.Ref
-        );
+      .then((result) => {
+        const resource = result.StackResourceSummaries.find(r => r.LogicalResourceId === value.Ref);
         if (!resource) {
           throw new Error(`${name}: Ref "${value.Ref} not found`);
         }
 
         return resource.PhysicalResourceId;
       });
-  } else {
-    return Promise.reject(`${value} is not a valid ${name}`);
   }
+
+  return Promise.reject(new Error(`${value} is not a valid ${name}`));
 }
 
 module.exports = {
