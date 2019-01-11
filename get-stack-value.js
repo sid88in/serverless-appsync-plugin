@@ -5,7 +5,7 @@ function getServerlessStackName(service, provider) {
 function getValue(service, provider, value, name) {
   if (typeof value === 'string') {
     return Promise.resolve(value);
-  } else if (typeof value.Ref === 'string') {
+  } else if (value && typeof value.Ref === 'string') {
     return provider
       .request(
         'CloudFormation',
