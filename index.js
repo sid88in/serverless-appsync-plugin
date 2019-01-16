@@ -542,6 +542,7 @@ class ServerlessAppsyncPlugin {
             DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
             RequestMappingTemplate: this.processTemplate(requestTemplate, config),
             ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+            Description: tpl.description,
             FunctionVersion: '2018-05-29'
           }
         }
