@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elastic Search</a>; you have everything you need to get started developing your AppSync API's locally.
+Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elasticsearch</a>; you have everything you need to get started developing your AppSync API's locally.
 
 <div align="center">Find AppSync examples in the <a href="https://github.com/serverless/serverless-graphql/tree/master/app-backend/appsync" target="_blank"> Serverless-GraphQL</a> Repo 👈</div>
 
@@ -39,7 +39,7 @@ Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppS
 
 Be sure to check out all that <a href="https://aws.amazon.com/appsync" target="_blank">AWS AppSync</a> has to offer. Here are a few resources to help you understand everything needed to get started!
 
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html">Mapping Templates</a> - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elastic Search**? Here's a great place to start!
+* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html">Mapping Templates</a> - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
 * <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html">Data Sources and Resolvers</a> - Get more information on what data sources are supported and how to set them up!
 * <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/security.html">Security</a> - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
 
@@ -237,7 +237,7 @@ The AWS_IAM authenticationType is not currently supported.
 
 ## 📝 Notes
 
-* If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elastic Search</a>, you will need to create an Elastic Search domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
+* If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elasticsearch</a>, you will need to create an Elasticsearch domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
 
 ### Offline support
 
