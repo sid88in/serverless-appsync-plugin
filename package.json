@@ -18,6 +18,7 @@
     "serverless": "^1.30.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.404.0",
     "graphql": "^0.13.2",
     "graphql-playground-middleware-koa": "^1.6.4",
     "koa": "^2.5.2",
