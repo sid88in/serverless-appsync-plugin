@@ -681,12 +681,11 @@ class ServerlessAppsyncPlugin {
    * @param {*} substitutions 
    */
   substituteGlobalTemplateVariables(template, substitutions) {
-    let keys = Object.keys(substitutions);
-    for (let i = 0; i < keys.length; i++) {
-      template = template.split('${' + keys[i] + '}').join('||' + keys[i] + '||');
-    }
+    let variables = Object.keys(substitutions).join('|');
+    let regex = new RegExp("\\${(" + variables + ")}", "g");
+    template = template.replace(regex, "|||$1|||");
 
-    let templateJoin = template.split('||');
+    let templateJoin = template.split('|||');
     for (let i = 0; i < templateJoin.length; i++) {
       if (substitutions[templateJoin[i]]) {
         let subs = '{"' + templateJoin[i] + '": "' + substitutions[templateJoin[i]] + '"}'
