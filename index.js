@@ -666,10 +666,33 @@ class ServerlessAppsyncPlugin {
 
     // if there are substitutions for this template then add fn:sub
     if (Object.keys(substitutions).length > 0) {
-      return { 'Fn::Sub': [template, substitutions] };
+      return this.substituteGlobalTemplateVariables(template, substitutions);
     }
 
     return template;
+  }
+
+  /**
+   * Creates Fn::Join object from given template where all given substitutions
+   * are wrapped in Fn::Sub objects. This enables template to have also 
+   * characters that are not only alphanumeric, underscores, periods, and colons.
+   * 
+   * @param {*} template 
+   * @param {*} substitutions 
+   */
+  substituteGlobalTemplateVariables(template, substitutions) {
+    let variables = Object.keys(substitutions).join('|');
+    let regex = new RegExp("\\${(" + variables + ")}", "g");
+    template = template.replace(regex, "|||$1|||");
+
+    let templateJoin = template.split('|||');
+    for (let i = 0; i < templateJoin.length; i++) {
+      if (substitutions[templateJoin[i]]) {
+        let subs = '{"' + templateJoin[i] + '": "' + substitutions[templateJoin[i]] + '"}'
+        templateJoin[i] = { 'Fn::Sub': ['${' + templateJoin[i] + '}', JSON.parse(subs)] };
+      }
+    }
+    return { 'Fn::Join': ["", templateJoin] };
   }
 }
 
