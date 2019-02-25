@@ -80,6 +80,21 @@ class ServerlessAppsyncPlugin {
       'after:aws:package:finalize:mergeCustomProviderResources': () => this.addResources(),
     };
   }
+  
+  getLambdaArn(config) {
+    if (config && config.lambdaFunctionArn) {
+      return config.lambdaFunctionArn;
+    } else if (config && config.functionName) {
+      return this.generateLambdaArn(config.functionName);
+    } else {
+      throw new Error('You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.');
+    }
+  }
+
+  generateLambdaArn(functionName) {
+    const lambdaLogicalId = this.serverless.getProvider("aws").naming.getLambdaLogicalId(functionName);
+    return { "Fn::GetAtt": [lambdaLogicalId, "Arn"] };
+  }
 
   loadConfig() {
     return getConfig(
@@ -377,8 +392,8 @@ class ServerlessAppsyncPlugin {
         // Allow "invoke" for the Datasource's function and its aliases/versions
         defaultStatement.Action = ["lambda:invokeFunction"];
         defaultStatement.Resource = [
-          ds.config.lambdaFunctionArn,
-          { "Fn::Join" : [ ":", [ ds.config.lambdaFunctionArn, '*' ] ] }
+          this.getLambdaArn(ds.config),
+          { "Fn::Join" : [ ":", [ this.getLambdaArn(ds.config), '*' ] ] }
         ];
         break;
 
@@ -481,7 +496,7 @@ class ServerlessAppsyncPlugin {
 
       if (ds.type === 'AWS_LAMBDA') {
         resource.Properties.LambdaConfig = {
-          LambdaFunctionArn: ds.config.lambdaFunctionArn,
+          LambdaFunctionArn: this.getLambdaArn(ds.config),
         };
       } else if (ds.type === 'AMAZON_DYNAMODB') {
         resource.Properties.DynamoDBConfig = {
