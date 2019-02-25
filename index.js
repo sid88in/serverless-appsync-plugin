@@ -5,6 +5,7 @@ const {
 } = require('graphql');
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
+const chalk = require('chalk');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = "GraphQlApi";
@@ -15,6 +16,10 @@ const RESOURCE_URL = "GraphQlApiUrl";
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
+    this.gatheredData = {
+      endpoints: [],
+      apiKeys: [],
+    };
     this.serverless = serverless;
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
@@ -78,7 +83,62 @@ class ServerlessAppsyncPlugin {
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
       'after:aws:package:finalize:mergeCustomProviderResources': () => this.addResources(),
+      'after:aws:info:gatherData': () => this.gatherData(),
+      'after:aws:info:displayEndpoints': () => this.displayEndpoints(),
+      'after:aws:info:displayApiKeys': () => this.displayApiKeys(),
     };
+  }
+  
+  gatherData() {
+    const provider = this.serverless.getProvider('aws');
+    const stackName = this.provider.naming.getStackName();
+
+    return provider.request('CloudFormation',
+      'describeStacks',
+      { StackName: stackName })
+    .then((result) => {
+      const outputs = result.Stacks[0].Outputs;
+      
+      outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_URL + "\$")))
+        .forEach(x => {
+          this.gatheredData.endpoints.push(x.OutputValue);
+        });
+      
+      outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_API_KEY + "\$")))
+        .forEach(x => {
+          this.gatheredData.apiKeys.push(x.OutputValue);
+        });
+    });
+  }
+  
+  displayEndpoints() {
+    let endpointsMessage = `${chalk.yellow('appsync endpoints:')}`;
+    if (this.gatheredData.endpoints && this.gatheredData.endpoints.length) {
+      this.gatheredData.endpoints.forEach( endpoint => {
+        endpointsMessage += `\n  ${endpoint}`;
+      });
+    } else {
+      endpointsMessage += "\n  None";
+    }
+
+    this.serverless.cli.consoleLog(endpointsMessage);
+    
+    return endpointsMessage;
+  }
+
+  displayApiKeys() {
+    let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
+    if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
+      this.gatheredData.apiKeys.forEach( endpoint => {
+        apiKeysMessage += `\n  ${endpoint}`;
+      });
+    } else {
+      apiKeysMessage += "\n  None";
+    }
+
+    this.serverless.cli.consoleLog(apiKeysMessage);
+    
+    return apiKeysMessage;
   }
 
   loadConfig() {
