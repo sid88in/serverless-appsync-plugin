@@ -98,8 +98,9 @@ custom:
       - type: AWS_LAMBDA
         name: Lambda_MeInfo
         description: 'Lambda DataSource'
-        config:
-          lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] }
+        config: # Either of functionName or lambdaFunctionArn must tbe provided. When both are present, lambdaFunctionArn is used.
+          functionName: graphql
+          lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] } #
           serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] }
 
 
