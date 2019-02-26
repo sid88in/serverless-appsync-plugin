@@ -90,10 +90,9 @@ class ServerlessAppsyncPlugin {
   }
   
   gatherData() {
-    const provider = this.serverless.getProvider('aws');
     const stackName = this.provider.naming.getStackName();
 
-    return provider.request('CloudFormation',
+    return this.provider.request('CloudFormation',
       'describeStacks',
       { StackName: stackName })
     .then((result) => {
