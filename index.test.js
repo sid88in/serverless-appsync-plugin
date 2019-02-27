@@ -579,5 +579,58 @@ describe("iamRoleStatements", () => {
     const roles = plugin.getDataSourceIamRolesResouces(config);
     expect(roles).toEqual({});
   });
-  
+
+  describe("template substitutions", () => {
+    test("Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects", () => {
+
+      let template = "#set($partitionKey = \"${globalPK}\")\n" +
+        "{\n" +
+        "\"version\" : \"2018-05-29\",\n" +
+        "\"operation\" : \"GetItem\",\n" +
+        "\"key\" : {\n" +
+        "\"partitionKey\": { \"S\": \"${globalPK}\" },\n" +
+        "\"sortKey\": { \"S\": \"${globalSK}\" },\n" +
+        "}\n" +
+        "}";
+
+      let variables =
+      {
+        globalPK: "PK",
+        globalSK: "SK",
+      };
+
+      const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
+      expect(transformedTemplate).toEqual(
+        {
+          "Fn::Join": [
+            "",
+            [
+              '#set($partitionKey = "',
+              {
+                'Fn::Sub':
+                  [
+                    '${globalPK}', { "globalPK": "PK" }
+                  ]
+              },
+              '")\n{\n"version" : "2018-05-29",\n"operation" : "GetItem",\n"key" : {\n"partitionKey": { "S": "',
+              {
+                'Fn::Sub':
+                  [
+                    '${globalPK}', { "globalPK": "PK" }
+                  ]
+              },
+              '" },\n"sortKey": { "S": \"',
+              {
+                'Fn::Sub':
+                  [
+                    '${globalSK}', { "globalSK": "SK" }
+                  ]
+              },
+              '" },\n}\n}'
+            ]
+          ]
+        });
+    });
+  });
+
 });
