@@ -47,8 +47,23 @@ const getConfig = (config, provider, servicePath) => {
   const schemaContent = fs.readFileSync(schemaPath, {
     encoding: 'utf8',
   });
-
-  const dataSources = objectToArrayWithNameProp(config.dataSources);
+  
+  let dataSources = [];
+  if (Array.isArray(config.dataSources)) {
+    dataSources = config.dataSources.reduce(
+      (acc, value) => {
+        // Do not call `objectToArrayWithNameProp` on datasources objects``
+        if (value.name !== undefined && typeof value.name === 'string') {
+          return acc.concat(value);
+        } else {
+          return acc.concat(objectToArrayWithNameProp(value));
+        }
+      },
+      []
+    );
+  } else {
+    dataSources = objectToArrayWithNameProp(config.dataSources);
+  }
 
   return {
     name: config.name || 'api',
