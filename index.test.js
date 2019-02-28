@@ -104,6 +104,33 @@ describe("appsync config", () => {
     expect(role).toEqual({});
   });
   
+  test("appsync cloudwatch log group is not created when are not logs enabled", () => {
+    const resources = plugin.getGraphQlApiEndpointResource(config);
+    expect(resources['GraphQlApiLogGroup']).toBeUndefined();
+  });
+
+  test("appsync cloudwatch log group is created when logs enabled", () => {
+    serverless.service.provider.logRetentionInDays = 14;
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      logConfig: {
+        level: 'ALL',
+      },
+    });
+
+    expect(resources['GraphQlApiLogGroup']).toEqual({
+      Properties: {
+        LogGroupName: {
+          "Fn::Join": ["/", ["/aws/appsync/apis", {
+            "Fn::GetAtt": ["GraphQlApi", "ApiId"]
+          }]]
+        },
+        RetentionInDays: 14
+      },
+      Type: "AWS::Logs::LogGroup"
+    });
+  });
+  
   test("Datasource generates lambdaFunctionArn from functionName", () => {
     
     Object.assign(
