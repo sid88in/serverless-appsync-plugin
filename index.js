@@ -100,7 +100,7 @@ class ServerlessAppsyncPlugin {
   }
 
   generateLambdaArn(functionName) {
-    const lambdaLogicalId = this.serverless.getProvider("aws").naming.getLambdaLogicalId(functionName);
+    const lambdaLogicalId = this.provider.naming.getLambdaLogicalId(functionName);
     return { "Fn::GetAtt": [lambdaLogicalId, "Arn"] };
   }
 
