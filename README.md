@@ -144,6 +144,7 @@ custom:
         description: 'Http endpoint'
         config:
           endpoint: # required # "https://{DOMAIN}/{PATH}"
+      - ${file({dataSources}.yml)} # link to a file with an array or object of datasources
     substitutions: # allows to pass variables from here to velocity templates
       # ${exampleVar1} will be replaced with given value in all mapping templates
       exampleVar1: "${self:service.name}"
