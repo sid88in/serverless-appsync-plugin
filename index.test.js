@@ -1,5 +1,6 @@
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('.');
+const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
 
 let serverless;
 let plugin;
@@ -7,6 +8,11 @@ let config;
 
 beforeEach(() => {
   serverless = new Serverless();
+  const options = {
+      stage: 'dev',
+      region: 'us-east-1',
+    };
+  serverless.setProvider('aws', new AwsProvider(serverless, options));
   plugin = new  ServerlessAppsyncPlugin(serverless, {});
   config = {
     name: 'api',
@@ -96,6 +102,97 @@ describe("appsync config", () => {
     );
     const role = plugin.getCloudWatchLogsRole(config);
     expect(role).toEqual({});
+  });
+  
+  test("Datasource generates lambdaFunctionArn from functionName", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AWS_LAMBDA',
+            name: 'lambdaSource',
+            description: 'lambdaSource Desc',
+            config: {
+              functionName: "myFunc",
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+            }
+          },
+        ],
+      },
+    );
+    
+    const dataSources = plugin.getDataSourceResources(config);
+    expect(dataSources).toEqual({
+      "GraphQlDslambdaSource":
+        {
+          "Type": "AWS::AppSync::DataSource",
+          "Properties": {
+            Type: 'AWS_LAMBDA',
+            "ApiId": {
+              "Fn::GetAtt": [
+                "GraphQlApi",
+                "ApiId",
+              ],
+            },
+            Name: 'lambdaSource',
+            ServiceRoleArn: "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+            Description: 'lambdaSource Desc',
+            LambdaConfig: {
+              LambdaFunctionArn: {
+                "Fn::GetAtt": ["MyFuncLambdaFunction", "Arn"]
+              },
+            }
+          },
+        },
+    });
+  });
+  
+  test("Datasource uses lambdaFunctionArn when provided", () => {
+    
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AWS_LAMBDA',
+            name: 'lambdaSource',
+            description: 'lambdaSource Desc',
+            config: {
+              functionName: "myDummyFunc",
+              lambdaFunctionArn: {"Fn::GetAtt": ["MyFuncLambdaFunction", "Arn"]},
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+            }
+          },
+        ],
+      },
+    );
+    
+    const dataSources = plugin.getDataSourceResources(config);
+    expect(dataSources).toEqual({
+      "GraphQlDslambdaSource":
+        {
+          "Type": "AWS::AppSync::DataSource",
+          "Properties": {
+            Type: 'AWS_LAMBDA',
+            "ApiId": {
+              "Fn::GetAtt": [
+                "GraphQlApi",
+                "ApiId",
+              ],
+            },
+            Name: 'lambdaSource',
+            ServiceRoleArn: "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+            Description: 'lambdaSource Desc',
+            LambdaConfig: {
+              LambdaFunctionArn: {
+                "Fn::GetAtt": ["MyFuncLambdaFunction", "Arn"]
+              },
+            }
+          },
+        },
+    });
   });
 
 });
@@ -632,5 +729,4 @@ describe("iamRoleStatements", () => {
         });
     });
   });
-
 });
