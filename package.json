@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.404.0",
+    "chalk": "^2.4.2",
     "graphql": "^0.13.2",
     "graphql-playground-middleware-koa": "^1.6.4",
     "koa": "^2.5.2",
