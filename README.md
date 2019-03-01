@@ -26,6 +26,7 @@ Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppS
  <summary><strong>Table of Contents</strong> (click to expand)</summary>
 
 * [Getting Started](#-getting-started)
+* [Minimum requirements](#-minimum-requirements)
 * [Installation](#-installation)
 * [Usage](#️-usage)
 * [Notes](#-notes)
@@ -42,6 +43,11 @@ Be sure to check out all that <a href="https://aws.amazon.com/appsync" target="_
 * <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html">Mapping Templates</a> - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
 * <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html">Data Sources and Resolvers</a> - Get more information on what data sources are supported and how to set them up!
 * <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/security.html">Security</a> - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
+
+## 🛠 Minimum requirements
+
+* [Node.js v8 or higher](https://nodejs.org)
+* [Serverless v1.30.0 or higher](https://github.com/serverless/serverless)
 
 ## 💾 Installation
 
