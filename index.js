@@ -303,6 +303,15 @@ class ServerlessAppsyncPlugin {
           },
         },
       },
+      ...config.logConfig && config.logConfig.level && {
+        [`${logicalIdGraphQLApi}LogGroup`]: {
+          Type: 'AWS::Logs::LogGroup',
+          Properties: {
+            LogGroupName: { 'Fn::Join': ['/', ['/aws/appsync/apis', { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] }]] },
+            RetentionInDays: this.serverless.service.provider.logRetentionInDays,
+          },
+        },
+      },
     };
   }
 
