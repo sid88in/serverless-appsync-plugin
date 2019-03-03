@@ -605,8 +605,8 @@ class ServerlessAppsyncPlugin {
   getFunctionConfigurationResources(config) {
     const flattenedFunctionConfigurationResources = config.functionConfigurations.reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
-      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
-      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
+      const reqTemplPath = path.join(config.functionConfigurationsLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
+      const respTemplPath = path.join(config.functionConfigurationsLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
       const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
 
