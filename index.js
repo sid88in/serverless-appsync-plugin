@@ -582,7 +582,7 @@ class ServerlessAppsyncPlugin {
           Endpoint: ds.config.endpoint,
         };
       } else if (ds.type !== 'NONE') {
-        throw new this.serverless.classes.Error(`Data Source Type not supported: '${ds.type}`);
+        throw new this.serverless.classes.Error(`Data Source Type not supported: ${ds.type}`);
       }
       const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(ds.name));
       return Object.assign({}, acc, { [logicalIdDataSource]: resource });
