@@ -519,8 +519,8 @@ class ServerlessAppsyncPlugin {
               { "Ref" : "AWS::AccountId" },
               'cluster',
               ds.config.dbClusterIdentifier,
-            ]
-          ]
+            ],
+          ],
         };
 
         const secretResourceArn = {
@@ -534,8 +534,8 @@ class ServerlessAppsyncPlugin {
               { "Ref" : "AWS::AccountId" },
               'secret',
               ds.config.awsSecretStoreArn,
-            ]
-          ]
+            ],
+          ],
         };
 
         defaultStatement.Resource = [
@@ -632,9 +632,9 @@ class ServerlessAppsyncPlugin {
             DbClusterIdentifier: ds.config.dbClusterIdentifier,
             DatabaseName: ds.config.databaseName,
             Schema: ds.config.schema,
-            AwsSecretStoreArn: ds.config.awsSecretStoreArn
+            AwsSecretStoreArn: ds.config.awsSecretStoreArn,
           },
-          RelationalDatabaseSourceType: ds.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT'
+          RelationalDatabaseSourceType: ds.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
         };
       } else if (ds.type === 'HTTP') {
         resource.Properties.HttpConfig = {
