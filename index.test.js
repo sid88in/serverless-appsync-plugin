@@ -333,7 +333,6 @@ describe("iamRoleStatements", () => {
     );
 
     const roles = plugin.getDataSourceIamRolesResouces(config);
-    console.log(JSON.stringify(roles.GraphQlDsRelationalDatabaseSourceRole))
     expect(roles).toEqual(
       {
         "GraphQlDsLambdaSourceRole": {
