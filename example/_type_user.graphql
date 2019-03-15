@@ -1,0 +1,34 @@
+type Mutation {
+    # Create user info is available in dynamo integration
+    updateUserInfo(
+        location: String!,
+        description: String!,
+        name: String!,
+        followers_count: Int!,
+        friends_count: Int!,
+        favourites_count: Int!,
+        followers: [String!]!
+    ): User!
+}
+
+type Query {
+    getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
+    meInfo(consumer_key: String, consumer_secret: String): User!
+}
+
+type User {
+    name: String!
+    handle: String!
+    location: String!
+    description: String!
+    followers_count: Int!
+    friends_count: Int!
+    favourites_count: Int!
+    followers: [String!]!
+    topTweet: Tweet
+    tweets(limit: Int!, nextToken: String): TweetConnection
+
+    # search functionality is available in elasticsearch integration
+    searchTweetsByKeyword(keyword: String!): TweetConnection
+}
+
