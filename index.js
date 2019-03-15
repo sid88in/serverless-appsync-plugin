@@ -448,37 +448,27 @@ class ServerlessAppsyncPlugin {
   }
 
   getDefaultDataSourcePolicyStatements(ds, config) {
-
-    const defaultStatement = {
-      Effect: "Allow",
-      Action: [],
-      Resource: []
-    };
+    const defaultStatements = [];
 
     switch (ds.type) {
       case 'AWS_LAMBDA':
+        const lambdaArn = this.getLambdaArn(ds.config);
+
         // Allow "invoke" for the Datasource's function and its aliases/versions
-        defaultStatement.Action = ["lambda:invokeFunction"];
-        defaultStatement.Resource = [
-          this.getLambdaArn(ds.config),
-          { "Fn::Join" : [ ":", [ this.getLambdaArn(ds.config), '*' ] ] }
-        ];
+        const defaultLambdaStatement = {
+          Action: ["lambda:invokeFunction"],
+          Effect: "Allow",
+          Resource: [
+            lambdaArn,
+            { "Fn::Join" : [ ":", [ lambdaArn, '*' ] ] },
+          ],
+        };
+
+        defaultStatements.push(defaultLambdaStatement);
         break;
 
       case 'AMAZON_DYNAMODB':
-        // Allow any action on the Datasource's table
-        defaultStatement.Action = [
-          "dynamodb:DeleteItem",
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:UpdateItem",
-          "dynamodb:BatchGetItem",
-          "dynamodb:BatchWriteItem"
-        ];
-
-        const resourceArn = {
+        const dynamoDbResourceArn = {
           "Fn::Join" : [
             ":",
             [
@@ -488,74 +478,63 @@ class ServerlessAppsyncPlugin {
               ds.config.region || config.region,
               { "Ref" : "AWS::AccountId" },
               { "Fn::Join" : [ "/", ['table',  ds.config.tableName] ] },
-            ]
-          ]
+            ],
+          ],
         };
 
-        defaultStatement.Resource = [
-          resourceArn,
-          { "Fn::Join" : [ "/", [resourceArn, '*'] ] },
-        ];
+        // Allow any action on the Datasource's table
+        const defaultDynamoDBStatement = {
+          Action: [
+            "dynamodb:DeleteItem",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:UpdateItem",
+            "dynamodb:BatchGetItem",
+            "dynamodb:BatchWriteItem"
+          ],
+          Effect: "Allow",
+          Resource: [
+            dynamoDbResourceArn,
+            { "Fn::Join" : [ "/", [dynamoDbResourceArn, '*'] ] },
+          ],
+        };
+
+        defaultStatements.push(defaultDynamoDBStatement);
         break;
 
       case 'RELATIONAL_DATABASE':
-        // Allow any action on the Datasource's table
-        defaultStatement.Action = [
-          "rds-data:DeleteItems",
-          "rds-data:ExecuteSql",
-          "rds-data:GetItems",
-          "rds-data:InsertItems",
-          "rds-data:UpdateItems",
-        ];
-
-        const dbResourceArn = {
-          "Fn::Join" : [
-            ":",
-            [
-              'arn',
-              'aws',
-              'rds',
-              ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
-              'cluster',
-              ds.config.dbClusterIdentifier,
-            ],
+        const dbStatement = {
+          Effect: "Allow",
+          Action: [
+            "rds-data:DeleteItems",
+            "rds-data:ExecuteSql",
+            "rds-data:GetItems",
+            "rds-data:InsertItems",
+            "rds-data:UpdateItems",
+          ],
+          Resource: [
+            ds.config.dbClusterIdentifier,
+            `${ds.config.dbClusterIdentifier}:*`,
           ],
         };
 
-        const secretResourceArn = {
-          "Fn::Join" : [
-            ":",
-            [
-              'arn',
-              'aws',
-              'secretsmanager',
-              ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
-              'secret',
-              ds.config.awsSecretStoreArn,
-            ],
+        const secretManagerStatement = {
+          Effect: "Allow",
+          Action: [
+            "secretsmanager:GetSecretValue",
+          ],
+          Resource: [
+            ds.config.awsSecretStoreArn,
+            `${ds.config.awsSecretStoreArn}:*`,
           ],
         };
 
-        defaultStatement.Resource = [
-          dbResourceArn,
-          secretResourceArn,
-          { "Fn::Join" : [ ":", [dbResourceArn, '*'] ] },
-          { "Fn::Join" : [ ":", [secretResourceArn, '*'] ] },
-        ];
+        defaultStatements.push(dbStatement, secretManagerStatement);
         break;
 
       case 'AMAZON_ELASTICSEARCH':
-        // Allow any action on the Datasource's ES endpoint
-        defaultStatement.Action = [
-          "es:ESHttpDelete",
-          "es:ESHttpGet",
-          "es:ESHttpHead",
-          "es:ESHttpPost",
-          "es:ESHttpPut",
-        ];
-
         const rx = /^https:\/\/([a-z0-9\-]+\.\w{2}\-[a-z]+\-\d\.es\.amazonaws\.com)$/;
         const result = rx.exec(ds.config.endpoint);
 
@@ -563,18 +542,31 @@ class ServerlessAppsyncPlugin {
           throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
         }
 
-        defaultStatement.Resource = [
-          {
-            "Fn::Join" : [ ":", [
-              'arn',
-              'aws',
-              'es',
-              ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
-              `domain/${result[1]}`
-            ]]
-          },
-        ];
+        // Allow any action on the Datasource's ES endpoint
+        const defaultESStatement = {
+          Action: [
+            "es:ESHttpDelete",
+            "es:ESHttpGet",
+            "es:ESHttpHead",
+            "es:ESHttpPost",
+            "es:ESHttpPut",
+          ],
+          Effect: "Allow",
+          Resource: [
+            {
+              "Fn::Join" : [ ":", [
+                'arn',
+                'aws',
+                'es',
+                ds.config.region || config.region,
+                { "Ref" : "AWS::AccountId" },
+                `domain/${result[1]}`,
+              ]],
+            },
+          ],
+        };
+
+        defaultStatements.push(defaultESStatement);
         break;
 
       default:
@@ -582,7 +574,7 @@ class ServerlessAppsyncPlugin {
         return false;
     }
 
-    return [defaultStatement];
+    return defaultStatements;
   }
 
   getDataSourceResources(config) {

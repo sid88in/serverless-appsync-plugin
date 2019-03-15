@@ -776,93 +776,25 @@ describe("iamRoleStatements", () => {
                         "rds-data:UpdateItems"
                       ],
                       "Resource": [
-                        {
-                          "Fn::Join": [
-                            ":",
-                            [
-                              "arn",
-                              "aws",
-                              "rds",
-                              "us-east-1",
-                              {
-                                "Ref": "AWS::AccountId"
-                              },
-                              "cluster",
-                              "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            ":",
-                            [
-                              "arn",
-                              "aws",
-                              "secretsmanager",
-                              "us-east-1",
-                              {
-                                "Ref": "AWS::AccountId"
-                              },
-                              "secret",
-                              "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            ":",
-                            [
-                              {
-                                "Fn::Join": [
-                                  ":",
-                                  [
-                                    "arn",
-                                    "aws",
-                                    "rds",
-                                    "us-east-1",
-                                    {
-                                      "Ref": "AWS::AccountId"
-                                    },
-                                    "cluster",
-                                    "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster"
-                                  ]
-                                ]
-                              },
-                              "*"
-                            ]
-                          ]
-                        },
-                        {
-                          "Fn::Join": [
-                            ":",
-                            [
-                              {
-                                "Fn::Join": [
-                                  ":",
-                                  [
-                                    "arn",
-                                    "aws",
-                                    "secretsmanager",
-                                    "us-east-1",
-                                    {
-                                      "Ref": "AWS::AccountId"
-                                    },
-                                    "secret",
-                                    "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa"
-                                  ]
-                                ]
-                              },
-                              "*"
-                            ]
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ]
-          }
+                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
+                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster:*",
+                      ],
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "secretsmanager:GetSecretValue",
+                      ],
+                      "Resource": [
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa:*",
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
       },
     );

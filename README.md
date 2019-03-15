@@ -119,6 +119,34 @@ custom:
                 - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*"
 
           region: # Overwrite default region for this data source
+      - type: RELATIONAL_DATABASE
+        name: # data source name
+        description: # DynamoDB Table Description
+        config:
+          dbClusterIdentifier: { Fn::GetAtt: [DBCluster, Arn] } # Where DBCluster is the RDS cluster defined in Resources
+          awsSecretStoreArn: { Ref: RDSClusterSecret } # Where RDSClusterSecret is the RDS cluster secret defined in Resources
+          serviceRoleArn: { Fn::GetAtt: [RelationalDbServiceRole, Arn] } # Where RelationalDbServiceRole is an IAM role defined in Resources
+          databaseName: # optional database name
+          schema: # optional database schema
+          iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
+            - Effect: "Allow"
+              Action:
+                - "rds-data:DeleteItems"
+                - "rds-data:ExecuteSql"
+                - "rds-data:GetItems"
+                - "rds-data:InsertItems"
+                - "rds-data:UpdateItems"
+              Resource:
+                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster"
+                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster:*"
+            - Effect: "Allow"
+              Action:
+                - "secretsmanager:GetSecretValue"
+              Resource:
+                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret"
+                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret:*"
+
+          region: # Overwrite default region for this data source
       - type: AMAZON_ELASTICSEARCH
         name: # data source name
         description: 'ElasticSearch'
