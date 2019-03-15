@@ -208,8 +208,8 @@ custom:
     mappingTemplates:
       - type: Query
         field: testPipelineQuery
-        request: 'start.vtl'
-        response: 'common-response.vtl'
+        request: './mapping-templates/before.vtl' # the pipeline's "before" mapping template
+        response: './mapping-templates/after.vtl' # the pipeline's "after" mapping template
         kind: PIPELINE
         functions:
           - authorizeFunction
