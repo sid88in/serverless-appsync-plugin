@@ -102,7 +102,7 @@ custom:
         request: # request mapping template name
         response: # response mapping template name
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
-    schema: # path to file or array of paths to merge defaults schema.graphql
+    schema: # schema file or array of files to merge, defaults to schema.graphql
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
