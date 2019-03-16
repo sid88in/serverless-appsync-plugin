@@ -88,7 +88,7 @@ class ServerlessAppsyncPlugin {
       'after:aws:info:displayApiKeys': () => this.displayApiKeys(),
     };
   }
-  
+
   getLambdaArn(config) {
     if (config && config.lambdaFunctionArn) {
       return config.lambdaFunctionArn;
@@ -112,19 +112,19 @@ class ServerlessAppsyncPlugin {
       { StackName: stackName })
     .then((result) => {
       const outputs = result.Stacks[0].Outputs;
-      
+
       outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_URL + "\$")))
         .forEach(x => {
           this.gatheredData.endpoints.push(x.OutputValue);
         });
-      
+
       outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_API_KEY + "\$")))
         .forEach(x => {
           this.gatheredData.apiKeys.push(x.OutputValue);
         });
     });
   }
-  
+
   displayEndpoints() {
     let endpointsMessage = `${chalk.yellow('appsync endpoints:')}`;
     if (this.gatheredData.endpoints && this.gatheredData.endpoints.length) {
@@ -136,7 +136,7 @@ class ServerlessAppsyncPlugin {
     }
 
     this.serverless.cli.consoleLog(endpointsMessage);
-    
+
     return endpointsMessage;
   }
 
@@ -151,7 +151,7 @@ class ServerlessAppsyncPlugin {
     }
 
     this.serverless.cli.consoleLog(apiKeysMessage);
-    
+
     return apiKeysMessage;
   }
 
@@ -395,7 +395,7 @@ class ServerlessAppsyncPlugin {
       // Only generate DataSource Roles for compatible types
       // and if `serviceRoleArn` not provided
       if (
-        ['AWS_LAMBDA', 'AMAZON_DYNAMODB', 'AMAZON_ELASTICSEARCH'].indexOf(ds.type) === -1
+        ['AWS_LAMBDA', 'AMAZON_DYNAMODB', 'AMAZON_ELASTICSEARCH', 'RELATIONAL_DATABASE'].indexOf(ds.type) === -1
         || (ds.config && ds.config.serviceRoleArn)
       ) {
         return acc;
@@ -448,37 +448,27 @@ class ServerlessAppsyncPlugin {
   }
 
   getDefaultDataSourcePolicyStatements(ds, config) {
-
-    const defaultStatement = {
-      Effect: "Allow",
-      Action: [],
-      Resource: []
-    };
+    const defaultStatements = [];
 
     switch (ds.type) {
       case 'AWS_LAMBDA':
+        const lambdaArn = this.getLambdaArn(ds.config);
+
         // Allow "invoke" for the Datasource's function and its aliases/versions
-        defaultStatement.Action = ["lambda:invokeFunction"];
-        defaultStatement.Resource = [
-          this.getLambdaArn(ds.config),
-          { "Fn::Join" : [ ":", [ this.getLambdaArn(ds.config), '*' ] ] }
-        ];
+        const defaultLambdaStatement = {
+          Action: ["lambda:invokeFunction"],
+          Effect: "Allow",
+          Resource: [
+            lambdaArn,
+            { "Fn::Join" : [ ":", [ lambdaArn, '*' ] ] },
+          ],
+        };
+
+        defaultStatements.push(defaultLambdaStatement);
         break;
 
       case 'AMAZON_DYNAMODB':
-        // Allow any action on the Datasource's table
-        defaultStatement.Action = [
-          "dynamodb:DeleteItem",
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:UpdateItem",
-          "dynamodb:BatchGetItem",
-          "dynamodb:BatchWriteItem"
-        ];
-
-        const resourceArn = {
+        const dynamoDbResourceArn = {
           "Fn::Join" : [
             ":",
             [
@@ -488,26 +478,77 @@ class ServerlessAppsyncPlugin {
               ds.config.region || config.region,
               { "Ref" : "AWS::AccountId" },
               { "Fn::Join" : [ "/", ['table',  ds.config.tableName] ] },
-            ]
-          ]
+            ],
+          ],
         };
 
-        defaultStatement.Resource = [
-          resourceArn,
-          { "Fn::Join" : [ "/", [resourceArn, '*'] ] },
-        ];
+        // Allow any action on the Datasource's table
+        const defaultDynamoDBStatement = {
+          Action: [
+            "dynamodb:DeleteItem",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:UpdateItem",
+            "dynamodb:BatchGetItem",
+            "dynamodb:BatchWriteItem"
+          ],
+          Effect: "Allow",
+          Resource: [
+            dynamoDbResourceArn,
+            { "Fn::Join" : [ "/", [dynamoDbResourceArn, '*'] ] },
+          ],
+        };
+
+        defaultStatements.push(defaultDynamoDBStatement);
+        break;
+
+      case 'RELATIONAL_DATABASE':
+        const dDbResourceArn = {
+          "Fn::Join" : [
+            ":",
+            [
+              'arn',
+              'aws',
+              'rds',
+              ds.config.region || config.region,
+              { "Ref" : "AWS::AccountId" },
+              'cluster',
+              ds.config.dbClusterIdentifier,
+            ],
+          ],
+        };
+        const dbStatement = {
+          Effect: "Allow",
+          Action: [
+            "rds-data:DeleteItems",
+            "rds-data:ExecuteSql",
+            "rds-data:GetItems",
+            "rds-data:InsertItems",
+            "rds-data:UpdateItems",
+          ],
+          Resource: [
+            dDbResourceArn,
+            { "Fn::Join" : [ ":", [dDbResourceArn, '*'] ] },
+          ],
+        };
+
+        const secretManagerStatement = {
+          Effect: "Allow",
+          Action: [
+            "secretsmanager:GetSecretValue",
+          ],
+          Resource: [
+            ds.config.awsSecretStoreArn,
+            { "Fn::Join" : [ ":", [ds.config.awsSecretStoreArn, '*'] ] },
+          ],
+        };
+
+        defaultStatements.push(dbStatement, secretManagerStatement);
         break;
 
       case 'AMAZON_ELASTICSEARCH':
-        // Allow any action on the Datasource's ES endpoint
-        defaultStatement.Action = [
-          "es:ESHttpDelete",
-          "es:ESHttpGet",
-          "es:ESHttpHead",
-          "es:ESHttpPost",
-          "es:ESHttpPut",
-        ];
-
         const rx = /^https:\/\/([a-z0-9\-]+\.\w{2}\-[a-z]+\-\d\.es\.amazonaws\.com)$/;
         const result = rx.exec(ds.config.endpoint);
 
@@ -515,18 +556,31 @@ class ServerlessAppsyncPlugin {
           throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
         }
 
-        defaultStatement.Resource = [
-          {
-            "Fn::Join" : [ ":", [
-              'arn',
-              'aws',
-              'es',
-              ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
-              `domain/${result[1]}`
-            ]]
-          },
-        ];
+        // Allow any action on the Datasource's ES endpoint
+        const defaultESStatement = {
+          Action: [
+            "es:ESHttpDelete",
+            "es:ESHttpGet",
+            "es:ESHttpHead",
+            "es:ESHttpPost",
+            "es:ESHttpPut",
+          ],
+          Effect: "Allow",
+          Resource: [
+            {
+              "Fn::Join" : [ ":", [
+                'arn',
+                'aws',
+                'es',
+                ds.config.region || config.region,
+                { "Ref" : "AWS::AccountId" },
+                `domain/${result[1]}`,
+              ]],
+            },
+          ],
+        };
+
+        defaultStatements.push(defaultESStatement);
         break;
 
       default:
@@ -534,7 +588,7 @@ class ServerlessAppsyncPlugin {
         return false;
     }
 
-    return [defaultStatement];
+    return defaultStatements;
   }
 
   getDataSourceResources(config) {
@@ -576,6 +630,17 @@ class ServerlessAppsyncPlugin {
         resource.Properties.ElasticsearchConfig = {
           AwsRegion: ds.config.region || config.region,
           Endpoint: ds.config.endpoint,
+        };
+      } else if (ds.type === 'RELATIONAL_DATABASE') {
+        resource.Properties.RelationalDatabaseConfig = {
+          RdsHttpEndpointConfig: {
+            AwsRegion: ds.config.region || config.region,
+            DbClusterIdentifier: ds.config.dbClusterIdentifier,
+            DatabaseName: ds.config.databaseName,
+            Schema: ds.config.schema,
+            AwsSecretStoreArn: ds.config.awsSecretStoreArn,
+          },
+          RelationalDatabaseSourceType: ds.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
         };
       } else if (ds.type === 'HTTP') {
         resource.Properties.HttpConfig = {
@@ -757,11 +822,11 @@ class ServerlessAppsyncPlugin {
 
   /**
    * Creates Fn::Join object from given template where all given substitutions
-   * are wrapped in Fn::Sub objects. This enables template to have also 
+   * are wrapped in Fn::Sub objects. This enables template to have also
    * characters that are not only alphanumeric, underscores, periods, and colons.
-   * 
-   * @param {*} template 
-   * @param {*} substitutions 
+   *
+   * @param {*} template
+   * @param {*} substitutions
    */
   substituteGlobalTemplateVariables(template, substitutions) {
     let variables = Object.keys(substitutions).join('|');
