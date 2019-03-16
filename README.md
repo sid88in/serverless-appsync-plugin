@@ -121,10 +121,10 @@ custom:
           region: # Overwrite default region for this data source
       - type: RELATIONAL_DATABASE
         name: # data source name
-        description: # DynamoDB Table Description
+        description: # data source description
         config:
-          dbClusterIdentifier: { Fn::GetAtt: [DBCluster, Arn] } # Where DBCluster is the RDS cluster defined in Resources
-          awsSecretStoreArn: { Ref: RDSClusterSecret } # Where RDSClusterSecret is the RDS cluster secret defined in Resources
+          dbClusterIdentifier: { Ref: RDSCluster } # The identifier for RDSCluster. Where RDSCluster is the cluster defined in Resources
+          awsSecretStoreArn: { Ref: RDSClusterSecret } # The RDSClusterSecret ARN. Where RDSClusterSecret is the cluster secret defined in Resources
           serviceRoleArn: { Fn::GetAtt: [RelationalDbServiceRole, Arn] } # Where RelationalDbServiceRole is an IAM role defined in Resources
           databaseName: # optional database name
           schema: # optional database schema

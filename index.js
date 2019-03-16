@@ -505,6 +505,20 @@ class ServerlessAppsyncPlugin {
         break;
 
       case 'RELATIONAL_DATABASE':
+        const dDbResourceArn = {
+          "Fn::Join" : [
+            ":",
+            [
+              'arn',
+              'aws',
+              'rds',
+              ds.config.region || config.region,
+              { "Ref" : "AWS::AccountId" },
+              'cluster',
+              ds.config.dbClusterIdentifier,
+            ],
+          ],
+        };
         const dbStatement = {
           Effect: "Allow",
           Action: [
@@ -515,8 +529,8 @@ class ServerlessAppsyncPlugin {
             "rds-data:UpdateItems",
           ],
           Resource: [
-            ds.config.dbClusterIdentifier,
-            `${ds.config.dbClusterIdentifier}:*`,
+            dDbResourceArn,
+            { "Fn::Join" : [ ":", [dDbResourceArn, '*'] ] },
           ],
         };
 
@@ -527,7 +541,7 @@ class ServerlessAppsyncPlugin {
           ],
           Resource: [
             ds.config.awsSecretStoreArn,
-            `${ds.config.awsSecretStoreArn}:*`,
+            { "Fn::Join" : [ ":", [ds.config.awsSecretStoreArn, '*'] ] },
           ],
         };
 

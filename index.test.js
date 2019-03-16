@@ -276,10 +276,10 @@ describe("iamRoleStatements", () => {
             description: 'Relational database Source',
             config: {
               region: "us-east-1",
-              dbClusterIdentifier: "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
+              dbClusterIdentifier: "aurora-cluster-id",
               databaseName: "myDatabaseName",
               schema: "mySchema",
-              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
+              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
               iamRoleStatements: [
                 {
                   "Action": [
@@ -290,8 +290,8 @@ describe("iamRoleStatements", () => {
                     "rds-data:UpdateItems",
                   ],
                   "Resource": [
-                    "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
-                    "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster:*",
+                    "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id",
+                    "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id:*",
                   ],
                   "Effect": "Allow",
                 },
@@ -300,8 +300,8 @@ describe("iamRoleStatements", () => {
                     "secretsmanager:GetSecretValue",
                   ],
                   "Resource": [
-                    "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
-                    "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa:*",
+                    "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                    "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa:*",
                   ],
                   "Effect": "Allow",
                 },
@@ -451,8 +451,8 @@ describe("iamRoleStatements", () => {
                         "rds-data:UpdateItems"
                       ],
                       "Resource": [
-                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
-                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster:*"
+                        "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id",
+                        "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id:*"
                       ],
                       "Effect": "Allow"
                     },
@@ -461,8 +461,8 @@ describe("iamRoleStatements", () => {
                         "secretsmanager:GetSecretValue"
                       ],
                       "Resource": [
-                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
-                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa:*"
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa:*"
                       ],
                       "Effect": "Allow"
                     }
@@ -546,10 +546,10 @@ describe("iamRoleStatements", () => {
             description: 'Relational Db Source',
             config: {
               region: "us-east-1",
-              dbClusterIdentifier: "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
+              dbClusterIdentifier: "aurora-cluster-id",
               databaseName: "myDatabaseName",
               schema: "mySchema",
-              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
+              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
             },
           },
           {
@@ -751,14 +751,14 @@ describe("iamRoleStatements", () => {
                   "Effect": "Allow",
                   "Principal": {
                     "Service": [
-                      "appsync.amazonaws.com"
-                    ]
+                      "appsync.amazonaws.com",
+                    ],
                   },
                   "Action": [
-                    "sts:AssumeRole"
-                  ]
-                }
-              ]
+                    "sts:AssumeRole",
+                  ],
+                },
+              ],
             },
             "Policies": [
               {
@@ -776,8 +776,46 @@ describe("iamRoleStatements", () => {
                         "rds-data:UpdateItems"
                       ],
                       "Resource": [
-                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
-                        "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster:*",
+                        {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              "aws",
+                              "rds",
+                              "us-east-1",
+                              {
+                                "Ref":"AWS::AccountId",
+                              },
+                              "cluster",
+                              "aurora-cluster-id",
+                            ],
+                          ],
+                        },
+                        {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              {
+                                "Fn::Join": [
+                                  ":",
+                                  [
+                                    "arn",
+                                    "aws",
+                                    "rds",
+                                    "us-east-1",
+                                    {
+                                      "Ref": "AWS::AccountId",
+                                    },
+                                    "cluster",
+                                    "aurora-cluster-id",
+                                  ],
+                                ],
+                              },
+                              "*",
+                            ],
+                          ],
+                        },
                       ],
                     },
                     {
@@ -786,8 +824,16 @@ describe("iamRoleStatements", () => {
                         "secretsmanager:GetSecretValue",
                       ],
                       "Resource": [
-                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
-                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa:*",
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                        {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                              "*",
+                            ],
+                          ],
+                        },
                       ],
                     },
                   ],
@@ -831,10 +877,10 @@ describe("iamRoleStatements", () => {
             description: 'Relational Db Source',
             config: {
               region: "us-east-1",
-              dbClusterIdentifier: "arn:aws:rds:us-east-1:123456789012:cluster:rozn-aurora-cluster",
+              dbClusterIdentifier: "aurora-cluster-id",
               databaseName: "myDatabaseName",
               schema: "mySchema",
-              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rozn-rds-cluster-secret-XuztPa",
+              awsSecretStoreArn: "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
               serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myRelationalDbRole",
             },
           },
