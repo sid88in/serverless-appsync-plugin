@@ -87,3 +87,27 @@ test('datasources as array form different files (array of arrays or objects)', (
     servicePath
   )[0]).toMatchSnapshot();
 });
+
+test('Schema as string', () => {
+
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: 'schema.graphql'
+    },
+    { region: 'us-east-1' },
+    servicePath
+  )[0]).toMatchSnapshot();
+});
+
+test('Schema as array', () => {
+
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: ['_type_tweet.graphql', '_type_user.graphql']
+    },
+    { region: 'us-east-1' },
+    servicePath
+  )[0]).toMatchSnapshot();
+});
