@@ -104,6 +104,31 @@ class ServerlessAppsyncPlugin {
     return { "Fn::GetAtt": [lambdaLogicalId, "Arn"] };
   }
 
+  getDbClusterArn(config) {
+    if (config && config.dbClusterIdentifier) {
+      return this.generateDbClusterArn(config.dbClusterIdentifier, config.region);
+    }
+
+    throw new Error('You must specify either `dbClusterIdentifier` for the resolver.');
+  }
+
+  generateDbClusterArn(dbClusterIdentifier, region) {
+    return {
+      "Fn::Join" : [
+        ":",
+        [
+          'arn',
+          'aws',
+          'rds',
+          region,
+          { "Ref" : "AWS::AccountId" },
+          'cluster',
+          dbClusterIdentifier,
+        ],
+      ],
+    };
+  }
+
   gatherData() {
     const stackName = this.provider.naming.getStackName();
 
@@ -635,7 +660,7 @@ class ServerlessAppsyncPlugin {
         resource.Properties.RelationalDatabaseConfig = {
           RdsHttpEndpointConfig: {
             AwsRegion: ds.config.region || config.region,
-            DbClusterIdentifier: ds.config.dbClusterIdentifier,
+            DbClusterIdentifier: this.getDbClusterArn(Object.assign({}, ds.config, config)),
             DatabaseName: ds.config.databaseName,
             Schema: ds.config.schema,
             AwsSecretStoreArn: ds.config.awsSecretStoreArn,
