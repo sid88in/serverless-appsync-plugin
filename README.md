@@ -102,7 +102,7 @@ custom:
         request: # request mapping template name
         response: # response mapping template name
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
-    schema: # defaults schema.graphql
+    schema: # schema file or array of files to merge, defaults to schema.graphql
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
@@ -117,6 +117,34 @@ custom:
               Resource:
                 - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable"
                 - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*"
+
+          region: # Overwrite default region for this data source
+      - type: RELATIONAL_DATABASE
+        name: # data source name
+        description: # data source description
+        config:
+          dbClusterIdentifier: { Ref: RDSCluster } # The identifier for RDSCluster. Where RDSCluster is the cluster defined in Resources
+          awsSecretStoreArn: { Ref: RDSClusterSecret } # The RDSClusterSecret ARN. Where RDSClusterSecret is the cluster secret defined in Resources
+          serviceRoleArn: { Fn::GetAtt: [RelationalDbServiceRole, Arn] } # Where RelationalDbServiceRole is an IAM role defined in Resources
+          databaseName: # optional database name
+          schema: # optional database schema
+          iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
+            - Effect: "Allow"
+              Action:
+                - "rds-data:DeleteItems"
+                - "rds-data:ExecuteSql"
+                - "rds-data:GetItems"
+                - "rds-data:InsertItems"
+                - "rds-data:UpdateItems"
+              Resource:
+                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster"
+                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster:*"
+            - Effect: "Allow"
+              Action:
+                - "secretsmanager:GetSecretValue"
+              Resource:
+                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret"
+                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret:*"
 
           region: # Overwrite default region for this data source
       - type: AMAZON_ELASTICSEARCH
@@ -208,8 +236,8 @@ custom:
     mappingTemplates:
       - type: Query
         field: testPipelineQuery
-        request: 'start.vtl'
-        response: 'common-response.vtl'
+        request: './mapping-templates/before.vtl' # the pipeline's "before" mapping template
+        response: './mapping-templates/after.vtl' # the pipeline's "after" mapping template
         kind: PIPELINE
         functions:
           - authorizeFunction

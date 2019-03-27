@@ -1,0 +1,63 @@
+type Mutation {
+    # Create a tweet for a user
+    # consumer keys and tokens are not required for dynamo integration
+    createTweet(
+        tweet: String!,
+        consumer_key: String,
+        consumer_secret: String,
+        access_token_key: String,
+        access_token_secret: String,
+        created_at: String!
+    ): Tweet!
+
+    # Delete User Tweet
+    deleteTweet(
+        tweet_id: String!,
+        consumer_key: String,
+        consumer_secret: String,
+        access_token_key: String,
+        access_token_secret: String
+    ): Tweet!
+
+    # Retweet existing Tweet
+    reTweet(
+        tweet_id: String!,
+        consumer_key: String,
+        consumer_secret: String,
+        access_token_key: String,
+        access_token_secret: String
+    ): Tweet!
+
+    # Update existing Tweet
+    updateTweet(tweet_id: String!, tweet: String!): Tweet!
+
+}
+
+type Query {
+    # search functionality is available in elasticsearch integration
+    searchAllTweetsByKeyword(keyword: String!): TweetConnection
+}
+
+type Subscription {
+    addTweet: Tweet @aws_subscribe(mutations: ["createTweet"])
+}
+
+type Tweet {
+    tweet_id: String!
+    tweet: String!
+    retweeted: Boolean
+    retweet_count: Int
+    favorited: Boolean
+    created_at: String!
+}
+
+type TweetConnection {
+    items: [Tweet!]!
+    nextToken: String
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { mergeTypes } = require('merge-graphql-schemas');
 const {
   mapObjIndexed, pipe, values, merge,
 } = require('ramda');
@@ -39,15 +40,14 @@ const getConfig = (config, provider, servicePath) => {
   const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
-  const schemaPath = path.join(
-    servicePath,
-    config.schema || 'schema.graphql',
-  );
+  const readSchemaFile =
+      (schemaRelPath) => fs.readFileSync(path.join(servicePath, schemaRelPath), {encoding: 'utf8'});
 
-  const schemaContent = fs.readFileSync(schemaPath, {
-    encoding: 'utf8',
-  });
-  
+  const schemaContent =
+    Array.isArray(config.schema) ?
+      mergeTypes(config.schema.map(readSchemaFile)) :
+      readSchemaFile(config.schema || 'schema.graphql');
+
   let dataSources = [];
   if (Array.isArray(config.dataSources)) {
     dataSources = config.dataSources.reduce(

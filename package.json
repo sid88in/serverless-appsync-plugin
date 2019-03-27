@@ -1,6 +1,6 @@
 {
   "name": "serverless-appsync-plugin",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "index.js",
   "repository": "https://github.com/sid88in/serverless-appsync-plugin",
@@ -23,6 +23,7 @@
     "graphql": "^0.13.2",
     "graphql-playground-middleware-koa": "^1.6.4",
     "koa": "^2.5.2",
+    "merge-graphql-schemas": "^1.5.8",
     "ramda": "^0.25.0"
   },
   "peerDependencies": {},
