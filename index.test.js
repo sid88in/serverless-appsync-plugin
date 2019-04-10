@@ -222,7 +222,64 @@ describe("appsync config", () => {
     });
   });
 
+  test("Datasource generates HTTP authorization when authorizationConfig provided", () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'HTTP',
+            name: 'HTTPSource',
+            description: 'HTTPSource Desc',
+            config: {
+              endpoint: "https://www.example.com/api",
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+              authorizationConfig: {
+                 authorizationType: "AWS_IAM",
+                 awsIamConfig: {
+                     signingRegion: "us-east-1",
+                     signingServiceName: "ses"
+                 }
+              }
+            }
+          },
+        ],
+      },
+    );
+
+    const dataSources = plugin.getDataSourceResources(config);
+    expect(dataSources).toEqual({
+      "GraphQlDsHTTPSource":
+        {
+          "Type": "AWS::AppSync::DataSource",
+          "Properties": {
+            Type: 'HTTP',
+            "ApiId": {
+              "Fn::GetAtt": [
+                "GraphQlApi",
+                "ApiId",
+              ],
+            },
+            Name: 'HTTPSource',
+            ServiceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+            Description: 'HTTPSource Desc',
+            HttpConfig: {
+              Endpoint: "https://www.example.com/api",
+              AuthorizationConfig: {
+                AuthorizationType: "AWS_IAM",
+                AwsIamConfig:{
+                  SigningRegion: "us-east-1",
+                  SigningServiceName: "ses"
+                 }
+                  
+                } 
+              }
+          },
+        },
+    });
+  });
 });
+
 
 describe("iamRoleStatements", () => {
 
@@ -894,6 +951,16 @@ describe("iamRoleStatements", () => {
               endpoint: "https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
             },
           },
+          {
+            type: 'HTTP',
+            name: 'HTTPSource',
+            description: 'My ElasticSearch Source',
+            config: {
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+              region: "us-east-1",
+              endpoint: "https://www.example.com/api",
+            },
+          },
         ],
       },
     );
@@ -916,14 +983,7 @@ describe("iamRoleStatements", () => {
             type: 'HTTP',
             name: 'HttpSource',
             config: {
-              endpoint: "https://www.example.com/api",
-              authorizationConfig: {
-                 authorizationType: "AWS_IAM",
-                 awsIamConfig: {
-                     signingRegion: "us-east-1",
-                     signingServiceName: "ses"
-                 }
-              }
+              endpoint: "https://www.example.com/api"
             }
           },
         ],
