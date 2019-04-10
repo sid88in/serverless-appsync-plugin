@@ -917,6 +917,13 @@ describe("iamRoleStatements", () => {
             name: 'HttpSource',
             config: {
               endpoint: "https://www.example.com/api",
+              authorizationConfig: {
+                 authorizationType: "AWS_IAM",
+                 awsIamConfig: {
+                     signingRegion: "us-east-1",
+                     signingServiceName: "ses"
+                 }
+              }
             }
           },
         ],

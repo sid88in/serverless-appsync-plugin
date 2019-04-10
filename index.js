@@ -643,8 +643,30 @@ class ServerlessAppsyncPlugin {
           RelationalDatabaseSourceType: ds.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
         };
       } else if (ds.type === 'HTTP') {
+        const authorizationConfig = {
+          ...(ds.config.authorizationConfig && {
+            AuthorizationConfig: {
+              ...(ds.config.authorizationConfig.authorizationType && {
+                AuthorizationType: ds.config.authorizationConfig.authorizationType,
+              }),
+              ...(ds.config.authorizationConfig.awsIamConfig && {
+                AwsIamConfig: {
+                  ...(ds.config.authorizationConfig.awsIamConfig.signingRegion && {
+                    SigningRegion: ds.config.authorizationConfig.awsIamConfig.signingRegion,
+                  }),
+                  ...(ds.config.authorizationConfig.awsIamConfig.signingServiceName && {
+                    SigningServiceName:
+                      ds.config.authorizationConfig.awsIamConfig.signingServiceName,
+                  }),
+                },
+              }),
+            },
+          }),
+        };
+
         resource.Properties.HttpConfig = {
           Endpoint: ds.config.endpoint,
+          ...authorizationConfig,
         };
       } else if (ds.type !== 'NONE') {
         throw new this.serverless.classes.Error(`Data Source Type not supported: ${ds.type}`);
