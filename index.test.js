@@ -238,10 +238,10 @@ describe("appsync config", () => {
                  authorizationType: "AWS_IAM",
                  awsIamConfig: {
                      signingRegion: "us-east-1",
-                     signingServiceName: "ses"
-                 }
-              }
-            }
+                     signingServiceName: "ses"  
+                 },
+              },
+            },
           },
         ],
       },
@@ -270,9 +270,9 @@ describe("appsync config", () => {
                 AwsIamConfig:{
                   SigningRegion: "us-east-1",
                   SigningServiceName: "ses"
-                }
-              } 
-            }
+                },
+              },
+            },
           },
         },
     });
@@ -953,7 +953,7 @@ describe("iamRoleStatements", () => {
           {
             type: 'HTTP',
             name: 'HTTPSource',
-            description: 'My ElasticSearch Source',
+            description: 'My HTTP Source',
             config: {
               serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
               region: "us-east-1",
