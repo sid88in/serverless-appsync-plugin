@@ -270,10 +270,9 @@ describe("appsync config", () => {
                 AwsIamConfig:{
                   SigningRegion: "us-east-1",
                   SigningServiceName: "ses"
-                 }
-                  
-                } 
-              }
+                }
+              } 
+            }
           },
         },
     });
@@ -983,7 +982,7 @@ describe("iamRoleStatements", () => {
             type: 'HTTP',
             name: 'HttpSource',
             config: {
-              endpoint: "https://www.example.com/api"
+              endpoint: "https://www.example.com/api",
             }
           },
         ],
