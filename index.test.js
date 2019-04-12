@@ -277,8 +277,62 @@ describe("appsync config", () => {
         },
     });
   });
-});
 
+  test("HTTP Datasource defaults the IAM role signing region to the stack's region", () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'HTTP',
+            name: 'HTTPSource',
+            description: 'HTTPSource Desc',
+            config: {
+              endpoint: "https://www.example.com/api",
+              serviceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+              authorizationConfig: {
+                 authorizationType: "AWS_IAM",
+                 awsIamConfig: {
+                     signingServiceName: "ses"  
+                 },
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    const dataSources = plugin.getDataSourceResources(config);
+    expect(dataSources).toEqual({
+      "GraphQlDsHTTPSource":
+        {
+          "Type": "AWS::AppSync::DataSource",
+          "Properties": {
+            Type: 'HTTP',
+            "ApiId": {
+              "Fn::GetAtt": [
+                "GraphQlApi",
+                "ApiId",
+              ],
+            },
+            Name: 'HTTPSource',
+            ServiceRoleArn: "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+            Description: 'HTTPSource Desc',
+            HttpConfig: {
+              Endpoint: "https://www.example.com/api",
+              AuthorizationConfig: {
+                AuthorizationType: "AWS_IAM",
+                AwsIamConfig:{
+                  SigningRegion: config.region,
+                  SigningServiceName: "ses"
+                },
+              },
+            },
+          },
+        },
+    });
+  });
+});
 
 describe("iamRoleStatements", () => {
 

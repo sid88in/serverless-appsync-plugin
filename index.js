@@ -651,9 +651,7 @@ class ServerlessAppsyncPlugin {
               }),
               ...(ds.config.authorizationConfig.awsIamConfig && {
                 AwsIamConfig: {
-                  ...(ds.config.authorizationConfig.awsIamConfig.signingRegion && {
-                    SigningRegion: ds.config.authorizationConfig.awsIamConfig.signingRegion,
-                  }),
+                  SigningRegion: ds.config.authorizationConfig.awsIamConfig.signingRegion || config.region,
                   ...(ds.config.authorizationConfig.awsIamConfig.signingServiceName && {
                     SigningServiceName:
                       ds.config.authorizationConfig.awsIamConfig.signingServiceName,
