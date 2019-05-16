@@ -71,6 +71,7 @@ const getConfig = (config, provider, servicePath) => {
     apiKey: config.apiKey,
     region: provider.region,
     authenticationType: config.authenticationType,
+    additionalAuthenticationProviders: config.additionalAuthenticationProviders || [],
     schema: schemaContent,
     userPoolConfig: config.userPoolConfig,
     openIdConnectConfig: config.openIdConnectConfig,

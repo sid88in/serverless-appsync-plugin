@@ -15,6 +15,7 @@ beforeEach(() => {
   serverless.setProvider('aws', new AwsProvider(serverless, options));
   plugin = new ServerlessAppsyncPlugin(serverless, {});
   config = {
+    additionalAuthenticationProviders: [],
     name: 'api',
     dataSources: [],
     region: 'us-east-1',
@@ -331,6 +332,103 @@ describe("appsync config", () => {
           },
         },
     });
+  });
+
+  test('AMAZON_COGNITO_USER_POOLS config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+      userPoolConfig: {
+        defaultAction: 'ALLOW',
+        awsRegion: 'eu-central-1',
+        userPoolId: 'userPoolGenerateId',
+        appIdClientRegex: 'appIdClientRegex',
+      },
+    });
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AMAZON_COGNITO_USER_POOLS');
+    expect(resources.GraphQlApi.Properties.UserPoolConfig).toEqual({
+      DefaultAction: 'ALLOW',
+      AwsRegion: 'eu-central-1',
+      UserPoolId: 'userPoolGenerateId',
+      AppIdClientRegex: 'appIdClientRegex',
+    });
+  });
+
+  test('OPENID_CONNECT config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'OPENID_CONNECT',
+      openIdConnectConfig: {
+        issuer: 'issuer',
+        clientId: 'clientId',
+        iatTTL: 1000,
+        authTTL: 1000,
+      },
+    });
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('OPENID_CONNECT');
+    expect(resources.GraphQlApi.Properties.OpenIDConnectConfig).toEqual({
+      Issuer: 'issuer',
+      ClientId: 'clientId',
+      IatTTL: 1000,
+      AuthTTL: 1000,
+    });
+  });
+
+  test('Additional authentication providers created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      additionalAuthenticationProviders: [
+        {
+          authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+          userPoolConfig: {
+            awsRegion: 'eu-central-1',
+            userPoolId: 'userPoolGenerateId',
+            appIdClientRegex: 'appIdClientRegex',
+          },
+        },
+        {
+          authenticationType: 'OPENID_CONNECT',
+          openIdConnectConfig: {
+            issuer: 'issuer',
+            clientId: 'clientId',
+            iatTTL: 1000,
+            authTTL: 1000,
+          },
+        },
+        {
+          authenticationType: 'API_KEY',
+        },
+        {
+          authenticationType: 'AWS_IAM',
+        },
+      ],
+    });
+
+    expect(resources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toEqual([
+      {
+        AuthenticationType: 'AMAZON_COGNITO_USER_POOLS',
+        UserPoolConfig: {
+          AwsRegion: 'eu-central-1',
+          UserPoolId: 'userPoolGenerateId',
+          AppIdClientRegex: 'appIdClientRegex',
+        },
+      },
+      {
+        AuthenticationType: 'OPENID_CONNECT',
+        OpenIDConnectConfig: {
+          Issuer: 'issuer',
+          ClientId: 'clientId',
+          IatTTL: 1000,
+          AuthTTL: 1000,
+        },
+      },
+      {
+        AuthenticationType: 'API_KEY',
+      },
+      {
+        AuthenticationType: 'AWS_IAM',
+      },
+    ]);
   });
 });
 
