@@ -6,6 +6,8 @@ let serverless;
 let plugin;
 let config;
 
+jest.spyOn(Date, 'now').mockImplementation(() => 10000);
+
 beforeEach(() => {
   serverless = new Serverless();
   const options = {
@@ -374,8 +376,33 @@ describe("appsync config", () => {
     });
   });
 
+  test('API_KEY config created', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+    };
+    const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const outputs = plugin.getApiKeyOutputs(apiConfig);
+
+    expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
+    expect(keyResources.GraphQlApiKeyDefault).toEqual({
+      Type: 'AWS::AppSync::ApiKey',
+      Properties: {
+        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
+        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+      },
+    });
+    expect(outputs).toEqual({
+      GraphQlApiKeyDefault: {
+        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      },
+    });
+  });
+
   test('Additional authentication providers created', () => {
-    const resources = plugin.getGraphQlApiEndpointResource({
+    const apiConfig = {
       ...config,
       additionalAuthenticationProviders: [
         {
@@ -402,9 +429,13 @@ describe("appsync config", () => {
           authenticationType: 'AWS_IAM',
         },
       ],
-    });
+    };
 
-    expect(resources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toEqual([
+    const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const outputs = plugin.getApiKeyOutputs(apiConfig);
+
+    expect(apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toEqual([
       {
         AuthenticationType: 'AMAZON_COGNITO_USER_POOLS',
         UserPoolConfig: {
@@ -429,6 +460,19 @@ describe("appsync config", () => {
         AuthenticationType: 'AWS_IAM',
       },
     ]);
+    expect(keyResources.GraphQlApiKeyDefault).toEqual({
+      Type: 'AWS::AppSync::ApiKey',
+      Properties: {
+        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
+        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+      },
+    });
+    expect(outputs).toEqual({
+      GraphQlApiKeyDefault: {
+        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      },
+    });
   });
 });
 

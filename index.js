@@ -367,22 +367,29 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getApiKeyResources(config) {
-    if (config.authenticationType !== 'API_KEY') {
-      return {};
+  hasApiKeyAuth(config) {
+    if (config.authenticationType === 'API_KEY' || config.additionalAuthenticationProviders.some(({ authenticationType }) => authenticationType === 'API_KEY')) {
+      return true;
     }
-    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-    return {
-      [logicalIdApiKey]: {
-        Type: 'AWS::AppSync::ApiKey',
-        Properties: {
-          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-          Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
-          Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+    return false;
+  }
+
+  getApiKeyResources(config) {
+    if (this.hasApiKeyAuth(config)) {
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+      return {
+        [logicalIdApiKey]: {
+          Type: 'AWS::AppSync::ApiKey',
+          Properties: {
+            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
+            Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+          },
         },
-      },
-    };
+      };
+    }
+    return {};
   }
 
   getCloudWatchLogsRole(config) {
@@ -845,16 +852,16 @@ class ServerlessAppsyncPlugin {
   }
 
   getApiKeyOutputs(config) {
-    if (config.authenticationType !== 'API_KEY') {
-      return {};
+    if (this.hasApiKeyAuth(config)) {
+      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+      const logicalIdApiKeyOutput = logicalIdApiKey;
+      return {
+        [logicalIdApiKeyOutput]: {
+          Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
+        },
+      };
     }
-    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-    const logicalIdApiKeyOutput = logicalIdApiKey;
-    return {
-      [logicalIdApiKeyOutput]: {
-        Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
-      },
-    };
+    return {};
   }
 
   getCfnName(name) {
