@@ -6,6 +6,8 @@ let serverless;
 let plugin;
 let config;
 
+jest.spyOn(Date, 'now').mockImplementation(() => 10000);
+
 beforeEach(() => {
   serverless = new Serverless();
   const options = {
@@ -15,6 +17,7 @@ beforeEach(() => {
   serverless.setProvider('aws', new AwsProvider(serverless, options));
   plugin = new ServerlessAppsyncPlugin(serverless, {});
   config = {
+    additionalAuthenticationProviders: [],
     name: 'api',
     dataSources: [],
     region: 'us-east-1',
@@ -330,6 +333,145 @@ describe("appsync config", () => {
             },
           },
         },
+    });
+  });
+
+  test('AMAZON_COGNITO_USER_POOLS config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+      userPoolConfig: {
+        defaultAction: 'ALLOW',
+        awsRegion: 'eu-central-1',
+        userPoolId: 'userPoolGenerateId',
+        appIdClientRegex: 'appIdClientRegex',
+      },
+    });
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AMAZON_COGNITO_USER_POOLS');
+    expect(resources.GraphQlApi.Properties.UserPoolConfig).toEqual({
+      DefaultAction: 'ALLOW',
+      AwsRegion: 'eu-central-1',
+      UserPoolId: 'userPoolGenerateId',
+      AppIdClientRegex: 'appIdClientRegex',
+    });
+  });
+
+  test('OPENID_CONNECT config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'OPENID_CONNECT',
+      openIdConnectConfig: {
+        issuer: 'issuer',
+        clientId: 'clientId',
+        iatTTL: 1000,
+        authTTL: 1000,
+      },
+    });
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('OPENID_CONNECT');
+    expect(resources.GraphQlApi.Properties.OpenIDConnectConfig).toEqual({
+      Issuer: 'issuer',
+      ClientId: 'clientId',
+      IatTTL: 1000,
+      AuthTTL: 1000,
+    });
+  });
+
+  test('API_KEY config created', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+    };
+    const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const outputs = plugin.getApiKeyOutputs(apiConfig);
+
+    expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
+    expect(keyResources.GraphQlApiKeyDefault).toEqual({
+      Type: 'AWS::AppSync::ApiKey',
+      Properties: {
+        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
+        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+      },
+    });
+    expect(outputs).toEqual({
+      GraphQlApiKeyDefault: {
+        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      },
+    });
+  });
+
+  test('Additional authentication providers created', () => {
+    const apiConfig = {
+      ...config,
+      additionalAuthenticationProviders: [
+        {
+          authenticationType: 'AMAZON_COGNITO_USER_POOLS',
+          userPoolConfig: {
+            awsRegion: 'eu-central-1',
+            userPoolId: 'userPoolGenerateId',
+            appIdClientRegex: 'appIdClientRegex',
+          },
+        },
+        {
+          authenticationType: 'OPENID_CONNECT',
+          openIdConnectConfig: {
+            issuer: 'issuer',
+            clientId: 'clientId',
+            iatTTL: 1000,
+            authTTL: 1000,
+          },
+        },
+        {
+          authenticationType: 'API_KEY',
+        },
+        {
+          authenticationType: 'AWS_IAM',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const outputs = plugin.getApiKeyOutputs(apiConfig);
+
+    expect(apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toEqual([
+      {
+        AuthenticationType: 'AMAZON_COGNITO_USER_POOLS',
+        UserPoolConfig: {
+          AwsRegion: 'eu-central-1',
+          UserPoolId: 'userPoolGenerateId',
+          AppIdClientRegex: 'appIdClientRegex',
+        },
+      },
+      {
+        AuthenticationType: 'OPENID_CONNECT',
+        OpenIDConnectConfig: {
+          Issuer: 'issuer',
+          ClientId: 'clientId',
+          IatTTL: 1000,
+          AuthTTL: 1000,
+        },
+      },
+      {
+        AuthenticationType: 'API_KEY',
+      },
+      {
+        AuthenticationType: 'AWS_IAM',
+      },
+    ]);
+    expect(keyResources.GraphQlApiKeyDefault).toEqual({
+      Type: 'AWS::AppSync::ApiKey',
+      Properties: {
+        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
+        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+      },
+    });
+    expect(outputs).toEqual({
+      GraphQlApiKeyDefault: {
+        Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
+      },
     });
   });
 });

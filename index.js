@@ -290,6 +290,42 @@ class ServerlessAppsyncPlugin {
     });
   }
 
+  getUserPoolConfig(provider, region) {
+    const userPoolConfig = {
+      AwsRegion: provider.userPoolConfig.awsRegion || region,
+      UserPoolId: provider.userPoolConfig.userPoolId,
+      AppIdClientRegex: provider.userPoolConfig.appIdClientRegex,
+    };
+
+    if (provider.userPoolConfig.defaultAction) {
+      Object.assign(userPoolConfig, { DefaultAction: provider.userPoolConfig.defaultAction });
+    }
+
+    return userPoolConfig;
+  }
+
+  getOpenIDConnectConfig(provider) {
+    const openIdConnectConfig = {
+      Issuer: provider.openIdConnectConfig.issuer,
+      ClientId: provider.openIdConnectConfig.clientId,
+      IatTTL: provider.openIdConnectConfig.iatTTL,
+      AuthTTL: provider.openIdConnectConfig.authTTL,
+    };
+
+    return openIdConnectConfig;
+  }
+
+  mapAuthenticationProvider(provider, region) {
+    const authenticationType = provider.authenticationType;
+    const Provider = {
+      AuthenticationType: authenticationType,
+      UserPoolConfig: authenticationType !== 'AMAZON_COGNITO_USER_POOLS' ? undefined : this.getUserPoolConfig(provider, region),
+      OpenIDConnectConfig: authenticationType !== 'OPENID_CONNECT' ? undefined : this.getOpenIDConnectConfig(provider),
+    };
+
+    return Provider;
+  }
+
   getGraphQlApiEndpointResource(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdCloudWatchLogsRole = this.getLogicalId(config, RESOURCE_API_CLOUDWATCH_LOGS_ROLE);
@@ -308,18 +344,9 @@ class ServerlessAppsyncPlugin {
         Properties: {
           Name: config.name,
           AuthenticationType: config.authenticationType,
-          UserPoolConfig: config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS' ? undefined : {
-            AwsRegion: config.userPoolConfig.awsRegion || config.region,
-            DefaultAction: config.userPoolConfig.defaultAction,
-            UserPoolId: config.userPoolConfig.userPoolId,
-            AppIdClientRegex: config.userPoolConfig.appIdClientRegex,
-          },
-          OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : {
-            Issuer: config.openIdConnectConfig.issuer,
-            ClientId: config.openIdConnectConfig.clientId,
-            IatTTL: config.openIdConnectConfig.iatTTL,
-            AuthTTL: config.openIdConnectConfig.authTTL,
-          },
+          AdditionalAuthenticationProviders: config.additionalAuthenticationProviders.map(provider => this.mapAuthenticationProvider(provider, config.region)),
+          UserPoolConfig: config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS' ? undefined : this.getUserPoolConfig(config, config.region),
+          OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT' ? undefined : this.getOpenIDConnectConfig(config),
           LogConfig: !config.logConfig ? undefined : {
             CloudWatchLogsRoleArn:
               config.logConfig.loggingRoleArn ||
@@ -340,22 +367,29 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getApiKeyResources(config) {
-    if (config.authenticationType !== 'API_KEY') {
-      return {};
+  hasApiKeyAuth(config) {
+    if (config.authenticationType === 'API_KEY' || config.additionalAuthenticationProviders.some(({ authenticationType }) => authenticationType === 'API_KEY')) {
+      return true;
     }
-    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-    return {
-      [logicalIdApiKey]: {
-        Type: 'AWS::AppSync::ApiKey',
-        Properties: {
-          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-          Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
-          Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+    return false;
+  }
+
+  getApiKeyResources(config) {
+    if (this.hasApiKeyAuth(config)) {
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+      return {
+        [logicalIdApiKey]: {
+          Type: 'AWS::AppSync::ApiKey',
+          Properties: {
+            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
+            Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+          },
         },
-      },
-    };
+      };
+    }
+    return {};
   }
 
   getCloudWatchLogsRole(config) {
@@ -818,16 +852,16 @@ class ServerlessAppsyncPlugin {
   }
 
   getApiKeyOutputs(config) {
-    if (config.authenticationType !== 'API_KEY') {
-      return {};
+    if (this.hasApiKeyAuth(config)) {
+      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+      const logicalIdApiKeyOutput = logicalIdApiKey;
+      return {
+        [logicalIdApiKeyOutput]: {
+          Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
+        },
+      };
     }
-    const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-    const logicalIdApiKeyOutput = logicalIdApiKey;
-    return {
-      [logicalIdApiKeyOutput]: {
-        Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
-      },
-    };
+    return {};
   }
 
   getCfnName(name) {

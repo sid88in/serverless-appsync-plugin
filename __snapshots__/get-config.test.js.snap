@@ -2,6 +2,7 @@
 
 exports[`Schema as array 1`] = `
 Object {
+  "additionalAuthenticationProviders": Array [],
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
@@ -82,6 +83,7 @@ type User {
 
 exports[`Schema as string 1`] = `
 Object {
+  "additionalAuthenticationProviders": Array [],
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
@@ -200,6 +202,7 @@ exports[`authenticationType is missing 2`] = `"appSync property \`authentication
 
 exports[`datasources as array 1`] = `
 Object {
+  "additionalAuthenticationProviders": Array [],
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
@@ -323,6 +326,7 @@ schema {
 
 exports[`datasources as array form different files (array of arrays or objects) 1`] = `
 Object {
+  "additionalAuthenticationProviders": Array [],
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
@@ -454,6 +458,7 @@ schema {
 
 exports[`returns valid config 1`] = `
 Object {
+  "additionalAuthenticationProviders": Array [],
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",

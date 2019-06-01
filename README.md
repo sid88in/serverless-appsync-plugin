@@ -91,6 +91,21 @@ custom:
       clientId:
       iatTTL:
       authTTL:
+    # Array of additional authentication providers
+    additionalAuthenticationProviders:
+      - authenticationType: API_KEY
+      - authenticationType: AWS_IAM
+      - authenticationType: OPENID_CONNECT
+        openIdConnectConfig:
+          issuer:
+          clientId:
+          iatTTL:
+          authTTL:
+      - authenticationType: AMAZON_COGNITO_USER_POOLS
+        userPoolConfig:
+          awsRegion: # defaults to provider region
+          userPoolId: # required # user pool ID
+          appIdClientRegex: # optional
     logConfig:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL
