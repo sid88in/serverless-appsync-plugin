@@ -915,8 +915,8 @@ class ServerlessAppsyncPlugin {
     let templateJoin = template.split('|||');
     for (let i = 0; i < templateJoin.length; i++) {
       if (substitutions[templateJoin[i]]) {
-        let subs = '{"' + templateJoin[i] + '": "' + substitutions[templateJoin[i]] + '"}'
-        templateJoin[i] = { 'Fn::Sub': ['${' + templateJoin[i] + '}', JSON.parse(subs)] };
+        let subs = { [ templateJoin[i] ] : substitutions[templateJoin[i]] };
+        templateJoin[i] = { 'Fn::Sub': ['${' + templateJoin[i] + '}', subs] };
       }
     }
     return { 'Fn::Join': ["", templateJoin] };
