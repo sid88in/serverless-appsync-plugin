@@ -356,6 +356,19 @@ describe("appsync config", () => {
     });
   });
 
+  test('Tags config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      tags: {
+        testKey: 'testValue',
+      },
+    });
+    expect(resources.GraphQlApi.Properties.Tags).toEqual(expect.arrayContaining([{
+      Key: 'testKey',
+      Value: 'testValue',
+    }]));
+  });
+
   test('OPENID_CONNECT config created', () => {
     const resources = plugin.getGraphQlApiEndpointResource({
       ...config,
