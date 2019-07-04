@@ -13,6 +13,7 @@ const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = "GraphQlApiCloudWatchLogsRole";
 const RESOURCE_API_KEY = "GraphQlApiKeyDefault";
 const RESOURCE_SCHEMA = "GraphQlSchema";
 const RESOURCE_URL = "GraphQlApiUrl";
+const RESOURCE_API_ID = "GraphQlApiId";
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -844,9 +845,13 @@ class ServerlessAppsyncPlugin {
   getGraphQlApiOutputs(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLApiUrlOutput = this.getLogicalId(config, RESOURCE_URL);
+    const logicalIdGraphQLApiIdOutput = this.getLogicalId(config, RESOURCE_API_ID);
     return {
       [logicalIdGraphQLApiUrlOutput]: {
         Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
+      },
+      [logicalIdGraphQLApiIdOutput]: {
+        Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
       },
     };
   }
