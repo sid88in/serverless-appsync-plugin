@@ -83,6 +83,7 @@ const getConfig = (config, provider, servicePath) => {
     functionConfigurations,
     logConfig: config.logConfig,
     substitutions: config.substitutions || {},
+    tags: config.tags,
   };
 };
 

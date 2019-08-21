@@ -315,6 +315,15 @@ class ServerlessAppsyncPlugin {
     return openIdConnectConfig;
   }
 
+  getTagsConfig(config) {
+    return Object.keys(config.tags).map((key) => {
+      return {
+        Key: key,
+        Value: config.tags[key],
+      };
+    });
+  }
+
   mapAuthenticationProvider(provider, region) {
     const authenticationType = provider.authenticationType;
     const Provider = {
@@ -353,6 +362,7 @@ class ServerlessAppsyncPlugin {
               { "Fn::GetAtt": [logicalIdCloudWatchLogsRole, "Arn"] },
             FieldLogLevel: config.logConfig.level,
           },
+          Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
       },
       ...config.logConfig && config.logConfig.level && {
