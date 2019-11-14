@@ -276,6 +276,8 @@ custom:
 
 This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
 
+* Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
+
 ### `serverless graphql-playground`
 
 This command will start a local graphql-playground server which is connected to your AppSync endpoint. The required options for the command are different depending on your AppSync authenticationType.

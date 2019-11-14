@@ -166,10 +166,16 @@ class ServerlessAppsyncPlugin {
   }
 
   displayApiKeys() {
+    const conceal = this.options.conceal;
+
     let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
     if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
       this.gatheredData.apiKeys.forEach( endpoint => {
-        apiKeysMessage += `\n  ${endpoint}`;
+        if (conceal) {
+          apiKeysMessage += "\n  *** (concealed)";
+        } else {
+          apiKeysMessage += `\n  ${endpoint}`;
+        }
       });
     } else {
       apiKeysMessage += "\n  None";

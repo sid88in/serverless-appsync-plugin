@@ -34,14 +34,25 @@ beforeEach(() => {
 
 describe("appsync display", () => {
 
-  test('appsync api keys are displayed', () => {
-    plugin.gatheredData.apiKeys.push("dummy-api-key-1");
-    plugin.gatheredData.apiKeys.push("dummy-api-key-2");
+  test("appsync api keys are displayed", () => {
+    plugin.gatheredData.apiKeys = ["dummy-api-key-1", "dummy-api-key-2"];
 
     let expectedMessage = '';
-    expectedMessage += `${chalk.yellow('appsync api keys:')}\n`;
-    expectedMessage += '  dummy-api-key-1\n';
-    expectedMessage += '  dummy-api-key-2';
+    expectedMessage += `${chalk.yellow("appsync api keys:")}`;
+    expectedMessage += '\n  dummy-api-key-1';
+    expectedMessage += '\n  dummy-api-key-2';
+
+    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+  });
+
+  test("appsync api keys are hidden when `--conceal` is given", () => {
+    plugin.options.conceal = true;
+    plugin.gatheredData.apiKeys = ["dummy-api-key-1", "dummy-api-key-2"];
+
+    let expectedMessage = '';
+    expectedMessage += `${chalk.yellow("appsync api keys:")}`;
+    expectedMessage += '\n  *** (concealed)';
+    expectedMessage += '\n  *** (concealed)';
 
     expect(plugin.displayApiKeys()).toEqual(expectedMessage);
   });
