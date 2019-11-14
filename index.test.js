@@ -1,6 +1,7 @@
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('.');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
+const chalk = require('chalk');
 
 let serverless;
 let plugin;
@@ -9,7 +10,13 @@ let config;
 jest.spyOn(Date, 'now').mockImplementation(() => 10000);
 
 beforeEach(() => {
+  const cli = {
+    log: jest.fn(),
+    consoleLog: jest.fn(),
+  };
   serverless = new Serverless();
+  serverless.cli = cli;
+
   const options = {
     stage: 'dev',
     region: 'us-east-1',
@@ -23,6 +30,21 @@ beforeEach(() => {
     region: 'us-east-1',
     isSingleConfig: true,
   };
+});
+
+describe("appsync display", () => {
+
+  test('appsync api keys are displayed', () => {
+    plugin.gatheredData.apiKeys.push("dummy-api-key-1");
+    plugin.gatheredData.apiKeys.push("dummy-api-key-2");
+
+    let expectedMessage = '';
+    expectedMessage += `${chalk.yellow('appsync api keys:')}\n`;
+    expectedMessage += '  dummy-api-key-1\n';
+    expectedMessage += '  dummy-api-key-2';
+
+    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+  });
 });
 
 describe("appsync config", () => {
