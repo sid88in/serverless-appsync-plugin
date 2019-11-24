@@ -1,6 +1,7 @@
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('.');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
+const chalk = require('chalk');
 
 let serverless;
 let plugin;
@@ -9,7 +10,13 @@ let config;
 jest.spyOn(Date, 'now').mockImplementation(() => 10000);
 
 beforeEach(() => {
+  const cli = {
+    log: jest.fn(),
+    consoleLog: jest.fn(),
+  };
   serverless = new Serverless();
+  serverless.cli = cli;
+
   const options = {
     stage: 'dev',
     region: 'us-east-1',
@@ -23,6 +30,32 @@ beforeEach(() => {
     region: 'us-east-1',
     isSingleConfig: true,
   };
+});
+
+describe("appsync display", () => {
+
+  test("appsync api keys are displayed", () => {
+    plugin.gatheredData.apiKeys = ["dummy-api-key-1", "dummy-api-key-2"];
+
+    let expectedMessage = '';
+    expectedMessage += `${chalk.yellow("appsync api keys:")}`;
+    expectedMessage += '\n  dummy-api-key-1';
+    expectedMessage += '\n  dummy-api-key-2';
+
+    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+  });
+
+  test("appsync api keys are hidden when `--conceal` is given", () => {
+    plugin.options.conceal = true;
+    plugin.gatheredData.apiKeys = ["dummy-api-key-1", "dummy-api-key-2"];
+
+    let expectedMessage = '';
+    expectedMessage += `${chalk.yellow("appsync api keys:")}`;
+    expectedMessage += '\n  *** (concealed)';
+    expectedMessage += '\n  *** (concealed)';
+
+    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+  });
 });
 
 describe("appsync config", () => {
