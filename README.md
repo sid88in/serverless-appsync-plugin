@@ -33,6 +33,7 @@ Put options under `custom.appsync-simulator` in your `serverless.yml` file
 
 | option | default | description |
 |--------|---------|-------------|
+| apiKey   | `0123456789`   | When using `API_KEY` as authentication type, the key to authenticate to the endpoint. |
 | port   | 20002   | AppSync operations port |
 | wsPort | 20003   | AppSync subscriptions port |
 | location | . (base directory)   | Location of the lambda functions handlers. |

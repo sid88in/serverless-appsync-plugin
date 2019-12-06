@@ -14,6 +14,7 @@ class ServerlessAppSyncSimulator {
     this.serverlessLog = serverless.cli.log.bind(serverless.cli);
     this.options = merge(
       {
+        apiKey: '0123456789',
         port: 20002,
         wsPort: 20003,
         location: '.',

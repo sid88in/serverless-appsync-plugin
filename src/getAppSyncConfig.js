@@ -87,7 +87,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
 
   const makeAppSync = () => ({
     name: appSyncConfig.name,
-    apiKey: context.options.apiKey || '123456',
+    apiKey: context.options.apiKey,
     defaultAuthenticationType: makeAuthType(appSyncConfig),
     additionalAuthenticationProviders: (appSyncConfig.additionalAuthenticationProviders || [])
       .map(makeAuthType),
