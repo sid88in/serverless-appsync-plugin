@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "@babel/plugin-transform-modules-commonjs"
+  ],
+  "presets": [
+    ["@babel/preset-env",
+        {
+            "shippedProposals": true,
+            "targets": { "node": "8.12" }
+        }
+    ]
+  ]
+}
