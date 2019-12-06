@@ -7,11 +7,28 @@ This serverless plugin is a wrapper for [amplify-appsync-simulator](amplify-apps
 - [serverless-offline](https://github.com/dherault/serverless-offline)
 - [serverless-dynamodb-local](https://github.com/99xt/serverless-dynamodb-local) (when using dynamodb resolvers only)
 
+# Install
+
+````bash
+npm install serverless-appsync-simulator
+# or
+yarn add serverless-appsync-simulator
+````
+
 # Usage
 
-This plugin relies on your serverless yml file and on the `serverless-offline` plugin*.
+This plugin relies on your serverless yml file and on the `serverless-offline` plugin.
 
-To start it, run the followin command:
+````yml
+plugins:
+  - serverless-dynamodb-local # only if you need dynamodb resolvers
+  - serverless-appsync-simulator
+  - serverless-offline
+````
+
+**Note:** Order is important `serverless-appsync-simulator` must go **before** `serverless-offline`
+
+To start the simulator, run the followin command:
 ````bash
 sls offline start
 ````
@@ -24,8 +41,6 @@ Serverless: AppSync endpoint: http://localhost:20002/graphql
 Serverless: GraphiQl: http://localhost:20002
 ...
 ````
-
-(*): If you are using DynamoDb resolvers, you'll also need [serverless-dynamodb-local](https://github.com/99xt/serverless-dynamodb-local)
 
 # Configuration
 
