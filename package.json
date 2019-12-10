@@ -7,7 +7,8 @@
   "private": false,
   "scripts": {
     "build": "babel src/ -d lib/ --delete-dir-on-start",
-    "prepare": "yarn run build"
+    "prepare": "yarn run build",
+    "start-dev": "yarn run build -w --verbose"
   },
   "files": [
     "/lib"

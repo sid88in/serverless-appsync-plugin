@@ -3,10 +3,18 @@ import {
 } from 'amplify-appsync-simulator';
 import { invoke } from 'amplify-util-mock/lib/utils/lambda/invoke';
 import fs from 'fs';
-import { find } from 'lodash';
+import { find, get } from 'lodash';
 import path from 'path';
 
 export default function getAppSyncConfig(context, appSyncConfig) {
+  // Flattening params
+  const cfg = {
+    ...appSyncConfig,
+    mappingTemplates: (appSyncConfig.mappingTemplates || []).flat(),
+    functionConfigurations: (appSyncConfig.functionConfigurations || []).flat(),
+    dataSources: (appSyncConfig.dataSources || []).flat(),
+  };
+
   const getFileMap = (basePath, filePath) => ({
     path: filePath,
     content: fs.readFileSync(path.join(basePath, filePath), { encoding: 'utf8' }),
@@ -22,6 +30,22 @@ export default function getAppSyncConfig(context, appSyncConfig) {
       type: source.type,
     };
 
+    /**
+     * Returns the tableName resolving reference. Throws exception if reference is not found
+     */
+    const getTableName = (table) => {
+      if (table && table.Ref) {
+        const tableName = get(context.serverless.service, `resources.Resources.${table.Ref}.Properties.TableName`);
+
+        if (!tableName) {
+          throw new Error(`Unable to find table Reference for ${table} inside Serverless resources`);
+        }
+
+        return tableName;
+      }
+      return table;
+    };
+
     switch (source.type) {
       case 'AMAZON_DYNAMODB': {
         const { port } = context.options.dynamoDb;
@@ -30,7 +54,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           config: {
             endpoint: `http://localhost:${port}`,
             region: 'localhost',
-            tableName: source.config.tableName, // FIXME: Handle Ref:
+            tableName: getTableName(source.config.tableName),
           },
         };
       }
@@ -58,12 +82,20 @@ export default function getAppSyncConfig(context, appSyncConfig) {
   };
 
   const makeResolver = (resolver) => ({
-    kind: 'UNIT',
+    kind: resolver.kind || 'UNIT',
     fieldName: resolver.field,
     typeName: resolver.type,
     dataSourceName: resolver.dataSource,
+    functions: resolver.functions,
     requestMappingTemplateLocation: resolver.request,
     responseMappingTemplateLocation: resolver.response,
+  });
+
+  const makeFunctionConfiguration = (functionConfiguration) => ({
+    dataSourceName: functionConfiguration.dataSource,
+    name: functionConfiguration.name,
+    requestMappingTemplateLocation: functionConfiguration.request,
+    responseMappingTemplateLocation: functionConfiguration.response,
   });
 
   const makeAuthType = (authType) => {
@@ -85,25 +117,26 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     return auth;
   };
 
-  const makeAppSync = () => ({
-    name: appSyncConfig.name,
+  const makeAppSync = (config) => ({
+    name: config.name,
     apiKey: context.options.apiKey,
-    defaultAuthenticationType: makeAuthType(appSyncConfig),
-    additionalAuthenticationProviders: (appSyncConfig.additionalAuthenticationProviders || [])
+    defaultAuthenticationType: makeAuthType(config),
+    additionalAuthenticationProviders: (config.additionalAuthenticationProviders || [])
       .map(makeAuthType),
   });
 
   const mappingTemplatesLocation = path.join(
     context.serverless.config.servicePath,
-    appSyncConfig.mappingTemplatesLocation || 'mapping-templates',
+    cfg.mappingTemplatesLocation || 'mapping-templates',
   );
 
-  return {
-    appSync: makeAppSync(),
-    schema: getFileMap(context.serverless.config.servicePath, appSyncConfig.schema || 'schema.graphql'),
-    resolvers: appSyncConfig.mappingTemplates.map(makeResolver),
-    dataSources: appSyncConfig.dataSources.map(makeDataSource).filter((v) => v !== null),
-    mappingTemplates: appSyncConfig.mappingTemplates.reduce((acc, template) => {
+  const makeMappingTemplates = (config) => {
+    const sources = [].concat(
+      config.mappingTemplates,
+      config.functionConfigurations,
+    );
+
+    return sources.reduce((acc, template) => {
       const requestTemplate = template.request || `${template.type}.${template.field}.request.vtl`;
       if (!find(acc, (e) => e.path === requestTemplate)) {
         acc.push(getFileMap(mappingTemplatesLocation, requestTemplate));
@@ -114,6 +147,15 @@ export default function getAppSyncConfig(context, appSyncConfig) {
       }
 
       return acc;
-    }, []),
+    }, []);
+  };
+
+  return {
+    appSync: makeAppSync(cfg),
+    schema: getFileMap(context.serverless.config.servicePath, cfg.schema || 'schema.graphql'),
+    resolvers: cfg.mappingTemplates.map(makeResolver),
+    dataSources: cfg.dataSources.map(makeDataSource).filter((v) => v !== null),
+    functions: cfg.functionConfigurations.map(makeFunctionConfiguration),
+    mappingTemplates: makeMappingTemplates(cfg),
   };
 }
