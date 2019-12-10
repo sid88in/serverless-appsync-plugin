@@ -5,6 +5,10 @@
   "author": "bboure",
   "license": "MIT",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bboure/serverless-appsync-simulator.git"
+  },
   "scripts": {
     "build": "babel src/ -d lib/ --delete-dir-on-start",
     "prepare": "yarn run build",
@@ -32,5 +36,17 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1"
-  }
+  },
+  "keywords": [
+    "serverless",
+    "serverless framework",
+    "serverless plugin",
+    "serverless local",
+    "serverless offline",
+    "api gateway",
+    "lambda",
+    "dynamodb",
+    "dynamodb local",
+    "appsync"
+  ]
 }
