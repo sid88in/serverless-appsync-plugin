@@ -278,6 +278,10 @@ This command will deploy all AppSync resources in the same CloudFormation templa
 
 * Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
 
+### `validate-schema`
+
+Validates your GraphQL Schema(s) without deploying.
+
 ### `serverless graphql-playground`
 
 This command will start a local graphql-playground server which is connected to your AppSync endpoint. The required options for the command are different depending on your AppSync authenticationType.

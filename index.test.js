@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('.');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
@@ -1396,7 +1397,7 @@ describe('iamRoleStatements', () => {
                     '${globalPK}', { globalPK: 'PK' },
                   ],
             },
-            '" },\n"sortKey": { "S": \"',
+            '" },\n"sortKey": { "S": "',
             {
               'Fn::Sub':
                   [

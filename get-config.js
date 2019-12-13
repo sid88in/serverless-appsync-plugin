@@ -27,7 +27,7 @@ const getConfig = (config, provider, servicePath) => {
   if (config.authenticationType === 'OPENID_CONNECT' && !config.openIdConnectConfig) {
     throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
   }
-  
+
   if (config.logConfig && !config.logConfig.level) {
     throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
   }
@@ -36,12 +36,13 @@ const getConfig = (config, provider, servicePath) => {
   }
 
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
-  const functionConfigurationsLocation = config.functionConfigurationsLocation || mappingTemplatesLocation;
+  const functionConfigurationsLocation = config.functionConfigurationsLocation
+    || mappingTemplatesLocation;
   const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
   const readSchemaFile =
-      (schemaRelPath) => fs.readFileSync(path.join(servicePath, schemaRelPath), {encoding: 'utf8'});
+      schemaRelPath => fs.readFileSync(path.join(servicePath, schemaRelPath), { encoding: 'utf8' });
 
   const schemaContent =
     Array.isArray(config.schema) ?
@@ -55,11 +56,10 @@ const getConfig = (config, provider, servicePath) => {
         // Do not call `objectToArrayWithNameProp` on datasources objects``
         if (value.name !== undefined && typeof value.name === 'string') {
           return acc.concat(value);
-        } else {
-          return acc.concat(objectToArrayWithNameProp(value));
         }
+        return acc.concat(objectToArrayWithNameProp(value));
       },
-      []
+      [],
     );
   } else {
     dataSources = objectToArrayWithNameProp(config.dataSources);
@@ -92,9 +92,8 @@ module.exports = (config, provider, servicePath) => {
     return [];
   } else if (config.constructor === Array) {
     return config.map(apiConfig => getConfig(apiConfig, provider, servicePath));
-  } else {
-    const singleConfig = getConfig(config, provider, servicePath);
-    singleConfig.isSingleConfig = true;
-    return [singleConfig];
   }
+  const singleConfig = getConfig(config, provider, servicePath);
+  singleConfig.isSingleConfig = true;
+  return [singleConfig];
 };
