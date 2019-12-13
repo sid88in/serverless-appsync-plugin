@@ -1,14 +1,17 @@
 /* eslint-disable no-template-curly-in-string */
+const fs = require('fs');
+const chalk = require('chalk');
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('.');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
-const chalk = require('chalk');
 
 let serverless;
 let plugin;
 let config;
-
 jest.spyOn(Date, 'now').mockImplementation(() => 10000);
+
+jest.mock('fs');
+jest.spyOn(fs, 'readFileSync').mockImplementation(() => '');
 
 beforeEach(() => {
   const cli = {
@@ -30,6 +33,8 @@ beforeEach(() => {
     dataSources: [],
     region: 'us-east-1',
     isSingleConfig: true,
+    mappingTemplatesLocation: 'mapping-templates',
+    substitutions: {},
   };
 });
 
@@ -515,6 +520,113 @@ describe('appsync config', () => {
         Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
       },
     });
+  });
+});
+
+describe('Caching', () => {
+  test('Disabled', () => {
+    const apiResources = plugin.getApiCachingResource(config);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Minimum configuration', () => {
+    const apiConfig = {
+      ...config,
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+      },
+    };
+
+    const apiResources = plugin.getApiCachingResource(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Custom configuration', () => {
+    const apiConfig = {
+      ...config,
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+        atRestEncryption: true,
+        transitEncryption: true,
+        ttl: 500,
+        type: 'T2_MEDIUM',
+      },
+    };
+
+    const apiResources = plugin.getApiCachingResource(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Resolver min config', () => {
+    const apiConfig = {
+      ...config,
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: true,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Resolver custom config', () => {
+    const apiConfig = {
+      ...config,
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: {
+            ttl: 1000,
+            keys: [
+              '$context.identity.sub',
+              '$context.arguments.id',
+            ],
+          },
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Resolver with fallback', () => {
+    const apiConfig = {
+      ...config,
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+        ttl: 2000,
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: {
+            keys: [
+              '$context.identity.sub',
+              '$context.arguments.id',
+            ],
+          },
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
   });
 });
 

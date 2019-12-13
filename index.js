@@ -283,6 +283,7 @@ class ServerlessAppsyncPlugin {
 
       Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
       Object.assign(resources, this.getApiKeyResources(apiConfig));
+      Object.assign(resources, this.getApiCachingResource(apiConfig));
       Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
       Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
       Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
@@ -414,6 +415,25 @@ class ServerlessAppsyncPlugin {
         },
       };
     }
+    return {};
+  }
+
+  getApiCachingResource(config) {
+    if (config.caching) {
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+      return {
+        Type: 'AWS::AppSync::ApiCache',
+        Properties: {
+          ApiCachingBehavior: config.caching.behavior,
+          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+          AtRestEncryptionEnabled: config.caching.atRestEncryption || false,
+          TransitEncryptionEnabled: config.caching.transitEncryption || false,
+          Ttl: config.caching.ttl || 3600,
+          Type: config.caching.type || 'T2_SMALL',
+        },
+      };
+    }
+
     return {};
   }
 
@@ -842,7 +862,7 @@ class ServerlessAppsyncPlugin {
         `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`,
       );
 
-      const sharedResolverProperties = {
+      let Properties = {
         ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         TypeName: tpl.type,
         FieldName: tpl.field,
@@ -850,23 +870,46 @@ class ServerlessAppsyncPlugin {
         ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
       };
 
-      const uniqueResolverProperties =
-        tpl.kind === 'PIPELINE'
-          ? {
-            Kind: 'PIPELINE',
-            PipelineConfig: {
-              Functions: tpl.functions.map((functionAttributeName) => {
-                const logicalIdDataSource = this.getLogicalId(
-                  config,
-                  `GraphQlFunctionConfiguration${this.getCfnName(functionAttributeName)}`,
-                );
-                return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
-              }),
-            },
-          }
-          : { DataSourceName: { 'Fn::GetAtt': [this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource)), 'Name'] } };
+      if (config.caching) {
+        if (tpl.caching === true) {
+          // Use defaults
+          Properties.CachingConfig = {
+            Ttl: config.caching.ttl || 3600,
+          };
+        } else if (typeof tpl.caching === 'object') {
+          Properties.CachingConfig = {
+            CachingKeys: tpl.caching.keys,
+            Ttl: tpl.caching.ttl || config.caching.ttl || 3600,
+          };
+        }
+      }
 
-      const Properties = Object.assign(sharedResolverProperties, uniqueResolverProperties);
+      if (tpl.kind === 'PIPELINE') {
+        Properties = {
+          ...Properties,
+          Kind: 'PIPELINE',
+          PipelineConfig: {
+            Functions: tpl.functions.map((functionAttributeName) => {
+              const logicalIdDataSource = this.getLogicalId(
+                config,
+                `GraphQlFunctionConfiguration${this.getCfnName(functionAttributeName)}`,
+              );
+              return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
+            }),
+          },
+        };
+      } else {
+        Properties = {
+          ...Properties,
+          Kind: 'UNIT',
+          DataSourceName: {
+            'Fn::GetAtt': [
+              this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource)),
+              'Name',
+            ],
+          },
+        };
+      }
 
       return Object.assign({}, acc, {
         [logicalIdResolver]: {
