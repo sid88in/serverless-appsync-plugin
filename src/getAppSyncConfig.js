@@ -3,7 +3,7 @@ import {
 } from 'amplify-appsync-simulator';
 import { invoke } from 'amplify-util-mock/lib/utils/lambda/invoke';
 import fs from 'fs';
-import { find, get } from 'lodash';
+import { find } from 'lodash';
 import path from 'path';
 
 export default function getAppSyncConfig(context, appSyncConfig) {
@@ -30,22 +30,6 @@ export default function getAppSyncConfig(context, appSyncConfig) {
       type: source.type,
     };
 
-    /**
-     * Returns the tableName resolving reference. Throws exception if reference is not found
-     */
-    const getTableName = (table) => {
-      if (table && table.Ref) {
-        const tableName = get(context.serverless.service, `resources.Resources.${table.Ref}.Properties.TableName`);
-
-        if (!tableName) {
-          throw new Error(`Unable to find table Reference for ${table} inside Serverless resources`);
-        }
-
-        return tableName;
-      }
-      return table;
-    };
-
     switch (source.type) {
       case 'AMAZON_DYNAMODB': {
         const {
@@ -62,17 +46,28 @@ export default function getAppSyncConfig(context, appSyncConfig) {
             region,
             accessKeyId,
             secretAccessKey,
-            tableName: getTableName(source.config.tableName),
+            tableName: source.config.tableName,
           },
         };
       }
       case 'AWS_LAMBDA': {
         const { functionName } = source.config;
-        if (context.serverless.service.functions[functionName] === undefined) {
+        if (functionName === undefined) {
+          context.plugin.log(
+            `${source.name} does not have a functionName`,
+            { color: 'orange' },
+          );
           return null;
         }
-
-        const [fileName, handler] = context.serverless.service.functions[functionName].handler.split('.');
+        const func = context.serverless.service.functions[functionName];
+        if (func === undefined) {
+          context.plugin.log(
+            `The ${functionName} function is not defined`,
+            { color: 'orange' },
+          );
+          return null;
+        }
+        const [fileName, handler] = func.handler.split('.');
         return {
           ...dataSource,
           invoke: (payload) => invoke({
@@ -80,8 +75,18 @@ export default function getAppSyncConfig(context, appSyncConfig) {
             handler,
             fileName: path.join(context.options.location, fileName),
             event: payload,
-            environment: context.serverless.service.provider.environment || {},
+            environment: {
+              ...context.serverless.service.provider.environment,
+              ...func.environment,
+            },
           }),
+        };
+      }
+      case 'AMAZON_ELASTICSEARCH':
+      case 'HTTP': {
+        return {
+          ...dataSource,
+          endpoint: source.config.endpoint,
         };
       }
       default:
