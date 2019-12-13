@@ -8,12 +8,12 @@ const getConfig = require('./get-config');
 const chalk = require('chalk');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
-const RESOURCE_API = "GraphQlApi";
-const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = "GraphQlApiCloudWatchLogsRole";
-const RESOURCE_API_KEY = "GraphQlApiKeyDefault";
-const RESOURCE_SCHEMA = "GraphQlSchema";
-const RESOURCE_URL = "GraphQlApiUrl";
-const RESOURCE_API_ID = "GraphQlApiId";
+const RESOURCE_API = 'GraphQlApi';
+const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
+const RESOURCE_API_KEY = 'GraphQlApiKeyDefault';
+const RESOURCE_SCHEMA = 'GraphQlSchema';
+const RESOURCE_URL = 'GraphQlApiUrl';
+const RESOURCE_API_ID = 'GraphQlApiId';
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -95,14 +95,13 @@ class ServerlessAppsyncPlugin {
       return config.lambdaFunctionArn;
     } else if (config && config.functionName) {
       return this.generateLambdaArn(config.functionName);
-    } else {
-      throw new Error('You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.');
     }
+    throw new Error('You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.');
   }
 
   generateLambdaArn(functionName) {
     const lambdaLogicalId = this.provider.naming.getLambdaLogicalId(functionName);
-    return { "Fn::GetAtt": [lambdaLogicalId, "Arn"] };
+    return { 'Fn::GetAtt': [lambdaLogicalId, 'Arn'] };
   }
 
   getDbClusterArn(config) {
@@ -115,14 +114,14 @@ class ServerlessAppsyncPlugin {
 
   generateDbClusterArn(dbClusterIdentifier, region) {
     return {
-      "Fn::Join" : [
-        ":",
+      'Fn::Join': [
+        ':',
         [
           'arn',
           'aws',
           'rds',
           region,
-          { "Ref" : "AWS::AccountId" },
+          { Ref: 'AWS::AccountId' },
           'cluster',
           dbClusterIdentifier,
         ],
@@ -133,32 +132,34 @@ class ServerlessAppsyncPlugin {
   gatherData() {
     const stackName = this.provider.naming.getStackName();
 
-    return this.provider.request('CloudFormation',
+    return this.provider.request(
+      'CloudFormation',
       'describeStacks',
-      { StackName: stackName })
-    .then((result) => {
-      const outputs = result.Stacks[0].Outputs;
+      { StackName: stackName },
+    )
+      .then((result) => {
+        const outputs = result.Stacks[0].Outputs;
 
-      outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_URL + "\$")))
-        .forEach(x => {
-          this.gatheredData.endpoints.push(x.OutputValue);
-        });
+        outputs.filter(x => x.OutputKey.match(new RegExp(`${RESOURCE_URL}\$`)))
+          .forEach((x) => {
+            this.gatheredData.endpoints.push(x.OutputValue);
+          });
 
-      outputs.filter(x => x.OutputKey.match(new RegExp(RESOURCE_API_KEY + "\$")))
-        .forEach(x => {
-          this.gatheredData.apiKeys.push(x.OutputValue);
-        });
-    });
+        outputs.filter(x => x.OutputKey.match(new RegExp(`${RESOURCE_API_KEY}\$`)))
+          .forEach((x) => {
+            this.gatheredData.apiKeys.push(x.OutputValue);
+          });
+      });
   }
 
   displayEndpoints() {
     let endpointsMessage = `${chalk.yellow('appsync endpoints:')}`;
     if (this.gatheredData.endpoints && this.gatheredData.endpoints.length) {
-      this.gatheredData.endpoints.forEach( endpoint => {
+      this.gatheredData.endpoints.forEach((endpoint) => {
         endpointsMessage += `\n  ${endpoint}`;
       });
     } else {
-      endpointsMessage += "\n  None";
+      endpointsMessage += '\n  None';
     }
 
     this.serverless.cli.consoleLog(endpointsMessage);
@@ -171,15 +172,15 @@ class ServerlessAppsyncPlugin {
 
     let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
     if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
-      this.gatheredData.apiKeys.forEach( endpoint => {
+      this.gatheredData.apiKeys.forEach((endpoint) => {
         if (conceal) {
-          apiKeysMessage += "\n  *** (concealed)";
+          apiKeysMessage += '\n  *** (concealed)';
         } else {
           apiKeysMessage += `\n  ${endpoint}`;
         }
       });
     } else {
-      apiKeysMessage += "\n  None";
+      apiKeysMessage += '\n  None';
     }
 
     this.serverless.cli.consoleLog(apiKeysMessage);
@@ -220,9 +221,8 @@ class ServerlessAppsyncPlugin {
       const currentErrors = validateSchema(currentAst);
       if (!currentErrors.length) {
         return accumulatedErrors;
-      } else {
-        return accumulatedErrors.concat(currentErrors || []);
       }
+      return accumulatedErrors.concat(currentErrors || []);
     }, []);
     if (!errors.length) {
       return;
@@ -236,7 +236,7 @@ class ServerlessAppsyncPlugin {
 
   deleteGraphQLEndpoint() {
     const config = this.loadConfig();
-    return Promise.all(config.map(apiConfig => {
+    return Promise.all(config.map((apiConfig) => {
       const { apiId } = apiConfig;
       if (!apiId) {
         throw new this.serverless.classes.Error('serverless-appsync: no apiId is defined. If you are not '
@@ -273,7 +273,7 @@ class ServerlessAppsyncPlugin {
     const resources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
 
-    config.forEach(apiConfig => {
+    config.forEach((apiConfig) => {
       if (apiConfig.apiId) {
         this.serverless.cli.log('WARNING: serverless-appsync has been updated in a breaking way and your '
           + 'service is configured using a reference to an existing apiKey in '
@@ -323,12 +323,10 @@ class ServerlessAppsyncPlugin {
   }
 
   getTagsConfig(config) {
-    return Object.keys(config.tags).map((key) => {
-      return {
-        Key: key,
-        Value: config.tags[key],
-      };
-    });
+    return Object.keys(config.tags).map(key => ({
+      Key: key,
+      Value: config.tags[key],
+    }));
   }
 
   mapAuthenticationProvider(provider, region) {
@@ -366,7 +364,7 @@ class ServerlessAppsyncPlugin {
           LogConfig: !config.logConfig ? undefined : {
             CloudWatchLogsRoleArn:
               config.logConfig.loggingRoleArn ||
-              { "Fn::GetAtt": [logicalIdCloudWatchLogsRole, "Arn"] },
+              { 'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'] },
             FieldLogLevel: config.logConfig.level,
           },
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
@@ -419,55 +417,53 @@ class ServerlessAppsyncPlugin {
       [logicalIdCloudWatchLogsRole]: {
         Type: 'AWS::IAM::Role',
         Properties: {
-          "AssumeRolePolicyDocument": {
-            "Version" : "2012-10-17",
-            "Statement": [
+          AssumeRolePolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
               {
-                "Effect": "Allow",
-                "Principal": {
-                  "Service": [ "appsync.amazonaws.com" ]
+                Effect: 'Allow',
+                Principal: {
+                  Service: ['appsync.amazonaws.com'],
                 },
-                "Action": [ "sts:AssumeRole" ]
-              }
-            ]
+                Action: ['sts:AssumeRole'],
+              },
+            ],
           },
           Policies: [
             {
-              PolicyName: "GraphQlApiCloudWatchLogsPolicy",
+              PolicyName: 'GraphQlApiCloudWatchLogsPolicy',
               PolicyDocument: {
-                Version: "2012-10-17",
+                Version: '2012-10-17',
                 Statement: [
                   {
-                    "Effect": "Allow",
-                    "Action": [
-                        "logs:CreateLogGroup",
-                        "logs:CreateLogStream",
-                        "logs:PutLogEvents"
+                    Effect: 'Allow',
+                    Action: [
+                      'logs:CreateLogGroup',
+                      'logs:CreateLogStream',
+                      'logs:PutLogEvents',
                     ],
-                    "Resource": [
+                    Resource: [
                       {
-                        "Fn::Sub" : [
-                          "arn:aws:logs:${region}:${AWS::AccountId}:*",
+                        'Fn::Sub': [
+                          'arn:aws:logs:${region}:${AWS::AccountId}:*',
                           {
-                            region: config.region
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                            region: config.region,
+                          },
+                        ],
+                      },
+                    ],
+                  },
                 ],
-              }
+              },
             },
-          ]
-        }
-      }
+          ],
+        },
+      },
     };
   }
 
   getDataSourceIamRolesResouces(config) {
-
     return config.dataSources.reduce((acc, ds) => {
-
       // Only generate DataSource Roles for compatible types
       // and if `serviceRoleArn` not provided
       if (
@@ -486,7 +482,7 @@ class ServerlessAppsyncPlugin {
         statements = this.getDefaultDataSourcePolicyStatements(ds, config);
 
         // If we could not generate it, skip this step.
-        if (false === statements) {
+        if (statements === false) {
           return acc;
         }
       }
@@ -494,31 +490,31 @@ class ServerlessAppsyncPlugin {
       const resource = {
         Type: 'AWS::IAM::Role',
         Properties: {
-          "AssumeRolePolicyDocument": {
-            "Version" : "2012-10-17",
-            "Statement": [
+          AssumeRolePolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
               {
-                "Effect": "Allow",
-                "Principal": {
-                  "Service": [ "appsync.amazonaws.com" ]
+                Effect: 'Allow',
+                Principal: {
+                  Service: ['appsync.amazonaws.com'],
                 },
-                "Action": [ "sts:AssumeRole" ]
-              }
-            ]
+                Action: ['sts:AssumeRole'],
+              },
+            ],
           },
           Policies: [
             {
-              PolicyName: this.getDataSourceCfnName(ds.name) + "Policy",
+              PolicyName: `${this.getDataSourceCfnName(ds.name)}Policy`,
               PolicyDocument: {
-                Version: "2012-10-17",
+                Version: '2012-10-17',
                 Statement: statements,
-              }
+              },
             },
-          ]
-        }
+          ],
+        },
       };
 
-      const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(ds.name) + "Role");
+      const logicalIdDataSource = this.getLogicalId(config, `${this.getDataSourceCfnName(ds.name)}Role`);
       return Object.assign({}, acc, { [logicalIdDataSource]: resource });
     }, {});
   }
@@ -527,33 +523,33 @@ class ServerlessAppsyncPlugin {
     const defaultStatements = [];
 
     switch (ds.type) {
-      case 'AWS_LAMBDA':
+      case 'AWS_LAMBDA': {
         const lambdaArn = this.getLambdaArn(ds.config);
 
         // Allow "invoke" for the Datasource's function and its aliases/versions
         const defaultLambdaStatement = {
-          Action: ["lambda:invokeFunction"],
-          Effect: "Allow",
+          Action: ['lambda:invokeFunction'],
+          Effect: 'Allow',
           Resource: [
             lambdaArn,
-            { "Fn::Join" : [ ":", [ lambdaArn, '*' ] ] },
+            { 'Fn::Join': [':', [lambdaArn, '*']] },
           ],
         };
 
         defaultStatements.push(defaultLambdaStatement);
         break;
-
-      case 'AMAZON_DYNAMODB':
+      }
+      case 'AMAZON_DYNAMODB': {
         const dynamoDbResourceArn = {
-          "Fn::Join" : [
-            ":",
+          'Fn::Join': [
+            ':',
             [
               'arn',
               'aws',
               'dynamodb',
               ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
-              { "Fn::Join" : [ "/", ['table',  ds.config.tableName] ] },
+              { Ref: 'AWS::AccountId' },
+              { 'Fn::Join': ['/', ['table', ds.config.tableName]] },
             ],
           ],
         };
@@ -561,104 +557,110 @@ class ServerlessAppsyncPlugin {
         // Allow any action on the Datasource's table
         const defaultDynamoDBStatement = {
           Action: [
-            "dynamodb:DeleteItem",
-            "dynamodb:GetItem",
-            "dynamodb:PutItem",
-            "dynamodb:Query",
-            "dynamodb:Scan",
-            "dynamodb:UpdateItem",
-            "dynamodb:BatchGetItem",
-            "dynamodb:BatchWriteItem"
+            'dynamodb:DeleteItem',
+            'dynamodb:GetItem',
+            'dynamodb:PutItem',
+            'dynamodb:Query',
+            'dynamodb:Scan',
+            'dynamodb:UpdateItem',
+            'dynamodb:BatchGetItem',
+            'dynamodb:BatchWriteItem',
           ],
-          Effect: "Allow",
+          Effect: 'Allow',
           Resource: [
             dynamoDbResourceArn,
-            { "Fn::Join" : [ "/", [dynamoDbResourceArn, '*'] ] },
+            { 'Fn::Join': ['/', [dynamoDbResourceArn, '*']] },
           ],
         };
 
         defaultStatements.push(defaultDynamoDBStatement);
         break;
-
+      }
       case 'RELATIONAL_DATABASE':
+      {
         const dDbResourceArn = {
-          "Fn::Join" : [
-            ":",
+          'Fn::Join': [
+            ':',
             [
               'arn',
               'aws',
               'rds',
               ds.config.region || config.region,
-              { "Ref" : "AWS::AccountId" },
+              { Ref: 'AWS::AccountId' },
               'cluster',
               ds.config.dbClusterIdentifier,
             ],
           ],
         };
         const dbStatement = {
-          Effect: "Allow",
+          Effect: 'Allow',
           Action: [
-            "rds-data:DeleteItems",
-            "rds-data:ExecuteSql",
-            "rds-data:GetItems",
-            "rds-data:InsertItems",
-            "rds-data:UpdateItems",
+            'rds-data:DeleteItems',
+            'rds-data:ExecuteSql',
+            'rds-data:GetItems',
+            'rds-data:InsertItems',
+            'rds-data:UpdateItems',
           ],
           Resource: [
             dDbResourceArn,
-            { "Fn::Join" : [ ":", [dDbResourceArn, '*'] ] },
+            { 'Fn::Join': [':', [dDbResourceArn, '*']] },
           ],
         };
 
         const secretManagerStatement = {
-          Effect: "Allow",
+          Effect: 'Allow',
           Action: [
-            "secretsmanager:GetSecretValue",
+            'secretsmanager:GetSecretValue',
           ],
           Resource: [
             ds.config.awsSecretStoreArn,
-            { "Fn::Join" : [ ":", [ds.config.awsSecretStoreArn, '*'] ] },
+            { 'Fn::Join': [':', [ds.config.awsSecretStoreArn, '*']] },
           ],
         };
 
         defaultStatements.push(dbStatement, secretManagerStatement);
         break;
-
-      case 'AMAZON_ELASTICSEARCH':
-        const rx = /^https:\/\/([a-z0-9\-]+\.\w{2}\-[a-z]+\-\d\.es\.amazonaws\.com)$/;
-        const result = rx.exec(ds.config.endpoint);
-
-        if (!result) {
-          throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
+      }
+      case 'AMAZON_ELASTICSEARCH': {
+        let arn;
+        if (typeof ds.config.endpoint === 'string') {
+          const rx = /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
+          const result = rx.exec(ds.config.endpoint);
+          if (!result) {
+            throw new this.serverless.classes.Error(`Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`);
+          }
+          arn = {
+            'Fn::Join': [':', [
+              'arn',
+              'aws',
+              'es',
+              ds.config.region || config.region,
+              { Ref: 'AWS::AccountId' },
+              `domain/${result[1]}`,
+            ]],
+          };
+        } else if (ds.config.endpoint['Fn::GetAtt']) {
+          arn = { 'Fn::GetAtt': [ds.config.endpoint['Fn::GetAtt'][0], 'Arn'] };
+        } else {
+          throw new this.serverless.classes.Error(`Could not determine the Arn for dataSource '${ds.name}`);
         }
 
         // Allow any action on the Datasource's ES endpoint
         const defaultESStatement = {
           Action: [
-            "es:ESHttpDelete",
-            "es:ESHttpGet",
-            "es:ESHttpHead",
-            "es:ESHttpPost",
-            "es:ESHttpPut",
+            'es:ESHttpDelete',
+            'es:ESHttpGet',
+            'es:ESHttpHead',
+            'es:ESHttpPost',
+            'es:ESHttpPut',
           ],
-          Effect: "Allow",
-          Resource: [
-            {
-              "Fn::Join" : [ ":", [
-                'arn',
-                'aws',
-                'es',
-                ds.config.region || config.region,
-                { "Ref" : "AWS::AccountId" },
-                `domain/${result[1]}`,
-              ]],
-            },
-          ],
+          Effect: 'Allow',
+          Resource: [arn],
         };
 
         defaultStatements.push(defaultESStatement);
         break;
-
+      }
       default:
         // unknown or non compatible type
         return false;
@@ -684,11 +686,11 @@ class ServerlessAppsyncPlugin {
       if (ds.config && ds.config.serviceRoleArn) {
         resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
       } else {
-        const logicalIdDataSourceRole = this.getLogicalId(config, this.getDataSourceCfnName(ds.name) + "Role");
+        const logicalIdDataSourceRole = this.getLogicalId(config, `${this.getDataSourceCfnName(ds.name)}Role`);
         // If a Role Resource was generated for this DataSource, use it
         const role = this.serverless.service.provider.compiledCloudFormationTemplate.Resources[logicalIdDataSourceRole];
         if (role) {
-          resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [logicalIdDataSourceRole, 'Arn'] }
+          resource.Properties.ServiceRoleArn = { 'Fn::GetAtt': [logicalIdDataSourceRole, 'Arn'] };
         }
       }
 
@@ -774,7 +776,7 @@ class ServerlessAppsyncPlugin {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdFunctionConfiguration = this.getLogicalId(
         config,
-        `GraphQlFunctionConfiguration${this.getCfnName(tpl.name)}`
+        `GraphQlFunctionConfiguration${this.getCfnName(tpl.name)}`,
       );
       const logicalIdDataSource = this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource));
       return Object.assign({}, acc, {
@@ -787,9 +789,9 @@ class ServerlessAppsyncPlugin {
             RequestMappingTemplate: this.processTemplate(requestTemplate, config),
             ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
             Description: tpl.description,
-            FunctionVersion: '2018-05-29'
-          }
-        }
+            FunctionVersion: '2018-05-29',
+          },
+        },
       });
     }, {});
   }
@@ -806,7 +808,7 @@ class ServerlessAppsyncPlugin {
       const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
       const logicalIdResolver = this.getLogicalId(
         config,
-        `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`
+        `GraphQlResolver${this.getCfnName(tpl.type)}${this.getCfnName(tpl.field)}`,
       );
 
       const sharedResolverProperties = {
@@ -814,23 +816,23 @@ class ServerlessAppsyncPlugin {
         TypeName: tpl.type,
         FieldName: tpl.field,
         RequestMappingTemplate: this.processTemplate(requestTemplate, config),
-        ResponseMappingTemplate: this.processTemplate(responseTemplate, config)
-      }
+        ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+      };
 
       const uniqueResolverProperties =
         tpl.kind === 'PIPELINE'
           ? {
-              Kind: 'PIPELINE',
-              PipelineConfig: {
-                Functions: tpl.functions.map(functionAttributeName => {
-                  const logicalIdDataSource = this.getLogicalId(
-                    config,
-                    `GraphQlFunctionConfiguration${this.getCfnName(functionAttributeName)}`
-                  );
-                  return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
-                })
-              }
-            }
+            Kind: 'PIPELINE',
+            PipelineConfig: {
+              Functions: tpl.functions.map((functionAttributeName) => {
+                const logicalIdDataSource = this.getLogicalId(
+                  config,
+                  `GraphQlFunctionConfiguration${this.getCfnName(functionAttributeName)}`,
+                );
+                return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
+              }),
+            },
+          }
           : { DataSourceName: { 'Fn::GetAtt': [this.getLogicalId(config, this.getDataSourceCfnName(tpl.dataSource)), 'Name'] } };
 
       const Properties = Object.assign(sharedResolverProperties, uniqueResolverProperties);
@@ -839,8 +841,8 @@ class ServerlessAppsyncPlugin {
         [logicalIdResolver]: {
           Type: 'AWS::AppSync::Resolver',
           DependsOn: logicalIdGraphQLSchema,
-          Properties
-        }
+          Properties,
+        },
       });
     }, {});
   }
@@ -853,9 +855,8 @@ class ServerlessAppsyncPlugin {
       // This will ensure people with CloudFormation stack dependencies on the previous
       // version of the plugin doesn't break their {@code deleteGraphQLEndpoint} functionality
       return this.getCfnName(resourceType);
-    } else {
-      return this.getCfnName(config.name[0].toUpperCase() + config.name.slice(1) + resourceType);
     }
+    return this.getCfnName(config.name[0].toUpperCase() + config.name.slice(1) + resourceType);
   }
 
   getGraphQlApiOutputs(config) {
@@ -929,18 +930,18 @@ class ServerlessAppsyncPlugin {
    * @param {*} substitutions
    */
   substituteGlobalTemplateVariables(template, substitutions) {
-    let variables = Object.keys(substitutions).join('|');
-    let regex = new RegExp("\\${(" + variables + ")}", "g");
-    template = template.replace(regex, "|||$1|||");
+    const variables = Object.keys(substitutions).join('|');
+    const regex = new RegExp(`\\\${(${variables})}`, 'g');
+    template = template.replace(regex, '|||$1|||');
 
-    let templateJoin = template.split('|||');
+    const templateJoin = template.split('|||');
     for (let i = 0; i < templateJoin.length; i++) {
       if (substitutions[templateJoin[i]]) {
-        let subs = { [ templateJoin[i] ] : substitutions[templateJoin[i]] };
-        templateJoin[i] = { 'Fn::Sub': ['${' + templateJoin[i] + '}', subs] };
+        const subs = { [templateJoin[i]]: substitutions[templateJoin[i]] };
+        templateJoin[i] = { 'Fn::Sub': [`\${${templateJoin[i]}}`, subs] };
       }
     }
-    return { 'Fn::Join': ["", templateJoin] };
+    return { 'Fn::Join': ['', templateJoin] };
   }
 }
 
