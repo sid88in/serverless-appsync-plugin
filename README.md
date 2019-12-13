@@ -80,6 +80,16 @@ custom:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
+    schema: # schema file or array of files to merge, defaults to schema.graphql
+    # Caching options. Disabled by default
+    # read more at https://aws.amazon.com/blogs/mobile/appsync-caching-transactions/
+    # and https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html
+    caching:
+      ttl: 3600 # The TTL of the cache. Optional. Default: 3600
+      behavior: FULL_REQUEST_CACHING # or PER_RESOLVER_CACHING. Required
+      atRestEncryption: # Bool, Optional. Enable at rest encryption. deisabled by default.
+      transitEncryption: # Bool, Optional. Enable transit encryption. deisabled by default.
+      type: 'T2_SMALL' # Cache instance size. Optional. Default: 'T2_SMALL'
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # defaults to provider region
@@ -117,8 +127,16 @@ custom:
         field: getUserInfo
         request: # request mapping template name
         response: # response mapping template name
+        # Caching options. Disabled by default.
+        # can be `true` (cache enabled with global ttl)
+        # or an object as below
+        caching:
+          keys: # array. A list of string to use as cche key.
+            - "$context.identity.sub"
+            - "$context.arguments.id"
+          ttl: 1000 # override the ttl for this resolver. (default comes from global config)
+
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
-    schema: # schema file or array of files to merge, defaults to schema.graphql
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name

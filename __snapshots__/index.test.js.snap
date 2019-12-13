@@ -1,5 +1,166 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Caching Custom configuration 1`] = `
+Object {
+  "GraphQlCaching": Object {
+    "Properties": Object {
+      "ApiCachingBehavior": "FULL_REQUEST_CACHING",
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "AtRestEncryptionEnabled": true,
+      "TransitEncryptionEnabled": true,
+      "Ttl": 500,
+      "Type": "T2_MEDIUM",
+    },
+    "Type": "AWS::AppSync::ApiCache",
+  },
+}
+`;
+
+exports[`Caching Disabled 1`] = `Object {}`;
+
+exports[`Caching Minimum configuration 1`] = `
+Object {
+  "GraphQlCaching": Object {
+    "Properties": Object {
+      "ApiCachingBehavior": "FULL_REQUEST_CACHING",
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "AtRestEncryptionEnabled": false,
+      "TransitEncryptionEnabled": false,
+      "Ttl": 3600,
+      "Type": "T2_SMALL",
+    },
+    "Type": "AWS::AppSync::ApiCache",
+  },
+}
+`;
+
+exports[`Caching Resolver custom config 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "CachingConfig": Object {
+        "CachingKeys": Array [
+          "$context.identity.sub",
+          "$context.arguments.id",
+        ],
+        "Ttl": 1000,
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "",
+      "ResponseMappingTemplate": "",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Caching Resolver min config 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "CachingConfig": Object {
+        "Ttl": 3600,
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "",
+      "ResponseMappingTemplate": "",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Caching Resolver with fallback 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "CachingConfig": Object {
+        "CachingKeys": Array [
+          "$context.identity.sub",
+          "$context.arguments.id",
+        ],
+        "Ttl": 2000,
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "",
+      "ResponseMappingTemplate": "",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`appsync config API_KEY config created 1`] = `
+Object {
+  "Properties": Object {
+    "ApiId": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApi",
+        "ApiId",
+      ],
+    },
+    "Description": "serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault",
+    "Expires": 31536010,
+  },
+  "Type": "AWS::AppSync::ApiKey",
+}
+`;
+
 exports[`appsync config Additional authentication providers created 1`] = `
 Array [
   Object {

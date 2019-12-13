@@ -7,6 +7,7 @@ Array [
     "apiId": undefined,
     "apiKey": undefined,
     "authenticationType": "AWS_IAM",
+    "caching": undefined,
     "dataSources": Array [],
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
@@ -98,6 +99,7 @@ Array [
     "apiId": undefined,
     "apiKey": undefined,
     "authenticationType": "AWS_IAM",
+    "caching": undefined,
     "dataSources": Array [],
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
@@ -220,6 +222,7 @@ Array [
     "apiId": undefined,
     "apiKey": undefined,
     "authenticationType": "AWS_IAM",
+    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
@@ -347,6 +350,7 @@ Array [
     "apiId": undefined,
     "apiKey": undefined,
     "authenticationType": "AWS_IAM",
+    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
@@ -482,6 +486,7 @@ Array [
     "apiId": undefined,
     "apiKey": undefined,
     "authenticationType": "AWS_IAM",
+    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
