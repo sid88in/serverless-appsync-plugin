@@ -18,9 +18,8 @@ Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppS
 
 > *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
 
-> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://hackernoon.com/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
+> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
 
-> *AWS Mobile Blog* [How to deploy a GraphQL API on AWS using the Serverless Framework](https://read.acloud.guru/deploy-a-graphql-service-on-aws-with-the-serverless-framework-7af8fc22a01d)
 
 ![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
 
