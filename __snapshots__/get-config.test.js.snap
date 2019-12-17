@@ -6,6 +6,7 @@ Object {
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
+  "caching": null,
   "dataSources": Array [],
   "functionConfigurations": Array [],
   "functionConfigurationsLocation": "mapping-templates",
@@ -95,6 +96,7 @@ Object {
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
+  "caching": null,
   "dataSources": Array [],
   "functionConfigurations": Array [],
   "functionConfigurationsLocation": "mapping-templates",
@@ -215,6 +217,7 @@ Object {
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
+  "caching": null,
   "dataSources": Array [
     Object {
       "name": "users",
@@ -340,6 +343,7 @@ Object {
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
+  "caching": null,
   "dataSources": Array [
     Object {
       "name": "users",
@@ -473,6 +477,7 @@ Object {
   "apiId": undefined,
   "apiKey": undefined,
   "authenticationType": "AWS_IAM",
+  "caching": null,
   "dataSources": Array [
     Object {
       "name": "users",
