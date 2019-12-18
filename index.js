@@ -8,6 +8,7 @@ const chalk = require('chalk');
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
+const RESOURCE_API_CLOUDWATCH_LOGS_POLICY = 'GraphQlApiCloudWatchLogsPolicy';
 const RESOURCE_API_KEY = 'GraphQlApiKeyDefault';
 const RESOURCE_SCHEMA = 'GraphQlSchema';
 const RESOURCE_URL = 'GraphQlApiUrl';
@@ -426,7 +427,45 @@ class ServerlessAppsyncPlugin {
       config,
       RESOURCE_API_CLOUDWATCH_LOGS_ROLE,
     );
+    const logicalIdCloudWatchLogsPolicy = this.getLogicalId(
+      config,
+      RESOURCE_API_CLOUDWATCH_LOGS_POLICY,
+    );
+
+    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
+    const logGroupResourceName = `${logicalIdGraphQLApi}LogGroup`;
+
     return {
+      [logicalIdCloudWatchLogsPolicy]: {
+        Type: 'AWS::IAM::Policy',
+        Properties: {
+          PolicyName: `${logicalIdCloudWatchLogsRole}Policy`,
+          Roles: [
+            { Ref: logicalIdCloudWatchLogsRole },
+          ],
+          PolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ],
+                Resource: [
+                  {
+                    'Fn::GetAtt': [
+                      logGroupResourceName,
+                      'Arn',
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
       [logicalIdCloudWatchLogsRole]: {
         Type: 'AWS::IAM::Role',
         Properties: {
@@ -442,35 +481,6 @@ class ServerlessAppsyncPlugin {
               },
             ],
           },
-          Policies: [
-            {
-              PolicyName: 'GraphQlApiCloudWatchLogsPolicy',
-              PolicyDocument: {
-                Version: '2012-10-17',
-                Statement: [
-                  {
-                    Effect: 'Allow',
-                    Action: [
-                      'logs:CreateLogGroup',
-                      'logs:CreateLogStream',
-                      'logs:PutLogEvents',
-                    ],
-                    Resource: [
-                      {
-                        'Fn::Sub': [
-                          // eslint-disable-next-line no-template-curly-in-string
-                          'arn:aws:logs:${region}:${AWS::AccountId}:*',
-                          {
-                            region: config.region,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          ],
         },
       },
     };
