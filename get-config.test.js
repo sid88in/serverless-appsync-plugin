@@ -34,7 +34,7 @@ test('returns valid config', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });
 
 test('datasources as array', () => {
@@ -54,7 +54,7 @@ test('datasources as array', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });
 
 test('datasources as array form different files (array of arrays or objects)', () => {
@@ -84,7 +84,7 @@ test('datasources as array form different files (array of arrays or objects)', (
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });
 
 test('Schema as string', () => {
@@ -95,7 +95,7 @@ test('Schema as string', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });
 
 test('Schema as array', () => {
@@ -106,5 +106,5 @@ test('Schema as array', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });

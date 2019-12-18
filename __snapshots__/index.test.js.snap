@@ -1,0 +1,889 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`appsync config Additional authentication providers created 1`] = `
+Array [
+  Object {
+    "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+    "OpenIDConnectConfig": undefined,
+    "UserPoolConfig": Object {
+      "AppIdClientRegex": "appIdClientRegex",
+      "AwsRegion": "eu-central-1",
+      "UserPoolId": "userPoolGenerateId",
+    },
+  },
+  Object {
+    "AuthenticationType": "OPENID_CONNECT",
+    "OpenIDConnectConfig": Object {
+      "AuthTTL": 1000,
+      "ClientId": "clientId",
+      "IatTTL": 1000,
+      "Issuer": "issuer",
+    },
+    "UserPoolConfig": undefined,
+  },
+  Object {
+    "AuthenticationType": "API_KEY",
+    "OpenIDConnectConfig": undefined,
+    "UserPoolConfig": undefined,
+  },
+  Object {
+    "AuthenticationType": "AWS_IAM",
+    "OpenIDConnectConfig": undefined,
+    "UserPoolConfig": undefined,
+  },
+]
+`;
+
+exports[`appsync config Additional authentication providers created 2`] = `
+Object {
+  "Properties": Object {
+    "ApiId": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApi",
+        "ApiId",
+      ],
+    },
+    "Description": "serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault",
+    "Expires": 31536010,
+  },
+  "Type": "AWS::AppSync::ApiKey",
+}
+`;
+
+exports[`appsync config Datasource generates HTTP authorization when authorizationConfig provided 1`] = `
+Object {
+  "GraphQlDsHTTPSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "HTTPSource Desc",
+      "HttpConfig": Object {
+        "AuthorizationConfig": Object {
+          "AuthorizationType": "AWS_IAM",
+          "AwsIamConfig": Object {
+            "SigningRegion": "us-east-1",
+            "SigningServiceName": "ses",
+          },
+        },
+        "Endpoint": "https://www.example.com/api",
+      },
+      "Name": "HTTPSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+      "Type": "HTTP",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config Datasource generates lambdaFunctionArn from functionName 1`] = `
+Object {
+  "GraphQlDslambdaSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "lambdaSource Desc",
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::GetAtt": Array [
+            "MyFuncLambdaFunction",
+            "Arn",
+          ],
+        },
+      },
+      "Name": "lambdaSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+      "Type": "AWS_LAMBDA",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config Datasource uses lambdaFunctionArn when provided 1`] = `
+Object {
+  "GraphQlDslambdaSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "lambdaSource Desc",
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::GetAtt": Array [
+            "MyFuncLambdaFunction",
+            "Arn",
+          ],
+        },
+      },
+      "Name": "lambdaSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+      "Type": "AWS_LAMBDA",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config HTTP Datasource defaults the IAM role signing region to the stack's region 1`] = `
+Object {
+  "GraphQlDsHTTPSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "HTTPSource Desc",
+      "HttpConfig": Object {
+        "AuthorizationConfig": Object {
+          "AuthorizationType": "AWS_IAM",
+          "AwsIamConfig": Object {
+            "SigningRegion": "us-east-1",
+            "SigningServiceName": "ses",
+          },
+        },
+        "Endpoint": "https://www.example.com/api",
+      },
+      "Name": "HTTPSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myHTTPRole",
+      "Type": "HTTP",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config appsync cloudwatch log group is created when logs enabled 1`] = `
+Object {
+  "Properties": Object {
+    "LogGroupName": Object {
+      "Fn::Join": Array [
+        "/",
+        Array [
+          "/aws/appsync/apis",
+          Object {
+            "Fn::GetAtt": Array [
+              "GraphQlApi",
+              "ApiId",
+            ],
+          },
+        ],
+      ],
+    },
+    "RetentionInDays": 14,
+  },
+  "Type": "AWS::Logs::LogGroup",
+}
+`;
+
+exports[`appsync config appsync cloudwatch role is autogenerated 1`] = `
+Object {
+  "GraphQlApiCloudWatchLogsRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Sub": Array [
+                      "arn:aws:logs:\${region}:\${AWS::AccountId}:*",
+                      Object {
+                        "region": "us-east-1",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlApiCloudWatchLogsPolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+}
+`;
+
+exports[`iamRoleStatements getDataSourceIamRolesResouces with Default generated statements 1`] = `
+Object {
+  "GraphQlDsDynamoDbSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "dynamodb:DeleteItem",
+                  "dynamodb:GetItem",
+                  "dynamodb:PutItem",
+                  "dynamodb:Query",
+                  "dynamodb:Scan",
+                  "dynamodb:UpdateItem",
+                  "dynamodb:BatchGetItem",
+                  "dynamodb:BatchWriteItem",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        "arn",
+                        "aws",
+                        "dynamodb",
+                        "us-east-1",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        Object {
+                          "Fn::Join": Array [
+                            "/",
+                            Array [
+                              "table",
+                              "myTable",
+                            ],
+                          ],
+                        },
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      "/",
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
+                            ":",
+                            Array [
+                              "arn",
+                              "aws",
+                              "dynamodb",
+                              "us-east-1",
+                              Object {
+                                "Ref": "AWS::AccountId",
+                              },
+                              Object {
+                                "Fn::Join": Array [
+                                  "/",
+                                  Array [
+                                    "table",
+                                    "myTable",
+                                  ],
+                                ],
+                              },
+                            ],
+                          ],
+                        },
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsDynamoDbSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsElasticSearchSource2Role": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "es:ESHttpDelete",
+                  "es:ESHttpGet",
+                  "es:ESHttpHead",
+                  "es:ESHttpPost",
+                  "es:ESHttpPut",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "EsResource",
+                      "Arn",
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsElasticSearchSource2Policy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsElasticSearchSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "es:ESHttpDelete",
+                  "es:ESHttpGet",
+                  "es:ESHttpHead",
+                  "es:ESHttpPost",
+                  "es:ESHttpPut",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        "arn",
+                        "aws",
+                        "es",
+                        "us-east-1",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsElasticSearchSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsLambdaSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "lambda:invokeFunction",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "MyTestFunctionLambdaFunction",
+                      "Arn",
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "MyTestFunctionLambdaFunction",
+                            "Arn",
+                          ],
+                        },
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsLambdaSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsRelationalDbSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "rds-data:DeleteItems",
+                  "rds-data:ExecuteSql",
+                  "rds-data:GetItems",
+                  "rds-data:InsertItems",
+                  "rds-data:UpdateItems",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        "arn",
+                        "aws",
+                        "rds",
+                        "us-east-1",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "cluster",
+                        "aurora-cluster-id",
+                      ],
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
+                            ":",
+                            Array [
+                              "arn",
+                              "aws",
+                              "rds",
+                              "us-east-1",
+                              Object {
+                                "Ref": "AWS::AccountId",
+                              },
+                              "cluster",
+                              "aurora-cluster-id",
+                            ],
+                          ],
+                        },
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+              Object {
+                "Action": Array [
+                  "secretsmanager:GetSecretValue",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsRelationalDbSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+}
+`;
+
+exports[`iamRoleStatements getDataSourceIamRolesResouces with Specific statements 1`] = `
+Object {
+  "GraphQlDsDynamoDbSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "dynamodb:Query",
+                  "dynamodb:Scan",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:dynamodb:us-east-1:123456789012:table/myTable",
+                  "arn:aws:dynamodb:us-east-1:123456789012:table/myTable/*",
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsDynamoDbSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsElasticSearchSource2Role": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "ES:ESHttpGet",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "EsResource",
+                      "Arn",
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsElasticSearchSource2Policy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsElasticSearchSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "ES:ESHttpGet",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:es:us-east-1:123456789012:domain/my-domain",
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsElasticSearchSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsLambdaSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "lambda:invokeFunction",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:lambda:us-east-1:123456789012:function:myTestFunction",
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsLambdaSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsRelationalDatabaseSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "rds-data:DeleteItems",
+                  "rds-data:ExecuteSql",
+                  "rds-data:GetItems",
+                  "rds-data:InsertItems",
+                  "rds-data:UpdateItems",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id",
+                  "arn:aws:rds:us-east-1:123456789012:cluster:aurora-cluster-id:*",
+                ],
+              },
+              Object {
+                "Action": Array [
+                  "secretsmanager:GetSecretValue",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa",
+                  "arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa:*",
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsRelationalDatabaseSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+}
+`;
+
+exports[`iamRoleStatements template substitutions Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects 1`] = `
+Object {
+  "Fn::Join": Array [
+    "",
+    Array [
+      "#set($partitionKey = \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalPK}",
+          Object {
+            "globalPK": "PK",
+          },
+        ],
+      },
+      "\\")
+{
+\\"version\\" : \\"2018-05-29\\",
+\\"operation\\" : \\"GetItem\\",
+\\"key\\" : {
+\\"partitionKey\\": { \\"S\\": \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalPK}",
+          Object {
+            "globalPK": "PK",
+          },
+        ],
+      },
+      "\\" },
+\\"sortKey\\": { \\"S\\": \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalSK}",
+          Object {
+            "globalSK": "SK",
+          },
+        ],
+      },
+      "\\" },
+}
+}",
+    ],
+  ],
+}
+`;
