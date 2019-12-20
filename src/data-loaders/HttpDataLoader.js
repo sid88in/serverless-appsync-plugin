@@ -7,7 +7,7 @@ export default class HttpDataLoader {
 
   async load(req) {
     try {
-      const { data } = await axios.request({
+      const { data, status, headers } = await axios.request({
         baseURL: this.config.endpoint,
         url: req.resourcePath,
         headers: req.params.headers,
@@ -16,7 +16,11 @@ export default class HttpDataLoader {
         data: req.params.body,
       });
 
-      return data;
+      return {
+        headers,
+        statusCode: status,
+        body: JSON.stringify(data)
+      }
     } catch (err) {
       console.log(err);
     }
