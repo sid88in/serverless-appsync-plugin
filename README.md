@@ -127,9 +127,15 @@ custom:
         field: getUserInfo
         request: # request mapping template name
         response: # response mapping template name
-        # Caching options. Disabled by default.
-        # can be `true` (cache enabled with global ttl)
-        # or an object as below
+        # When caching is enaled with `PER_RESOLVER_CACHING`,
+        # the caching options of the resolver.
+        # Disabled by default.
+        # Accepted values:
+        # - `true`: cache enabled with global `ttl` and default `keys`
+        # - an object with the following keys:
+        #    - ttl: The ttl of this particular resolver. Optional. Defaults to global ttl
+        #    - keys: The keys to use for the cache. Optionnal. Defaults to a hash of the
+        # $context.arguments and $context.identity
         caching:
           keys: # array. A list of string to use as cche key.
             - "$context.identity.sub"
