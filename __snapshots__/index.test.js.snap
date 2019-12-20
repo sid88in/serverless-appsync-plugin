@@ -145,22 +145,6 @@ Object {
 }
 `;
 
-exports[`appsync config API_KEY config created 1`] = `
-Object {
-  "Properties": Object {
-    "ApiId": Object {
-      "Fn::GetAtt": Array [
-        "GraphQlApi",
-        "ApiId",
-      ],
-    },
-    "Description": "serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault",
-    "Expires": 31536010,
-  },
-  "Type": "AWS::AppSync::ApiKey",
-}
-`;
-
 exports[`appsync config Additional authentication providers created 1`] = `
 Array [
   Object {

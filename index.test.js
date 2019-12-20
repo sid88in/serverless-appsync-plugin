@@ -279,7 +279,14 @@ describe('appsync config', () => {
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
     expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
-    expect(keyResources.GraphQlApiKeyDefault).toMatchSnapshot();
+    expect(keyResources.GraphQlApiKeyDefault).toEqual({
+      Type: 'AWS::AppSync::ApiKey',
+      Properties: {
+        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
+        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
+        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+      },
+    });
     expect(outputs).toEqual({
       GraphQlApiKeyDefault: {
         Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
@@ -369,7 +376,7 @@ describe('Caching', () => {
     const apiConfig = {
       ...config,
       caching: {
-        behavior: 'FULL_REQUEST_CACHING',
+        behavior: 'PER_RESOLVER_CACHING',
       },
       mappingTemplates: [
         {
@@ -389,7 +396,7 @@ describe('Caching', () => {
     const apiConfig = {
       ...config,
       caching: {
-        behavior: 'FULL_REQUEST_CACHING',
+        behavior: 'PER_RESOLVER_CACHING',
       },
       mappingTemplates: [
         {
@@ -415,7 +422,7 @@ describe('Caching', () => {
     const apiConfig = {
       ...config,
       caching: {
-        behavior: 'FULL_REQUEST_CACHING',
+        behavior: 'PER_RESOLVER_CACHING',
         ttl: 2000,
       },
       mappingTemplates: [

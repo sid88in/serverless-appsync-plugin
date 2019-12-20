@@ -85,10 +85,10 @@ custom:
     # read more at https://aws.amazon.com/blogs/mobile/appsync-caching-transactions/
     # and https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html
     caching:
-      ttl: 3600 # The TTL of the cache. Optional. Default: 3600
       behavior: FULL_REQUEST_CACHING # or PER_RESOLVER_CACHING. Required
-      atRestEncryption: # Bool, Optional. Enable at rest encryption. deisabled by default.
-      transitEncryption: # Bool, Optional. Enable transit encryption. deisabled by default.
+      ttl: 3600 # The TTL of the cache. Optional. Default: 3600
+      atRestEncryption: # Bool, Optional. Enable at rest encryption. disabled by default.
+      transitEncryption: # Bool, Optional. Enable transit encryption. disabled by default.
       type: 'T2_SMALL' # Cache instance size. Optional. Default: 'T2_SMALL'
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
@@ -135,9 +135,9 @@ custom:
         # - an object with the following keys:
         #    - ttl: The ttl of this particular resolver. Optional. Defaults to global ttl
         #    - keys: The keys to use for the cache. Optionnal. Defaults to a hash of the
-        # $context.arguments and $context.identity
+        #            $context.arguments and $context.identity
         caching:
-          keys: # array. A list of string to use as cche key.
+          keys: # array. A list of VTL variables to use as cache key.
             - "$context.identity.sub"
             - "$context.arguments.id"
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
