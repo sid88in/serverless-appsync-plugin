@@ -799,16 +799,16 @@ class ServerlessAppsyncPlugin {
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     const functionConfigLocation = config.functionConfigurationsLocation;
     return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
-      const reqTemplPath = path.join(
+      const reqTempl = path.join(
         functionConfigLocation,
         tpl.request || `${tpl.type}.${tpl.field}.request.vtl`,
       );
-      const respTemplPath = path.join(
+      const respTempl = path.join(
         functionConfigLocation,
         tpl.response || `${tpl.type}.${tpl.field}.response.vtl`,
       );
-      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
-      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
+      const requestTemplate = reqTempl fs.readFileSync(reqTempl, 'utf8');
+      const responseTemplate = fs.readFileSync(respTempl, 'utf8');
 
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdFunctionConfiguration = this.getLogicalId(
@@ -840,10 +840,10 @@ class ServerlessAppsyncPlugin {
     const flattenedMappingTemplates = config.mappingTemplates
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedMappingTemplates.reduce((acc, tpl) => {
-      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
-      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
-      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
-      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
+      const reqTempl = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
+      const respTempl = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
+      const requestTemplate = fs.readFileSync(reqTempl, 'utf8');
+      const responseTemplate = fs.readFileSync(respTempl, 'utf8');
 
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
