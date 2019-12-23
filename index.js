@@ -807,8 +807,8 @@ class ServerlessAppsyncPlugin {
         functionConfigLocation,
         tpl.response || `${tpl.type}.${tpl.field}.response.vtl`,
       );
-      const requestTemplate = reqTempl fs.readFileSync(reqTempl, 'utf8');
-      const responseTemplate = fs.readFileSync(respTempl, 'utf8');
+      const requestTemplate = this.getRequestMappingTemplate(config, tpl);
+      const responseTemplate = this.getResponseMappingTemplate(config, tpl);
 
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdFunctionConfiguration = this.getLogicalId(
@@ -836,14 +836,52 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
+  getRequestMappingTemplate(config, tpl) {
+    const {mappingTemplatesLocation} = config;
+    const {type, field, request=undefined} = tpl;
+    if(request) { // return inline string
+      if(request.toUpperCase().startsWith('VTL:')) {
+        let requestMappingTemplate = request.slice(4).trim();
+        return requestMappingTemplate;
+      } else { // return template at specific path
+        let reqTemplPath = path.join(mappingTemplatesLocation, request);
+        let requestMappingTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+        return requestMappingTemplate
+      }
+    }
+    else { // return template at default path: /mapping-templates/`${type}`/`${field}`/request.vtl
+      let reqTemplPath = path.join(config.mappingTemplatesLocation, `${type}.${field}.request.vtl`);
+      let requestMappingTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+      return requestMappingTemplate;
+    }
+  }
+
+  getResponseMappingTemplate(config, tpl) {
+    const {mappingTemplatesLocation} = config;
+    const {type, field, response=undefined} = tpl;
+    if(response) { // return inline string
+      if(response.toUpperCase().startsWith('VTL:')) {
+        let responseMappingTemplate = response.slice(4).trim();
+        return responseMappingTemplate;
+      } else { // return template at specific path
+        let respTemplPath = path.join(mappingTemplatesLocation, response);
+        let responseMappingTemplate = fs.readFileSync(respTemplPath, 'utf8');
+        return responseMappingTemplate
+      }
+    }
+    else { // return template at default path: /mapping-templates/`${type}`/`${field}`/response.vtl
+      let respTemplPath = path.join(config.mappingTemplatesLocation, `${type}.${field}.response.vtl`);
+      let responseMappingTemplate = fs.readFileSync(respTemplPath, 'utf8');
+      return responseMappingTemplate;
+    }
+  }
+
   getResolverResources(config) {
     const flattenedMappingTemplates = config.mappingTemplates
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedMappingTemplates.reduce((acc, tpl) => {
-      const reqTempl = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
-      const respTempl = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
-      const requestTemplate = fs.readFileSync(reqTempl, 'utf8');
-      const responseTemplate = fs.readFileSync(respTempl, 'utf8');
+      const requestTemplate = this.getRequestMappingTemplate(config, tpl);
+      const responseTemplate = this.getResponseMappingTemplate(config, tpl);
 
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
