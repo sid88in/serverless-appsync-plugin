@@ -108,8 +108,10 @@ class ServerlessAppSyncSimulator {
   }
 
   endServer() {
-    this.log('Halting AppSync Simulator');
-    this.simulator.stop();
+    if (this.simulator) {
+      this.log('Halting AppSync Simulator');
+      this.simulator.stop();
+    }
   }
 
   buildResourceResolvers() {
@@ -135,9 +137,19 @@ class ServerlessAppSyncSimulator {
   /**
    * Resolves resourses through `Ref:` or `Fn:GetAtt`
    */
-  resolveResources(input) {
-    const evaluator = new NodeEvaluator(input, this.resourceResolvers);
-    return evaluator.evaluateNodes();
+  resolveResources(toBeResolved) {
+    // Pass Resources to allow Fn::GetAtt resolution
+    const node = {
+      Resources: this.serverless.service.resources.Resources || {},
+      toBeResolved,
+    };
+    const evaluator = new NodeEvaluator(node, this.resourceResolvers);
+    const result = evaluator.evaluateNodes();
+    if (result && result.toBeResolved) {
+      return result.toBeResolved;
+    }
+
+    return toBeResolved;
   }
 }
 
