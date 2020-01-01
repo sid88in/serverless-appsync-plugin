@@ -875,8 +875,8 @@ class ServerlessAppsyncPlugin {
   processTemplate(template, config, tplSubstitutions) {
     // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
-    const tplConfigVariables = tplSubstitutions != null ? Object.keys(tplSubstitutions) : [];
-    const configVariables = Object.keys(config.substitutions).concat(tplConfigVariables);
+    const allSubstitutions = {...config.substitutions, ...tplSubstitutions};
+    const configVariables = Object.keys(allSubstitutions);
     const templateVariables = [];
     let searchResult;
     // eslint-disable-next-line no-cond-assign
@@ -888,7 +888,7 @@ class ServerlessAppsyncPlugin {
       .filter(value => templateVariables.indexOf(value) > -1)
       .filter((value, index, array) => array.indexOf(value) === index)
       .reduce(
-        (accum, value) => Object.assign(accum, { [value]: config.substitutions[value] }),
+        (accum, value) => Object.assign(accum, { [value]: allSubstitutions[value] }),
         {},
       );
 
