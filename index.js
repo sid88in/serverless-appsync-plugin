@@ -850,8 +850,16 @@ class ServerlessAppsyncPlugin {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             Name: logicalIdFunctionConfiguration,
             DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
-            RequestMappingTemplate: this.processTemplate(requestTemplate, config, tpl.substitutions),
-            ResponseMappingTemplate: this.processTemplate(responseTemplate, config, tpl.substitutions),
+            RequestMappingTemplate: this.processTemplate(
+              requestTemplate, 
+              config, 
+              tpl.substitutions
+            ),
+            ResponseMappingTemplate: this.processTemplate(
+              responseTemplate, 
+              config, 
+              tpl.substitutions
+            ),
             Description: tpl.description,
             FunctionVersion: '2018-05-29',
           },
@@ -881,7 +889,7 @@ class ServerlessAppsyncPlugin {
         TypeName: tpl.type,
         FieldName: tpl.field,
         RequestMappingTemplate: this.processTemplate(requestTemplate, config, tpl.substitutions),
-        ResponseMappingTemplate: this.processTemplate(responseTemplate, config, tpl.substitutions)
+        ResponseMappingTemplate: this.processTemplate(responseTemplate, config, tpl.substitutions),
       };
 
       if (config.caching) {
@@ -985,7 +993,7 @@ class ServerlessAppsyncPlugin {
   processTemplate(template, config, tplSubstitutions) {
     // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
-    const allSubstitutions = {...config.substitutions, ...tplSubstitutions};
+    const allSubstitutions = { ...config.substitutions, ...tplSubstitutions };
     const configVariables = Object.keys(allSubstitutions);
     const templateVariables = [];
     let searchResult;
