@@ -790,7 +790,11 @@ describe('iamRoleStatements', () => {
           globalSK: 'SK',
         };
 
-      const transformedTemplate = plugin.processTemplate(template, configuration, individualSubstitutions);
+      const transformedTemplate = plugin.processTemplate(
+        template,
+        configuration,
+        individualSubstitutions,
+      );
       expect(transformedTemplate).toEqual({
         'Fn::Join': [
           '',
@@ -799,24 +803,24 @@ describe('iamRoleStatements', () => {
             {
               'Fn::Sub':
                 [
-                  '${globalPK}', { 'globalPK': 'PK' }
+                  '${globalPK}', { 'globalPK': 'PK' },
                 ],
             },
             '")\n{\n"version" : "2018-05-29",\n"operation" : "GetItem",\n"key" : {\n"partitionKey": { "S": "',
             {
               'Fn::Sub':
                 [
-                  '${globalPK}', { 'globalPK': 'PK' }
+                  '${globalPK}', { 'globalPK': 'PK' },
                 ],
             },
             '" },\n"sortKey": { "S": "',
             {
               'Fn::Sub':
                 [
-                  '${globalSK}', { 'globalSK': 'SK' }
+                  '${globalSK}', { 'globalSK': 'SK' },
                 ],
             },
-            '" },\n}\n}'
+            '" },\n}\n}',
           ],
         ],
       });
