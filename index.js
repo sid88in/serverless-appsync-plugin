@@ -884,7 +884,7 @@ class ServerlessAppsyncPlugin {
       templateVariables.push(searchResult[1]);
     }
 
-    const subs = configVariables
+    const substitutions = configVariables
       .filter(value => templateVariables.indexOf(value) > -1)
       .filter((value, index, array) => array.indexOf(value) === index)
       .reduce(
@@ -892,7 +892,6 @@ class ServerlessAppsyncPlugin {
         {},
       );
 
-    const substitutions = Object.assign({}, subs, tplSubstitutions);
     // if there are substitutions for this template then add fn:sub
     if (Object.keys(substitutions).length > 0) {
       return this.substituteGlobalTemplateVariables(template, substitutions);
