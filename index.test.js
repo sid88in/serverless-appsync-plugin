@@ -770,7 +770,7 @@ describe('iamRoleStatements', () => {
         '"version" : "2018-05-29",\n' +
         '"operation" : "GetItem",\n' +
         '"key" : {\n' +
-        '"partitionKey": { "S": "${globalPK}" },\n +
+        '"partitionKey": { "S": "${globalPK}" },\n' +
         '"sortKey": { "S": "${globalSK}" },\n' +
         '}\n' +
         '}';
