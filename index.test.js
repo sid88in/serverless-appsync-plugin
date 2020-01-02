@@ -763,65 +763,63 @@ describe('iamRoleStatements', () => {
     });
   });
 
-  describe("individual template substitutions", () => {
-    test("Substitutions for individual template should override global substitutions.", () => {
-      
-      let template = "#set($partitionKey = \"${globalPK}\")\n" +
-        "{\n" +
-        "\"version\" : \"2018-05-29\",\n" +
-        "\"operation\" : \"GetItem\",\n" +
-        "\"key\" : {\n" +
-        "\"partitionKey\": { \"S\": \"${globalPK}\" },\n" +
-        "\"sortKey\": { \"S\": \"${globalSK}\" },\n" +
-        "}\n" +
-        "}";
+  describe('individual template substitutions', () => {
+    test('Substitutions for individual template should override global substitutions.', () => {
+      const template = '#set($partitionKey = "${globalPK}")\n' +
+        '{\n' +
+        '"version" : "2018-05-29",\n' +
+        '"operation" : "GetItem",\n' +
+        '"key" : {\n' +
+        '"partitionKey": { "S": "${globalPK}" },\n +
+        '"sortKey": { "S": "${globalSK}" },\n' +
+        '}\n' +
+        '}';
 
-      let config =
+      const configuration =
         {
-          substitutions: 
+          substitutions:
           {
-            globalPK: "WrongValue",
-            globalSK: "WrongValue",
-          }
+            globalPK: 'WrongValue',
+            globalSK: 'WrongValue',
+          },
         };
 
-      let individualSubstitutions =
+      const individualSubstitutions =
         {
-          globalPK: "PK",
-          globalSK: "SK",
+          globalPK: 'PK',
+          globalSK: 'SK',
         };
 
-      const transformedTemplate = plugin.processTemplate(template, config, individualSubstitutions);
-      expect(transformedTemplate).toEqual(
-        {
-          "Fn::Join": [
-            "",
-            [
-              '#set($partitionKey = "',
-              {
-                'Fn::Sub':
-                  [
-                    '${globalPK}', { "globalPK": "PK" }
-                  ]
-              },
-              '")\n{\n"version" : "2018-05-29",\n"operation" : "GetItem",\n"key" : {\n"partitionKey": { "S": "',
-              {
-                'Fn::Sub':
-                  [
-                    '${globalPK}', { "globalPK": "PK" }
-                  ]
-              },
-              '" },\n"sortKey": { "S": \"',
-              {
-                'Fn::Sub':
-                  [
-                    '${globalSK}', { "globalSK": "SK" }
-                  ]
-              },
-              '" },\n}\n}'
-            ]
-          ]
-        });
+      const transformedTemplate = plugin.processTemplate(template, configuration, individualSubstitutions);
+      expect(transformedTemplate).toEqual({
+        'Fn::Join': [
+          '',
+          [
+            '#set($partitionKey = "',
+            {
+              'Fn::Sub':
+                [
+                  '${globalPK}', { 'globalPK': 'PK' }
+                ],
+            },
+            '")\n{\n"version" : "2018-05-29",\n"operation" : "GetItem",\n"key" : {\n"partitionKey": { "S": "',
+            {
+              'Fn::Sub':
+                [
+                  '${globalPK}', { 'globalPK': 'PK' }
+                ],
+            },
+            '" },\n"sortKey": { "S": "',
+            {
+              'Fn::Sub':
+                [
+                  '${globalSK}', { 'globalSK': 'SK' }
+                ],
+            },
+            '" },\n}\n}'
+          ],
+        ],
+      });
     });
   });
 });
