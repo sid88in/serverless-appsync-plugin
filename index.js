@@ -851,14 +851,14 @@ class ServerlessAppsyncPlugin {
             Name: logicalIdFunctionConfiguration,
             DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
             RequestMappingTemplate: this.processTemplate(
-              requestTemplate, 
-              config, 
-              tpl.substitutions
+              requestTemplate,
+              config,
+              tpl.substitutions,
             ),
             ResponseMappingTemplate: this.processTemplate(
-              responseTemplate, 
-              config, 
-              tpl.substitutions
+              responseTemplate,
+              config,
+              tpl.substitutions,
             ),
             Description: tpl.description,
             FunctionVersion: '2018-05-29',
