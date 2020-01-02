@@ -1,46 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Schema as array 1`] = `
-Object {
-  "additionalAuthenticationProviders": Array [],
-  "apiId": undefined,
-  "apiKey": undefined,
-  "authenticationType": "AWS_IAM",
-  "dataSources": Array [],
-  "functionConfigurations": Array [],
-  "functionConfigurationsLocation": "mapping-templates",
-  "isSingleConfig": true,
-  "logConfig": undefined,
-  "mappingTemplates": Array [],
-  "mappingTemplatesLocation": "mapping-templates",
-  "name": "api",
-  "openIdConnectConfig": undefined,
-  "region": "us-east-1",
-  "schema": "schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
+Array [
+  Object {
+    "additionalAuthenticationProviders": Array [],
+    "apiId": undefined,
+    "apiKey": undefined,
+    "authenticationType": "AWS_IAM",
+    "caching": undefined,
+    "dataSources": Array [],
+    "functionConfigurations": Array [],
+    "functionConfigurationsLocation": "mapping-templates",
+    "isSingleConfig": true,
+    "logConfig": undefined,
+    "mappingTemplates": Array [],
+    "mappingTemplatesLocation": "mapping-templates",
+    "name": "api",
+    "openIdConnectConfig": undefined,
+    "region": "us-east-1",
+    "schema": "type Mutation {
+  
+  # Create a tweet for a user
+   # consumer keys and tokens are not required for dynamo integration
+  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
+  
+  # Delete User Tweet
+  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
+  
+  # Retweet existing Tweet
+  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
+  
+  # Update existing Tweet
+  updateTweet(tweet_id: String!, tweet: String!): Tweet!
+  
+  # Create user info is available in dynamo integration
+  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
 }
 
 type Query {
+  
   # search functionality is available in elasticsearch integration
   searchAllTweetsByKeyword(keyword: String!): TweetConnection
   getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
   meInfo(consumer_key: String, consumer_secret: String): User!
-}
-
-type Mutation {
-  # Create a tweet for a user
-   # consumer keys and tokens are not required for dynamo integration
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  # Delete User Tweet
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  # Retweet existing Tweet
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  # Update existing Tweet
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  # Create user info is available in dynamo integration
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
 }
 
 type Subscription {
@@ -72,32 +74,43 @@ type User {
   followers: [String!]!
   topTweet: Tweet
   tweets(limit: Int!, nextToken: String): TweetConnection
+  
   # search functionality is available in elasticsearch integration
   searchTweetsByKeyword(keyword: String!): TweetConnection
 }
-",
-  "substitutions": Object {},
-  "userPoolConfig": undefined,
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
 }
+",
+    "substitutions": Object {},
+    "tags": undefined,
+    "userPoolConfig": undefined,
+  },
+]
 `;
 
 exports[`Schema as string 1`] = `
-Object {
-  "additionalAuthenticationProviders": Array [],
-  "apiId": undefined,
-  "apiKey": undefined,
-  "authenticationType": "AWS_IAM",
-  "dataSources": Array [],
-  "functionConfigurations": Array [],
-  "functionConfigurationsLocation": "mapping-templates",
-  "isSingleConfig": true,
-  "logConfig": undefined,
-  "mappingTemplates": Array [],
-  "mappingTemplatesLocation": "mapping-templates",
-  "name": "api",
-  "openIdConnectConfig": undefined,
-  "region": "us-east-1",
-  "schema": "type Mutation {
+Array [
+  Object {
+    "additionalAuthenticationProviders": Array [],
+    "apiId": undefined,
+    "apiKey": undefined,
+    "authenticationType": "AWS_IAM",
+    "caching": undefined,
+    "dataSources": Array [],
+    "functionConfigurations": Array [],
+    "functionConfigurationsLocation": "mapping-templates",
+    "isSingleConfig": true,
+    "logConfig": undefined,
+    "mappingTemplates": Array [],
+    "mappingTemplatesLocation": "mapping-templates",
+    "name": "api",
+    "openIdConnectConfig": undefined,
+    "region": "us-east-1",
+    "schema": "type Mutation {
 	# Create a tweet for a user
 	# consumer keys and tokens are not required for dynamo integration
 	createTweet(
@@ -191,9 +204,11 @@ schema {
 	subscription: Subscription
 }
 ",
-  "substitutions": Object {},
-  "userPoolConfig": undefined,
-}
+    "substitutions": Object {},
+    "tags": undefined,
+    "userPoolConfig": undefined,
+  },
+]
 `;
 
 exports[`authenticationType is missing 1`] = `"appSync property \`authenticationType\` is missing or invalid."`;
@@ -201,31 +216,33 @@ exports[`authenticationType is missing 1`] = `"appSync property \`authentication
 exports[`authenticationType is missing 2`] = `"appSync property \`authenticationType\` is missing or invalid."`;
 
 exports[`datasources as array 1`] = `
-Object {
-  "additionalAuthenticationProviders": Array [],
-  "apiId": undefined,
-  "apiKey": undefined,
-  "authenticationType": "AWS_IAM",
-  "dataSources": Array [
-    Object {
-      "name": "users",
-      "type": "AMAZON_DYNAMODB",
-    },
-    Object {
-      "name": "tweets",
-      "type": "AMAZON_DYNAMODB",
-    },
-  ],
-  "functionConfigurations": Array [],
-  "functionConfigurationsLocation": "mapping-templates",
-  "isSingleConfig": true,
-  "logConfig": undefined,
-  "mappingTemplates": Array [],
-  "mappingTemplatesLocation": "mapping-templates",
-  "name": "api",
-  "openIdConnectConfig": undefined,
-  "region": "us-east-1",
-  "schema": "type Mutation {
+Array [
+  Object {
+    "additionalAuthenticationProviders": Array [],
+    "apiId": undefined,
+    "apiKey": undefined,
+    "authenticationType": "AWS_IAM",
+    "caching": undefined,
+    "dataSources": Array [
+      Object {
+        "name": "users",
+        "type": "AMAZON_DYNAMODB",
+      },
+      Object {
+        "name": "tweets",
+        "type": "AMAZON_DYNAMODB",
+      },
+    ],
+    "functionConfigurations": Array [],
+    "functionConfigurationsLocation": "mapping-templates",
+    "isSingleConfig": true,
+    "logConfig": undefined,
+    "mappingTemplates": Array [],
+    "mappingTemplatesLocation": "mapping-templates",
+    "name": "api",
+    "openIdConnectConfig": undefined,
+    "region": "us-east-1",
+    "schema": "type Mutation {
 	# Create a tweet for a user
 	# consumer keys and tokens are not required for dynamo integration
 	createTweet(
@@ -319,45 +336,49 @@ schema {
 	subscription: Subscription
 }
 ",
-  "substitutions": Object {},
-  "userPoolConfig": undefined,
-}
+    "substitutions": Object {},
+    "tags": undefined,
+    "userPoolConfig": undefined,
+  },
+]
 `;
 
 exports[`datasources as array form different files (array of arrays or objects) 1`] = `
-Object {
-  "additionalAuthenticationProviders": Array [],
-  "apiId": undefined,
-  "apiKey": undefined,
-  "authenticationType": "AWS_IAM",
-  "dataSources": Array [
-    Object {
-      "name": "users",
-      "type": "AMAZON_DYNAMODB",
-    },
-    Object {
-      "name": "tweets",
-      "type": "AMAZON_DYNAMODB",
-    },
-    Object {
-      "name": "foo",
-      "type": "AMAZON_DYNAMODB",
-    },
-    Object {
-      "name": "bar",
-      "type": "AMAZON_DYNAMODB",
-    },
-  ],
-  "functionConfigurations": Array [],
-  "functionConfigurationsLocation": "mapping-templates",
-  "isSingleConfig": true,
-  "logConfig": undefined,
-  "mappingTemplates": Array [],
-  "mappingTemplatesLocation": "mapping-templates",
-  "name": "api",
-  "openIdConnectConfig": undefined,
-  "region": "us-east-1",
-  "schema": "type Mutation {
+Array [
+  Object {
+    "additionalAuthenticationProviders": Array [],
+    "apiId": undefined,
+    "apiKey": undefined,
+    "authenticationType": "AWS_IAM",
+    "caching": undefined,
+    "dataSources": Array [
+      Object {
+        "name": "users",
+        "type": "AMAZON_DYNAMODB",
+      },
+      Object {
+        "name": "tweets",
+        "type": "AMAZON_DYNAMODB",
+      },
+      Object {
+        "name": "foo",
+        "type": "AMAZON_DYNAMODB",
+      },
+      Object {
+        "name": "bar",
+        "type": "AMAZON_DYNAMODB",
+      },
+    ],
+    "functionConfigurations": Array [],
+    "functionConfigurationsLocation": "mapping-templates",
+    "isSingleConfig": true,
+    "logConfig": undefined,
+    "mappingTemplates": Array [],
+    "mappingTemplatesLocation": "mapping-templates",
+    "name": "api",
+    "openIdConnectConfig": undefined,
+    "region": "us-east-1",
+    "schema": "type Mutation {
 	# Create a tweet for a user
 	# consumer keys and tokens are not required for dynamo integration
 	createTweet(
@@ -451,37 +472,41 @@ schema {
 	subscription: Subscription
 }
 ",
-  "substitutions": Object {},
-  "userPoolConfig": undefined,
-}
+    "substitutions": Object {},
+    "tags": undefined,
+    "userPoolConfig": undefined,
+  },
+]
 `;
 
 exports[`returns valid config 1`] = `
-Object {
-  "additionalAuthenticationProviders": Array [],
-  "apiId": undefined,
-  "apiKey": undefined,
-  "authenticationType": "AWS_IAM",
-  "dataSources": Array [
-    Object {
-      "name": "users",
-      "type": "AMAZON_DYNAMODB",
-    },
-    Object {
-      "name": "tweets",
-      "type": "AMAZON_DYNAMODB",
-    },
-  ],
-  "functionConfigurations": Array [],
-  "functionConfigurationsLocation": "mapping-templates",
-  "isSingleConfig": true,
-  "logConfig": undefined,
-  "mappingTemplates": Array [],
-  "mappingTemplatesLocation": "mapping-templates",
-  "name": "api",
-  "openIdConnectConfig": undefined,
-  "region": "us-east-1",
-  "schema": "type Mutation {
+Array [
+  Object {
+    "additionalAuthenticationProviders": Array [],
+    "apiId": undefined,
+    "apiKey": undefined,
+    "authenticationType": "AWS_IAM",
+    "caching": undefined,
+    "dataSources": Array [
+      Object {
+        "name": "users",
+        "type": "AMAZON_DYNAMODB",
+      },
+      Object {
+        "name": "tweets",
+        "type": "AMAZON_DYNAMODB",
+      },
+    ],
+    "functionConfigurations": Array [],
+    "functionConfigurationsLocation": "mapping-templates",
+    "isSingleConfig": true,
+    "logConfig": undefined,
+    "mappingTemplates": Array [],
+    "mappingTemplatesLocation": "mapping-templates",
+    "name": "api",
+    "openIdConnectConfig": undefined,
+    "region": "us-east-1",
+    "schema": "type Mutation {
 	# Create a tweet for a user
 	# consumer keys and tokens are not required for dynamo integration
 	createTweet(
@@ -575,7 +600,9 @@ schema {
 	subscription: Subscription
 }
 ",
-  "substitutions": Object {},
-  "userPoolConfig": undefined,
-}
+    "substitutions": Object {},
+    "tags": undefined,
+    "userPoolConfig": undefined,
+  },
+]
 `;

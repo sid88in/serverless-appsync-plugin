@@ -18,9 +18,8 @@ Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppS
 
 > *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
 
-> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://hackernoon.com/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
+> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
 
-> *AWS Mobile Blog* [How to deploy a GraphQL API on AWS using the Serverless Framework](https://read.acloud.guru/deploy-a-graphql-service-on-aws-with-the-serverless-framework-7af8fc22a01d)
 
 ![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
 
@@ -81,6 +80,16 @@ custom:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
+    schema: # schema file or array of files to merge, defaults to schema.graphql
+    # Caching options. Disabled by default
+    # read more at https://aws.amazon.com/blogs/mobile/appsync-caching-transactions/
+    # and https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html
+    caching:
+      behavior: FULL_REQUEST_CACHING # or PER_RESOLVER_CACHING. Required
+      ttl: 3600 # The TTL of the cache. Optional. Default: 3600
+      atRestEncryption: # Bool, Optional. Enable at rest encryption. disabled by default.
+      transitEncryption: # Bool, Optional. Enable transit encryption. disabled by default.
+      type: 'T2_SMALL' # Cache instance size. Optional. Default: 'T2_SMALL'
     # if AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       awsRegion: # defaults to provider region
@@ -118,8 +127,22 @@ custom:
         field: getUserInfo
         request: # request mapping template name
         response: # response mapping template name
+        # When caching is enaled with `PER_RESOLVER_CACHING`,
+        # the caching options of the resolver.
+        # Disabled by default.
+        # Accepted values:
+        # - `true`: cache enabled with global `ttl` and default `keys`
+        # - an object with the following keys:
+        #    - ttl: The ttl of this particular resolver. Optional. Defaults to global ttl
+        #    - keys: The keys to use for the cache. Optionnal. Defaults to a hash of the
+        #            $context.arguments and $context.identity
+        caching:
+          keys: # array. A list of VTL variables to use as cache key.
+            - "$context.identity.sub"
+            - "$context.arguments.id"
+          ttl: 1000 # override the ttl for this resolver. (default comes from global config)
+
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
-    schema: # schema file or array of files to merge, defaults to schema.graphql
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
@@ -275,6 +298,12 @@ custom:
 ### `serverless deploy`
 
 This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
+
+* Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
+
+### `validate-schema`
+
+Validates your GraphQL Schema(s) without deploying.
 
 ### `serverless graphql-playground`
 

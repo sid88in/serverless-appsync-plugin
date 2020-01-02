@@ -34,7 +34,7 @@ test('returns valid config', () => {
     },
     { region: 'us-east-1' },
     servicePath,
-  )[0]).toMatchSnapshot();
+  )).toMatchSnapshot();
 });
 
 test('datasources as array', () => {
@@ -53,12 +53,11 @@ test('datasources as array', () => {
       ],
     },
     { region: 'us-east-1' },
-    servicePath
-  )[0]).toMatchSnapshot();
+    servicePath,
+  )).toMatchSnapshot();
 });
 
 test('datasources as array form different files (array of arrays or objects)', () => {
-
   expect(getConfig(
     {
       authenticationType: 'AWS_IAM',
@@ -80,34 +79,32 @@ test('datasources as array form different files (array of arrays or objects)', (
             name: 'bar',
             type: 'AMAZON_DYNAMODB',
           },
-        ]
+        ],
       ],
     },
     { region: 'us-east-1' },
-    servicePath
-  )[0]).toMatchSnapshot();
+    servicePath,
+  )).toMatchSnapshot();
 });
 
 test('Schema as string', () => {
-
   expect(getConfig(
     {
       authenticationType: 'AWS_IAM',
-      schema: 'schema.graphql'
+      schema: 'schema.graphql',
     },
     { region: 'us-east-1' },
-    servicePath
-  )[0]).toMatchSnapshot();
+    servicePath,
+  )).toMatchSnapshot();
 });
 
 test('Schema as array', () => {
-
   expect(getConfig(
     {
       authenticationType: 'AWS_IAM',
-      schema: ['_type_tweet.graphql', '_type_user.graphql']
+      schema: ['_type_tweet.graphql', '_type_user.graphql'],
     },
     { region: 'us-east-1' },
-    servicePath
-  )[0]).toMatchSnapshot();
+    servicePath,
+  )).toMatchSnapshot();
 });

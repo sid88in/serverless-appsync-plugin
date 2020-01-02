@@ -8,10 +8,10 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint . --fix"
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "eslint": "^4.16.0",
+    "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "jest": "^22.1.4",
@@ -20,7 +20,7 @@
   "dependencies": {
     "aws-sdk": "^2.404.0",
     "chalk": "^2.4.2",
-    "graphql": "^0.13.2",
+    "graphql": "^14.5.8",
     "graphql-playground-middleware-koa": "^1.6.4",
     "koa": "^2.5.2",
     "merge-graphql-schemas": "^1.5.8",
