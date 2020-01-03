@@ -20,23 +20,7 @@ const resolverPathMap = {
 class ServerlessAppSyncSimulator {
   constructor(serverless) {
     this.serverless = serverless;
-    this.options = merge(
-      {
-        apiKey: '0123456789',
-        port: 20002,
-        wsPort: 20003,
-        location: '.',
-        refMap: {},
-        getAttMap: {},
-        dynamoDb: {
-          endpoint: `http://localhost:${get(this.serverless.service, 'custom.dynamodb.start.port', 8000)}`,
-          region: 'localhost',
-          accessKeyId: 'DEFAULT_ACCESS_KEY',
-          secretAccessKey: 'DEFAULT_SECRET',
-        },
-      },
-      get(this.serverless.service, 'custom.appsync-simulator', {}),
-    );
+    this.options = null;
     this.log = this.log.bind(this);
     this.debugLog = this.debugLog.bind(this);
 
@@ -67,6 +51,7 @@ class ServerlessAppSyncSimulator {
 
   async startServer() {
     try {
+      this.buildResolvedOptions();
       this.buildResourceResolvers();
       this.serverless.service.functions = this.resolveResources(
         this.serverless.service.functions,
@@ -90,11 +75,14 @@ class ServerlessAppSyncSimulator {
         ? this.serverless.service.custom.appSync[0]
         : this.serverless.service.custom.appSync;
 
-      const config = getAppSyncConfig({
-        plugin: this,
-        serverless: this.serverless,
-        options: this.options,
-      }, appSync);
+      const config = getAppSyncConfig(
+        {
+          plugin: this,
+          serverless: this.serverless,
+          options: this.options,
+        },
+        appSync,
+      );
 
       this.debugLog(`AppSync Config ${appSync.name}`);
       this.debugLog(inspect(config, { depth: 4, colors: true }));
@@ -132,6 +120,30 @@ class ServerlessAppSyncSimulator {
       RefResolvers: { ...refResolvers, ...this.options.refMap },
       'Fn::GetAttResolvers': this.options.getAttMap,
     };
+  }
+
+  buildResolvedOptions() {
+    this.options = merge(
+      {
+        apiKey: '0123456789',
+        port: 20002,
+        wsPort: 20003,
+        location: '.',
+        refMap: {},
+        getAttMap: {},
+        dynamoDb: {
+          endpoint: `http://localhost:${get(
+            this.serverless.service,
+            'custom.dynamodb.start.port',
+            8000,
+          )}`,
+          region: 'localhost',
+          accessKeyId: 'DEFAULT_ACCESS_KEY',
+          secretAccessKey: 'DEFAULT_SECRET',
+        },
+      },
+      get(this.serverless.service, 'custom.appsync-simulator', {}),
+    );
   }
 
   /**
