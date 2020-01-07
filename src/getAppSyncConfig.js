@@ -100,8 +100,8 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     typeName: resolver.type,
     dataSourceName: resolver.dataSource,
     functions: resolver.functions,
-    requestMappingTemplateLocation: resolver.request,
-    responseMappingTemplateLocation: resolver.response,
+    requestMappingTemplateLocation: resolver.request || `${resolver.type}.${resolver.field}.request.vtl`,
+    responseMappingTemplateLocation: resolver.response || `${resolver.type}.${resolver.field}.response.vtl`,
   });
 
   const makeFunctionConfiguration = (functionConfiguration) => ({
