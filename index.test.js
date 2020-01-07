@@ -762,4 +762,40 @@ describe('iamRoleStatements', () => {
       expect(transformedTemplate).toMatchSnapshot();
     });
   });
+
+  describe('individual template substitutions', () => {
+    test('Substitutions for individual template should override global substitutions.', () => {
+      const template = '#set($partitionKey = "${globalPK}")\n' +
+        '{\n' +
+        '"version" : "2018-05-29",\n' +
+        '"operation" : "GetItem",\n' +
+        '"key" : {\n' +
+        '"partitionKey": { "S": "${globalPK}" },\n' +
+        '"sortKey": { "S": "${globalSK}" },\n' +
+        '}\n' +
+        '}';
+
+      const configuration =
+        {
+          substitutions:
+          {
+            globalPK: 'WrongValue',
+            globalSK: 'WrongValue',
+          },
+        };
+
+      const individualSubstitutions =
+        {
+          globalPK: 'PK',
+          globalSK: 'SK',
+        };
+
+      const transformedTemplate = plugin.processTemplate(
+        template,
+        configuration,
+        individualSubstitutions,
+      );
+      expect(transformedTemplate).toMatchSnapshot();
+    });
+  });
 });

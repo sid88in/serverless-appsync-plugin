@@ -850,8 +850,16 @@ class ServerlessAppsyncPlugin {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             Name: logicalIdFunctionConfiguration,
             DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
-            RequestMappingTemplate: this.processTemplate(requestTemplate, config),
-            ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+            RequestMappingTemplate: this.processTemplate(
+              requestTemplate,
+              config,
+              tpl.substitutions,
+            ),
+            ResponseMappingTemplate: this.processTemplate(
+              responseTemplate,
+              config,
+              tpl.substitutions,
+            ),
             Description: tpl.description,
             FunctionVersion: '2018-05-29',
           },
@@ -880,8 +888,8 @@ class ServerlessAppsyncPlugin {
         ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         TypeName: tpl.type,
         FieldName: tpl.field,
-        RequestMappingTemplate: this.processTemplate(requestTemplate, config),
-        ResponseMappingTemplate: this.processTemplate(responseTemplate, config),
+        RequestMappingTemplate: this.processTemplate(requestTemplate, config, tpl.substitutions),
+        ResponseMappingTemplate: this.processTemplate(responseTemplate, config, tpl.substitutions),
       };
 
       if (config.caching) {
@@ -982,10 +990,11 @@ class ServerlessAppsyncPlugin {
     return `GraphQlDs${this.getCfnName(name)}`;
   }
 
-  processTemplate(template, config) {
+  processTemplate(template, config, tplSubstitutions) {
     // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
-    const configVariables = Object.keys(config.substitutions);
+    const allSubstitutions = { ...config.substitutions, ...tplSubstitutions };
+    const configVariables = Object.keys(allSubstitutions);
     const templateVariables = [];
     let searchResult;
     // eslint-disable-next-line no-cond-assign
@@ -997,7 +1006,7 @@ class ServerlessAppsyncPlugin {
       .filter(value => templateVariables.indexOf(value) > -1)
       .filter((value, index, array) => array.indexOf(value) === index)
       .reduce(
-        (accum, value) => Object.assign(accum, { [value]: config.substitutions[value] }),
+        (accum, value) => Object.assign(accum, { [value]: allSubstitutions[value] }),
         {},
       );
 
