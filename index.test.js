@@ -795,35 +795,7 @@ describe('iamRoleStatements', () => {
         configuration,
         individualSubstitutions,
       );
-      expect(transformedTemplate).toEqual({
-        'Fn::Join': [
-          '',
-          [
-            '#set($partitionKey = "',
-            {
-              'Fn::Sub':
-                [
-                  '${globalPK}', { 'globalPK': 'PK' },
-                ],
-            },
-            '")\n{\n"version" : "2018-05-29",\n"operation" : "GetItem",\n"key" : {\n"partitionKey": { "S": "',
-            {
-              'Fn::Sub':
-                [
-                  '${globalPK}', { 'globalPK': 'PK' },
-                ],
-            },
-            '" },\n"sortKey": { "S": "',
-            {
-              'Fn::Sub':
-                [
-                  '${globalSK}', { 'globalSK': 'SK' },
-                ],
-            },
-            '" },\n}\n}',
-          ],
-        ],
-      });
+      expect(transformedTemplate).toMatchSnapshot();
     });
   });
 });

@@ -991,6 +991,52 @@ Object {
 }
 `;
 
+exports[`iamRoleStatements individual template substitutions Substitutions for individual template should override global substitutions. 1`] = `
+Object {
+  "Fn::Join": Array [
+    "",
+    Array [
+      "#set($partitionKey = \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalPK}",
+          Object {
+            "globalPK": "PK",
+          },
+        ],
+      },
+      "\\")
+{
+\\"version\\" : \\"2018-05-29\\",
+\\"operation\\" : \\"GetItem\\",
+\\"key\\" : {
+\\"partitionKey\\": { \\"S\\": \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalPK}",
+          Object {
+            "globalPK": "PK",
+          },
+        ],
+      },
+      "\\" },
+\\"sortKey\\": { \\"S\\": \\"",
+      Object {
+        "Fn::Sub": Array [
+          "\${globalSK}",
+          Object {
+            "globalSK": "SK",
+          },
+        ],
+      },
+      "\\" },
+}
+}",
+    ],
+  ],
+}
+`;
+
 exports[`iamRoleStatements template substitutions Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects 1`] = `
 Object {
   "Fn::Join": Array [
