@@ -2,7 +2,7 @@
 const fs = require('fs');
 const chalk = require('chalk');
 const Serverless = require('serverless/lib/Serverless');
-const ServerlessAppsyncPlugin = require('.');
+const ServerlessAppsyncPlugin = require('./src');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
 
 let serverless;

@@ -1,4 +1,4 @@
-const getConfig = require('./get-config');
+const getConfig = require('./src/get-config');
 const path = require('path');
 
 const servicePath = path.join(__dirname, 'example');
