@@ -123,10 +123,12 @@ custom:
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
-        type: # type name in schema (e.g. Query, Mutation, Subscription)
+        type: # type name in schema (e.g. Query, Mutation, Subscription, PIPELINE)
         field: getUserInfo
-        request: # request mapping template name
-        response: # response mapping template name
+        functions: # array of functions if type === 'PIPELINE'
+          - # function name
+        request: # request mapping template name | defaults to {field}.{type}.{pipeline ? before : request}.vtl
+        response: # response mapping template name | defaults to {field}.{type}.{pipeline ? after : response}.vtl
         # When caching is enaled with `PER_RESOLVER_CACHING`,
         # the caching options of the resolver.
         # Disabled by default.
@@ -143,6 +145,11 @@ custom:
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
+    functionConfigurations:
+      - name: # function name
+        dataSource: # data source name
+        request: # request mapping template name | defaults to {name}.request.vtl
+        response: # reponse mapping template name | defaults to {name}.response.vtl
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
