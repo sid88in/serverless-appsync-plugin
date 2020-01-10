@@ -123,9 +123,11 @@ custom:
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
-        type: # type name in schema (e.g. Query, Mutation, Subscription, PIPELINE)
+        type: # type name in schema (e.g. Query, Mutation, Subscription)
         field: getUserInfo
-        functions: # array of functions if type === 'PIPELINE'
+        # pipeline resolvers use kind: PIPELINE, otherwise kind is not required
+        # kind: pipeline
+        functions: # array of functions if kind === 'PIPELINE'
           - # function name
         request: # request mapping template name | defaults to {field}.{type}.{pipeline ? before : request}.vtl
         response: # response mapping template name | defaults to {field}.{type}.{pipeline ? after : response}.vtl
