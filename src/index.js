@@ -872,10 +872,10 @@ class ServerlessAppsyncPlugin {
     const flattenedMappingTemplates = config.mappingTemplates
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedMappingTemplates.reduce((acc, tpl) => {
-      const reqSuffix = tpl.kind === 'PIPELINE' ? "before" : "request";
-      const respSuffix = tpl.kind === 'PIPELINE' ? "after" : "response";
-      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.{reqSuffix}.vtl`);
-      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.{respSuffix}.vtl`);
+      const reqSuffix = tpl.kind === 'PIPELINE' ? 'before' : 'request';
+      const respSuffix = tpl.kind === 'PIPELINE' ? 'after' : 'response';
+      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.${reqSuffix}.vtl`);
+      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.${respSuffix}.vtl`);
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
       const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
 
