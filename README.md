@@ -125,8 +125,7 @@ custom:
       - dataSource: # data source name
         type: # type name in schema (e.g. Query, Mutation, Subscription)
         field: getUserInfo
-        # pipeline resolvers use kind: PIPELINE, otherwise kind is not required
-        # kind: pipeline
+        # kind: UNIT (default, not required) or PIPELINE (required for pipeline resolvers)
         functions: # array of functions if kind === 'PIPELINE'
           - # function name
         request: # request mapping template name | defaults to {field}.{type}.{pipeline ? before : request}.vtl
