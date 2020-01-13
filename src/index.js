@@ -825,11 +825,11 @@ class ServerlessAppsyncPlugin {
     return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
       const reqTemplPath = path.join(
         functionConfigLocation,
-        tpl.request || `${tpl.type}.${tpl.field}.request.vtl`,
+        tpl.request || `${tpl.name}.request.vtl`,
       );
       const respTemplPath = path.join(
         functionConfigLocation,
-        tpl.response || `${tpl.type}.${tpl.field}.response.vtl`,
+        tpl.response || `${tpl.name}.response.vtl`,
       );
       const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
       const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');

@@ -125,8 +125,11 @@ custom:
       - dataSource: # data source name
         type: # type name in schema (e.g. Query, Mutation, Subscription)
         field: getUserInfo
-        request: # request mapping template name
-        response: # response mapping template name
+        # kind: UNIT (default, not required) or PIPELINE (required for pipeline resolvers)
+        functions: # array of functions if kind === 'PIPELINE'
+          - # function name
+        request: # request mapping template name | defaults to {type}.{field}.request.vtl
+        response: # response mapping template name | defaults to {type}.{field}.response.vtl
         # When caching is enaled with `PER_RESOLVER_CACHING`,
         # the caching options of the resolver.
         # Disabled by default.
@@ -143,6 +146,11 @@ custom:
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
+    functionConfigurations:
+      - name: # function name
+        dataSource: # data source name
+        request: # request mapping template name | defaults to {name}.request.vtl
+        response: # reponse mapping template name | defaults to {name}.response.vtl
     dataSources:
       - type: AMAZON_DYNAMODB
         name: # data source name
@@ -276,8 +284,8 @@ custom:
     mappingTemplates:
       - type: Query
         field: testPipelineQuery
-        request: './mapping-templates/before.vtl' # the pipeline's "before" mapping template
-        response: './mapping-templates/after.vtl' # the pipeline's "after" mapping template
+        request: './mapping-templates/before.vtl' # the pipeline's "before" mapping template, defaults to {type}.{field).request.vtl
+        response: './mapping-templates/after.vtl' # the pipeline's "after" mapping template, defaults to {type}.{field}.response.vtl
         kind: PIPELINE
         functions:
           - authorizeFunction
@@ -285,12 +293,12 @@ custom:
     functionConfigurations:
       - dataSource: graphqlLambda
         name: 'authorizeFunction'
-        request: './mapping-templates/authorize-request.vtl'
-        response: './mapping-templates/common-response.vtl'
+        request: './mapping-templates/authorize-request.vtl' # defaults to {name}.request.vtl
+        response: './mapping-templates/common-response.vtl' # defaults to {name}.response.vtl
       - dataSource: dataTable
         name: 'fetchDataFunction'
-        request: './mapping-templates/fetchData.vtl'
-        response: './mapping-templates/common-response.vtl'
+        request: './mapping-templates/fetchData.vtl' # defaults to {name}.request.vtl
+        response: './mapping-templates/common-response.vtl' # defaults to {name}.response.vtl
 ```
 
 ## ▶️ Usage
