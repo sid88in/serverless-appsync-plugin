@@ -648,6 +648,7 @@ class ServerlessAppsyncPlugin {
           Action: [
             'rds-data:DeleteItems',
             'rds-data:ExecuteSql',
+            'rds-data:ExecuteStatement',
             'rds-data:GetItems',
             'rds-data:InsertItems',
             'rds-data:UpdateItems',
