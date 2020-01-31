@@ -379,6 +379,7 @@ class ServerlessAppsyncPlugin {
               config.logConfig.loggingRoleArn ||
               { 'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'] },
             FieldLogLevel: config.logConfig.level,
+            ExcludeVerboseContent: config.logConfig.excludeVerboseContent,
           },
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
