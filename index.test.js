@@ -35,7 +35,7 @@ beforeEach(() => {
     isSingleConfig: true,
     mappingTemplatesLocation: 'mapping-templates',
     substitutions: {},
-    xrayEnabled: false
+    xrayEnabled: false,
   };
 });
 
