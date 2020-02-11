@@ -34,6 +34,9 @@ const getConfig = (config, provider, servicePath) => {
   if (config.substitutions && typeof config.substitutions !== 'object') {
     throw new Error('substitutions property must be an object');
   }
+  if (config.xrayEnabled && typeof config.xrayEnabled !== 'boolean') {
+    throw new Error('xrayEnabled must be a boolean');
+  }
 
   const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
   const functionConfigurationsLocation = config.functionConfigurationsLocation
@@ -84,6 +87,7 @@ const getConfig = (config, provider, servicePath) => {
     functionConfigurations,
     logConfig: config.logConfig,
     substitutions: config.substitutions || {},
+    xrayEnabled: config.xrayEnabled || false,
     tags: config.tags,
   };
 };

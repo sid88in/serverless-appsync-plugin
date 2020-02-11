@@ -35,6 +35,7 @@ beforeEach(() => {
     isSingleConfig: true,
     mappingTemplatesLocation: 'mapping-templates',
     substitutions: {},
+    xrayEnabled: false
   };
 });
 
@@ -234,6 +235,14 @@ describe('appsync config', () => {
       UserPoolId: 'userPoolGenerateId',
       AppIdClientRegex: 'appIdClientRegex',
     });
+  });
+
+  test('xrayEnabled config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      xrayEnabled: true,
+    });
+    expect(resources.GraphQlApi.Properties.XrayEnabled).toEqual(true);
   });
 
   test('Tags config created', () => {
