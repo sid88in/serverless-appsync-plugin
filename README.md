@@ -120,6 +120,7 @@ custom:
     logConfig:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL
+      excludeVerboseContent: false
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
