@@ -3,7 +3,7 @@ import {
 } from 'amplify-appsync-simulator';
 import { invoke } from 'amplify-util-mock/lib/utils/lambda/invoke';
 import fs from 'fs';
-import { find } from 'lodash';
+import { forEach } from 'lodash';
 import path from 'path';
 
 export default function getAppSyncConfig(context, appSyncConfig) {
@@ -15,8 +15,8 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     dataSources: (appSyncConfig.dataSources || []).flat(),
   };
 
-  const getFileMap = (basePath, filePath) => ({
-    path: filePath,
+  const getFileMap = (basePath, filePath, substitutionPath = null) => ({
+    path: substitutionPath || filePath,
     content: fs.readFileSync(path.join(basePath, filePath), { encoding: 'utf8' }),
   });
 
@@ -94,21 +94,26 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     }
   };
 
+  const getDefaultTemplatePrefix = (template) => {
+    const { name, type, field } = template;
+    return name ? `${name}` : `${type}.${field}`;
+  };
+
   const makeResolver = (resolver) => ({
     kind: resolver.kind || 'UNIT',
     fieldName: resolver.field,
     typeName: resolver.type,
     dataSourceName: resolver.dataSource,
     functions: resolver.functions,
-    requestMappingTemplateLocation: resolver.request || `${resolver.type}.${resolver.field}.request.vtl`,
-    responseMappingTemplateLocation: resolver.response || `${resolver.type}.${resolver.field}.response.vtl`,
+    requestMappingTemplateLocation: `${getDefaultTemplatePrefix(resolver)}.request.vtl`,
+    responseMappingTemplateLocation: `${getDefaultTemplatePrefix(resolver)}.response.vtl`,
   });
 
   const makeFunctionConfiguration = (functionConfiguration) => ({
     dataSourceName: functionConfiguration.dataSource,
     name: functionConfiguration.name,
-    requestMappingTemplateLocation: functionConfiguration.request,
-    responseMappingTemplateLocation: functionConfiguration.response,
+    requestMappingTemplateLocation: `${getDefaultTemplatePrefix(functionConfiguration)}.request.vtl`,
+    responseMappingTemplateLocation: `${getDefaultTemplatePrefix(functionConfiguration)}.response.vtl`,
   });
 
   const makeAuthType = (authType) => {
@@ -143,6 +148,17 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     cfg.mappingTemplatesLocation || 'mapping-templates',
   );
 
+  const makeMappingTemplate = (filePath, substitutionPath = null, substitutions = {}) => {
+    const mapping = getFileMap(mappingTemplatesLocation, filePath, substitutionPath);
+
+    forEach(substitutions, (value, variable) => {
+      const regExp = new RegExp(`\\$\{?${variable}}?`, 'g');
+      mapping.content = mapping.content.replace(regExp, value);
+    });
+
+    return mapping;
+  };
+
   const makeMappingTemplates = (config) => {
     const sources = [].concat(
       config.mappingTemplates,
@@ -150,16 +166,24 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     );
 
     return sources.reduce((acc, template) => {
-      const requestTemplate = template.request || `${template.type}.${template.field}.request.vtl`;
-      if (!find(acc, (e) => e.path === requestTemplate)) {
-        acc.push(getFileMap(mappingTemplatesLocation, requestTemplate));
-      }
-      const responseTemplate = template.response || `${template.type}.${template.field}.response.vtl`;
-      if (!find(acc, (e) => e.path === responseTemplate)) {
-        acc.push(getFileMap(mappingTemplatesLocation, responseTemplate));
-      }
+      const {
+        substitutions = {},
+        request,
+        response,
+      } = template;
 
-      return acc;
+      const defaultTemplatePrefix = getDefaultTemplatePrefix(template);
+
+      const requestTemplate = request || `${defaultTemplatePrefix}.request.vtl`;
+      const responseTemplate = response || `${defaultTemplatePrefix}.response.vtl`;
+
+      // Substitutions
+      const allSubstitutions = { ...config.substitutions, ...substitutions };
+      return [
+        ...acc,
+        makeMappingTemplate(requestTemplate, `${defaultTemplatePrefix}.request.vtl`, allSubstitutions),
+        makeMappingTemplate(responseTemplate, `${defaultTemplatePrefix}.response.vtl`, allSubstitutions),
+      ];
     }, []);
   };
 
