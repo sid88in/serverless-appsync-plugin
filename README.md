@@ -168,11 +168,12 @@ custom:
                 - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*"
           # Versioned DataSource configuration
           versioned: false # (default, not required)
-          # When you enable versioning on a DynamoDB data source, you MUST specify the following fields
+          # When you enable versioning on a DynamoDB data source, you specify the following fields
+          # read more at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-datasource-deltasyncconfig.html
           # deltaSyncConfig:
-          #   baseTableTTL: 0 # The number of minutes to retain deleted items in the Base table with a "tombstone"
-          #   deltaSyncTableName: { Ref: MyTableDelta } # The name of the table where changes made to items with AWS AppSync mutations are stored
-          #   deltaSyncTableTTL: 1440 # The number of minutes to retain items in the Delta table
+          #   baseTableTTL: 0 # (defalut, not required) # The amount of time (in minutes) items should be kept in the base table when deleted. Set to 0 to delete items in the base table immediately
+          #   deltaSyncTableName: { Ref: MyTableDelta } # required # The Delta Sync table name
+          #   deltaSyncTableTTL: 60 # (defalut, not required) # The amount of time (in minutes) the delta sync table will keep track of changes
 
           region: # Overwrite default region for this data source
       - type: RELATIONAL_DATABASE
