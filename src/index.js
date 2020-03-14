@@ -140,6 +140,18 @@ class ServerlessAppsyncPlugin {
     };
   }
 
+  getDeltaSyncConfig(config) {
+    if (config && config.deltaSyncConfig) {
+      return {
+        BaseTableTTL: config.deltaSyncConfig.baseTableTTL,
+        DeltaSyncTableName: config.deltaSyncConfig.deltaSyncTableName,
+        DeltaSyncTableTTL: config.deltaSyncConfig.deltaSyncTableTTL,
+      };
+    }
+
+    throw new Error('You must specify `deltaSyncConfig` for Delta Sync configuration.');
+  }
+
   gatherData() {
     const stackName = this.provider.naming.getStackName();
 
@@ -756,7 +768,12 @@ class ServerlessAppsyncPlugin {
           AwsRegion: ds.config.region || config.region,
           TableName: ds.config.tableName,
           UseCallerCredentials: !!ds.config.useCallerCredentials,
+          Versioned: !!ds.config.versioned,
         };
+        if (resource.Properties.DynamoDBConfig.Versioned) {
+          resource.Properties.DynamoDBConfig.DeltaSyncConfig =
+            this.getDeltaSyncConfig(Object.assign({}, ds.config));
+        }
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
           AwsRegion: ds.config.region || config.region,
