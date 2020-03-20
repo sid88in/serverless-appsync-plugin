@@ -171,9 +171,9 @@ custom:
           # When you enable versioning on a DynamoDB data source, you specify the following fields
           # read more at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-datasource-deltasyncconfig.html
           # deltaSyncConfig:
-          #   baseTableTTL: 0 # (defalut, not required) # The amount of time (in minutes) items should be kept in the base table when deleted. Set to 0 to delete items in the base table immediately
+          #   baseTableTTL: 0 # (default, not required) # The amount of time (in minutes) items should be kept in the base table when deleted. Set to 0 to delete items in the base table immediately
           #   deltaSyncTableName: { Ref: MyTableDelta } # required # The Delta Sync table name
-          #   deltaSyncTableTTL: 60 # (defalut, not required) # The amount of time (in minutes) the delta sync table will keep track of changes
+          #   deltaSyncTableTTL: 60 # (default, not required) # The amount of time (in minutes) the delta sync table will keep track of changes
 
           region: # Overwrite default region for this data source
       - type: RELATIONAL_DATABASE
