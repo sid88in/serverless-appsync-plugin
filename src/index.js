@@ -381,6 +381,7 @@ class ServerlessAppsyncPlugin {
             FieldLogLevel: config.logConfig.level,
             ExcludeVerboseContent: config.logConfig.excludeVerboseContent,
           },
+          XrayEnabled: config.xrayEnabled,
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
       },
