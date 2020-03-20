@@ -146,10 +146,10 @@ class ServerlessAppsyncPlugin {
         throw new Error('You must specify `deltaSyncTableName` for Delta Sync configuration.');
       }
       return {
-        BaseTableTTL: !config.deltaSyncConfig.baseTableTTL ?
+        BaseTableTTL: typeof config.deltaSyncConfig.baseTableTTL === 'undefined' ?
           0 : config.deltaSyncConfig.baseTableTTL,
         DeltaSyncTableName: config.deltaSyncConfig.deltaSyncTableName,
-        DeltaSyncTableTTL: !config.deltaSyncConfig.deltaSyncTableTTL ?
+        DeltaSyncTableTTL: typeof config.deltaSyncConfig.deltaSyncTableTTL === 'undefined' ?
           60 : config.deltaSyncConfig.deltaSyncTableTTL,
       };
     }
