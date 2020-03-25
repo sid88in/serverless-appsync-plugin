@@ -256,7 +256,7 @@ custom:
       ...
     - name: public-appsync-endpoint
       schema: AppSync/schema.graphql # or something like AppSync/public/schema.graphql
-      authenticationType: NONE # or API_KEY, you get the idea
+      authenticationType: API_KEY
       serviceRole: PublicAppSyncServiceRole
       dataSources:
       ...
