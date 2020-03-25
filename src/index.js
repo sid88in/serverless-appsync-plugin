@@ -140,6 +140,23 @@ class ServerlessAppsyncPlugin {
     };
   }
 
+  getDeltaSyncConfig(config) {
+    if (config && config.deltaSyncConfig) {
+      if (!config.deltaSyncConfig.deltaSyncTableName) {
+        throw new Error('You must specify `deltaSyncTableName` for Delta Sync configuration.');
+      }
+      return {
+        BaseTableTTL: typeof config.deltaSyncConfig.baseTableTTL === 'undefined' ?
+          0 : config.deltaSyncConfig.baseTableTTL,
+        DeltaSyncTableName: config.deltaSyncConfig.deltaSyncTableName,
+        DeltaSyncTableTTL: typeof config.deltaSyncConfig.deltaSyncTableTTL === 'undefined' ?
+          60 : config.deltaSyncConfig.deltaSyncTableTTL,
+      };
+    }
+
+    throw new Error('You must specify `deltaSyncConfig` for Delta Sync configuration.');
+  }
+
   gatherData() {
     const stackName = this.provider.naming.getStackName();
 
@@ -757,7 +774,12 @@ class ServerlessAppsyncPlugin {
           AwsRegion: ds.config.region || config.region,
           TableName: ds.config.tableName,
           UseCallerCredentials: !!ds.config.useCallerCredentials,
+          Versioned: !!ds.config.versioned,
         };
+        if (resource.Properties.DynamoDBConfig.Versioned) {
+          resource.Properties.DynamoDBConfig.DeltaSyncConfig =
+            this.getDeltaSyncConfig(Object.assign({}, ds.config));
+        }
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
           AwsRegion: ds.config.region || config.region,

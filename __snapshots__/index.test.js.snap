@@ -145,6 +145,98 @@ Object {
 }
 `;
 
+exports[`Delta sync custom config works 1`] = `
+Object {
+  "GraphQlDsDynamoDbSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": undefined,
+      "DynamoDBConfig": Object {
+        "AwsRegion": "us-east-1",
+        "DeltaSyncConfig": Object {
+          "BaseTableTTL": 10,
+          "DeltaSyncTableName": "myDeltaSynTable",
+          "DeltaSyncTableTTL": 30,
+        },
+        "TableName": "myTable",
+        "UseCallerCredentials": false,
+        "Versioned": true,
+      },
+      "Name": "DynamoDbSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+      "Type": "AMAZON_DYNAMODB",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`Delta sync missing config throws an error 1`] = `"You must specify \`deltaSyncConfig\` for Delta Sync configuration."`;
+
+exports[`Delta sync missing tableName throws an error 1`] = `"You must specify \`deltaSyncTableName\` for Delta Sync configuration."`;
+
+exports[`Delta sync not versioned 1`] = `
+Object {
+  "GraphQlDsDynamoDbSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": undefined,
+      "DynamoDBConfig": Object {
+        "AwsRegion": "us-east-1",
+        "TableName": "myTable",
+        "UseCallerCredentials": false,
+        "Versioned": false,
+      },
+      "Name": "DynamoDbSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+      "Type": "AMAZON_DYNAMODB",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`Delta sync with default TTL values 1`] = `
+Object {
+  "GraphQlDsDynamoDbSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": undefined,
+      "DynamoDBConfig": Object {
+        "AwsRegion": "us-east-1",
+        "DeltaSyncConfig": Object {
+          "BaseTableTTL": 0,
+          "DeltaSyncTableName": "myDeltaSynTable",
+          "DeltaSyncTableTTL": 60,
+        },
+        "TableName": "myTable",
+        "UseCallerCredentials": false,
+        "Versioned": true,
+      },
+      "Name": "DynamoDbSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+      "Type": "AMAZON_DYNAMODB",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
 exports[`appsync config Additional authentication providers created 1`] = `
 Array [
   Object {
