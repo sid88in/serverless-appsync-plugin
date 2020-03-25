@@ -753,10 +753,10 @@ describe('iamRoleStatements', () => {
         '}';
 
       const variables =
-        {
-          globalPK: 'PK',
-          globalSK: 'SK',
-        };
+      {
+        globalPK: 'PK',
+        globalSK: 'SK',
+      };
 
       const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
       expect(transformedTemplate).toMatchSnapshot();
@@ -776,19 +776,19 @@ describe('iamRoleStatements', () => {
         '}';
 
       const configuration =
+      {
+        substitutions:
         {
-          substitutions:
-          {
-            globalPK: 'WrongValue',
-            globalSK: 'WrongValue',
-          },
-        };
+          globalPK: 'WrongValue',
+          globalSK: 'WrongValue',
+        },
+      };
 
       const individualSubstitutions =
-        {
-          globalPK: 'PK',
-          globalSK: 'SK',
-        };
+      {
+        globalPK: 'PK',
+        globalSK: 'SK',
+      };
 
       const transformedTemplate = plugin.processTemplate(
         template,
@@ -797,5 +797,133 @@ describe('iamRoleStatements', () => {
       );
       expect(transformedTemplate).toMatchSnapshot();
     });
+  });
+});
+
+describe('Delta sync', () => {
+  test('not versioned', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            config: {
+              tableName: 'myTable',
+              serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+              region: 'us-east-1',
+            },
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getDataSourceResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('with default TTL values', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            config: {
+              tableName: 'myTable',
+              serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+              region: 'us-east-1',
+              versioned: true,
+              deltaSyncConfig: {
+                deltaSyncTableName: 'myDeltaSynTable',
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getDataSourceResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('custom config works', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            config: {
+              tableName: 'myTable',
+              serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+              region: 'us-east-1',
+              versioned: true,
+              deltaSyncConfig: {
+                deltaSyncTableName: 'myDeltaSynTable',
+                baseTableTTL: 10,
+                deltaSyncTableTTL: 30,
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getDataSourceResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('missing tableName throws an error', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            config: {
+              tableName: 'myTable',
+              serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+              region: 'us-east-1',
+              versioned: true,
+              deltaSyncConfig: {
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    expect(() => {
+      plugin.getDataSourceResources(config);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  test('missing config throws an error', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'AMAZON_DYNAMODB',
+            name: 'DynamoDbSource',
+            config: {
+              tableName: 'myTable',
+              serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+              region: 'us-east-1',
+              versioned: true,
+            },
+          },
+        ],
+      },
+    );
+
+    expect(() => {
+      plugin.getDataSourceResources(config);
+    }).toThrowErrorMatchingSnapshot();
   });
 });
