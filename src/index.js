@@ -723,6 +723,7 @@ class ServerlessAppsyncPlugin {
             'es:ESHttpHead',
             'es:ESHttpPost',
             'es:ESHttpPut',
+            'es:ESHttpPatch',
           ],
           Effect: 'Allow',
           Resource: [arn],

@@ -615,6 +615,7 @@ Object {
                   "es:ESHttpHead",
                   "es:ESHttpPost",
                   "es:ESHttpPut",
+                  "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
                 "Resource": Array [
@@ -674,6 +675,7 @@ Object {
                   "es:ESHttpHead",
                   "es:ESHttpPost",
                   "es:ESHttpPut",
+                  "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
                 "Resource": Array [
