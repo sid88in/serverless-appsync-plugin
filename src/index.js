@@ -693,7 +693,9 @@ class ServerlessAppsyncPlugin {
       }
       case 'AMAZON_ELASTICSEARCH': {
         let arn;
-        if (typeof ds.config.endpoint === 'string') {
+        if (ds.config.domain) {
+          arn = { 'Fn::GetAtt': [ds.config.domain, 'Arn'] };
+        } else if (ds.config.endpoint) {
           const rx = /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
@@ -709,8 +711,6 @@ class ServerlessAppsyncPlugin {
               `domain/${result[1]}`,
             ]],
           };
-        } else if (ds.config.endpoint['Fn::GetAtt']) {
-          arn = { 'Fn::GetAtt': [ds.config.endpoint['Fn::GetAtt'][0], 'Arn'] };
         } else {
           throw new this.serverless.classes.Error(`Could not determine the Arn for dataSource '${ds.name}`);
         }
@@ -783,7 +783,9 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
           AwsRegion: ds.config.region || config.region,
-          Endpoint: ds.config.endpoint,
+          Endpoint: ds.config.endpoint || {
+            'Fn::Join': ['', ['https://', { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] }]],
+          },
         };
       } else if (ds.type === 'RELATIONAL_DATABASE') {
         resource.Properties.RelationalDatabaseConfig = {

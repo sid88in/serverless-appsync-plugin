@@ -620,7 +620,9 @@ Object {
                 "Resource": Array [
                   Object {
                     "Fn::GetAtt": Array [
-                      "EsResource",
+                      Object {
+                        "Ref": "ESDomain",
+                      },
                       "Arn",
                     ],
                   },

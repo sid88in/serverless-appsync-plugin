@@ -208,7 +208,8 @@ custom:
         name: # data source name
         description: 'ElasticSearch'
         config:
-          endpoint: # required # "https://{DOMAIN}.{REGION}.es.amazonaws.com"
+          domain: # a reference to a resource of type `AWS::Elasticsearch::Domain`
+          endpoint: # required if `domain` not provided. Ex: "https://{XXX}.{REGION}.es.amazonaws.com"
           serviceRoleArn: { Fn::GetAtt: [AppSyncESServiceRole, Arn] } # Where AppSyncESServiceRole is an IAM role defined in Resources
           iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
             - Effect: "Allow"
