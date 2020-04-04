@@ -619,11 +619,19 @@ Object {
                 "Effect": "Allow",
                 "Resource": Array [
                   Object {
-                    "Fn::GetAtt": Array [
-                      Object {
-                        "Ref": "ESDomain",
-                      },
-                      "Arn",
+                    "Fn::Join": Array [
+                      "/",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            Object {
+                              "Ref": "ESDomain",
+                            },
+                            "Arn",
+                          ],
+                        },
+                        "*",
+                      ],
                     ],
                   },
                 ],
@@ -680,7 +688,7 @@ Object {
                         Object {
                           "Ref": "AWS::AccountId",
                         },
-                        "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+                        "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com/*",
                       ],
                     ],
                   },

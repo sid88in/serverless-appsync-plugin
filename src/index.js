@@ -694,7 +694,7 @@ class ServerlessAppsyncPlugin {
       case 'AMAZON_ELASTICSEARCH': {
         let arn;
         if (ds.config.domain) {
-          arn = { 'Fn::GetAtt': [ds.config.domain, 'Arn'] };
+          arn = { 'Fn::Join': ['/', [{ 'Fn::GetAtt': [ds.config.domain, 'Arn'] }, '*']] };
         } else if (ds.config.endpoint) {
           const rx = /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
           const result = rx.exec(ds.config.endpoint);
@@ -708,7 +708,7 @@ class ServerlessAppsyncPlugin {
               'es',
               ds.config.region || config.region,
               { Ref: 'AWS::AccountId' },
-              `domain/${result[1]}`,
+              `domain/${result[1]}/*`,
             ]],
           };
         } else {
