@@ -872,7 +872,7 @@ class ServerlessAppsyncPlugin {
           Type: 'AWS::AppSync::FunctionConfiguration',
           Properties: {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            Name: logicalIdFunctionConfiguration,
+            Name: tpl.name,
             DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
             RequestMappingTemplate: this.processTemplate(
               requestTemplate,
