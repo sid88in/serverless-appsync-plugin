@@ -282,7 +282,7 @@ class ServerlessAppsyncPlugin {
       .then((url) => {
         this.log(`Graphql Playground Server Running at: ${url}`);
       })
-      .then(() => new Promise(() => {}));
+      .then(() => new Promise(() => { }));
   }
 
   addResources() {
@@ -646,8 +646,7 @@ class ServerlessAppsyncPlugin {
         defaultStatements.push(defaultDynamoDBStatement);
         break;
       }
-      case 'RELATIONAL_DATABASE':
-      {
+      case 'RELATIONAL_DATABASE': {
         const dDbResourceArn = {
           'Fn::Join': [
             ':',
@@ -695,7 +694,7 @@ class ServerlessAppsyncPlugin {
         let arn;
         if (ds.config.domain) {
           arn = { 'Fn::Join': ['/', [{ 'Fn::GetAtt': [ds.config.domain, 'Arn'] }, '*']] };
-        } else if (ds.config.endpoint) {
+        } else if (ds.config.endpoint && typeof ds.config.endpoint === 'string') {
           const rx = /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
