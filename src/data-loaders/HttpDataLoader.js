@@ -19,8 +19,8 @@ export default class HttpDataLoader {
       return {
         headers,
         statusCode: status,
-        body: JSON.stringify(data)
-      }
+        body: JSON.stringify(data),
+      };
     } catch (err) {
       console.log(err);
     }
