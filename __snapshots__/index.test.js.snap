@@ -615,13 +615,24 @@ Object {
                   "es:ESHttpHead",
                   "es:ESHttpPost",
                   "es:ESHttpPut",
+                  "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
                 "Resource": Array [
                   Object {
-                    "Fn::GetAtt": Array [
-                      "EsResource",
-                      "Arn",
+                    "Fn::Join": Array [
+                      "/",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            Object {
+                              "Ref": "ESDomain",
+                            },
+                            "Arn",
+                          ],
+                        },
+                        "*",
+                      ],
                     ],
                   },
                 ],
@@ -664,6 +675,7 @@ Object {
                   "es:ESHttpHead",
                   "es:ESHttpPost",
                   "es:ESHttpPut",
+                  "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
                 "Resource": Array [
@@ -678,7 +690,7 @@ Object {
                         Object {
                           "Ref": "AWS::AccountId",
                         },
-                        "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com",
+                        "domain/search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com/*",
                       ],
                     ],
                   },

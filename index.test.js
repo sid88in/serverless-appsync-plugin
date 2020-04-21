@@ -563,11 +563,8 @@ describe('iamRoleStatements', () => {
             description: 'other ES Source',
             config: {
               region: 'us-east-1',
-              endpoint: {
-                'Fn::GetAtt': [
-                  'EsResource',
-                  'DomainName',
-                ],
+              domain: {
+                Ref: 'ESDomain',
               },
               iamRoleStatements: [
                 {
@@ -645,11 +642,8 @@ describe('iamRoleStatements', () => {
             description: 'other ES Source',
             config: {
               region: 'us-east-1',
-              endpoint: {
-                'Fn::GetAtt': [
-                  'EsResource',
-                  'DomainName',
-                ],
+              domain: {
+                Ref: 'ESDomain',
               },
             },
           },

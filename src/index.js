@@ -282,7 +282,7 @@ class ServerlessAppsyncPlugin {
       .then((url) => {
         this.log(`Graphql Playground Server Running at: ${url}`);
       })
-      .then(() => new Promise(() => {}));
+      .then(() => new Promise(() => { }));
   }
 
   addResources() {
@@ -646,8 +646,7 @@ class ServerlessAppsyncPlugin {
         defaultStatements.push(defaultDynamoDBStatement);
         break;
       }
-      case 'RELATIONAL_DATABASE':
-      {
+      case 'RELATIONAL_DATABASE': {
         const dDbResourceArn = {
           'Fn::Join': [
             ':',
@@ -694,7 +693,9 @@ class ServerlessAppsyncPlugin {
       }
       case 'AMAZON_ELASTICSEARCH': {
         let arn;
-        if (typeof ds.config.endpoint === 'string') {
+        if (ds.config.domain) {
+          arn = { 'Fn::Join': ['/', [{ 'Fn::GetAtt': [ds.config.domain, 'Arn'] }, '*']] };
+        } else if (ds.config.endpoint && typeof ds.config.endpoint === 'string') {
           const rx = /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
@@ -707,11 +708,9 @@ class ServerlessAppsyncPlugin {
               'es',
               ds.config.region || config.region,
               { Ref: 'AWS::AccountId' },
-              `domain/${result[1]}`,
+              `domain/${result[1]}/*`,
             ]],
           };
-        } else if (ds.config.endpoint['Fn::GetAtt']) {
-          arn = { 'Fn::GetAtt': [ds.config.endpoint['Fn::GetAtt'][0], 'Arn'] };
         } else {
           throw new this.serverless.classes.Error(`Could not determine the Arn for dataSource '${ds.name}`);
         }
@@ -724,6 +723,7 @@ class ServerlessAppsyncPlugin {
             'es:ESHttpHead',
             'es:ESHttpPost',
             'es:ESHttpPut',
+            'es:ESHttpPatch',
           ],
           Effect: 'Allow',
           Resource: [arn],
@@ -784,7 +784,9 @@ class ServerlessAppsyncPlugin {
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
           AwsRegion: ds.config.region || config.region,
-          Endpoint: ds.config.endpoint,
+          Endpoint: ds.config.endpoint || {
+            'Fn::Join': ['', ['https://', { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] }]],
+          },
         };
       } else if (ds.type === 'RELATIONAL_DATABASE') {
         resource.Properties.RelationalDatabaseConfig = {
