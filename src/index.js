@@ -278,7 +278,7 @@ class ServerlessAppsyncPlugin {
   runGraphqlPlayground() {
     // Use the first config or config map
     const firstConfig = this.loadConfig()[0];
-    return runPlayground(this.serverless.service, this.provider, firstConfig, this.options)
+    return runPlayground(this.provider, firstConfig, this.options)
       .then((url) => {
         this.log(`Graphql Playground Server Running at: ${url}`);
       })

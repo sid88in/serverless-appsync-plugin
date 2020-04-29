@@ -4,12 +4,12 @@ const koaPlayground = require('graphql-playground-middleware-koa').default;
 
 const { getServerlessStackName, getValue } = require('./get-stack-value');
 
-function getOutputValue(service, provider, key) {
+function getOutputValue(provider, key) {
   return provider
     .request(
       'CloudFormation',
       'describeStacks',
-      { StackName: getServerlessStackName(service, provider) },
+      { StackName: getServerlessStackName(provider) },
     )
     .then((result) => {
       const stack = result.Stacks.pop();
@@ -22,7 +22,7 @@ function getOutputValue(service, provider, key) {
     });
 }
 
-function getHeaders(service, provider, config, options) {
+function getHeaders(provider, config, options) {
   switch (config.authenticationType) {
     case 'AMAZON_COGNITO_USER_POOLS': {
       if (!options.username || !options.password) {
@@ -30,8 +30,8 @@ function getHeaders(service, provider, config, options) {
       }
 
       return Promise.all([
-        getValue(service, provider, config.userPoolConfig.userPoolId, 'userPoolConfig.userPoolId'),
-        getValue(service, provider, options.clientId || config.userPoolConfig.playgroundClientId, 'userPoolConfig.playgroundClientId'),
+        getValue(provider, config.userPoolConfig.userPoolId, 'userPoolConfig.userPoolId'),
+        getValue(provider, options.clientId || config.userPoolConfig.playgroundClientId, 'userPoolConfig.playgroundClientId'),
       ])
         .then(([UserPoolId, ClientId]) => {
           const cognito = new AWS.CognitoIdentityServiceProvider(provider.getCredentials());
@@ -58,7 +58,7 @@ function getHeaders(service, provider, config, options) {
         });
     }
     case 'API_KEY': {
-      return getOutputValue(service, provider, 'GraphQlApiKeyDefault').then(apiKey => ({
+      return getOutputValue(provider, 'GraphQlApiKeyDefault').then(apiKey => ({
         'X-Api-Key': apiKey,
       }), () => {
         if (options.apiKey) {
@@ -80,10 +80,10 @@ function getHeaders(service, provider, config, options) {
   }
 }
 
-function runGraphqlPlayground(service, provider, config, options) {
+function runGraphqlPlayground(provider, config, options) {
   return Promise.all([
-    getHeaders(service, provider, config, options),
-    getOutputValue(service, provider, 'GraphQlApiUrl'),
+    getHeaders(provider, config, options),
+    getOutputValue(provider, 'GraphQlApiUrl'),
   ]).then(([headers, endpoint]) => {
     const app = new Koa();
     app.use(koaPlayground({

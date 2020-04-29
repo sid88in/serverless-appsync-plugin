@@ -1,8 +1,8 @@
-function getServerlessStackName(service, provider) {
-  return `${service.getServiceName()}-${provider.getStage()}`;
+function getServerlessStackName(provider) {
+  return provider.naming.getStackName();
 }
 
-function getValue(service, provider, value, name) {
+function getValue(provider, value, name) {
   if (typeof value === 'string') {
     return Promise.resolve(value);
   } else if (value && typeof value.Ref === 'string') {
@@ -11,7 +11,7 @@ function getValue(service, provider, value, name) {
         'CloudFormation',
         'listStackResources',
         {
-          StackName: getServerlessStackName(service, provider),
+          StackName: getServerlessStackName(provider),
         },
       )
       .then((result) => {
