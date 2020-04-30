@@ -152,7 +152,7 @@ class ServerlessAppSyncSimulator {
   resolveResources(toBeResolved) {
     // Pass Resources to allow Fn::GetAtt resolution
     const node = {
-      Resources: this.serverless.service.resources.Resources || {},
+      Resources: this.serverless.service.resources?.Resources || {},
       toBeResolved,
     };
     const evaluator = new NodeEvaluator(node, this.resourceResolvers);
