@@ -46,18 +46,19 @@ Serverless: GraphiQl: http://localhost:20002
 
 Put options under `custom.appsync-simulator` in your `serverless.yml` file
 
-| option                   | default               | description                                                                                                                    |
-| ------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| apiKey                   | `0123456789`          | When using `API_KEY` as authentication type, the key to authenticate to the endpoint.                                          |
-| port                     | 20002                 | AppSync operations port                                                                                                        |
-| wsPort                   | 20003                 | AppSync subscriptions port                                                                                                     |
-| location                 | . (base directory)    | Location of the lambda functions handlers.                                                                                     |
-| refMap | {}        | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function |
-| getAttMap | {}        | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function |
-| dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf |
-| dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                 |
-| dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                           |
-| dynamoDb.secretAccessKey | DEFAULT_SECRET        | AWS Secret Key to access DynamoDB |
+| option                   | default               | description                                                                                                                                                         |
+|--------------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apiKey                   | `0123456789`          | When using `API_KEY` as authentication type, the key to authenticate to the endpoint.                                                                               |
+| port                     | 20002                 | AppSync operations port                                                                                                                                             |
+| wsPort                   | 20003                 | AppSync subscriptions port                                                                                                                                          |
+| location                 | . (base directory)    | Location of the lambda functions handlers.                                                                                                                          |
+| lambda.loadLocalEnv      | false                 | If `true`, all environment variables (`$ env`) will be accessible from the resolver function. Read more in section [Environment variables](#environment-variables). |
+| refMap                   | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
+| getAttMap                | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
+| dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
+| dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
+| dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                                                                |
+| dynamoDb.secretAccessKey | DEFAULT_SECRET        | AWS Secret Key to access DynamoDB                                                                                                                                   |
 
 Example:
 
@@ -146,6 +147,21 @@ dataSources:
                 - ElasticSearchInstance
                 - DomainEndpoint
 ````
+
+## Environment variables
+
+```yaml
+custom:
+  appsync-simulator:
+    lambda:
+      loadLocalEnv: true
+```
+
+If `true`, all environment variables (`$ env`) will be accessible from the resolver function.
+
+If `false`, only environment variables defined in `serverless.yml` will be accessible from the resolver function.
+
+> _Note: `serverless.yml` environment variables have higher priority than local environment variables.  Thus some of your local environment variables, could get overridden by environment variables from `serverless.yml`._
 
 ## Limitations
 
