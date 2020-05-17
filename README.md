@@ -55,6 +55,7 @@ Put options under `custom.appsync-simulator` in your `serverless.yml` file
 | lambda.loadLocalEnv      | false                 | If `true`, all environment variables (`$ env`) will be accessible from the resolver function. Read more in section [Environment variables](#environment-variables). |
 | refMap                   | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
 | getAttMap                | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
+| importValueMap           | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `ImportValue` function                                                   |
 | dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
 | dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
 | dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                                                                |
@@ -73,7 +74,7 @@ custom:
 
 # Resource CloudFormation functions resolution
 
-This plugin supports *some* resources resolution from the `Ref` and `Fn::GetAtt` functions
+This plugin supports *some* resources resolution from the `Ref`, `Fn::GetAtt` and `Fn::ImportValue` functions
 in your yaml file. It also supports *some* other Cfn functions such as `Fn::Join`, `Fb::Sub`, etc.
 
 **Note:** Under the hood, this features relies on the [cfn-resolver-lib](https://github.com/robessog/cfn-resolver-lib) package. For more info on supported cfn functions, refer to [the documentation](https://github.com/robessog/cfn-resolver-lib/blob/master/README.md)
@@ -115,10 +116,11 @@ dataSources:
 
 Sometimes, some references **cannot** be resolved, as they come from an *Output* from Cloudformation; or you might want to use mocked values in your local environment.
 
-In those cases, you can define (or override) those values using the `refMap` and `getAttMap` options.
+In those cases, you can define (or override) those values using the `refMap`, `getAttMap` and `importValueMap` options.
 
 - `refMap` takes a mapping of *resource name* to *value* pairs
 - `getAttMap` takes a mapping of *resource name* to *attribute/values* pairs
+- `importValueMap` takes a mapping of *import name* to *values* pairs
 
 Example:
 
@@ -132,6 +134,8 @@ custom:
       # define ElasticSearchInstance DomainName
       ElasticSearchInstance:
         DomainEndpoint: "localhost:9200"
+    importValueMap:
+      other-service-api-url: "https://other.api.url.com/graphql"
 
 # in your appsync config
 dataSources:
@@ -147,6 +151,26 @@ dataSources:
                 - ElasticSearchInstance
                 - DomainEndpoint
 ````
+
+### Key-value mock notation
+
+In some special cases you will need to use key-value mock nottation.
+Good example can be case when you need to include serverless stage value (`${self:provider.stage}`) in the import name.
+
+*This notation can be used with all mocks - `refMap`, `getAttMap` and `importValueMap`*
+
+```yaml
+provider:
+  environment:
+    FINISH_ACTIVITY_FUNCTION_ARN:
+      Fn::ImportValue: other-service-api-${self:provider.stage}-url
+
+custom:
+  serverless-appsync-simulator:
+    importValueMap:
+      - key: other-service-api-${self:provider.stage}-url
+        value: "https://other.api.url.com/graphql"
+```
 
 ## Environment variables
 
