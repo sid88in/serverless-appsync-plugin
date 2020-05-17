@@ -76,6 +76,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
             fileName: path.join(context.options.location, fileName),
             event: payload,
             environment: {
+              ...(context.options.lambda.loadLocalEnv === true ? process.env : {}),
               ...context.serverless.service.provider.environment,
               ...func.environment,
             },

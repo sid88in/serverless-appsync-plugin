@@ -129,6 +129,9 @@ class ServerlessAppSyncSimulator {
         port: 20002,
         wsPort: 20003,
         location: '.',
+        lambda: {
+          loadLocalEnv: false,
+        },
         refMap: {},
         getAttMap: {},
         dynamoDb: {
