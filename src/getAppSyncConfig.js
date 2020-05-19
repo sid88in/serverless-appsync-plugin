@@ -1,7 +1,7 @@
 import {
   AmplifyAppSyncSimulatorAuthenticationType as AuthTypes,
 } from 'amplify-appsync-simulator';
-import { invoke } from 'amplify-util-mock/lib/utils/lambda/invoke';
+import { invoke } from 'amplify-nodejs-function-runtime-provider/lib/utils/invoke';
 import fs from 'fs';
 import { forEach } from 'lodash';
 import path from 'path';
@@ -67,14 +67,12 @@ export default function getAppSyncConfig(context, appSyncConfig) {
           );
           return null;
         }
-        const [fileName, handler] = func.handler.split('.');
         return {
           ...dataSource,
           invoke: (payload) => invoke({
-            packageFolder: context.serverless.config.servicePath,
-            handler,
-            fileName: path.join(context.options.location, fileName),
-            event: payload,
+            packageFolder: path.join(context.serverless.config.servicePath, context.options.location),
+            handler: func.handler,
+            event: JSON.stringify(payload),
             environment: {
               ...(context.options.lambda.loadLocalEnv === true ? process.env : {}),
               ...context.serverless.service.provider.environment,
