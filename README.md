@@ -124,7 +124,7 @@ custom:
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
-        type: # type name in schema (e.g. Query, Mutation, Subscription)
+        type: # type name in schema (e.g. Query, Mutation, Subscription, or a custom type e.g. User)
         field: getUserInfo
         # kind: UNIT (default, not required) or PIPELINE (required for pipeline resolvers)
         functions: # array of functions if kind === 'PIPELINE'
