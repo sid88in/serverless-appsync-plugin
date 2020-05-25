@@ -9,6 +9,17 @@ const getBatchDataResolver = (loaderName, resolver) => {
   return batchLoaders[loaderName];
 };
 
+const getLoaderName = (payload, config) => {
+  const parts = [config.name];
+  if (payload?.info?.parentTypeName) {
+    parts.push(payload.info.parentTypeName);
+  }
+  if (payload?.info?.fieldName) {
+    parts.push(payload.info.fieldName);
+  }
+  return parts.join('.');
+};
+
 export default class LambdaDataLoader {
   constructor(config) {
     this.config = config;
@@ -18,7 +29,10 @@ export default class LambdaDataLoader {
     try {
       let result;
       if (req.operation === 'BatchInvoke') {
-        const dataLoader = getBatchDataResolver(this.config.name, this.config.invoke);
+        const dataLoader = getBatchDataResolver(
+          getLoaderName(req.payload, this.config),
+          this.config.invoke,
+        );
         result = await dataLoader.load(req.payload);
       } else {
         result = await this.config.invoke(req.payload);
