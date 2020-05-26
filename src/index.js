@@ -164,9 +164,9 @@ class ServerlessAppSyncSimulator {
    * Resolves resourses through `Ref:` or `Fn:GetAtt`
    */
   resolveResources(toBeResolved) {
-    // Pass Resources to allow Fn::GetAtt resolution
+    // Pass all resources to allow Fn::GetAtt and Conditions resolution
     const node = {
-      Resources: this.serverless.service.resources?.Resources || {},
+      ...this.serverless.service.resources,
       toBeResolved,
     };
     const evaluator = new NodeEvaluator(node, this.resourceResolvers);
