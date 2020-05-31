@@ -1,6 +1,6 @@
 {
   "name": "serverless-appsync-plugin",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "src/index.js",
   "repository": "https://github.com/sid88in/serverless-appsync-plugin",
