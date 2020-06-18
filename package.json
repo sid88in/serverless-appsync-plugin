@@ -19,13 +19,12 @@
     "/lib"
   ],
   "dependencies": {
-    "amplify-appsync-simulator": "^1.20.2",
-    "amplify-nodejs-function-runtime-provider": "^1.0.4",
+    "amplify-appsync-simulator": "^1.20.3",
+    "amplify-nodejs-function-runtime-provider": "^1.0.5",
     "aws-sdk": "^2.680.0",
     "axios": "^0.19.2",
     "cfn-resolver-lib": "^1.1.6",
     "dataloader": "^2.0.0",
-    "extend": "^3.0.2",
     "lodash": "^4.17.15",
     "merge-graphql-schemas": "^1.5.8"
   },

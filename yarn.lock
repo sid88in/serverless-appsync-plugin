@@ -863,10 +863,10 @@ ajv@^6.10.0, ajv@^6.10.2:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-amplify-appsync-simulator@^1.20.2:
-  version "1.20.2"
-  resolved "https://registry.yarnpkg.com/amplify-appsync-simulator/-/amplify-appsync-simulator-1.20.2.tgz#46c2d0e2460705ba8e11b76ef2bfb0a9f6c52919"
-  integrity sha512-4XEdOg0iuAGkU2knofcnzkf6tS4zbTQO+H+NCLYHz6HGyd1Ul0Rw9r/iDNvopoPvIIpkSCMfATNJGmcMm5pWxQ==
+amplify-appsync-simulator@^1.20.3:
+  version "1.20.3"
+  resolved "https://registry.yarnpkg.com/amplify-appsync-simulator/-/amplify-appsync-simulator-1.20.3.tgz#9399db57566b8861a82e8c9557ba9422af9cd6be"
+  integrity sha512-q3aLIYh8riQgME5m97ye1GRZROPeGSKccodQtpdY4pVryZhlfDeonjnFDxw92Ei2eRMUnk0xKGgAVRF7B0+P9w==
   dependencies:
     amplify-velocity-template "1.1.10"
     aws-sdk "^2.608.0"
@@ -904,10 +904,10 @@ amplify-function-plugin-interface@1.3.1:
   resolved "https://registry.yarnpkg.com/amplify-function-plugin-interface/-/amplify-function-plugin-interface-1.3.1.tgz#a607e98a2c8b0107ed206e92e3907e16c527b03a"
   integrity sha512-/sjGhgLfAyuPDyHZtqbAxcq/tfeo6nnzoWZt3okd9hDK5OVmNFEjlqKKZoao3s9HXaTKKjYq9cfbQWen+4DDlg==
 
-amplify-nodejs-function-runtime-provider@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/amplify-nodejs-function-runtime-provider/-/amplify-nodejs-function-runtime-provider-1.0.4.tgz#33eae2a3b13e2bffccd0ea213fc8381c1d3720fc"
-  integrity sha512-0RCwVLvQqJ8Mt3QMtOL7R8qlPkHogpYvozqs+lwfLqRlHnlEMDwWSv0mSM1jfCmRx7P9xVH00+Yadp9aPMk7cQ==
+amplify-nodejs-function-runtime-provider@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/amplify-nodejs-function-runtime-provider/-/amplify-nodejs-function-runtime-provider-1.0.5.tgz#1dbb16a99735698344c86332ff44c270e3ea1def"
+  integrity sha512-V1uQ1Oo+YfMZJ0Vwdrln+njW7ClqORLrS218B8gUDi6jHiMG28mdI4L/4YTiE9RPecGaDa0eygp0irPOomKziQ==
   dependencies:
     amplify-function-plugin-interface "1.3.1"
     archiver "^3.1.1"
@@ -2027,11 +2027,6 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
   dependencies:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
-
-extend@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
-  integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
 
 external-editor@^3.0.3:
   version "3.1.0"
