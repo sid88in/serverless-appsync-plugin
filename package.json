@@ -26,7 +26,8 @@
     "cfn-resolver-lib": "^1.1.6",
     "dataloader": "^2.0.0",
     "extend": "^3.0.2",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "merge-graphql-schemas": "^1.5.8"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

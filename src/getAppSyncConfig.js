@@ -5,6 +5,7 @@ import { invoke } from 'amplify-nodejs-function-runtime-provider/lib/utils/invok
 import fs from 'fs';
 import { forEach } from 'lodash';
 import path from 'path';
+import { mergeTypes } from 'merge-graphql-schemas';
 
 export default function getAppSyncConfig(context, appSyncConfig) {
   // Flattening params
@@ -186,9 +187,19 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     }, []);
   };
 
+  // Load the schema. If multiple provided, merge them
+  const schemaPaths = Array.isArray(cfg.schema) ? cfg.schema : [cfg.schema || 'schema.graphql'];
+  const schemas = schemaPaths.map(
+    (schemaPath) => getFileMap(context.serverless.config.servicePath, schemaPath),
+  );
+  const schema = {
+    path: schemas.find((s) => s.path),
+    content: mergeTypes(schemas.map((s) => s.content)),
+  };
+
   return {
     appSync: makeAppSync(cfg),
-    schema: getFileMap(context.serverless.config.servicePath, cfg.schema || 'schema.graphql'),
+    schema,
     resolvers: cfg.mappingTemplates.map(makeResolver),
     dataSources: cfg.dataSources.map(makeDataSource).filter((v) => v !== null),
     functions: cfg.functionConfigurations.map(makeFunctionConfiguration),
