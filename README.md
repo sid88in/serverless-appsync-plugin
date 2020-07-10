@@ -153,6 +153,8 @@ custom:
         request: # request mapping template name | defaults to {name}.request.vtl
         response: # reponse mapping template name | defaults to {name}.response.vtl
     dataSources:
+      - type: NONE
+        name: none
       - type: AMAZON_DYNAMODB
         name: # data source name
         description: # DynamoDB Table Description
