@@ -403,6 +403,29 @@ Object {
 }
 `;
 
+exports[`appsync config Schema is transformed into App Sync compatible syntax 1`] = `
+Object {
+  "GraphQlSchema": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
+    },
+    "Type": "AWS::AppSync::GraphQLSchema",
+  },
+}
+`;
+
 exports[`appsync config appsync cloudwatch log group is created when logs enabled 1`] = `
 Object {
   "Properties": Object {

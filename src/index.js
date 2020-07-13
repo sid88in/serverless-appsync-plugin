@@ -835,11 +835,15 @@ class ServerlessAppsyncPlugin {
   getGraphQLSchemaResource(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
+    const appSyncSafeSchema = config.schema
+      .replace(/"""[^"]*"""\n/g, '') // appsync does not support the new style descriptions
+      .replace(/#.*\n/g, '') // appysnc does not support old-style # comments in enums, so remove them all
+      .replace(/ *& */g, ', ') // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
     return {
       [logicalIdGraphQLSchema]: {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
-          Definition: config.schema,
+          Definition: appSyncSafeSchema,
           ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         },
       },
