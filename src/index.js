@@ -838,7 +838,7 @@ class ServerlessAppsyncPlugin {
     const appSyncSafeSchema = config.schema
       .replace(/"""[^"]*"""\n/g, '') // appsync does not support the new style descriptions
       .replace(/#.*\n/g, '') // appysnc does not support old-style # comments in enums, so remove them all
-      .replace(/ *& */g, ', ') // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
+      .replace(/ *& */g, ', '); // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
     return {
       [logicalIdGraphQLSchema]: {
         Type: 'AWS::AppSync::GraphQLSchema',
