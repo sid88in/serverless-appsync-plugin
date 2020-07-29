@@ -71,7 +71,10 @@ export default function getAppSyncConfig(context, appSyncConfig) {
         return {
           ...dataSource,
           invoke: (payload) => invoke({
-            packageFolder: path.join(context.serverless.config.servicePath, context.options.location),
+            packageFolder: path.join(
+              context.serverless.config.servicePath,
+              context.options.location,
+            ),
             handler: func.handler,
             event: JSON.stringify(payload),
             environment: {

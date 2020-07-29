@@ -1,13 +1,11 @@
 import {
   AmplifyAppSyncSimulator,
   addDataLoader,
-  removeDataLoader,
 } from 'amplify-appsync-simulator';
 import { inspect } from 'util';
 import { get, merge, reduce } from 'lodash';
 import NodeEvaluator from 'cfn-resolver-lib';
 import getAppSyncConfig from './getAppSyncConfig';
-import LambdaDataLoader from './data-loaders/LambdaDataLoader';
 import NotImplementedDataLoader from './data-loaders/NotImplementedDataLoader';
 import ElasticDataLoader from './data-loaders/ElasticDataLoader';
 import HttpDataLoader from './data-loaders/HttpDataLoader';
@@ -26,9 +24,6 @@ class ServerlessAppSyncSimulator {
 
     this.simulator = null;
 
-    // Hack: appsync-cli-simulator does not support BatchInvoke.
-    removeDataLoader('AWS_LAMBDA');
-    addDataLoader('AWS_LAMBDA', LambdaDataLoader);
     addDataLoader('HTTP', HttpDataLoader);
     addDataLoader('AMAZON_ELASTICSEARCH', ElasticDataLoader);
     addDataLoader('RELATIONAL_DATABASE', NotImplementedDataLoader);

@@ -208,17 +208,13 @@ This plugin supports resolvers implemented by `amplify-appsync-simulator`, as we
 
 **From Aws Amplify:**
 - NONE
-- AWS_LAMBDA (*)
+- AWS_LAMBDA
 - AMAZON_DYNAMODB
 - PIPELINE
 
 **Implemented by this plugin**
-- AWS_LAMBDA (*)
 - AMAZON_ELASTIC_SEARCH
 - HTTP
-
-(*) The `AWS_LAMBDA` dataloader has been partially copied from Aws Amplify but has been extended
-to support the *BatchInvoke* operations
 
 **Not Supported / TODO**
 - RELATIONAL_DATABASE
