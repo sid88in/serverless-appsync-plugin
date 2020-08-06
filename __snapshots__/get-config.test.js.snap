@@ -21,7 +21,7 @@ Array [
     "schema": "type Mutation {
   
   # Create a tweet for a user
-   # consumer keys and tokens are not required for dynamo integration
+  # consumer keys and tokens are not required for dynamo integration
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   
   # Delete User Tweet
