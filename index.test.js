@@ -952,3 +952,88 @@ describe('Delta sync', () => {
     }).toThrowErrorMatchingSnapshot();
   });
 });
+
+describe('Templates', () => {
+  test('Resolver with template', () => {
+    const apiConfig = {
+      ...config,
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: 'request.vtl',
+          response: 'response.vtl',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .toHaveProperty('ResponseMappingTemplate');
+  });
+
+  test('Resolver without template', () => {
+    const apiConfig = {
+      ...config,
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: false,
+          response: false,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('ResponseMappingTemplate');
+  });
+
+  test('Pileline Resolver with template', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties)
+      .toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties)
+      .toHaveProperty('ResponseMappingTemplate');
+  });
+
+  test('Pileline Resolver without template', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: false,
+          response: false,
+        },
+      ],
+    };
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties)
+      .not.toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties)
+      .not.toHaveProperty('ResponseMappingTemplate');
+  });
+});
