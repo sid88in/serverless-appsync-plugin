@@ -635,6 +635,7 @@ class ServerlessAppsyncPlugin {
             'dynamodb:UpdateItem',
             'dynamodb:BatchGetItem',
             'dynamodb:BatchWriteItem',
+            'dynamodb:ConditionCheckItem',
           ],
           Effect: 'Allow',
           Resource: [
