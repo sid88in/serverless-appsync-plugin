@@ -115,6 +115,27 @@ describe('appsync config', () => {
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
   });
 
+  test('Schema is transformed into App Sync compatible syntax', () => {
+    Object.assign(
+      config,
+      {
+        schema: `
+          """A valid schema"""
+          type Thing implements One & Another {
+            hello: ID!
+          }
+          """A valid enum"""
+          enum Method {
+            DELETE # Delete something
+            GET # Get something
+          }
+        `,
+      },
+    );
+    const schema = plugin.getGraphQLSchemaResource(config);
+    expect(schema).toMatchSnapshot();
+  });
+
   test('Datasource generates lambdaFunctionArn from functionName', () => {
     Object.assign(
       config,
