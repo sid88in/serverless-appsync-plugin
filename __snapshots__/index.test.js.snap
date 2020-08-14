@@ -70,8 +70,8 @@ Object {
       },
       "FieldName": "field",
       "Kind": "UNIT",
-      "RequestMappingTemplate": "",
-      "ResponseMappingTemplate": "",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
       "TypeName": "Query",
     },
     "Type": "AWS::AppSync::Resolver",
@@ -101,8 +101,8 @@ Object {
       },
       "FieldName": "field",
       "Kind": "UNIT",
-      "RequestMappingTemplate": "",
-      "ResponseMappingTemplate": "",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
       "TypeName": "Query",
     },
     "Type": "AWS::AppSync::Resolver",
@@ -136,8 +136,8 @@ Object {
       },
       "FieldName": "field",
       "Kind": "UNIT",
-      "RequestMappingTemplate": "",
-      "ResponseMappingTemplate": "",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
       "TypeName": "Query",
     },
     "Type": "AWS::AppSync::Resolver",
@@ -233,6 +233,118 @@ Object {
       "Type": "AMAZON_DYNAMODB",
     },
     "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`Templates Should use automatic template when null, even if there is a default 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Templates Should use defaultTemplates 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/request.default.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/response.default.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Templates Should use specified template when defaultTemplates are false 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/my.request.template.tpl",
+      "ResponseMappingTemplate": "Content: mapping-templates/my.response.template.tpl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Templates Should use specified templates 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/my.request.template.tpl",
+      "ResponseMappingTemplate": "Content: mapping-templates/my.response.template.tpl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
   },
 }
 `;

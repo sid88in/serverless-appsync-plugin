@@ -95,6 +95,7 @@ const getConfig = (config, provider, servicePath) => {
     openIdConnectConfig: config.openIdConnectConfig,
     // TODO verify dataSources structure
     dataSources,
+    defaultMappingTemplates: config.defaultMappingTemplates || {},
     mappingTemplatesLocation,
     mappingTemplates,
     functionConfigurationsLocation,

@@ -11,7 +11,7 @@ let config;
 jest.spyOn(Date, 'now').mockImplementation(() => 10000);
 
 jest.mock('fs');
-jest.spyOn(fs, 'readFileSync').mockImplementation(() => '');
+jest.spyOn(fs, 'readFileSync').mockImplementation(path => `Content: ${path}`);
 
 beforeEach(() => {
   const cli = {
@@ -34,6 +34,7 @@ beforeEach(() => {
     region: 'us-east-1',
     isSingleConfig: true,
     mappingTemplatesLocation: 'mapping-templates',
+    defaultTemplates: {},
     substitutions: {},
     xrayEnabled: false,
   };
@@ -954,6 +955,140 @@ describe('Delta sync', () => {
 });
 
 describe('Templates', () => {
+  test('Should use defaultTemplates', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: 'request.default.vtl',
+        response: 'response.default.vtl',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Should use no templates when defaultTemplates are false', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: false,
+        response: false,
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('ResponseMappingTemplate');
+  });
+  
+  test('Should use specified template when defaultTemplates are false', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: false,
+        response: false,
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: 'my.request.template.tpl',
+          response: 'my.response.template.tpl',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Should use specified templates', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: 'request.default.vtl',
+        response: 'response.default.vtl',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: 'my.request.template.tpl',
+          response: 'my.response.template.tpl',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Should use automatic template when null, even if there is a default', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: 'request.default.vtl',
+        response: 'response.default.vtl',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: null,
+          response: null,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
+  test('Should use No template when false, even if there is a default', () => {
+    const apiConfig = {
+      ...config,
+      defaultTemplates: {
+        request: 'request.default.vtl',
+        response: 'response.default.vtl',
+      },
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          request: false,
+          response: false,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('RequestMappingTemplate');
+    expect(apiResources.GraphQlResolverQueryfield.Properties)
+      .not.toHaveProperty('ResponseMappingTemplate');
+  });
+
   test('Resolver with template', () => {
     const apiConfig = {
       ...config,

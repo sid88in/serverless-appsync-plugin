@@ -4,6 +4,7 @@ const parseSchema = require('graphql/language').parse;
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
+const { has } = require('ramda');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
@@ -872,27 +873,33 @@ class ServerlessAppsyncPlugin {
         FunctionVersion: '2018-05-29',
       };
 
-      if (tpl.request !== false) {
+      const requestTemplate = has('request')(tpl)
+        ? tpl.request
+        : config.defaultTemplates.request;
+      if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           functionConfigLocation,
-          tpl.request || `${tpl.name}.request.vtl`,
+          requestTemplate || `${tpl.name}.request.vtl`,
         );
-        const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+        const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
         Properties.RequestMappingTemplate = this.processTemplate(
-          requestTemplate,
+          requestTemplateContent,
           config,
           tpl.substitutions,
         );
       }
 
-      if (tpl.response !== false) {
+      const responseTemplate = has('response')(tpl)
+        ? tpl.response
+        : config.defaultTemplates.response;
+      if (responseTemplate !== false) {
         const respTemplPath = path.join(
           functionConfigLocation,
-          tpl.response || `${tpl.name}.response.vtl`,
+          responseTemplate || `${tpl.name}.response.vtl`,
         );
-        const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
+        const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
         Properties.ResponseMappingTemplate = this.processTemplate(
-          responseTemplate,
+          responseTemplateContent,
           config,
           tpl.substitutions,
         );
@@ -924,21 +931,33 @@ class ServerlessAppsyncPlugin {
         FieldName: tpl.field,
       };
 
-      if (tpl.request !== false) {
-        const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
-        const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
+      const requestTemplate = has('request')(tpl)
+        ? tpl.request
+        : config.defaultTemplates.request;
+      if (requestTemplate !== false) {
+        const reqTemplPath = path.join(
+          config.mappingTemplatesLocation,
+          requestTemplate || `${tpl.type}.${tpl.field}.request.vtl`
+        );
+        const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
         Properties.RequestMappingTemplate = this.processTemplate(
-          requestTemplate,
+          requestTemplateContent,
           config,
           tpl.substitutions,
         );
       }
 
-      if (tpl.response !== false) {
-        const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
-        const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
+      const responseTemplate = has('response')(tpl)
+        ? tpl.response
+        : config.defaultTemplates.response;
+      if (responseTemplate !== false) {
+        const respTemplPath = path.join(
+          config.mappingTemplatesLocation,
+          responseTemplate || `${tpl.type}.${tpl.field}.response.vtl`
+        );
+        const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
         Properties.ResponseMappingTemplate = this.processTemplate(
-          responseTemplate,
+          responseTemplateContent,
           config,
           tpl.substitutions,
         );
