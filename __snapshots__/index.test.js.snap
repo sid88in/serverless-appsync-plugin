@@ -237,6 +237,34 @@ Object {
 }
 `;
 
+exports[`Templates Should use automatic template when no default and no custom 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
 exports[`Templates Should use automatic template when null, even if there is a default 1`] = `
 Object {
   "GraphQlResolverQueryfield": Object {

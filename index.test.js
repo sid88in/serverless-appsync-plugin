@@ -1042,6 +1042,22 @@ describe('Templates', () => {
     expect(apiResources).toMatchSnapshot();
   });
 
+  test('Should use automatic template when no default and no custom', () => {
+    const apiConfig = {
+      ...config,
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources).toMatchSnapshot();
+  });
+
   test('Should use automatic template when null, even if there is a default', () => {
     const apiConfig = {
       ...config,
