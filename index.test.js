@@ -997,7 +997,7 @@ describe('Templates', () => {
     expect(apiResources.GraphQlResolverQueryfield.Properties)
       .not.toHaveProperty('ResponseMappingTemplate');
   });
-  
+
   test('Should use specified template when defaultTemplates are false', () => {
     const apiConfig = {
       ...config,

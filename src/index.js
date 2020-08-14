@@ -937,7 +937,7 @@ class ServerlessAppsyncPlugin {
       if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           config.mappingTemplatesLocation,
-          requestTemplate || `${tpl.type}.${tpl.field}.request.vtl`
+          requestTemplate || `${tpl.type}.${tpl.field}.request.vtl`,
         );
         const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
         Properties.RequestMappingTemplate = this.processTemplate(
@@ -953,7 +953,7 @@ class ServerlessAppsyncPlugin {
       if (responseTemplate !== false) {
         const respTemplPath = path.join(
           config.mappingTemplatesLocation,
-          responseTemplate || `${tpl.type}.${tpl.field}.response.vtl`
+          responseTemplate || `${tpl.type}.${tpl.field}.response.vtl`,
         );
         const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
         Properties.ResponseMappingTemplate = this.processTemplate(
