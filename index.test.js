@@ -34,7 +34,7 @@ beforeEach(() => {
     region: 'us-east-1',
     isSingleConfig: true,
     mappingTemplatesLocation: 'mapping-templates',
-    defaultTemplates: {},
+    defaultMappingTemplates: {},
     substitutions: {},
     xrayEnabled: false,
   };
@@ -955,10 +955,10 @@ describe('Delta sync', () => {
 });
 
 describe('Templates', () => {
-  test('Should use defaultTemplates', () => {
+  test('Should use defaultMappingTemplates', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: 'request.default.vtl',
         response: 'response.default.vtl',
       },
@@ -975,10 +975,10 @@ describe('Templates', () => {
     expect(apiResources).toMatchSnapshot();
   });
 
-  test('Should use no templates when defaultTemplates are false', () => {
+  test('Should use no templates when defaultMappingTemplates are false', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: false,
         response: false,
       },
@@ -998,10 +998,10 @@ describe('Templates', () => {
       .not.toHaveProperty('ResponseMappingTemplate');
   });
 
-  test('Should use specified template when defaultTemplates are false', () => {
+  test('Should use specified template when defaultMappingTemplates are false', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: false,
         response: false,
       },
@@ -1023,7 +1023,7 @@ describe('Templates', () => {
   test('Should use specified templates', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: 'request.default.vtl',
         response: 'response.default.vtl',
       },
@@ -1061,7 +1061,7 @@ describe('Templates', () => {
   test('Should use automatic template when null, even if there is a default', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: 'request.default.vtl',
         response: 'response.default.vtl',
       },
@@ -1083,7 +1083,7 @@ describe('Templates', () => {
   test('Should use No template when false, even if there is a default', () => {
     const apiConfig = {
       ...config,
-      defaultTemplates: {
+      defaultMappingTemplates: {
         request: 'request.default.vtl',
         response: 'response.default.vtl',
       },

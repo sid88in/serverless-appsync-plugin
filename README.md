@@ -121,7 +121,7 @@ custom:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL
       excludeVerboseContent: false
-    defaultTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
+    defaultMappingTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
       request: my.request.template.tpl # or, e.g: false for Direct lambdas
       respone: my.response.template.tpl # or e.g.: false for Direct lambdas
     mappingTemplatesLocation: # defaults to mapping-templates
@@ -132,8 +132,8 @@ custom:
         # kind: UNIT (default, not required) or PIPELINE (required for pipeline resolvers)
         functions: # array of functions if kind === 'PIPELINE'
           - # function name
-        request: # request mapping template name | defaults to `defaultTemplates.request` or {type}.{field}.request.vtl
-        response: # response mapping template name | defaults to `defaultTemplates.response` or {type}.{field}.response.vtl
+        request: # request mapping template name | defaults to `defaultMappingTemplates.request` or {type}.{field}.request.vtl
+        response: # response mapping template name | defaults to `defaultMappingTemplates.response` or {type}.{field}.response.vtl
         # When caching is enaled with `PER_RESOLVER_CACHING`,
         # the caching options of the resolver.
         # Disabled by default.

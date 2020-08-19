@@ -875,7 +875,7 @@ class ServerlessAppsyncPlugin {
 
       const requestTemplate = has('request')(tpl)
         ? tpl.request
-        : config.defaultTemplates.request;
+        : config.defaultMappingTemplates.request;
       if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           functionConfigLocation,
@@ -891,7 +891,7 @@ class ServerlessAppsyncPlugin {
 
       const responseTemplate = has('response')(tpl)
         ? tpl.response
-        : config.defaultTemplates.response;
+        : config.defaultMappingTemplates.response;
       if (responseTemplate !== false) {
         const respTemplPath = path.join(
           functionConfigLocation,
@@ -933,7 +933,7 @@ class ServerlessAppsyncPlugin {
 
       const requestTemplate = has('request')(tpl)
         ? tpl.request
-        : config.defaultTemplates.request;
+        : config.defaultMappingTemplates.request;
       if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           config.mappingTemplatesLocation,
@@ -949,7 +949,7 @@ class ServerlessAppsyncPlugin {
 
       const responseTemplate = has('response')(tpl)
         ? tpl.response
-        : config.defaultTemplates.response;
+        : config.defaultMappingTemplates.response;
       if (responseTemplate !== false) {
         const respTemplPath = path.join(
           config.mappingTemplatesLocation,

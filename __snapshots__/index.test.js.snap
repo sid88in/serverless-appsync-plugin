@@ -293,7 +293,7 @@ Object {
 }
 `;
 
-exports[`Templates Should use defaultTemplates 1`] = `
+exports[`Templates Should use defaultMappingTemplates 1`] = `
 Object {
   "GraphQlResolverQueryfield": Object {
     "DependsOn": "GraphQlSchema",
@@ -321,7 +321,7 @@ Object {
 }
 `;
 
-exports[`Templates Should use specified template when defaultTemplates are false 1`] = `
+exports[`Templates Should use specified template when defaultMappingTemplates are false 1`] = `
 Object {
   "GraphQlResolverQueryfield": Object {
     "DependsOn": "GraphQlSchema",
