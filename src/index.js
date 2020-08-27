@@ -4,6 +4,7 @@ const parseSchema = require('graphql/language').parse;
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
+const { has } = require('ramda');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
@@ -855,46 +856,60 @@ class ServerlessAppsyncPlugin {
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     const functionConfigLocation = config.functionConfigurationsLocation;
     return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
-      const reqTemplPath = path.join(
-        functionConfigLocation,
-        tpl.request || `${tpl.name}.request.vtl`,
-      );
-      const respTemplPath = path.join(
-        functionConfigLocation,
-        tpl.response || `${tpl.name}.response.vtl`,
-      );
-      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
-      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
-
-      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdFunctionConfiguration = this.getLogicalId(
         config,
         `GraphQlFunctionConfiguration${this.getCfnName(tpl.name)}`,
       );
+      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdDataSource = this.getLogicalId(
         config,
         this.getDataSourceCfnName(tpl.dataSource),
       );
+
+      const Properties = {
+        ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        Name: this.getCfnName(tpl.name),
+        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+        Description: tpl.description,
+        FunctionVersion: '2018-05-29',
+      };
+
+      const requestTemplate = has('request')(tpl)
+        ? tpl.request
+        : config.defaultMappingTemplates.request;
+      if (requestTemplate !== false) {
+        const reqTemplPath = path.join(
+          functionConfigLocation,
+          requestTemplate || `${tpl.name}.request.vtl`,
+        );
+        const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
+        Properties.RequestMappingTemplate = this.processTemplate(
+          requestTemplateContent,
+          config,
+          tpl.substitutions,
+        );
+      }
+
+      const responseTemplate = has('response')(tpl)
+        ? tpl.response
+        : config.defaultMappingTemplates.response;
+      if (responseTemplate !== false) {
+        const respTemplPath = path.join(
+          functionConfigLocation,
+          responseTemplate || `${tpl.name}.response.vtl`,
+        );
+        const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
+        Properties.ResponseMappingTemplate = this.processTemplate(
+          responseTemplateContent,
+          config,
+          tpl.substitutions,
+        );
+      }
+
       return Object.assign({}, acc, {
         [logicalIdFunctionConfiguration]: {
           Type: 'AWS::AppSync::FunctionConfiguration',
-          Properties: {
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            Name: this.getCfnName(tpl.name),
-            DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
-            RequestMappingTemplate: this.processTemplate(
-              requestTemplate,
-              config,
-              tpl.substitutions,
-            ),
-            ResponseMappingTemplate: this.processTemplate(
-              responseTemplate,
-              config,
-              tpl.substitutions,
-            ),
-            Description: tpl.description,
-            FunctionVersion: '2018-05-29',
-          },
+          Properties,
         },
       });
     }, {});
@@ -904,11 +919,6 @@ class ServerlessAppsyncPlugin {
     const flattenedMappingTemplates = config.mappingTemplates
       .reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
     return flattenedMappingTemplates.reduce((acc, tpl) => {
-      const reqTemplPath = path.join(config.mappingTemplatesLocation, tpl.request || `${tpl.type}.${tpl.field}.request.vtl`);
-      const respTemplPath = path.join(config.mappingTemplatesLocation, tpl.response || `${tpl.type}.${tpl.field}.response.vtl`);
-      const requestTemplate = fs.readFileSync(reqTemplPath, 'utf8');
-      const responseTemplate = fs.readFileSync(respTemplPath, 'utf8');
-
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
       const logicalIdResolver = this.getLogicalId(
@@ -920,9 +930,39 @@ class ServerlessAppsyncPlugin {
         ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         TypeName: tpl.type,
         FieldName: tpl.field,
-        RequestMappingTemplate: this.processTemplate(requestTemplate, config, tpl.substitutions),
-        ResponseMappingTemplate: this.processTemplate(responseTemplate, config, tpl.substitutions),
       };
+
+      const requestTemplate = has('request')(tpl)
+        ? tpl.request
+        : config.defaultMappingTemplates.request;
+      if (requestTemplate !== false) {
+        const reqTemplPath = path.join(
+          config.mappingTemplatesLocation,
+          requestTemplate || `${tpl.type}.${tpl.field}.request.vtl`,
+        );
+        const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
+        Properties.RequestMappingTemplate = this.processTemplate(
+          requestTemplateContent,
+          config,
+          tpl.substitutions,
+        );
+      }
+
+      const responseTemplate = has('response')(tpl)
+        ? tpl.response
+        : config.defaultMappingTemplates.response;
+      if (responseTemplate !== false) {
+        const respTemplPath = path.join(
+          config.mappingTemplatesLocation,
+          responseTemplate || `${tpl.type}.${tpl.field}.response.vtl`,
+        );
+        const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
+        Properties.ResponseMappingTemplate = this.processTemplate(
+          responseTemplateContent,
+          config,
+          tpl.substitutions,
+        );
+      }
 
       if (config.caching) {
         if (tpl.caching === true) {
