@@ -247,6 +247,9 @@ custom:
       # ${exampleVar1} will be replaced with given value in all mapping templates
       exampleVar1: "${self:service.name}"
       exampleVar2: {'Fn::ImportValue': 'Some-external-stuff'}
+    tags: # Tags to be added to AppSync
+      key1: value1
+      key2: value2
 ```
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
