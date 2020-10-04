@@ -150,6 +150,7 @@ custom:
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
+    functionConfigurationsLocation: # defaults to mappingTemplatesLocation (mapping-templates)
     functionConfigurations:
       - name: # function name
         dataSource: # data source name
