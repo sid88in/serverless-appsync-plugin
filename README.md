@@ -248,6 +248,7 @@ custom:
       # ${exampleVar1} will be replaced with given value in all mapping templates
       exampleVar1: "${self:service.name}"
       exampleVar2: {'Fn::ImportValue': 'Some-external-stuff'}
+    xrayEnabled: true # Bool, Optional. Enable X-Ray. disabled by default.
     tags: # Tags to be added to AppSync
       key1: value1
       key2: value2
