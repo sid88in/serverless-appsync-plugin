@@ -123,7 +123,7 @@ custom:
       excludeVerboseContent: false
     defaultMappingTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
       request: my.request.template.tpl # or, e.g: false for Direct lambdas
-      respone: my.response.template.tpl # or e.g.: false for Direct lambdas
+      response: my.response.template.tpl # or e.g.: false for Direct lambdas
     mappingTemplatesLocation: # defaults to mapping-templates
     mappingTemplates:
       - dataSource: # data source name
