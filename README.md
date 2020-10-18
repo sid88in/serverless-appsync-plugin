@@ -148,6 +148,21 @@ custom:
             - "$context.identity.sub"
             - "$context.arguments.id"
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
+        # When versioning is enabled with `versioned` on the datasource,
+        # the datasync options of the resolver.
+        # Disabled by default.
+        # Accepted values:
+        # - `true`: sync enabled with default ConflictDetection VERSION
+        # - an object with the following keys:
+        #    - ConflictDetection: The Conflict Detection strategy to use.
+        #    - lambda: true or false, when specified pass in the lambdaArn
+        #    - lambdaArn: The Arn for the Lambda function to use as the Conflict Handler.
+        #    - ConflictHandler: when lambda is false use the Conflict Resolution strategy to perform in the event of a conflict.
+        sync:
+          ConflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html
+          lambda: true # Required No. When true pass lambda arn
+          lambdaArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
+          ConflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict.
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurations:

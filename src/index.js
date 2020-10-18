@@ -978,6 +978,20 @@ class ServerlessAppsyncPlugin {
         }
       }
 
+      if (config.sync) {
+        if (tpl.sync === true) {
+          // Use defaults
+          Properties.SyncConfig = {
+            ConflictDetection: config.sync.ConflictDetection || 'VERSION',
+          };
+        } else if (typeof tpl.caching === 'object') {
+          Properties.SyncConfig = {
+            CachingKeys: tpl.caching.keys,
+            Ttl: tpl.caching.ttl || config.caching.ttl || 3600,
+          };
+        }
+      }
+
       if (tpl.kind === 'PIPELINE') {
         Properties = {
           ...Properties,
