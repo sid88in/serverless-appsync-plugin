@@ -984,11 +984,21 @@ class ServerlessAppsyncPlugin {
           Properties.SyncConfig = {
             ConflictDetection: config.sync.ConflictDetection || 'VERSION',
           };
-        } else if (typeof tpl.caching === 'object') {
-          Properties.SyncConfig = {
-            CachingKeys: tpl.caching.keys,
-            Ttl: tpl.caching.ttl || config.caching.ttl || 3600,
-          };
+        } else if (typeof tpl.sync === 'object') {
+          if (tpl.sync.lambda === true) {
+            Properties.SyncConfig = {
+              ConflictDetection: tpl.sync.ConflictDetection,
+              LambdaConflictHandlerConfig: {
+                LambdaConflictHandlerArn: tpl.sync.lambdaArn
+              }
+            };
+          } else {
+            Properties.SyncConfig = {
+              ConflictDetection: tpl.sync.ConflictDetection,
+              ConflictHandler: tpl.sync.ConflictHandler
+            };
+          }
+ 
         }
       }
 
