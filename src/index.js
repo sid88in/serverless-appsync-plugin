@@ -15,6 +15,7 @@ const RESOURCE_SCHEMA = 'GraphQlSchema';
 const RESOURCE_URL = 'GraphQlApiUrl';
 const RESOURCE_API_ID = 'GraphQlApiId';
 const RESOURCE_CACHING = 'GraphQlCaching';
+const RESOURCE_SYNCING = 'GraphQlSyncing';
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -982,14 +983,15 @@ class ServerlessAppsyncPlugin {
         if (tpl.sync === true) {
           // Use defaults
           Properties.SyncConfig = {
-            ConflictDetection: config.sync.ConflictDetection || 'VERSION',
+            ConflictDetection: config.sync.conflictDetection || 'VERSION',
           };
         } else if (typeof tpl.sync === 'object') {
-          if (tpl.sync.lambda === true) {
+          if (tpl.sync.conflictHandler === 'LAMBDA') {
             Properties.SyncConfig = {
-              ConflictDetection: tpl.sync.ConflictDetection,
+              ConflictDetection: tpl.sync.conflictDetection,
+              ConflictHandler: tpl.sync.conflictHandler,
               LambdaConflictHandlerConfig: {
-                LambdaConflictHandlerArn: tpl.sync.lambdaArn
+                LambdaConflictHandlerArn: this.getLambdaArn(tpl.sync)
               }
             };
           } else {

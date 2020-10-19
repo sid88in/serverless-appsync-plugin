@@ -159,10 +159,10 @@ custom:
         #    - lambdaArn: The Arn for the Lambda function to use as the Conflict Handler.
         #    - ConflictHandler: when lambda is false use the Conflict Resolution strategy to perform in the event of a conflict.
         sync:
-          ConflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html
-          lambda: true # Required No. When true pass lambda arn
-          lambdaArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
-          ConflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict.
+          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
+          conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
+          functionName: graphql # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"       
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurations:
