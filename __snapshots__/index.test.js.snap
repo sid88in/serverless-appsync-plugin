@@ -237,6 +237,200 @@ Object {
 }
 `;
 
+exports[`SyncConfig Uses advanced config 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "SyncConfig": Object {
+        "ConflictDetection": "VERSION",
+        "ConflictHandler": "AUTOMERGE",
+      },
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`SyncConfig Uses default 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "SyncConfig": Object {
+        "ConflictDetection": "VERSION",
+      },
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`SyncConfig Uses lambda config 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "SyncConfig": Object {
+        "ConflictDetection": "VERSION",
+        "ConflictHandler": "LAMBDA",
+        "LambdaConflictHandlerConfig": Object {
+          "LambdaConflictHandlerArn": Object {
+            "Fn::GetAtt": Array [
+              "SyncLambdaLambdaFunction",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`SyncConfig Uses lambda config with ARN 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "SyncConfig": Object {
+        "ConflictDetection": "VERSION",
+        "ConflictHandler": "LAMBDA",
+        "LambdaConflictHandlerConfig": Object {
+          "LambdaConflictHandlerArn": "arn:aws:lambda:us-east-1:123456789:syncLambda",
+        },
+      },
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`SyncConfig Uses no sync config 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`SyncConfig Uses no sync when globaly disabled 1`] = `
+Object {
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsDynamoDbSource",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
 exports[`Templates Should use automatic template when no default and no custom 1`] = `
 Object {
   "GraphQlResolverQueryfield": Object {

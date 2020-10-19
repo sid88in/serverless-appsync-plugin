@@ -985,21 +985,19 @@ class ServerlessAppsyncPlugin {
             ConflictDetection: config.sync.conflictDetection || 'VERSION',
           };
         } else if (typeof tpl.sync === 'object') {
-          if (tpl.sync.conflictHandler === 'LAMBDA') {
-            Properties.SyncConfig = {
-              ConflictDetection: tpl.sync.conflictDetection,
-              ConflictHandler: tpl.sync.conflictHandler,
-              LambdaConflictHandlerConfig: {
-                LambdaConflictHandlerArn: this.getLambdaArn(tpl.sync)
-              }
-            };
-          } else {
-            Properties.SyncConfig = {
-              ConflictDetection: tpl.sync.ConflictDetection,
-              ConflictHandler: tpl.sync.ConflictHandler
-            };
-          }
- 
+          Properties.SyncConfig = {
+            ConflictDetection: tpl.sync.conflictDetection,
+            ConflictHandler: tpl.sync.conflictHandler,
+            ...(
+              tpl.sync.conflictHandler === 'LAMBDA' ?
+                {
+                  LambdaConflictHandlerConfig: {
+                    LambdaConflictHandlerArn: this.getLambdaArn(tpl.sync),
+                  },
+                }
+                : {}
+            ),
+          };
         }
       }
 
