@@ -154,10 +154,10 @@ custom:
         # Accepted values:
         # - `true`: sync enabled with default ConflictDetection VERSION
         # - an object with the following keys:
-        #    - ConflictDetection: The Conflict Detection strategy to use.
+        #    - conflictDetection: The Conflict Detection strategy to use.
         #    - lambda: true or false, when specified pass in the lambdaArn
         #    - lambdaArn: The Arn for the Lambda function to use as the Conflict Handler.
-        #    - ConflictHandler: when lambda is false use the Conflict Resolution strategy to perform in the event of a conflict.
+        #    - conflictHandler: when lambda is false use the Conflict Resolution strategy to perform in the event of a conflict.
         sync:
           conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
           conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
