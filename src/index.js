@@ -15,7 +15,6 @@ const RESOURCE_SCHEMA = 'GraphQlSchema';
 const RESOURCE_URL = 'GraphQlApiUrl';
 const RESOURCE_API_ID = 'GraphQlApiId';
 const RESOURCE_CACHING = 'GraphQlCaching';
-const RESOURCE_SYNCING = 'GraphQlSyncing';
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
