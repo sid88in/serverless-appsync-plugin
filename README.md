@@ -155,9 +155,9 @@ custom:
         # - `true`: sync enabled with default ConflictDetection VERSION
         # - an object with the following keys:
         #    - conflictDetection: The Conflict Detection strategy to use.
-        #    - lambda: true or false, when specified pass in the lambdaArn
-        #    - lambdaArn: The Arn for the Lambda function to use as the Conflict Handler.
-        #    - conflictHandler: when lambda is false use the Conflict Resolution strategy to perform in the event of a conflict.
+        #    - functionName: The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+        #    - lambdaFunctionArn: The Arn for the Lambda function to use as the Conflict Handler.
+        #    - conflictHandler: The Conflict Resolution strategy to perform in the event of a conflict.
         sync:
           conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
           conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
