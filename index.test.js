@@ -1188,3 +1188,117 @@ describe('Templates', () => {
       .not.toHaveProperty('ResponseMappingTemplate');
   });
 });
+
+
+describe('SyncConfig', () => {
+  test('Uses no sync config', () => {
+    Object.assign(
+      config,
+      {
+        mappingTemplates: [
+          {
+            dataSource: 'DynamoDbSource',
+            type: 'Query',
+            field: 'field',
+            caching: true,
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getResolverResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('Uses default', () => {
+    Object.assign(
+      config,
+      {
+        mappingTemplates: [
+          {
+            dataSource: 'DynamoDbSource',
+            type: 'Query',
+            field: 'field',
+            caching: true,
+            sync: true,
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getResolverResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('Uses advanced config', () => {
+    Object.assign(
+      config,
+      {
+        mappingTemplates: [
+          {
+            dataSource: 'DynamoDbSource',
+            type: 'Query',
+            field: 'field',
+            caching: true,
+            sync: {
+              conflictDetection: 'VERSION',
+              conflictHandler: 'AUTOMERGE',
+            },
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getResolverResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('Uses lambda config', () => {
+    Object.assign(
+      config,
+      {
+        mappingTemplates: [
+          {
+            dataSource: 'DynamoDbSource',
+            type: 'Query',
+            field: 'field',
+            caching: true,
+            sync: {
+              conflictDetection: 'VERSION',
+              conflictHandler: 'LAMBDA',
+              functionName: 'syncLambda',
+            },
+
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getResolverResources(config);
+    expect(result).toMatchSnapshot();
+  });
+
+  test('Uses lambda config with ARN', () => {
+    Object.assign(
+      config,
+      {
+        mappingTemplates: [
+          {
+            dataSource: 'DynamoDbSource',
+            type: 'Query',
+            field: 'field',
+            caching: true,
+            sync: {
+              conflictDetection: 'VERSION',
+              conflictHandler: 'LAMBDA',
+              lambdaFunctionArn: 'arn:aws:lambda:us-east-1:123456789:syncLambda',
+            },
+          },
+        ],
+      },
+    );
+
+    const result = plugin.getResolverResources(config);
+    expect(result).toMatchSnapshot();
+  });
+});

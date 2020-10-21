@@ -148,6 +148,21 @@ custom:
             - "$context.identity.sub"
             - "$context.arguments.id"
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
+        # When versioning is enabled with `versioned` on the datasource,
+        # the datasync options of the resolver.
+        # Disabled by default.
+        # Accepted values:
+        # - `true`: sync enabled with default ConflictDetection VERSION
+        # - an object with the following keys:
+        #    - conflictDetection: The Conflict Detection strategy to use.
+        #    - functionName: The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+        #    - lambdaFunctionArn: The Arn for the Lambda function to use as the Conflict Handler.
+        #    - conflictHandler: The Conflict Resolution strategy to perform in the event of a conflict.
+        sync:
+          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
+          conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
+          functionName: graphql # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"       
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurationsLocation: # defaults to mappingTemplatesLocation (mapping-templates)
