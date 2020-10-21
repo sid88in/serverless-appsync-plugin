@@ -403,34 +403,6 @@ Object {
 }
 `;
 
-exports[`SyncConfig Uses no sync when globaly disabled 1`] = `
-Object {
-  "GraphQlResolverQueryfield": Object {
-    "DependsOn": "GraphQlSchema",
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
-          "GraphQlApi",
-          "ApiId",
-        ],
-      },
-      "DataSourceName": Object {
-        "Fn::GetAtt": Array [
-          "GraphQlDsDynamoDbSource",
-          "Name",
-        ],
-      },
-      "FieldName": "field",
-      "Kind": "UNIT",
-      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
-      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
-      "TypeName": "Query",
-    },
-    "Type": "AWS::AppSync::Resolver",
-  },
-}
-`;
-
 exports[`Templates Should use automatic template when no default and no custom 1`] = `
 Object {
   "GraphQlResolverQueryfield": Object {

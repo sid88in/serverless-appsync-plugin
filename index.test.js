@@ -1191,32 +1191,11 @@ describe('Templates', () => {
 
 
 describe('SyncConfig', () => {
-  test('Uses no sync when globaly disabled', () => {
-    Object.assign(
-      config,
-      {
-        sync: false,
-        mappingTemplates: [
-          {
-            dataSource: 'DynamoDbSource',
-            type: 'Query',
-            field: 'field',
-            caching: true,
-            sync: true,
-          },
-        ],
-      },
-    );
-
-    const result = plugin.getResolverResources(config);
-    expect(result).toMatchSnapshot();
-  });
 
   test('Uses no sync config', () => {
     Object.assign(
       config,
       {
-        sync: true,
         mappingTemplates: [
           {
             dataSource: 'DynamoDbSource',
@@ -1236,7 +1215,6 @@ describe('SyncConfig', () => {
     Object.assign(
       config,
       {
-        sync: true,
         mappingTemplates: [
           {
             dataSource: 'DynamoDbSource',
@@ -1257,7 +1235,6 @@ describe('SyncConfig', () => {
     Object.assign(
       config,
       {
-        sync: true,
         mappingTemplates: [
           {
             dataSource: 'DynamoDbSource',
@@ -1281,7 +1258,6 @@ describe('SyncConfig', () => {
     Object.assign(
       config,
       {
-        sync: true,
         mappingTemplates: [
           {
             dataSource: 'DynamoDbSource',
@@ -1307,7 +1283,6 @@ describe('SyncConfig', () => {
     Object.assign(
       config,
       {
-        sync: true,
         mappingTemplates: [
           {
             dataSource: 'DynamoDbSource',
