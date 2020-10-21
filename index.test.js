@@ -1191,7 +1191,6 @@ describe('Templates', () => {
 
 
 describe('SyncConfig', () => {
-
   test('Uses no sync config', () => {
     Object.assign(
       config,
