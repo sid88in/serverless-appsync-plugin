@@ -113,17 +113,23 @@ class ServerlessAppSyncSimulator {
 
     const keyValueArrayToObject = (mapping) => {
       if (Array.isArray(mapping)) {
-        return mapping.reduce((acc, { key, value }) => (
-          { ...acc, [key]: value }
-        ), {});
+        return mapping.reduce(
+          (acc, { key, value }) => ({ ...acc, [key]: value }),
+          {},
+        );
       }
       return mapping;
     };
 
     this.resourceResolvers = {
-      RefResolvers: { ...refResolvers, ...keyValueArrayToObject(this.options.refMap) },
+      RefResolvers: {
+        ...refResolvers,
+        ...keyValueArrayToObject(this.options.refMap),
+      },
       'Fn::GetAttResolvers': keyValueArrayToObject(this.options.getAttMap),
-      'Fn::ImportValueResolvers': keyValueArrayToObject(this.options.importValueMap),
+      'Fn::ImportValueResolvers': keyValueArrayToObject(
+        this.options.importValueMap,
+      ),
     };
   }
 
