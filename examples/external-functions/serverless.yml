@@ -1,0 +1,33 @@
+service: mapping-templates
+provider:
+    name: aws
+    region: eu-west-1
+
+plugins:
+    - serverless-offline
+    - serverless-appsync-simulator
+    - serverless-appsync-plugin
+
+custom:
+    appsync-simulator:
+        functions:
+            myLambda:
+                url: https://jsonplaceholder.typicode.com/posts
+                method: GET
+    appSync:
+        name: Test
+        schema: schema.graphql
+        authenticationType: AWS_IAM
+        mappingTemplatesLocation: mapping-templates
+        mappingTemplates:
+            - dataSource: MyLambda
+              type: Query
+              field: getPosts
+              request: Query.getPosts.request.vtl
+              response: Query.getPosts.response.vtl
+        dataSources:
+            - type: AWS_LAMBDA
+              name: MyLambda
+              config:
+                  functionName: myLambda
+                  lambdaFunctionArn: "arn:aws:lambda:${self:provider.region}:*:getPosts-graphql"

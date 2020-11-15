@@ -1,0 +1,14 @@
+type Post {
+    userId: Int!
+    id: Int!
+    title: String!
+    body: String!
+}
+
+type Query {
+  getPosts: [Post]!
+}
+
+schema {
+  query: Query
+}

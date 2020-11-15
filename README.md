@@ -56,6 +56,7 @@ Put options under `custom.appsync-simulator` in your `serverless.yml` file
 | refMap                   | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
 | getAttMap                | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
 | importValueMap           | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `ImportValue` function                                                   |
+| functions                | {}                    | A mapping of [external functions](#functions) for providing invoke url for external fucntions                                                                                |
 | dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
 | dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
 | dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                                                                |
@@ -201,6 +202,20 @@ For now, the supported resources to be automatically resovled by `Ref:` are:
 - S3 Buckets
 
 Feel free to open a PR or an issue to extend them as well.
+
+# External functions
+When a function is not defined withing the current serverless file you can still call it by providing an invoke url which should point to a REST method (must be post).
+
+```yaml
+custom:
+  appsync-simulator:
+    functions:
+      addUser:
+        url: http://localhost:3016/2015-03-31/functions/addUser/invocations
+      addPost:
+        url: https://jsonplaceholder.typicode.com/posts
+```
+
 
 # Supported Resolver types
 
