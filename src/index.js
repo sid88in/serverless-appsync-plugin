@@ -125,6 +125,8 @@ class ServerlessAppSyncSimulator {
       RefResolvers: {
         ...refResolvers,
         ...keyValueArrayToObject(this.options.refMap),
+        // Add region for cfn-resolver-lib GetAZs
+        'AWS::Region': this.serverless.service.provider.region,
       },
       'Fn::GetAttResolvers': keyValueArrayToObject(this.options.getAttMap),
       'Fn::ImportValueResolvers': keyValueArrayToObject(
