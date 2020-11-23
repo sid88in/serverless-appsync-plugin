@@ -307,6 +307,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Mickael",
+      "name": "mickael",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/32233?v=4",
+      "profile": "https://github.com/Mickael",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
