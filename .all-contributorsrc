@@ -208,6 +208,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mihaerzen",
+      "name": "Miha Eržen",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/142531?v=4",
+      "profile": "http://miha.website/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
