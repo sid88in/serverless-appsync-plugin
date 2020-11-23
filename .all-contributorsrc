@@ -28,6 +28,15 @@
         "maintenance",
         "code"
       ]
+    },
+    {
+      "login": "nikgraf",
+      "name": "Nik Graf",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/223045?v=4",
+      "profile": "https://twitter.com/nikgraf",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
