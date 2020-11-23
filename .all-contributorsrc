@@ -217,6 +217,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mfogel",
+      "name": "Mike Fogel",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/69902?v=4",
+      "profile": "http://mike.fogel.ca/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
