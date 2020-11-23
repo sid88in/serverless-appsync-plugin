@@ -145,6 +145,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "vlesierse",
+      "name": "Vincent Lesierse",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/270232?v=4",
+      "profile": "https://blog.lesierse.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
