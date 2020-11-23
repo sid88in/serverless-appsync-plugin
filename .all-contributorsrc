@@ -388,6 +388,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "SketchingDev",
+      "name": "Lucas",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/31957045?v=4",
+      "profile": "https://twitter.com/sketchingdev",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
