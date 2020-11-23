@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
@@ -423,6 +423,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/Foosballfan"><img src="https://avatars3.githubusercontent.com/u/15104463?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Charles Killer</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Foosballfan" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/jpstrikesback"><img src="https://avatars3.githubusercontent.com/u/445563?v=4?s=100" width="100px;" alt=""/><br /><sub><b>jpstrikesback</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=jpstrikesback" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/zy"><img src="https://avatars1.githubusercontent.com/u/284540?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ZY</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=zy" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/francisu"><img src="https://avatars3.githubusercontent.com/u/944949?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Francis Upton IV</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=francisu" title="Code">💻</a></td>
   </tr>
 </table>
 
