@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
   Serverless-AppSync-Plugin 👌
@@ -9,33 +12,6 @@
 Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elasticsearch</a>; you have everything you need to get started developing your AppSync API's locally.
 
 <div align="center">Find AppSync examples in the <a href="https://github.com/serverless/serverless-graphql/tree/master/app-backend/appsync" target="_blank"> Serverless-GraphQL</a> Repo 👈</div>
-
-# Introduction
-
-> *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
-
-> *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
-
-> *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
-
-> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
-
-
-![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
-
-<details>
- <summary><strong>Table of Contents</strong> (click to expand)</summary>
-
-* [Getting Started](#-getting-started)
-* [Minimum requirements](#-minimum-requirements)
-* [Installation](#-installation)
-* [Usage](#️-usage)
-* [Notes](#-notes)
-    * [Offline Support](#offline-support)
-    * [Split Stacks Plugin](#split-stacks-plugin)
-* [Contributing](#-contributing)
-* [Credits](#️-credits)
-</details>
 
 ## ⚡️ Getting Started
 
@@ -159,10 +135,10 @@ custom:
         #    - lambdaFunctionArn: The Arn for the Lambda function to use as the Conflict Handler.
         #    - conflictHandler: The Conflict Resolution strategy to perform in the event of a conflict.
         sync:
-          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
+          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html
           conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
           functionName: graphql # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
-          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"       
+          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurationsLocation: # defaults to mappingTemplatesLocation (mapping-templates)
@@ -361,46 +337,22 @@ For OPENID_CONNECT, the --jwtToken option is required.
 
 The AWS_IAM authenticationType is not currently supported.
 
-## 📝 Notes
-
-* If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elasticsearch</a>, you will need to create an Elasticsearch domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
-
 ### Offline support
 
-You can use [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to autostart an [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless) which depends on [Serverless-AppSync-Plugin](https://github.com/sid88in/serverless-appsync-plugin) with DynamoDB and Lambda resolver support:
-#### Install Plugin
-`npm install --save serverless-appsync-offline`
-#### Minimal Options (serverless.yml)
-```yml
-custom:
-  appsync-offline:
-    port: 62222
-    dynamodb:
-      server:
-        port: 8000
-```
-#### Start local enviroment
+There are 2 plugins that currently support offline development for serverless appsync.
 
-If you use `serverless-offline`:
+#### serverless-appsync-simulator
 
-`sls offline start`
+[serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-otherwise:
+#### serverless-appsync-simulator (deprecated/unmaintained)
 
-`sls appsync-offline start`
+[serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
 
-the result is:
-
-```
-Serverless: dynamoDB started: http://localhost:8000/
-Serverless: AppSync started: http://localhost:62222/graphql
-```
-
-Go to [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to get further configuration options.
 
 ### Split Stacks Plugin
 
-You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the 200 resource limit.
+You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the [~~200~~](~~) 500 resource limit.
 
 1. Install [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks)
 
@@ -437,38 +389,41 @@ module.exports = {
 
 ## 🎁 Contributing
 
-If you have any questions, please feel free to reach out to me directly on Twitter <a target="_blank" href="https://twitter.com/mrsanfran2">Sid Gupta</a>.
+If you have any questions, issue, feature request, please feel free to [open an issue](/issues/new).
 
-## 👷 Migration from versions prior to 1.0
-<a id="cfn-migration"></a>
 
-If you have previously used versions of this plugin prior to 1.0, you will need
-to perform some additional manual steps in order to continue use of this
-plugin (it will be worth it).  This change removes the `sls *-appsync`
-commands in favor of adding AppSync resources directly to the serverless
-cloudformation stack. What this means for your existing APIs is that
-they can no longer be updated.  The good news is that you will
-no longer need to use separate commands to deploy vs update and update
-your serverless config with the created `apiId`.
+## Resources
 
-The rough steps for migration are as follows:
-1. Run `sls deploy` to create the new AppSync api and make note
-of the endpoint returned as part of the stack outputs. *If you were
-using an `API_KEY` auth type, you will also need the new api key which
-is also included in the stack outputs.*
-2. Update existing consumers of your API to use the new endpoint. *If
-you're using an api key, this will also need updated*
-3. After verifying all existing consumers are updated, run `sls delete-appsync`
-to cleanup the old resources
-4. Remove the `apiId` line from `custom.appSync` in `serverless.yml`
-5. 🍹
+### Video tutorials
+- [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
-## Youtube Video by Foo Bar :)
 
-[![Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
+### Blog tutorial
 
-## ❤️ Credits
+- *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
 
-Big Thanks to <a target="_blank" href="https://twitter.com/nikgraf">Nik Graf</a>, <a target="_blank" href="https://twitter.com/pmmuens">Philipp Müns</a>, <a target="_blank" href="https://twitter.com/superpatell">Jon Patel</a> and my favourite <a target="_blank" href="https://twitter.com/lolcoolkat">coolest kat ever</a> for helping to build this plugin!
+- *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
 
-We are always looking for open source contributions. So, feel free to create issues/contribute to this repo.
+- *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
+
+- *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people :clap:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://twitter.com/sidg_sid"><img src="https://avatars2.githubusercontent.com/u/1587005?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Siddharth Gupta</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sid88in" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
