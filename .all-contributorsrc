@@ -244,6 +244,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "hypexr",
+      "name": "Scott Rippee",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/5427?v=4",
+      "profile": "http://hypexr.org/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7

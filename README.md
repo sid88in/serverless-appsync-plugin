@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-26-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-27-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
@@ -449,6 +449,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="http://mike.fogel.ca/"><img src="https://avatars0.githubusercontent.com/u/69902?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mike Fogel</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=mfogel" title="Code">💻</a></td>
     <td align="center"><a href="https://philippmuens.com/"><img src="https://avatars3.githubusercontent.com/u/1606004?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Philipp Muens</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=pmuens" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/toxuin"><img src="https://avatars1.githubusercontent.com/u/868268?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Toxuin</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=toxuin" title="Code">💻</a></td>
+    <td align="center"><a href="http://hypexr.org/"><img src="https://avatars1.githubusercontent.com/u/5427?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Scott Rippee</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=hypexr" title="Code">💻</a></td>
   </tr>
 </table>
 
