@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-20-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-21-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
@@ -441,6 +441,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/thomasmichaelwallace"><img src="https://avatars1.githubusercontent.com/u/1954845?v=4?s=100" width="100px;" alt=""/><br /><sub><b>thomas michael wallace</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=thomasmichaelwallace" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/c10h22"><img src="https://avatars3.githubusercontent.com/u/305888?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Adnene KHALFA</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=c10h22" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/roznalex"><img src="https://avatars0.githubusercontent.com/u/8004948?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex Rozn</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=roznalex" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/kinyat"><img src="https://avatars0.githubusercontent.com/u/1476974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Chan</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=kinyat" title="Code">💻</a></td>
   </tr>
 </table>
 
