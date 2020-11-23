@@ -298,6 +298,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "aheissenberger",
+      "name": "Andreas Heissenberger",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/200095?v=4",
+      "profile": "http://www.heissenberger.at/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
