@@ -3,42 +3,35 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-58-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-<h1 align="center">
-  Serverless-AppSync-Plugin 👌
-  <h4 align="center"><a href="https://serverless.com" target="_blank">Serverless</a> plugin that allows you to deploy, update or delete your <a href="https://aws.amazon.com/appsync" target="_blank">AWS AppSync</a> API's with ease.</h4>
-  <br>
-</h1>
+Deploy [AppSync](https://aws.amazon.com/appsync) API's in munites using this [Serverless](https://www.serverless.com/) plugin.
 
-Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elasticsearch</a>; you have everything you need to get started developing your AppSync API's locally.
+## Getting Started
 
-<div align="center">Find AppSync examples in the <a href="https://github.com/serverless/serverless-graphql/tree/master/app-backend/appsync" target="_blank"> Serverless-GraphQL</a> Repo 👈</div>
+Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has to offer. Here are a few resources to help you understand everything needed to get started!
 
-## ⚡️ Getting Started
+* [Mapping Templates](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html) - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
+* [Data Sources and Resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html) - Get more information on what data sources are supported and how to set them up!
+* [Security](https://docs.aws.amazon.com/appsync/latest/devguide/security.html) - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
 
-Be sure to check out all that <a href="https://aws.amazon.com/appsync" target="_blank">AWS AppSync</a> has to offer. Here are a few resources to help you understand everything needed to get started!
-
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html">Mapping Templates</a> - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html">Data Sources and Resolvers</a> - Get more information on what data sources are supported and how to set them up!
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/security.html">Security</a> - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
-
-## 🛠 Minimum requirements
+## Minimum requirements
 
 * [Node.js v8 or higher](https://nodejs.org)
 * [Serverless v1.30.0 or higher](https://github.com/serverless/serverless)
 
-## 💾 Installation
+## Installation & Configuration
 
-Install the plugin via <a href="https://yarnpkg.com/lang/en/docs/install/">Yarn</a> (recommended)
+Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
 ```
 yarn add serverless-appsync-plugin
 ```
 
-or via <a href="https://docs.npmjs.com/cli/install">NPM</a>
+or via [NPM](https://docs.npmjs.com/cli/install)
 
 ```
 npm install serverless-appsync-plugin
 ```
+
 ### Configuring the plugin
 
 Add ```serverless-appsync-plugin``` to the plugins section of ```serverless.yml```
@@ -48,7 +41,7 @@ plugins:
    - serverless-appsync-plugin
 ```
 
-Add the following example config to the custom section of ```serverless.yml```
+Add the following config to the custom section of ```serverless.yml``` and update it accordingly to your needs
 
 ```yaml
 custom:
@@ -280,17 +273,16 @@ custom:
 
 #### Pipeline Resolvers
 
-Amazon recently released the new pipeline resolvers:
-https://aws.amazon.com/blogs/mobile/aws-appsync-releases-pipeline-resolvers-aurora-serverless-support-delta-sync/
+Amazon supports [pipeline resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/pipeline-resolvers.html)
 
-These changes allow you to perform more than one mapping template in sequence, so you can do multiple queries to multiple sources.
+They allow you to perform more than one mapping template in sequence, so you can do multiple queries to multiple sources.
 These queries are called function configurations ('AWS::AppSync::FunctionConfiguration') and are children of a resolver.
 
 Here is an example of how to configure a resolver with function configurations.
 The key here is to provide a 'kind' of 'PIPELINE' to the mapping template of the parent resolver.
 Then provide the names of the functions in the mappingTemplate to match the names of the functionConfigurations.
 
-```
+```yml
 custom:
   appSync:
     mappingTemplates:
@@ -313,7 +305,7 @@ custom:
         response: './mapping-templates/common-response.vtl' # defaults to {name}.response.vtl
 ```
 
-## ▶️ Usage
+## Cli Usage
 
 ### `serverless deploy`
 
@@ -327,7 +319,7 @@ Validates your GraphQL Schema(s) without deploying.
 
 ### `serverless graphql-playground`
 
-This command will start a local graphql-playground server which is connected to your AppSync endpoint. The required options for the command are different depending on your AppSync authenticationType.
+This command will start a local graphql-playground server which is connected to your deployed AppSync endpoint (in the cloud). The required options for the command are different depending on your AppSync authenticationType.
 
 For API_KEY, either the GraphQLApiKeyDefault output or the --apiKey option is required
 
@@ -337,20 +329,20 @@ For OPENID_CONNECT, the --jwtToken option is required.
 
 The AWS_IAM authenticationType is not currently supported.
 
-### Offline support
+## Offline support
 
-There are 2 plugins that currently support offline development for serverless appsync.
+There are 2 ways to work with offline development for serverless appsync.
 
-#### serverless-appsync-simulator
+### serverless-appsync-simulator
 
 [serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-#### serverless-appsync-simulator (deprecated/unmaintained)
+### serverless-appsync-simulator (deprecated/unmaintained)
 
 [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
 
 
-### Split Stacks Plugin
+## Split Stacks Plugin
 
 You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the [~~200~~](~~) 500 resource limit.
 
@@ -387,10 +379,11 @@ module.exports = {
 
 5. Enjoy :beers:
 
-## 🎁 Contributing
+## Contributing
 
 If you have any questions, issue, feature request, please feel free to [open an issue](/issues/new).
 
+You are also very welcome to open a PR and we will gladely review it.
 
 ## Resources
 
@@ -417,8 +410,8 @@ Thanks goes to these wonderful people :clap:
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://twitter.com/sidg_sid"><img src="https://avatars2.githubusercontent.com/u/1587005?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Siddharth Gupta</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sid88in" title="Code">💻</a></td>
-    <td align="center"><a href="https://twitter.com/Benoit_Boure"><img src="https://avatars0.githubusercontent.com/u/7089997?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benoît Bouré</b></sub></a><br /><a href="#maintenance-bboure" title="Maintenance">🚧</a> <a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=bboure" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/bboure"><img src="https://avatars0.githubusercontent.com/u/7089997?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benoît Bouré</b></sub></a><br /><a href="#maintenance-bboure" title="Maintenance">🚧</a> <a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=bboure" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/mrsanfran2"><img src="https://avatars2.githubusercontent.com/u/1587005?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Siddharth Gupta</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sid88in" title="Code">💻</a></td>
     <td align="center"><a href="https://twitter.com/nikgraf"><img src="https://avatars1.githubusercontent.com/u/223045?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nik Graf</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nikgraf" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Foosballfan"><img src="https://avatars3.githubusercontent.com/u/15104463?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Charles Killer</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Foosballfan" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/jpstrikesback"><img src="https://avatars3.githubusercontent.com/u/445563?v=4?s=100" width="100px;" alt=""/><br /><sub><b>jpstrikesback</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=jpstrikesback" title="Code">💻</a></td>

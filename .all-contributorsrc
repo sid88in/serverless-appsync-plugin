@@ -11,21 +11,21 @@
   "commitConvention": "none",
   "contributors": [
     {
-      "login": "sid88in",
-      "name": "Siddharth Gupta",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/1587005?v=4",
-      "profile": "https://twitter.com/sidg_sid",
+      "login": "bboure",
+      "name": "Benoît Bouré",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/7089997?v=4",
+      "profile": "https://github.com/bboure",
       "contributions": [
+        "maintenance",
         "code"
       ]
     },
     {
-      "login": "bboure",
-      "name": "Benoît Bouré",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/7089997?v=4",
-      "profile": "https://twitter.com/Benoit_Boure",
+      "login": "sid88in",
+      "name": "Siddharth Gupta",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1587005?v=4",
+      "profile": "https://twitter.com/mrsanfran2",
       "contributions": [
-        "maintenance",
         "code"
       ]
     },
