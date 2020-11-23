@@ -100,6 +100,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "erezrokah",
+      "name": "Erez Rokah",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/26760571?v=4",
+      "profile": "https://www.erezro.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
