@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-49-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-50-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
@@ -478,6 +478,9 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/asnaseer-resilient"><img src="https://avatars1.githubusercontent.com/u/6410094?v=4?s=100" width="100px;" alt=""/><br /><sub><b>asnaseer-resilient</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=asnaseer-resilient" title="Code">💻</a></td>
     <td align="center"><a href="http://www.treadbook.com/"><img src="https://avatars3.githubusercontent.com/u/2530264?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Neal Clark</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nealclark" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/moelholm"><img src="https://avatars2.githubusercontent.com/u/8393156?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nicky Moelholm</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=moelholm" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://patrick.wtf/"><img src="https://avatars1.githubusercontent.com/u/667029?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patrick Arminio</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=patrick91" title="Code">💻</a></td>
   </tr>
 </table>
 
