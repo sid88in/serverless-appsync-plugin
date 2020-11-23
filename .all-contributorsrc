@@ -370,6 +370,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jveldboom",
+      "name": "John Veldboom",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/303202?v=4",
+      "profile": "https://github.com/jveldboom",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
