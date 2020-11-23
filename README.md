@@ -3,7 +3,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-58-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-Deploy [AppSync](https://aws.amazon.com/appsync) API's in munites using this [Serverless](https://www.serverless.com/) plugin.
+Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
 
 ## Getting Started
 
