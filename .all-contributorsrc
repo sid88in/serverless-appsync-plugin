@@ -514,6 +514,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nadalfederer",
+      "name": "Vladimir Lebedev",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6043510?v=4",
+      "profile": "https://github.com/nadalfederer",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
