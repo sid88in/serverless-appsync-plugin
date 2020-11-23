@@ -361,6 +361,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ivanbarlog",
+      "name": "Ivan Barlog",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/2583610?v=4",
+      "profile": "https://github.com/ivanbarlog",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
