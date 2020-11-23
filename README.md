@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-44-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-45-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">
@@ -473,6 +473,7 @@ Thanks goes to these wonderful people :clap:
   <tr>
     <td align="center"><a href="https://twitter.com/sketchingdev"><img src="https://avatars2.githubusercontent.com/u/31957045?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lucas</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=SketchingDev" title="Code">💻</a></td>
     <td align="center"><a href="https://markpollmann.com/"><img src="https://avatars2.githubusercontent.com/u/5286559?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mark Pollmann</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=MarkPollmann" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.twitter.com/@morficus"><img src="https://avatars3.githubusercontent.com/u/718799?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maurice Williams</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=morficus" title="Code">💻</a></td>
   </tr>
 </table>
 

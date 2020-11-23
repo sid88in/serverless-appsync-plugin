@@ -406,6 +406,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "morficus",
+      "name": "Maurice Williams",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/718799?v=4",
+      "profile": "http://www.twitter.com/@morficus",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
