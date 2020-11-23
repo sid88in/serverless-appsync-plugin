@@ -226,6 +226,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pmuens",
+      "name": "Philipp Muens",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/1606004?v=4",
+      "profile": "https://philippmuens.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
