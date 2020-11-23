@@ -379,6 +379,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "bigluck",
+      "name": "Luca Bigon",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1511095?v=4",
+      "profile": "https://github.com/bigluck",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
