@@ -106,14 +106,20 @@ class ServerlessAppsyncPlugin {
     if (config && config.lambdaFunctionArn) {
       return config.lambdaFunctionArn;
     } else if (config && config.functionName) {
-      return this.generateLambdaArn(config.functionName);
+      return this.generateLambdaArn(config.functionName, config.functionAlias);
     }
     throw new Error('You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.');
   }
 
-  generateLambdaArn(functionName) {
+  generateLambdaArn(functionName, functionAlias) {
     const lambdaLogicalId = this.provider.naming.getLambdaLogicalId(functionName);
-    return { 'Fn::GetAtt': [lambdaLogicalId, 'Arn'] };
+    const lambdaArn = { 'Fn::GetAtt': [lambdaLogicalId, 'Arn'] };
+    
+    if (functionAlias) {
+      return { 'Fn::Join': [':', [lambdaArn, functionAlias]] };
+    } else {
+      return lambdaArn;
+    }
   }
 
   getDbClusterArn(config) {
