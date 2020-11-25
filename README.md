@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-58-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-59-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -484,6 +484,7 @@ Thanks goes to these wonderful people :clap:
   <tr>
     <td align="center"><a href="https://github.com/nadalfederer"><img src="https://avatars1.githubusercontent.com/u/6043510?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vladimir Lebedev</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nadalfederer" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Znergy"><img src="https://avatars1.githubusercontent.com/u/18511689?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ryan Jones</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Znergy" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vicary"><img src="https://avatars0.githubusercontent.com/u/85772?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vicary A.</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=vicary" title="Code">💻</a></td>
   </tr>
 </table>
 

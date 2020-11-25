@@ -532,6 +532,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "vicary",
+      "name": "Vicary A.",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/85772?v=4",
+      "profile": "https://github.com/vicary",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
