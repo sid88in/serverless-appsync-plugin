@@ -114,12 +114,10 @@ class ServerlessAppsyncPlugin {
   generateLambdaArn(functionName, functionAlias) {
     const lambdaLogicalId = this.provider.naming.getLambdaLogicalId(functionName);
     const lambdaArn = { 'Fn::GetAtt': [lambdaLogicalId, 'Arn'] };
-    
-    if (functionAlias) {
-      return { 'Fn::Join': [':', [lambdaArn, functionAlias]] };
-    } else {
-      return lambdaArn;
-    }
+
+    return functionAlias
+      ? { 'Fn::Join': [':', [lambdaArn, functionAlias]] }
+      : lambdaArn;
   }
 
   getDbClusterArn(config) {
