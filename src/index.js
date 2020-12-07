@@ -16,6 +16,9 @@ const RESOURCE_URL = 'GraphQlApiUrl';
 const RESOURCE_API_ID = 'GraphQlApiId';
 const RESOURCE_CACHING = 'GraphQlCaching';
 
+const PHYS_RES_ID_REGEX = new RegExp('^arn:aws:appsync:(?:.*:apis/)(?<apiId>.*)/apikeys/(?<apiKeyId>.*)$');
+const APPSYNC_API_KEY_ITER_REGEX = new RegExp(`^${RESOURCE_API_KEY}(?:_?)(?<apiKeyIter>.*)$`);
+
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
     this.gatheredData = {
@@ -75,6 +78,7 @@ class ServerlessAppsyncPlugin {
         lifecycleEvents: ['update'],
       },
     };
+    this.resolvedLogicalApiKeyId = undefined;
 
     this.log = this.log.bind(this);
 
@@ -91,7 +95,7 @@ class ServerlessAppsyncPlugin {
       'graphql-playground:run': () => this.runGraphqlPlayground(),
       'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
       'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
-      'after:aws:package:finalize:mergeCustomProviderResources': () => this.addResources(),
+      'after:aws:package:finalize:mergeCustomProviderResources': async () => this.addResources(),
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayEndpoints': () => this.displayEndpoints(),
       'after:aws:info:displayApiKeys': () => this.displayApiKeys(),
@@ -180,6 +184,55 @@ class ServerlessAppsyncPlugin {
             this.gatheredData.apiKeys.push(x.OutputValue);
           });
       });
+  }
+
+  async listStackResources() {
+    const stackName = this.provider.naming.getStackName();
+
+    return this.provider.request(
+      'CloudFormation',
+      'listStackResources',
+      {
+        StackName: stackName,
+      },
+    );
+  }
+
+  async listApiKeys(appsyncApiId) {
+    const apiKeys = [];
+    let response = {};
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      response = await this.provider.request(
+        'AppSync',
+        'listApiKeys',
+        {
+          apiId: appsyncApiId,
+          maxResults: 25,
+          nextToken: response.nextToken,
+        },
+      );
+      apiKeys.push(...response.apiKeys);
+    } while (response.nextToken);
+    return apiKeys;
+  }
+
+  async listGraphqlApis() {
+    const graphqlApis = [];
+    let response = {};
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      response = await this.provider.request(
+        'AppSync',
+        'listGraphqlApis',
+        {
+          maxResults: 25,
+          nextToken: response.nextToken,
+        },
+      );
+      graphqlApis.push(...response.graphqlApis);
+    } while (response.nextToken);
+    return graphqlApis;
   }
 
   displayEndpoints() {
@@ -286,13 +339,16 @@ class ServerlessAppsyncPlugin {
       .then(() => new Promise(() => { }));
   }
 
-  addResources() {
+  async addResources() {
     const config = this.loadConfig();
 
     const resources = this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
 
-    config.forEach((apiConfig) => {
+    // Iterate with a basic `for` loop to enable `await` on async functions
+    for (let i = 0; i < config.length; i += 1) {
+      const apiConfig = config[i];
+
       if (apiConfig.apiId) {
         this.log('WARNING: serverless-appsync has been updated in a breaking way and your '
           + 'service is configured using a reference to an existing apiKey in '
@@ -302,7 +358,8 @@ class ServerlessAppsyncPlugin {
       }
 
       Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
-      Object.assign(resources, this.getApiKeyResources(apiConfig));
+      // eslint-disable-next-line no-await-in-loop
+      Object.assign(resources, await this.getApiKeyResources(apiConfig));
       Object.assign(resources, this.getApiCachingResource(apiConfig));
       Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
       Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
@@ -313,7 +370,7 @@ class ServerlessAppsyncPlugin {
 
       Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
       Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
-    });
+    }
   }
 
   getUserPoolConfig(provider, region) {
@@ -422,17 +479,135 @@ class ServerlessAppsyncPlugin {
     return false;
   }
 
-  getApiKeyResources(config) {
+  /**
+   * Resolve an AppSync API id by name
+   */
+  async resolveAppSyncApiId(appsyncApiName) {
+    // Unfortunately we need to brute force this since we don't have the AppSync API id
+    const graphqlApis = await this.listGraphqlApis();
+    if (graphqlApis) {
+      const api = graphqlApis.find(curApi => curApi.name === appsyncApiName);
+      return api ? api.apiId : undefined;
+    }
+    return undefined;
+  }
+
+  /**
+   * Resolve the first matching API Key Resource for this API - there should only ever be 0 or 1
+   */
+  async resolveExistingApiKeyInfo({ baseKeyResourceIdName, appsyncApiName }) {
+    // Find the AppSync API id for the well-known API name
+    const appsyncApiId = await this.resolveAppSyncApiId(appsyncApiName);
+
+    if (appsyncApiId) {
+      const { StackResourceSummaries } = await this.listStackResources();
+
+      for (let i = 0; i < StackResourceSummaries.length; i += 1) {
+        const srs = StackResourceSummaries[i];
+        if (srs.ResourceType === 'AWS::AppSync::ApiKey') {
+          // Extract API id and key id from the physical resource id
+          const {
+            apiId,
+            apiKeyId,
+          } = PHYS_RES_ID_REGEX.exec(srs.PhysicalResourceId).groups;
+          // Match on API id and base key resource name so we don't disturb CFN generated keys
+          if (apiId === appsyncApiId && srs.LogicalResourceId.startsWith(baseKeyResourceIdName)) {
+            return {
+              apiId,
+              apiKeyId,
+              logicalResourceId: srs.LogicalResourceId,
+            };
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Resolve the original logical key id value if the referenced API key still exists or generate
+   * a new logical key id value if the referenced API key does not exist.
+   *
+   * @param baseKeyResourceIdName The base key name - this will be the prefix for all plugin
+   * managed key ids
+   * @param appsyncApiName The AppSync API name for the key
+   * @return Resolved logical key id
+   */
+  async resolveLogicalIdApiKeyValueAndRevIfRequired({ baseKeyResourceIdName, appsyncApiName }) {
+    try {
+      // Find existing API key info
+      const existingKeyInfo =
+        await this.resolveExistingApiKeyInfo({ baseKeyResourceIdName, appsyncApiName });
+
+      // If it doesn't exist, nothing to do - this is the first deploy
+      if (!existingKeyInfo) {
+        return undefined;
+      }
+
+      // List the API keys for this API id
+      const apiKeys = await this.listApiKeys(existingKeyInfo.apiId);
+
+      // Find a matching API key.  If found, we're done - return the logicalResourceId
+      const apiKey = apiKeys
+        && apiKeys.find(curApiKey => curApiKey.id === existingKeyInfo.apiKeyId);
+      if (apiKey) {
+        return existingKeyInfo.logicalResourceId;
+      }
+
+      /*
+         The API key expected by the logical key CFN object does not exist.  This can happen if a
+         key is deleted from the AppSync console or the key expired.  The logical key id becomes
+         orphaned in this case.  Create a new logical resource id suffix in order to create a
+         new, uniquely named AppSync API key CFN object.
+      */
+      this.log(`Resolving LogicalResourceId suffix to remove/replace existing CFN key object for API id ${existingKeyInfo.apiId} and resource ${existingKeyInfo.logicalResourceId}`);
+      const { apiKeyIter } =
+        APPSYNC_API_KEY_ITER_REGEX.exec(existingKeyInfo.logicalResourceId).groups;
+      const newIterValue = apiKeyIter ? Number(apiKeyIter) + 1 : 1;
+
+      return `${baseKeyResourceIdName}${newIterValue}`;
+    } catch (e) {
+      throw new this.serverless.classes.Error(`Error resolving new API key iteration: ${e.message}:${e.stack}`);
+    }
+  }
+
+  async getApiKeyResources(config) {
     if (this.hasApiKeyAuth(config)) {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
+      const description = `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`;
+      const expires = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
+
+      let resolvedLogicalApiKeyId = logicalIdApiKey;
+      if (config.apiKeyRepairEnabled) {
+        /*
+           Determine if the AppSync API key already associated with an existing CFN API key object
+           from a previous deployment still exists.  If it does not exist, CFN will break while
+           trying to resolve the non-existent key id.  This will create a new, unique logical API
+           key id if this scenario is in play.  The net result is the previous orphaned CFN object
+           will be deleted since it is no longer defined by the plugin output and a brand new
+           object/key will be created on deploy.
+        */
+        const newLogicalIdValue = await this.resolveLogicalIdApiKeyValueAndRevIfRequired({
+          baseKeyResourceIdName: logicalIdApiKey,
+          appsyncApiName: config.name,
+        });
+        // If no value is returned, the CFN object does not exist so this is likely the first
+        // deployment of the stack
+        if (newLogicalIdValue) {
+          resolvedLogicalApiKeyId = newLogicalIdValue;
+        }
+      }
+      this.resolvedLogicalApiKeyId = resolvedLogicalApiKeyId;
+
       return {
-        [logicalIdApiKey]: {
+        [resolvedLogicalApiKeyId]: {
           Type: 'AWS::AppSync::ApiKey',
           Properties: {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
-            Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+            Description: description,
+            Expires: expires,
           },
         },
       };
@@ -1064,11 +1239,11 @@ class ServerlessAppsyncPlugin {
 
   getApiKeyOutputs(config) {
     if (this.hasApiKeyAuth(config)) {
-      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-      const logicalIdApiKeyOutput = logicalIdApiKey;
+      const logicalIdApiKeyOutput = this.getLogicalId(config, RESOURCE_API_KEY);
       return {
         [logicalIdApiKeyOutput]: {
-          Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
+          // Use the logicalApiKey id resolved in #getApiKeyResources
+          Value: { 'Fn::GetAtt': [this.resolvedLogicalApiKeyId, 'ApiKey'] },
         },
       };
     }

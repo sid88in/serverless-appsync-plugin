@@ -300,13 +300,13 @@ describe('appsync config', () => {
     });
   });
 
-  test('API_KEY config created', () => {
+  test('API_KEY config created', async () => {
     const apiConfig = {
       ...config,
       authenticationType: 'API_KEY',
     };
     const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
-    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const keyResources = await plugin.getApiKeyResources(apiConfig);
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
     expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
@@ -325,7 +325,7 @@ describe('appsync config', () => {
     });
   });
 
-  test('Additional authentication providers created', () => {
+  test('Additional authentication providers created', async () => {
     const apiConfig = {
       ...config,
       additionalAuthenticationProviders: [
@@ -356,7 +356,7 @@ describe('appsync config', () => {
     };
 
     const apiResources = plugin.getGraphQlApiEndpointResource(apiConfig);
-    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const keyResources = await plugin.getApiKeyResources(apiConfig);
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
     expect(apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toMatchSnapshot();

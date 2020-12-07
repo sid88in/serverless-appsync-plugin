@@ -79,6 +79,12 @@ custom:
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
+    # Set to `true` to automatically create a new, unique AppSync API key CFN object if the plugin-maintained
+    # CFN object is associated with an AppSync API key id that no longer exists.  This can happen on API key exipration
+    # or if an API key is manually deleted from the AWS console.  If this condition is present, deployment will
+    # fail without this option enabled because CFN will try to look up the deleted API key by ID and fail.
+    # This option is only relevant for authenticationType === API_KEY
+    # apiKeyRepairEnabled: true
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
     schema: # schema file or array of files to merge, defaults to schema.graphql
     # Caching options. Disabled by default
@@ -159,10 +165,10 @@ custom:
         #    - lambdaFunctionArn: The Arn for the Lambda function to use as the Conflict Handler.
         #    - conflictHandler: The Conflict Resolution strategy to perform in the event of a conflict.
         sync:
-          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html 
+          conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html
           conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
           functionName: graphql # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
-          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"       
+          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurationsLocation: # defaults to mappingTemplatesLocation (mapping-templates)

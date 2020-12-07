@@ -6,6 +6,7 @@ Array [
     "additionalAuthenticationProviders": Array [],
     "apiId": undefined,
     "apiKey": undefined,
+    "apiKeyRepairEnabled": undefined,
     "authenticationType": "AWS_IAM",
     "caching": undefined,
     "dataSources": Array [],
@@ -100,6 +101,7 @@ Array [
     "additionalAuthenticationProviders": Array [],
     "apiId": undefined,
     "apiKey": undefined,
+    "apiKeyRepairEnabled": undefined,
     "authenticationType": "AWS_IAM",
     "caching": undefined,
     "dataSources": Array [],
@@ -225,6 +227,7 @@ Array [
     "additionalAuthenticationProviders": Array [],
     "apiId": undefined,
     "apiKey": undefined,
+    "apiKeyRepairEnabled": undefined,
     "authenticationType": "AWS_IAM",
     "caching": undefined,
     "dataSources": Array [
@@ -355,6 +358,7 @@ Array [
     "additionalAuthenticationProviders": Array [],
     "apiId": undefined,
     "apiKey": undefined,
+    "apiKeyRepairEnabled": undefined,
     "authenticationType": "AWS_IAM",
     "caching": undefined,
     "dataSources": Array [
@@ -493,6 +497,7 @@ Array [
     "additionalAuthenticationProviders": Array [],
     "apiId": undefined,
     "apiKey": undefined,
+    "apiKeyRepairEnabled": undefined,
     "authenticationType": "AWS_IAM",
     "caching": undefined,
     "dataSources": Array [
