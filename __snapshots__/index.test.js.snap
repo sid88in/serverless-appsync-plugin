@@ -651,6 +651,42 @@ Object {
 }
 `;
 
+exports[`appsync config Datasource generates lambdaFunctionArn from functionName and functionAlias 1`] = `
+Object {
+  "GraphQlDslambdaSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "lambdaSource Desc",
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::Join": Array [
+            ":",
+            Array [
+              Object {
+                "Fn::GetAtt": Array [
+                  "MyFuncLambdaFunction",
+                  "Arn",
+                ],
+              },
+              "myAlias",
+            ],
+          ],
+        },
+      },
+      "Name": "lambdaSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myLambdaRole",
+      "Type": "AWS_LAMBDA",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
 exports[`appsync config Datasource uses lambdaFunctionArn when provided 1`] = `
 Object {
   "GraphQlDslambdaSource": Object {

@@ -1,68 +1,37 @@
 [![Build Status](https://travis-ci.org/sid88in/serverless-appsync-plugin.svg?branch=master)](https://travis-ci.org/sid88in/serverless-appsync-plugin)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-59-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-<h1 align="center">
-  Serverless-AppSync-Plugin 👌
-  <h4 align="center"><a href="https://serverless.com" target="_blank">Serverless</a> plugin that allows you to deploy, update or delete your <a href="https://aws.amazon.com/appsync" target="_blank">AWS AppSync</a> API's with ease.</h4>
-  <br>
-</h1>
+Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
 
-Tired of 🚀 **deploying**, ✏️ **updating**, and ❌ **deleting** your AppSync API's using the AWS AppSync dashboard? You can now develop all of your AppSync API's locally using **Serverless** + **Serverless-AppSync-Plugin**! With support for <a href="https://aws.amazon.com/dynamodb" target="_blank">AWS DynamoDB</a>, <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, and <a href="https://aws.amazon.com/elasticsearch-service" target="_blank">AWS Elasticsearch</a>; you have everything you need to get started developing your AppSync API's locally.
+## Getting Started
 
-<div align="center">Find AppSync examples in the <a href="https://github.com/serverless/serverless-graphql/tree/master/app-backend/appsync" target="_blank"> Serverless-GraphQL</a> Repo 👈</div>
+Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has to offer. Here are a few resources to help you understand everything needed to get started!
 
-# Introduction
+* [Mapping Templates](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html) - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
+* [Data Sources and Resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html) - Get more information on what data sources are supported and how to set them up!
+* [Security](https://docs.aws.amazon.com/appsync/latest/devguide/security.html) - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
 
-> *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
-
-> *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
-
-> *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
-
-> *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
-
-
-![appsync architecture](https://user-images.githubusercontent.com/1587005/36063617-fe8d4e5e-0e33-11e8-855b-447513ba7084.png)
-
-<details>
- <summary><strong>Table of Contents</strong> (click to expand)</summary>
-
-* [Getting Started](#-getting-started)
-* [Minimum requirements](#-minimum-requirements)
-* [Installation](#-installation)
-* [Usage](#️-usage)
-* [Notes](#-notes)
-    * [Offline Support](#offline-support)
-    * [Split Stacks Plugin](#split-stacks-plugin)
-* [Contributing](#-contributing)
-* [Credits](#️-credits)
-</details>
-
-## ⚡️ Getting Started
-
-Be sure to check out all that <a href="https://aws.amazon.com/appsync" target="_blank">AWS AppSync</a> has to offer. Here are a few resources to help you understand everything needed to get started!
-
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html">Mapping Templates</a> - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html">Data Sources and Resolvers</a> - Get more information on what data sources are supported and how to set them up!
-* <a target="_blank" href="https://docs.aws.amazon.com/appsync/latest/devguide/security.html">Security</a> - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
-
-## 🛠 Minimum requirements
+## Minimum requirements
 
 * [Node.js v8 or higher](https://nodejs.org)
 * [Serverless v1.30.0 or higher](https://github.com/serverless/serverless)
 
-## 💾 Installation
+## Installation & Configuration
 
-Install the plugin via <a href="https://yarnpkg.com/lang/en/docs/install/">Yarn</a> (recommended)
+Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
 ```
 yarn add serverless-appsync-plugin
 ```
 
-or via <a href="https://docs.npmjs.com/cli/install">NPM</a>
+or via [NPM](https://docs.npmjs.com/cli/install)
 
 ```
 npm install serverless-appsync-plugin
 ```
+
 ### Configuring the plugin
 
 Add ```serverless-appsync-plugin``` to the plugins section of ```serverless.yml```
@@ -72,7 +41,7 @@ plugins:
    - serverless-appsync-plugin
 ```
 
-Add the following example config to the custom section of ```serverless.yml```
+Add the following config to the custom section of ```serverless.yml``` and update it accordingly to your needs
 
 ```yaml
 custom:
@@ -310,17 +279,16 @@ custom:
 
 #### Pipeline Resolvers
 
-Amazon recently released the new pipeline resolvers:
-https://aws.amazon.com/blogs/mobile/aws-appsync-releases-pipeline-resolvers-aurora-serverless-support-delta-sync/
+Amazon supports [pipeline resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/pipeline-resolvers.html)
 
-These changes allow you to perform more than one mapping template in sequence, so you can do multiple queries to multiple sources.
+They allow you to perform more than one mapping template in sequence, so you can do multiple queries to multiple sources.
 These queries are called function configurations ('AWS::AppSync::FunctionConfiguration') and are children of a resolver.
 
 Here is an example of how to configure a resolver with function configurations.
 The key here is to provide a 'kind' of 'PIPELINE' to the mapping template of the parent resolver.
 Then provide the names of the functions in the mappingTemplate to match the names of the functionConfigurations.
 
-```
+```yml
 custom:
   appSync:
     mappingTemplates:
@@ -343,7 +311,7 @@ custom:
         response: './mapping-templates/common-response.vtl' # defaults to {name}.response.vtl
 ```
 
-## ▶️ Usage
+## Cli Usage
 
 ### `serverless deploy`
 
@@ -357,7 +325,7 @@ Validates your GraphQL Schema(s) without deploying.
 
 ### `serverless graphql-playground`
 
-This command will start a local graphql-playground server which is connected to your AppSync endpoint. The required options for the command are different depending on your AppSync authenticationType.
+This command will start a local graphql-playground server which is connected to your deployed AppSync endpoint (in the cloud). The required options for the command are different depending on your AppSync authenticationType.
 
 For API_KEY, either the GraphQLApiKeyDefault output or the --apiKey option is required
 
@@ -367,46 +335,22 @@ For OPENID_CONNECT, the --jwtToken option is required.
 
 The AWS_IAM authenticationType is not currently supported.
 
-## 📝 Notes
+## Offline support
 
-* If you are planning on using <a target="_blank" href="https://aws.amazon.com/elasticsearch-service">AWS Elasticsearch</a>, you will need to create an Elasticsearch domain/endpoint on AWS and set it as the ```endpoint``` option in  ```serverless.yml``` **before** deploying.
+There are 2 ways to work with offline development for serverless appsync.
 
-### Offline support
+### serverless-appsync-simulator
 
-You can use [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to autostart an [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless) which depends on [Serverless-AppSync-Plugin](https://github.com/sid88in/serverless-appsync-plugin) with DynamoDB and Lambda resolver support:
-#### Install Plugin
-`npm install --save serverless-appsync-offline`
-#### Minimal Options (serverless.yml)
-```yml
-custom:
-  appsync-offline:
-    port: 62222
-    dynamodb:
-      server:
-        port: 8000
-```
-#### Start local enviroment
+[serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-If you use `serverless-offline`:
+### serverless-appsync-simulator (deprecated/unmaintained)
 
-`sls offline start`
+[serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
 
-otherwise:
 
-`sls appsync-offline start`
+## Split Stacks Plugin
 
-the result is:
-
-```
-Serverless: dynamoDB started: http://localhost:8000/
-Serverless: AppSync started: http://localhost:62222/graphql
-```
-
-Go to [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) to get further configuration options.
-
-### Split Stacks Plugin
-
-You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the 200 resource limit.
+You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the [~~200~~](~~) 500 resource limit.
 
 1. Install [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks)
 
@@ -441,40 +385,118 @@ module.exports = {
 
 5. Enjoy :beers:
 
-## 🎁 Contributing
+## Contributing
 
-If you have any questions, please feel free to reach out to me directly on Twitter <a target="_blank" href="https://twitter.com/mrsanfran2">Sid Gupta</a>.
+If you have any questions, issue, feature request, please feel free to [open an issue](/issues/new).
 
-## 👷 Migration from versions prior to 1.0
-<a id="cfn-migration"></a>
+You are also very welcome to open a PR and we will gladely review it.
 
-If you have previously used versions of this plugin prior to 1.0, you will need
-to perform some additional manual steps in order to continue use of this
-plugin (it will be worth it).  This change removes the `sls *-appsync`
-commands in favor of adding AppSync resources directly to the serverless
-cloudformation stack. What this means for your existing APIs is that
-they can no longer be updated.  The good news is that you will
-no longer need to use separate commands to deploy vs update and update
-your serverless config with the created `apiId`.
+## Resources
 
-The rough steps for migration are as follows:
-1. Run `sls deploy` to create the new AppSync api and make note
-of the endpoint returned as part of the stack outputs. *If you were
-using an `API_KEY` auth type, you will also need the new api key which
-is also included in the stack outputs.*
-2. Update existing consumers of your API to use the new endpoint. *If
-you're using an api key, this will also need updated*
-3. After verifying all existing consumers are updated, run `sls delete-appsync`
-to cleanup the old resources
-4. Remove the `apiId` line from `custom.appSync` in `serverless.yml`
-5. 🍹
+### Video tutorials
+- [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
-## Youtube Video by Foo Bar :)
 
-[![Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
+### Blog tutorial
 
-## ❤️ Credits
+- *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
 
-Big Thanks to <a target="_blank" href="https://twitter.com/nikgraf">Nik Graf</a>, <a target="_blank" href="https://twitter.com/pmmuens">Philipp Müns</a>, <a target="_blank" href="https://twitter.com/superpatell">Jon Patel</a> and my favourite <a target="_blank" href="https://twitter.com/lolcoolkat">coolest kat ever</a> for helping to build this plugin!
+- *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
 
-We are always looking for open source contributions. So, feel free to create issues/contribute to this repo.
+- *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
+
+- *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people :clap:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/bboure"><img src="https://avatars0.githubusercontent.com/u/7089997?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benoît Bouré</b></sub></a><br /><a href="#maintenance-bboure" title="Maintenance">🚧</a> <a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=bboure" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/mrsanfran2"><img src="https://avatars2.githubusercontent.com/u/1587005?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Siddharth Gupta</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sid88in" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/nikgraf"><img src="https://avatars1.githubusercontent.com/u/223045?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nik Graf</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nikgraf" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Foosballfan"><img src="https://avatars3.githubusercontent.com/u/15104463?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Charles Killer</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Foosballfan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jpstrikesback"><img src="https://avatars3.githubusercontent.com/u/445563?v=4?s=100" width="100px;" alt=""/><br /><sub><b>jpstrikesback</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=jpstrikesback" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/zy"><img src="https://avatars1.githubusercontent.com/u/284540?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ZY</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=zy" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/francisu"><img src="https://avatars3.githubusercontent.com/u/944949?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Francis Upton IV</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=francisu" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/trilliput"><img src="https://avatars1.githubusercontent.com/u/807663?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ilya Shmygol</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=trilliput" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/maddijoyce"><img src="https://avatars2.githubusercontent.com/u/2224291?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maddi Joyce</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=maddijoyce" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/sebflipper"><img src="https://avatars2.githubusercontent.com/u/144435?v=4?s=100" width="100px;" alt=""/><br /><sub><b>sebflipper</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sebflipper" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.erezro.com/"><img src="https://avatars0.githubusercontent.com/u/26760571?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Erez Rokah</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=erezrokah" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.twitter.com/deadcoder0904"><img src="https://avatars1.githubusercontent.com/u/16436270?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Akshay Kadam (A2K)</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=deadcoder0904" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AntonShevel"><img src="https://avatars2.githubusercontent.com/u/5391187?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anton</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=AntonShevel" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/hardchor"><img src="https://avatars0.githubusercontent.com/u/307162?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Burkhard Reffeling</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=hardchor" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/deankostomaj"><img src="https://avatars1.githubusercontent.com/u/3761480?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dean Koštomaj</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=deankostomaj" title="Code">💻</a></td>
+    <td align="center"><a href="https://blog.lesierse.com/"><img src="https://avatars0.githubusercontent.com/u/270232?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vincent Lesierse</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=vlesierse" title="Code">💻</a></td>
+    <td align="center"><a href="https://riotz.works/"><img src="https://avatars3.githubusercontent.com/u/31102213?v=4?s=100" width="100px;" alt=""/><br /><sub><b>lulzneko</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=lulzneko" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/thomasmichaelwallace"><img src="https://avatars1.githubusercontent.com/u/1954845?v=4?s=100" width="100px;" alt=""/><br /><sub><b>thomas michael wallace</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=thomasmichaelwallace" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/c10h22"><img src="https://avatars3.githubusercontent.com/u/305888?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Adnene KHALFA</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=c10h22" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/roznalex"><img src="https://avatars0.githubusercontent.com/u/8004948?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex Rozn</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=roznalex" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/kinyat"><img src="https://avatars0.githubusercontent.com/u/1476974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Chan</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=kinyat" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="http://josephle.me/"><img src="https://avatars1.githubusercontent.com/u/2822954?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joseph</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=josephnle" title="Code">💻</a></td>
+    <td align="center"><a href="http://miha.website/"><img src="https://avatars1.githubusercontent.com/u/142531?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Miha Eržen</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=mihaerzen" title="Code">💻</a></td>
+    <td align="center"><a href="http://mike.fogel.ca/"><img src="https://avatars0.githubusercontent.com/u/69902?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mike Fogel</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=mfogel" title="Code">💻</a></td>
+    <td align="center"><a href="https://philippmuens.com/"><img src="https://avatars3.githubusercontent.com/u/1606004?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Philipp Muens</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=pmuens" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/toxuin"><img src="https://avatars1.githubusercontent.com/u/868268?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Toxuin</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=toxuin" title="Code">💻</a></td>
+    <td align="center"><a href="http://hypexr.org/"><img src="https://avatars1.githubusercontent.com/u/5427?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Scott Rippee</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=hypexr" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yai333"><img src="https://avatars2.githubusercontent.com/u/29742643?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Yi Ai</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=yai333" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/markvp"><img src="https://avatars2.githubusercontent.com/u/6936351?v=4?s=100" width="100px;" alt=""/><br /><sub><b>markvp</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=markvp" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/alexleonescalera"><img src="https://avatars2.githubusercontent.com/u/14811478?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=alexleonescalera" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/alexjurkiewicz"><img src="https://avatars0.githubusercontent.com/u/379509?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex Jurkiewicz</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=alexjurkiewicz" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/anasqadrei"><img src="https://avatars1.githubusercontent.com/u/4755353?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anas Qaderi</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=anasqadrei" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.heissenberger.at/"><img src="https://avatars2.githubusercontent.com/u/200095?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andreas Heissenberger</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=aheissenberger" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Mickael"><img src="https://avatars1.githubusercontent.com/u/32233?v=4?s=100" width="100px;" alt=""/><br /><sub><b>mickael</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Mickael" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/btorresgil"><img src="https://avatars2.githubusercontent.com/u/4164289?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brian Torres-Gil</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=btorresgil" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/cameroncf"><img src="https://avatars2.githubusercontent.com/u/789760?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Cameron Childress</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=cameroncf" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/cc07"><img src="https://avatars1.githubusercontent.com/u/26186634?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chris Chiang</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=cc07" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.linkedin.com/in/siliconvalleynextgeneration/"><img src="https://avatars0.githubusercontent.com/u/1230575?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Esref Durna</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=EsrefDurna" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/lkhari"><img src="https://avatars0.githubusercontent.com/u/3062396?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Hari</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=lkhari" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/ivanbarlog"><img src="https://avatars2.githubusercontent.com/u/2583610?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ivan Barlog</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=ivanbarlog" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jveldboom"><img src="https://avatars2.githubusercontent.com/u/303202?v=4?s=100" width="100px;" alt=""/><br /><sub><b>John Veldboom</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=jveldboom" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/bigluck"><img src="https://avatars2.githubusercontent.com/u/1511095?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Luca Bigon</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=bigluck" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://twitter.com/sketchingdev"><img src="https://avatars2.githubusercontent.com/u/31957045?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lucas</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=SketchingDev" title="Code">💻</a></td>
+    <td align="center"><a href="https://markpollmann.com/"><img src="https://avatars2.githubusercontent.com/u/5286559?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mark Pollmann</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=MarkPollmann" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.twitter.com/@morficus"><img src="https://avatars3.githubusercontent.com/u/718799?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maurice Williams</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=morficus" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.cedar.ai/"><img src="https://avatars0.githubusercontent.com/u/1109028?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mike Chen</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=chensjlv" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/asnaseer-resilient"><img src="https://avatars1.githubusercontent.com/u/6410094?v=4?s=100" width="100px;" alt=""/><br /><sub><b>asnaseer-resilient</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=asnaseer-resilient" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.treadbook.com/"><img src="https://avatars3.githubusercontent.com/u/2530264?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Neal Clark</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nealclark" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/moelholm"><img src="https://avatars2.githubusercontent.com/u/8393156?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nicky Moelholm</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=moelholm" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://patrick.wtf/"><img src="https://avatars1.githubusercontent.com/u/667029?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patrick Arminio</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=patrick91" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/engineforce"><img src="https://avatars0.githubusercontent.com/u/3614365?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Paul Li</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=engineforce" title="Code">💻</a></td>
+    <td align="center"><a href="https://conduit.vc/"><img src="https://avatars3.githubusercontent.com/u/322957?v=4?s=100" width="100px;" alt=""/><br /><sub><b>James Lal</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=lightsofapollo" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/thenengah"><img src="https://avatars2.githubusercontent.com/u/32788783?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sam Gilman</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=thenengah" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/stefanceriu"><img src="https://avatars2.githubusercontent.com/u/637564?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stefan Ceriu</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=stefanceriu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/tsmith"><img src="https://avatars2.githubusercontent.com/u/339175?v=4?s=100" width="100px;" alt=""/><br /><sub><b>tsmith</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=tsmith" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/veloware"><img src="https://avatars1.githubusercontent.com/u/61578546?v=4?s=100" width="100px;" alt=""/><br /><sub><b>veloware</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=veloware" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/nadalfederer"><img src="https://avatars1.githubusercontent.com/u/6043510?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vladimir Lebedev</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nadalfederer" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Znergy"><img src="https://avatars1.githubusercontent.com/u/18511689?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ryan Jones</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=Znergy" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vicary"><img src="https://avatars0.githubusercontent.com/u/85772?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vicary A.</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=vicary" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

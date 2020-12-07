@@ -159,6 +159,27 @@ describe('appsync config', () => {
     expect(dataSources).toMatchSnapshot();
   });
 
+  test('Datasource generates lambdaFunctionArn from functionName and functionAlias', () => {
+    Object.assign(config, {
+      dataSources: [
+        {
+          type: 'AWS_LAMBDA',
+          name: 'lambdaSource',
+          description: 'lambdaSource Desc',
+          config: {
+            functionName: 'myFunc',
+            functionAlias: 'myAlias',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
+          },
+        },
+      ],
+    });
+
+    const dataSources = plugin.getDataSourceResources(config);
+    expect(dataSources).toMatchSnapshot();
+  });
+
   test('Datasource uses lambdaFunctionArn when provided', () => {
     Object.assign(
       config,
