@@ -35,12 +35,15 @@
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-inline-import": "^3.0.0",
     "eslint": "^7.13.0",
-    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.2.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.1.0"
+    "eslint-plugin-standard": "^4.1.0",
+    "prettier": "^2.2.1"
   },
   "keywords": [
     "serverless",

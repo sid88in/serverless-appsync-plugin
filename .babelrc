@@ -1,6 +1,11 @@
 {
   "plugins": [
-    "@babel/plugin-transform-modules-commonjs"
+    "@babel/plugin-transform-modules-commonjs",
+    ["babel-plugin-inline-import", {
+      "extensions": [
+        ".vtl"
+      ]
+    }]
   ],
   "presets": [
     ["@babel/preset-env",
