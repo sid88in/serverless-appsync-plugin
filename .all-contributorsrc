@@ -1,0 +1,24 @@
+{
+  "projectName": "serverless-appsync-simulator",
+  "projectOwner": "bboure",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "bboure",
+      "name": "Benoît Bouré",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/7089997?v=4",
+      "profile": "https://twitter.com/Benoit_Boure",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
