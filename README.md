@@ -1,10 +1,13 @@
 This serverless plugin is a wrapper for [amplify-appsync-simulator](https://github.com/aws-amplify/amplify-cli/tree/master/packages/amplify-appsync-simulator) made for testing AppSync APIs built with [serverless-appsync-plugin](https://github.com/sid88in/serverless-appsync-plugin).
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
+
+[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-
 # Requires
+
 - [serverless framework](https://github.com/serverless/serverless)
 - [serverless-appsync-plugin](https://github.com/sid88in/serverless-appsync-plugin)
 - [serverless-offline](https://github.com/dherault/serverless-offline)
@@ -12,45 +15,46 @@ This serverless plugin is a wrapper for [amplify-appsync-simulator](https://gith
 
 # Install
 
-````bash
+```bash
 npm install serverless-appsync-simulator
 # or
 yarn add serverless-appsync-simulator
-````
+```
 
 # Usage
 
 This plugin relies on your serverless yml file and on the `serverless-offline` plugin.
 
-````yml
+```yml
 plugins:
   - serverless-dynamodb-local # only if you need dynamodb resolvers and you don't have an external dynamodb
   - serverless-appsync-simulator
   - serverless-offline
-````
+```
 
 **Note:** Order is important `serverless-appsync-simulator` must go **before** `serverless-offline`
 
 To start the simulator, run the following command:
-````bash
+
+```bash
 sls offline start
-````
+```
 
 You should see in the logs something like:
 
-````bash
+```bash
 ...
 Serverless: AppSync endpoint: http://localhost:20002/graphql
 Serverless: GraphiQl: http://localhost:20002
 ...
-````
+```
 
 # Configuration
 
 Put options under `custom.appsync-simulator` in your `serverless.yml` file
 
 | option                   | default               | description                                                                                                                                                         |
-|--------------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | apiKey                   | `0123456789`          | When using `API_KEY` as authentication type, the key to authenticate to the endpoint.                                                                               |
 | port                     | 20002                 | AppSync operations port                                                                                                                                             |
 | wsPort                   | 20003                 | AppSync subscriptions port                                                                                                                                          |
@@ -59,7 +63,7 @@ Put options under `custom.appsync-simulator` in your `serverless.yml` file
 | refMap                   | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
 | getAttMap                | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
 | importValueMap           | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `ImportValue` function                                                   |
-| functions                | {}                    | A mapping of [external functions](#functions) for providing invoke url for external fucntions                                                                                |
+| functions                | {}                    | A mapping of [external functions](#functions) for providing invoke url for external fucntions                                                                       |
 | dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
 | dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
 | dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                                                                |
@@ -67,19 +71,18 @@ Put options under `custom.appsync-simulator` in your `serverless.yml` file
 
 Example:
 
-````yml
+```yml
 custom:
   appsync-simulator:
     location: '.webpack/service' # use webpack build directory
     dynamoDb:
       endpoint: 'http://my-custom-dynamo:8000'
-
-````
+```
 
 # Resource CloudFormation functions resolution
 
-This plugin supports *some* resources resolution from the `Ref`, `Fn::GetAtt` and `Fn::ImportValue` functions
-in your yaml file. It also supports *some* other Cfn functions such as `Fn::Join`, `Fb::Sub`, etc.
+This plugin supports _some_ resources resolution from the `Ref`, `Fn::GetAtt` and `Fn::ImportValue` functions
+in your yaml file. It also supports _some_ other Cfn functions such as `Fn::Join`, `Fb::Sub`, etc.
 
 **Note:** Under the hood, this features relies on the [cfn-resolver-lib](https://github.com/robessog/cfn-resolver-lib) package. For more info on supported cfn functions, refer to [the documentation](https://github.com/robessog/cfn-resolver-lib/blob/master/README.md)
 
@@ -88,7 +91,7 @@ in your yaml file. It also supports *some* other Cfn functions such as `Fn::Join
 You can reference resources in your functions' environment variables (that will be accessible from your lambda functions) or datasource definitions.
 The plugin will automatically resolve them for you.
 
-````yaml
+```yaml
 provider:
   environment:
     BUCKET_NAME:
@@ -114,21 +117,21 @@ dataSources:
     config:
       tableName:
         Ref: MyDbTable # resolves to `myTable`
-````
+```
 
 ## Override (or mock) values
 
-Sometimes, some references **cannot** be resolved, as they come from an *Output* from Cloudformation; or you might want to use mocked values in your local environment.
+Sometimes, some references **cannot** be resolved, as they come from an _Output_ from Cloudformation; or you might want to use mocked values in your local environment.
 
 In those cases, you can define (or override) those values using the `refMap`, `getAttMap` and `importValueMap` options.
 
-- `refMap` takes a mapping of *resource name* to *value* pairs
-- `getAttMap` takes a mapping of *resource name* to *attribute/values* pairs
-- `importValueMap` takes a mapping of *import name* to *values* pairs
+- `refMap` takes a mapping of _resource name_ to _value_ pairs
+- `getAttMap` takes a mapping of _resource name_ to _attribute/values_ pairs
+- `importValueMap` takes a mapping of _import name_ to _values_ pairs
 
 Example:
 
-````yaml
+```yaml
 custom:
   serverless-appsync-simulator:
     refMap:
@@ -137,9 +140,9 @@ custom:
     getAttMap:
       # define ElasticSearchInstance DomainName
       ElasticSearchInstance:
-        DomainEndpoint: "localhost:9200"
+        DomainEndpoint: 'localhost:9200'
     importValueMap:
-      other-service-api-url: "https://other.api.url.com/graphql"
+      other-service-api-url: 'https://other.api.url.com/graphql'
 
 # in your appsync config
 dataSources:
@@ -149,19 +152,19 @@ dataSources:
       # endpoint resolves as 'http://localhost:9200'
       endpoint:
         Fn::Join:
-          - ""
+          - ''
           - - https://
             - Fn::GetAtt:
                 - ElasticSearchInstance
                 - DomainEndpoint
-````
+```
 
 ### Key-value mock notation
 
 In some special cases you will need to use key-value mock nottation.
 Good example can be case when you need to include serverless stage value (`${self:provider.stage}`) in the import name.
 
-*This notation can be used with all mocks - `refMap`, `getAttMap` and `importValueMap`*
+_This notation can be used with all mocks - `refMap`, `getAttMap` and `importValueMap`_
 
 ```yaml
 provider:
@@ -173,7 +176,7 @@ custom:
   serverless-appsync-simulator:
     importValueMap:
       - key: other-service-api-${self:provider.stage}-url
-        value: "https://other.api.url.com/graphql"
+        value: 'https://other.api.url.com/graphql'
 ```
 
 ## Environment variables
@@ -189,11 +192,12 @@ If `true`, all environment variables (`$ env`) will be accessible from the resol
 
 If `false`, only environment variables defined in `serverless.yml` will be accessible from the resolver function.
 
-> _Note: `serverless.yml` environment variables have higher priority than local environment variables.  Thus some of your local environment variables, could get overridden by environment variables from `serverless.yml`._
+> _Note: `serverless.yml` environment variables have higher priority than local environment variables. Thus some of your local environment variables, could get overridden by environment variables from `serverless.yml`._
 
 ## Limitations
 
 This plugin only tries to resolve the following parts of the yml tree:
+
 - `provider.environment`
 - `functions[*].environment`
 - `custom.appSync`
@@ -201,12 +205,14 @@ This plugin only tries to resolve the following parts of the yml tree:
 If you have the need of resolving others, feel free to open an issue and explain your use case.
 
 For now, the supported resources to be automatically resovled by `Ref:` are:
+
 - DynamoDb tables
 - S3 Buckets
 
 Feel free to open a PR or an issue to extend them as well.
 
 # External functions
+
 When a function is not defined withing the current serverless file you can still call it by providing an invoke url which should point to a REST method (must be post).
 
 ```yaml
@@ -219,22 +225,24 @@ custom:
         url: https://jsonplaceholder.typicode.com/posts
 ```
 
-
 # Supported Resolver types
 
 This plugin supports resolvers implemented by `amplify-appsync-simulator`, as well as custom resolvers.
 
 **From Aws Amplify:**
+
 - NONE
 - AWS_LAMBDA
 - AMAZON_DYNAMODB
 - PIPELINE
 
 **Implemented by this plugin**
+
 - AMAZON_ELASTIC_SEARCH
 - HTTP
 
 **Not Supported / TODO**
+
 - RELATIONAL_DATABASE
 
 ## Contributors ✨
@@ -257,6 +265,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/LMulveyCM"><img src="https://avatars0.githubusercontent.com/u/39565663?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lee Mulvey</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=LMulveyCM" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/JimmyHurrah"><img src="https://avatars1.githubusercontent.com/u/6367753?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jimmy Hurrah</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=JimmyHurrah" title="Code">💻</a></td>
+    <td align="center"><a href="https://abda.la/"><img src="https://avatars1.githubusercontent.com/u/219340?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abdala</b></sub></a><br /><a href="#ideas-abdala" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 

@@ -34,6 +34,7 @@
     "@babel/core": "^7.12.3",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
+    "all-contributors-cli": "^6.19.0",
     "babel-eslint": "^10.1.0",
     "babel-plugin-inline-import": "^3.0.0",
     "eslint": "^7.13.0",
