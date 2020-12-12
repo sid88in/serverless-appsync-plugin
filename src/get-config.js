@@ -83,16 +83,12 @@ const getConfig = (config, provider, servicePath) => {
   }
 
   return {
+    ...config,
     name: config.name || 'api',
-    apiId: config.apiId,
-    apiKey: config.apiKey,
-    caching: config.caching,
     region: provider.region,
     authenticationType: config.authenticationType,
     additionalAuthenticationProviders: config.additionalAuthenticationProviders || [],
     schema: schemaContent,
-    userPoolConfig: config.userPoolConfig,
-    openIdConnectConfig: config.openIdConnectConfig,
     // TODO verify dataSources structure
     dataSources,
     defaultMappingTemplates: config.defaultMappingTemplates || {},
@@ -100,10 +96,8 @@ const getConfig = (config, provider, servicePath) => {
     mappingTemplates,
     functionConfigurationsLocation,
     functionConfigurations,
-    logConfig: config.logConfig,
     substitutions: config.substitutions || {},
     xrayEnabled: config.xrayEnabled || false,
-    tags: config.tags,
   };
 };
 

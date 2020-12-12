@@ -4,20 +4,15 @@ exports[`Schema as array 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "apiId": undefined,
-    "apiKey": undefined,
     "authenticationType": "AWS_IAM",
-    "caching": undefined,
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "logConfig": undefined,
     "mappingTemplates": Array [],
     "mappingTemplatesLocation": "mapping-templates",
     "name": "api",
-    "openIdConnectConfig": undefined,
     "region": "us-east-1",
     "schema": "type Mutation {
   
@@ -87,8 +82,6 @@ schema {
 }
 ",
     "substitutions": Object {},
-    "tags": undefined,
-    "userPoolConfig": undefined,
     "xrayEnabled": false,
   },
 ]
@@ -98,20 +91,15 @@ exports[`Schema as string 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "apiId": undefined,
-    "apiKey": undefined,
     "authenticationType": "AWS_IAM",
-    "caching": undefined,
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "logConfig": undefined,
     "mappingTemplates": Array [],
     "mappingTemplatesLocation": "mapping-templates",
     "name": "api",
-    "openIdConnectConfig": undefined,
     "region": "us-east-1",
     "schema": "type Mutation {
 	# Create a tweet for a user
@@ -208,8 +196,6 @@ schema {
 }
 ",
     "substitutions": Object {},
-    "tags": undefined,
-    "userPoolConfig": undefined,
     "xrayEnabled": false,
   },
 ]
@@ -223,10 +209,7 @@ exports[`datasources as array 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "apiId": undefined,
-    "apiKey": undefined,
     "authenticationType": "AWS_IAM",
-    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
@@ -241,11 +224,9 @@ Array [
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "logConfig": undefined,
     "mappingTemplates": Array [],
     "mappingTemplatesLocation": "mapping-templates",
     "name": "api",
-    "openIdConnectConfig": undefined,
     "region": "us-east-1",
     "schema": "type Mutation {
 	# Create a tweet for a user
@@ -342,8 +323,6 @@ schema {
 }
 ",
     "substitutions": Object {},
-    "tags": undefined,
-    "userPoolConfig": undefined,
     "xrayEnabled": false,
   },
 ]
@@ -353,10 +332,7 @@ exports[`datasources as array form different files (array of arrays or objects) 
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "apiId": undefined,
-    "apiKey": undefined,
     "authenticationType": "AWS_IAM",
-    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
@@ -379,11 +355,9 @@ Array [
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "logConfig": undefined,
     "mappingTemplates": Array [],
     "mappingTemplatesLocation": "mapping-templates",
     "name": "api",
-    "openIdConnectConfig": undefined,
     "region": "us-east-1",
     "schema": "type Mutation {
 	# Create a tweet for a user
@@ -480,8 +454,6 @@ schema {
 }
 ",
     "substitutions": Object {},
-    "tags": undefined,
-    "userPoolConfig": undefined,
     "xrayEnabled": false,
   },
 ]
@@ -491,10 +463,7 @@ exports[`returns valid config 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "apiId": undefined,
-    "apiKey": undefined,
     "authenticationType": "AWS_IAM",
-    "caching": undefined,
     "dataSources": Array [
       Object {
         "name": "users",
@@ -509,11 +478,9 @@ Array [
     "functionConfigurations": Array [],
     "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "logConfig": undefined,
     "mappingTemplates": Array [],
     "mappingTemplatesLocation": "mapping-templates",
     "name": "api",
-    "openIdConnectConfig": undefined,
     "region": "us-east-1",
     "schema": "type Mutation {
 	# Create a tweet for a user
@@ -610,8 +577,6 @@ schema {
 }
 ",
     "substitutions": Object {},
-    "tags": undefined,
-    "userPoolConfig": undefined,
     "xrayEnabled": false,
   },
 ]

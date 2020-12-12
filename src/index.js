@@ -5,12 +5,13 @@ const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
 const { has } = require('ramda');
+const { parseDuration } = require('./utils');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
 const RESOURCE_API_CLOUDWATCH_LOGS_POLICY = 'GraphQlApiCloudWatchLogsPolicy';
-const RESOURCE_API_KEY = 'GraphQlApiKeyDefault';
+const RESOURCE_API_KEY = 'GraphQlApiKey';
 const RESOURCE_SCHEMA = 'GraphQlSchema';
 const RESOURCE_URL = 'GraphQlApiUrl';
 const RESOURCE_API_ID = 'GraphQlApiId';
@@ -179,7 +180,7 @@ class ServerlessAppsyncPlugin {
           });
 
         outputs
-          .filter(x => x.OutputKey.match(new RegExp(`${RESOURCE_API_KEY}$`)))
+          .filter(x => x.OutputKey.match(new RegExp(`^${RESOURCE_API_KEY}`)))
           .forEach((x) => {
             this.gatheredData.apiKeys.push(x.OutputValue);
           });
@@ -206,11 +207,11 @@ class ServerlessAppsyncPlugin {
 
     let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
     if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
-      this.gatheredData.apiKeys.forEach((endpoint) => {
+      this.gatheredData.apiKeys.forEach((key) => {
         if (conceal) {
           apiKeysMessage += '\n  *** (concealed)';
         } else {
-          apiKeysMessage += `\n  ${endpoint}`;
+          apiKeysMessage += `\n  ${key}`;
         }
       });
     } else {
@@ -426,20 +427,79 @@ class ServerlessAppsyncPlugin {
     return false;
   }
 
+  getApiKeys(config) {
+    if (!config.apiKeys) {
+      return [{
+        name: 'Default',
+        description: 'Auto-generated api key',
+      }];
+    }
+
+    if (!Array.isArray(config.apiKeys)) {
+      throw Error('apiKeys must be an array.');
+    }
+
+    let unnamedCount = 1;
+    return config.apiKeys.map((item) => {
+      let key = item;
+      if (typeof key === 'string') {
+        key = { name: key };
+      }
+
+      let { name } = key;
+      if (!name) {
+        name = `Key${unnamedCount}`;
+        unnamedCount += 1;
+      }
+
+      return {
+        ...key,
+        name,
+      };
+    });
+  }
+
   getApiKeyResources(config) {
     if (this.hasApiKeyAuth(config)) {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-      return {
-        [logicalIdApiKey]: {
+      const keys = this.getApiKeys(config);
+
+      return keys.reduce((acc, key) => {
+        const {
+          name, expires, description, apiKeyId,
+        } = key;
+
+        let duration = parseDuration(expires);
+        if (duration === null) {
+          throw new Error(`Could not parse ${expires} as a valid diration`);
+        } else if (duration === undefined) {
+          // 1 year by default
+          duration = 3600 * 24 * 365;
+        } else if (duration < 3600 * 24 || duration > 3600 * 24 * 365) {
+          throw new Error(`Api Key ${name} must be valid for minimum of 1 day and a maximum of 365 days.`);
+        }
+
+        // Minimum duration is 1 day from 'now'
+        // However, api key expiry is rounded down to the hour.
+        // meaning the minimum expiry date is in fact 25 hours
+        // We accept 24h durations for simplicity of use
+        // but fix them to be 25h
+        duration = Math.max(duration, 3600 * 25);
+
+        const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY + name);
+        acc[logicalIdApiKey] = {
           Type: 'AWS::AppSync::ApiKey',
           Properties: {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            Description: `serverless-appsync-plugin: AppSync API Key for ${logicalIdApiKey}`,
-            Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
+            Description: description || name,
+            // current time, rounded down to the hour + duration
+            Expires: (Math.floor(Date.now() / 1000 / 3600) * 3600) + duration,
+            ApiKeyId: apiKeyId,
           },
-        },
-      };
+        };
+
+        return acc;
+      }, {});
     }
     return {};
   }
@@ -1068,13 +1128,15 @@ class ServerlessAppsyncPlugin {
 
   getApiKeyOutputs(config) {
     if (this.hasApiKeyAuth(config)) {
-      const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY);
-      const logicalIdApiKeyOutput = logicalIdApiKey;
-      return {
-        [logicalIdApiKeyOutput]: {
+      const keys = this.getApiKeys(config);
+      return keys.reduce((acc, { name }) => {
+        const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY + name);
+        acc[logicalIdApiKey] = {
           Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
-        },
-      };
+        };
+
+        return acc;
+      }, {});
     }
     return {};
   }
