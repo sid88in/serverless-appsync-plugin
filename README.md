@@ -1,6 +1,6 @@
 This serverless plugin is a wrapper for [amplify-appsync-simulator](https://github.com/aws-amplify/amplify-cli/tree/master/packages/amplify-appsync-simulator) made for testing AppSync APIs built with [serverless-appsync-plugin](https://github.com/sid88in/serverless-appsync-plugin).
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -249,6 +249,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://twitter.com/Benoit_Boure"><img src="https://avatars0.githubusercontent.com/u/7089997?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benoît Bouré</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=bboure" title="Code">💻</a></td>
     <td align="center"><a href="http://filip.pyrek.cz/"><img src="https://avatars1.githubusercontent.com/u/6282843?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filip Pýrek</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=FilipPyrek" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/marcoreni"><img src="https://avatars2.githubusercontent.com/u/2797489?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marco Reni</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=marcoreni" title="Code">💻</a></td>
+    <td align="center"><a href="https://egordmitriev.net/"><img src="https://avatars3.githubusercontent.com/u/4254771?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Egor Dmitriev</b></sub></a><br /><a href="https://github.com/bboure/serverless-appsync-simulator/commits?author=EgorDm" title="Code">💻</a></td>
   </tr>
 </table>
 
