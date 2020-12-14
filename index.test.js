@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('./src');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
+const moment = require('moment');
 
 let serverless;
 let plugin;
@@ -1329,11 +1330,11 @@ describe('api keys', () => {
         {
           name: 'Default',
           description: 'Default Key',
-          expires: '30d',
+          expiresAfter: '30d',
         },
         {
           description: 'Unnamed Key1',
-          expires: '1d',
+          expiresAfter: '1d',
         },
         {
           description: 'Unnamed Key2',
@@ -1342,11 +1343,11 @@ describe('api keys', () => {
         {
           name: 'John',
           description: 'John\'s key',
-          expires: '3month',
+          expiresAt: '2021-03-09T16:00:00+00:00',
         },
         {
           name: 'Jane',
-          expires: '1y',
+          expiresAfter: '1y',
         },
         'InlineKey',
       ],
@@ -1365,7 +1366,7 @@ describe('api keys', () => {
       apiKeys: [
         {
           name: 'MyKey',
-          expires: 'foobar',
+          expiresAfter: 'foobar',
         },
       ],
     };
@@ -1379,7 +1380,7 @@ describe('api keys', () => {
       apiKeys: [
         {
           name: 'MyKey',
-          expires: '2y',
+          expiresAfter: '2y',
         },
       ],
     };
@@ -1393,7 +1394,35 @@ describe('api keys', () => {
       apiKeys: [
         {
           name: 'MyKey',
-          expires: '1h',
+          expiresAfter: '1h',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with a date > 1 year', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAt: '2021-12-09T17:00:00+00:00',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with with a date < 1 day', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAt: '2020-12-10T16:00:00+00:00',
         },
       ],
     };
@@ -1407,12 +1436,12 @@ describe('api keys', () => {
       apiKeys: [
         {
           name: 'MyKey',
-          expires: '24h',
+          expiresAfter: '24h',
         },
       ],
     };
     const keys = plugin.getApiKeyResources(apiConfig);
     expect(keys.GraphQlApiKeyMyKey.Properties.Expires)
-      .toEqual(((Math.floor(Date.now() / 1000 / 3600) * 3600) + (3600 * 25)));
+      .toEqual(moment.utc().startOf('hour').add(25, 'hours').unix());
   });
 });

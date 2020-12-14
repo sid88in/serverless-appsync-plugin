@@ -6,6 +6,7 @@ const getConfig = require('./get-config');
 const chalk = require('chalk');
 const { has } = require('ramda');
 const { parseDuration } = require('./utils');
+const moment = require('moment');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
@@ -466,25 +467,43 @@ class ServerlessAppsyncPlugin {
 
       return keys.reduce((acc, key) => {
         const {
-          name, expires, description, apiKeyId,
+          name, expiresAt, expiresAfter, description, apiKeyId,
         } = key;
 
-        let duration = parseDuration(expires);
-        if (duration === null) {
-          throw new Error(`Could not parse ${expires} as a valid diration`);
-        } else if (duration === undefined) {
+        let expires;
+        if (expiresAfter) {
+          let duration = parseDuration(expiresAfter);
+          if (duration === null) {
+            throw new Error(`Could not parse ${expiresAfter} as a valid duration`);
+          }
+
+          // Minimum duration is 1 day from 'now'
+          // However, api key expiry is rounded down to the hour.
+          // meaning the minimum expiry date is in fact 25 hours
+          // We accept 24h durations for simplicity of use
+          // but fix them to be 25
+          // Anything < 24h will be kept to make sure the validation fails later
+          if (duration >= 3600 * 24) {
+            duration = Math.max(duration, 3600 * 25);
+          }
+
+          expires = moment.utc()
+            .startOf('hour')
+            .add(duration, 'seconds');
+        } else if (expiresAt) {
+          expires = moment.utc(expiresAt);
+        } else {
           // 1 year by default
-          duration = 3600 * 24 * 365;
-        } else if (duration < 3600 * 24 || duration > 3600 * 24 * 365) {
-          throw new Error(`Api Key ${name} must be valid for minimum of 1 day and a maximum of 365 days.`);
+          expires = moment.utc()
+            .startOf('hour')
+            .add(1, 'year');
         }
 
-        // Minimum duration is 1 day from 'now'
-        // However, api key expiry is rounded down to the hour.
-        // meaning the minimum expiry date is in fact 25 hours
-        // We accept 24h durations for simplicity of use
-        // but fix them to be 25h
-        duration = Math.max(duration, 3600 * 25);
+        if (expires.isBefore(moment.utc().add(1, 'day'))
+          || expires.isAfter(moment.utc().add(1, 'year'))
+        ) {
+          throw new Error(`Api Key ${name} must be valid for a minimum of 1 day and a maximum of 365 days.`);
+        }
 
         const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY + name);
         acc[logicalIdApiKey] = {
@@ -492,8 +511,7 @@ class ServerlessAppsyncPlugin {
           Properties: {
             ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             Description: description || name,
-            // current time, rounded down to the hour + duration
-            Expires: (Math.floor(Date.now() / 1000 / 3600) * 3600) + duration,
+            Expires: expires.unix(),
             ApiKeyId: apiKeyId,
           },
         };

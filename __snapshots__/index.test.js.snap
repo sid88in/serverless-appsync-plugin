@@ -543,11 +543,15 @@ Object {
 }
 `;
 
-exports[`api keys should fail with invalid duration 1`] = `"Could not parse foobar as a valid diration"`;
+exports[`api keys should fail with a date > 1 year 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
 
-exports[`api keys should fail with too long duration 1`] = `"Api Key MyKey must be valid for minimum of 1 day and a maximum of 365 days."`;
+exports[`api keys should fail with invalid duration 1`] = `"Could not parse foobar as a valid duration"`;
 
-exports[`api keys should fail with too short duration 1`] = `"Api Key MyKey must be valid for minimum of 1 day and a maximum of 365 days."`;
+exports[`api keys should fail with too long duration 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should fail with too short duration 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should fail with with a date < 1 day 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
 
 exports[`api keys should generate several keys 1`] = `
 Object {
@@ -603,7 +607,7 @@ Object {
       },
       "ApiKeyId": undefined,
       "Description": "John's key",
-      "Expires": 1615419000,
+      "Expires": 1615305600,
     },
     "Type": "AWS::AppSync::ApiKey",
   },

@@ -74,10 +74,10 @@ custom:
     apiKeys:
       - name: john # name of the api key
         description: 'My api key'
-        expires: 30d # api key life time
+        expiresAfter: 30d # api key life time
       - name: jane
         description: "Jane's api key"
-        expires: 1y
+        expiresAt: '2021-03-09T16:00:00+00:00'
     # Array of additional authentication providers
     additionalAuthenticationProviders:
       - authenticationType: API_KEY
@@ -314,7 +314,7 @@ custom:
 
 #### Managing API keys
 
-Since v1.5.0, api keys management is supported. You can pass one or more api keys as an array in the `appSync.apiKeys` property.
+Since v1.5.0, api keys management is supported. You can pass one or more api keys configuration as an array in the `appSync.apiKeys` property.
 
 The keys can either be a string (name of the key with defaults) or an object of the following shape:
 
@@ -322,18 +322,23 @@ The keys can either be a string (name of the key with defaults) or an object of 
 |--------------| ------------------|------------|
 | name         | *auto-generated*  | Name of the key. This is used under the hood to differentiate keys in the deployment process.<br/><br/>Names are used in the Cfn resource name. Please, keep them short and without spaces or special characters to avoid issues. Key names are case sensitive. |
 | description  | *name of the key*   | A short description for that key |
-| expires      | 1y                | Expiration time for the key. <br/>Can be expressed in seconds or in "human" format. eg: `86400`, `30d`, `2w`, `1y` (See [jkroso/parse-duration](https://github.com/jkroso/parse-duration)).<br/>Min: 1d, max: 1y |
+| expiresAfter      | 1y                | Expiration time for the key. <br/>Can be expressed in seconds or in "human" format. eg: `86400`, `30d`, `2w`, `1y` (See [jkroso/parse-duration](https://github.com/jkroso/parse-duration)).<br/>Min: 1d, max: 1y |
+| expiresAt      | *one year from now* | A specific expiration date in ISO 8601 format. Or as a unix timestamp |
 | apiKeyId      | `undefined`      | the id if the api to update. Useful for when an api key has been created manually in the AWS console. |
+
+If both `expiresAfter` and `expiresAt` are specified, `expiresAfter` takes precedence.
 
 When naming keys, you need to be aware that changing the value will require the **replacement** of the api key.
 
 Unnamed keys are named automatically sequentially Key1, Key2, Key3 and so forth.
 
-:warning:  **Be careful when removing unnamed keys!!!**. For exemple, if you have 3 unnamed keys and you remove the second one in your list, Key3 will become Key2. As a result, it is former Key3 that **will be removed**. To workaround that, you could specify their auto-generated names before removing any unnamed keys (Key1, Key2 and Key3 in our example. Then remove Key2). As a rule of thumb, all keys should be named to avoid issues.
+:warning: **Be careful when removing unnamed keys!!!**. For exemple, if you have 3 unnamed keys and you remove the second one in your list, Key3 will become Key2. As a result, it is former Key3 that **will be removed**. To workaround that, you could specify their auto-generated names before removing any unnamed keys (Key1, Key2 and Key3 in our example. Then remove Key2). As a rule of thumb, all keys should be named to avoid issues.
 
-:bulb: If you have already deployed and an api key was previously auto-generated for you, you can add it to your yml template by naming it `Default` (case sensitive!!). Starting from there, you can add additional API keys.
+:bulb: If you have already deployed and an api key was previously auto-generated for you (either in version <1.5.0 or if you deployed without specifying the `apiKeys` property), you can add it to your yml template by naming it `Default` (case sensitive!!). Starting from there, you can add additional API keys.
 
 :bulb: If you want to revoke a key, delete it, or rename it.
+
+:bulb: If a key expires, or you have manually deleted it from the cosole, subsequent deployments will fail (after 60 days in the case it expires). You can fix that by simply removing the key from your yml file, or by renaming it (in which case, a new key will be generated).
 
 Example:
 ```yml
