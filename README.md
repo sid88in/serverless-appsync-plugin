@@ -53,21 +53,22 @@ Serverless: GraphiQl: http://localhost:20002
 
 Put options under `custom.appsync-simulator` in your `serverless.yml` file
 
-| option                   | default               | description                                                                                                                                                         |
-| ------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| apiKey                   | `0123456789`          | When using `API_KEY` as authentication type, the key to authenticate to the endpoint.                                                                               |
-| port                     | 20002                 | AppSync operations port                                                                                                                                             |
-| wsPort                   | 20003                 | AppSync subscriptions port                                                                                                                                          |
-| location                 | . (base directory)    | Location of the lambda functions handlers.                                                                                                                          |
-| lambda.loadLocalEnv      | false                 | If `true`, all environment variables (`$ env`) will be accessible from the resolver function. Read more in section [Environment variables](#environment-variables). |
-| refMap                   | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
-| getAttMap                | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
-| importValueMap           | {}                    | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `ImportValue` function                                                   |
-| functions                | {}                    | A mapping of [external functions](#functions) for providing invoke url for external fucntions                                                                       |
-| dynamoDb.endpoint        | http://localhost:8000 | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
-| dynamoDb.region          | localhost             | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
-| dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY    | AWS Access Key ID to access DynamoDB                                                                                                                                |
-| dynamoDb.secretAccessKey | DEFAULT_SECRET        | AWS Secret Key to access DynamoDB                                                                                                                                   |
+| option                   | default                    | description                                                                                                                                                         |
+| ------------------------ | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| apiKey                   | `0123456789`               | When using `API_KEY` as authentication type, the key to authenticate to the endpoint.                                                                               |
+| port                     | 20002                      | AppSync operations port                                                                                                                                             |
+| wsPort                   | 20003                      | AppSync subscriptions port                                                                                                                                          |
+| location                 | . (base directory)         | Location of the lambda functions handlers.                                                                                                                          |
+| lambda.loadLocalEnv      | false                      | If `true`, all environment variables (`$ env`) will be accessible from the resolver function. Read more in section [Environment variables](#environment-variables). |
+| refMap                   | {}                         | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `Ref` function                                                           |
+| getAttMap                | {}                         | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `GetAtt` function                                                        |
+| importValueMap           | {}                         | A mapping of [resource resolutions](#resource-cloudformation-functions-resolution) for the `ImportValue` function                                                   |
+| functions                | {}                         | A mapping of [external functions](#functions) for providing invoke url for external fucntions                                                                       |
+| dynamoDb.endpoint        | http://localhost:8000      | Dynamodb endpoint. Specify it if you're not using serverless-dynamodb-local. Otherwise, port is taken from dynamodb-local conf                                      |
+| dynamoDb.region          | localhost                  | Dynamodb region. Specify it if you're connecting to a remote Dynamodb intance.                                                                                      |
+| dynamoDb.accessKeyId     | DEFAULT_ACCESS_KEY         | AWS Access Key ID to access DynamoDB                                                                                                                                |
+| dynamoDb.secretAccessKey | DEFAULT_SECRET             | AWS Secret Key to access DynamoDB                                                                                                                                   |
+| watch                    | - \*.graphql<br/> - \*.vtl | Array of glob patterns to watch for hot-reloading.                                                                                                                  |
 
 Example:
 
@@ -78,6 +79,18 @@ custom:
     dynamoDb:
       endpoint: 'http://my-custom-dynamo:8000'
 ```
+
+# Hot-reloading
+
+By default, the simulator will hot-relad when changes to `*.graphql` or `*.vtl` files are detected.
+Changes to `*.yml` files are not supported (yet? - this is a Serverless Framework limitation). You will need to restart the simulator each time you change yml files.
+
+Hot-reloading relies on [watchman](https://facebook.github.io/watchman). Make sure it is [installed](https://facebook.github.io/watchman/docs/install.html) on your system.
+
+You can change the files being watched with the `watch` option.
+Or you can opt-out by leaving an emptry array or set the option to `false`.
+
+Note: Functions should not require hot-reloading, unless you are using a transpiler or a bundler (such as webpack, babel or typescript), un which case you should delegate hot-reloading to that instead.
 
 # Resource CloudFormation functions resolution
 

@@ -26,6 +26,7 @@
     "axios": "^0.21.0",
     "cfn-resolver-lib": "^1.1.7",
     "dataloader": "^2.0.0",
+    "fb-watchman": "^2.0.1",
     "lodash": "^4.17.20",
     "merge-graphql-schemas": "^1.5.8"
   },
