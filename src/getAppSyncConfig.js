@@ -2,7 +2,7 @@ import { AmplifyAppSyncSimulatorAuthenticationType as AuthTypes } from 'amplify-
 import { invoke } from 'amplify-nodejs-function-runtime-provider/lib/utils/invoke';
 import axios from 'axios';
 import fs from 'fs';
-import { forEach, isNil } from 'lodash';
+import { forEach, isNil, first } from 'lodash';
 import path from 'path';
 import { mergeTypes } from 'merge-graphql-schemas';
 import directLambdaRequest from './templates/direct-lambda.request.vtl';
@@ -222,7 +222,7 @@ export default function getAppSyncConfig(context, appSyncConfig) {
     getFileMap(context.serverless.config.servicePath, schemaPath),
   );
   const schema = {
-    path: schemas.find((s) => s.path),
+    path: first(schemas).path,
     content: mergeTypes(schemas.map((s) => s.content)),
   };
 

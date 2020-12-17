@@ -12,7 +12,8 @@
   },
   "scripts": {
     "lint": "eslint",
-    "build": "babel src/ -d lib/ --delete-dir-on-start",
+    "tests": "jest",
+    "build": "babel src/ -d lib/ --delete-dir-on-start --ignore '**/__tests__'",
     "prepare": "yarn run build",
     "start-dev": "yarn run build -w --verbose"
   },
@@ -24,9 +25,11 @@
     "amplify-nodejs-function-runtime-provider": "^1.1.6",
     "aws-sdk": "^2.792.0",
     "axios": "^0.21.0",
+    "babel-jest": "^26.6.3",
     "cfn-resolver-lib": "^1.1.7",
     "dataloader": "^2.0.0",
     "fb-watchman": "^2.0.1",
+    "jest": "^26.6.3",
     "lodash": "^4.17.20",
     "merge-graphql-schemas": "^1.5.8"
   },

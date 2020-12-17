@@ -1,0 +1,194 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getAppSyncConfig should generate a valid config 1`] = `
+Object {
+  "additionalAuthenticationProviders": Array [],
+  "apiKey": "123456789",
+  "defaultAuthenticationType": Object {
+    "authenticationType": "API_KEY",
+  },
+  "name": "myAPI",
+}
+`;
+
+exports[`getAppSyncConfig should generate a valid config 2`] = `
+Object {
+  "content": "type Post {
+  userId: Int!
+  id: Int!
+  title: String!
+  body: String!
+}
+
+type Query {
+  getPost: Post
+  getPosts: [Post]!
+}
+
+schema {
+  query: Query
+}
+",
+  "path": "schema.graphql",
+}
+`;
+
+exports[`getAppSyncConfig should generate a valid config 3`] = `
+Array [
+  Object {
+    "dataSourceName": "lambda",
+    "fieldName": "templates",
+    "functions": undefined,
+    "kind": "UNIT",
+    "requestMappingTemplate": "{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": {
+      \\"substitution\\": \\"lambda\\",
+      \\"args\\": $utils.toJson($context.arguments)
+    }
+}
+",
+    "responseMappingTemplate": "$utils.toJson($context.result.lambda)
+",
+    "typeName": "Query",
+  },
+  Object {
+    "dataSourceName": "lambda",
+    "fieldName": "default",
+    "functions": undefined,
+    "kind": "UNIT",
+    "requestMappingTemplate": "{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": {
+      \\"substitution\\": \\"default\\",
+      \\"type\\": \\"default\\"
+    }
+}
+",
+    "responseMappingTemplate": "$utils.toJson($context.result.default)
+",
+    "typeName": "Query",
+  },
+  Object {
+    "dataSourceName": "lambda",
+    "fieldName": "directLambda",
+    "functions": undefined,
+    "kind": "UNIT",
+    "requestMappingTemplate": "## Direct lambda request
+{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": $utils.toJson($context)
+}
+",
+    "responseMappingTemplate": "## Direct lambda response
+#if($ctx.error)
+    $util.error($ctx.error.message, $ctx.error.type, $ctx.result)
+#end
+$util.toJson($ctx.result)
+",
+    "typeName": "Query",
+  },
+  Object {
+    "dataSourceName": undefined,
+    "fieldName": "pipeline",
+    "functions": Array [
+      "func",
+      "func-default",
+    ],
+    "kind": "PIPELINE",
+    "requestMappingTemplate": "{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": {
+      \\"substitution\\": \\"pipeline\\",
+      \\"type\\": \\"default\\"
+    }
+}
+",
+    "responseMappingTemplate": "$utils.toJson($context.result.default)
+",
+    "typeName": "Query",
+  },
+]
+`;
+
+exports[`getAppSyncConfig should generate a valid config 4`] = `
+Array [
+  Object {
+    "invoke": [Function],
+    "name": "lambda",
+    "type": "AWS_LAMBDA",
+  },
+  Object {
+    "config": Object {
+      "accessKeyId": "DEFAULT_ACCESS_KEY",
+      "endpoint": "http://localhost:8000",
+      "region": "localhost",
+      "secretAccessKey": "DEFAULT_SECRET",
+      "tableName": "myTable",
+    },
+    "name": "dynamodb",
+    "type": "AMAZON_DYNAMODB",
+  },
+  Object {
+    "endpoint": "http://127.0.0.1",
+    "name": "http",
+    "type": "HTTP",
+  },
+]
+`;
+
+exports[`getAppSyncConfig should generate a valid config 5`] = `
+Array [
+  Object {
+    "dataSourceName": "lambda",
+    "name": "func",
+    "requestMappingTemplate": "{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": {
+      \\"substitution\\": \\"template-function\\",
+      \\"args\\": $utils.toJson($context.arguments)
+    }
+}
+",
+    "responseMappingTemplate": "$utils.toJson($context.result.lambda)
+",
+  },
+  Object {
+    "dataSourceName": "lambda",
+    "name": "func-default",
+    "requestMappingTemplate": "{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": {
+      \\"substitution\\": \\"default-function\\",
+      \\"type\\": \\"default\\"
+    }
+}
+",
+    "responseMappingTemplate": "$utils.toJson($context.result.default)
+",
+  },
+  Object {
+    "dataSourceName": "lambda",
+    "name": "func-direct",
+    "requestMappingTemplate": "## Direct lambda request
+{
+    \\"version\\": \\"2018-05-29\\",
+    \\"operation\\": \\"Invoke\\",
+    \\"payload\\": $utils.toJson($context)
+}
+",
+    "responseMappingTemplate": "## Direct lambda response
+#if($ctx.error)
+    $util.error($ctx.error.message, $ctx.error.type, $ctx.result)
+#end
+$util.toJson($ctx.result)
+",
+  },
+]
+`;
