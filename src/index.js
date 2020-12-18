@@ -3,12 +3,13 @@ import {
   addDataLoader,
 } from 'amplify-appsync-simulator';
 import { inspect } from 'util';
-import { get, merge, reduce } from 'lodash';
+import { defaults, get, merge, reduce } from 'lodash';
 import NodeEvaluator from 'cfn-resolver-lib';
 import getAppSyncConfig from './getAppSyncConfig';
 import NotImplementedDataLoader from './data-loaders/NotImplementedDataLoader';
 import ElasticDataLoader from './data-loaders/ElasticDataLoader';
 import HttpDataLoader from './data-loaders/HttpDataLoader';
+import watchman from 'fb-watchman';
 
 const resolverPathMap = {
   'AWS::DynamoDB::Table': 'Properties.TableName',
@@ -64,30 +65,90 @@ class ServerlessAppSyncSimulator {
       });
 
       await this.simulator.start();
+      if (Array.isArray(this.options.watch) && this.options.watch.length > 0) {
+        this.watch();
+      } else {
+        this.initServer();
+      }
 
-      // TODO: suport several API's
-      const appSync = Array.isArray(this.serverless.service.custom.appSync)
-        ? this.serverless.service.custom.appSync[0]
-        : this.serverless.service.custom.appSync;
-
-      const config = getAppSyncConfig(
-        {
-          plugin: this,
-          serverless: this.serverless,
-          options: this.options,
-        },
-        appSync,
-      );
-
-      this.debugLog(`AppSync Config ${appSync.name}`);
-      this.debugLog(inspect(config, { depth: 4, colors: true }));
-
-      this.simulator.init(config);
       this.log(`AppSync endpoint: ${this.simulator.url}/graphql`);
       this.log(`GraphiQl: ${this.simulator.url}`);
     } catch (error) {
       this.log(error, { color: 'red' });
     }
+  }
+
+  initServer() {
+    // TODO: suport several API's
+    const appSync = Array.isArray(this.serverless.service.custom.appSync)
+      ? this.serverless.service.custom.appSync[0]
+      : this.serverless.service.custom.appSync;
+    const config = getAppSyncConfig(
+      {
+        plugin: this,
+        serverless: this.serverless,
+        options: this.options,
+      },
+      appSync,
+    );
+
+    this.debugLog(`AppSync Config ${appSync.name}`);
+    this.debugLog(inspect(config, { depth: 4, colors: true }));
+
+    this.simulator.init(config);
+  }
+
+  watch() {
+    const client = new watchman.Client();
+    const path = this.serverless.config.servicePath;
+
+    // Try to watch for changes in AppSync configuration
+    client.command(['watch-project', path], (error, resp) => {
+      if (error) {
+        console.error('Error initiating watch:', error);
+        console.log('AppSync Simulator hot-reloading will not be available');
+        // init server once
+        this.initServer();
+        return;
+      }
+
+      if ('warning' in resp) {
+        console.log('warning: ', resp.warning);
+      }
+
+      // Watch for changes in vtl and schema files.
+      const sub = {
+        expression: [
+          'anyof',
+          ...this.options.watch.map((glob) => ['match', glob]),
+        ],
+        fields: ['name'],
+        since: resp.clock,
+      };
+
+      const { watch, relative_path } = resp;
+      if (relative_path) {
+        sub.relative_root = relative_path;
+      }
+
+      // init subscription
+      client.command(
+        ['subscribe', watch, 'appsync-simulator', sub],
+        (error) => {
+          if (error) {
+            console.error('Failed to subscribe: ', error);
+            return;
+          }
+        },
+      );
+    });
+
+    client.on('subscription', async (resp) => {
+      if (resp.subscription === 'appsync-simulator') {
+        console.log('Hot-reloading AppSync simulator...');
+        this.initServer();
+      }
+    });
   }
 
   endServer() {
@@ -161,6 +222,10 @@ class ServerlessAppSyncSimulator {
       },
       get(this.serverless.service, 'custom.appsync-simulator', {}),
     );
+
+    this.options = defaults(this.options, {
+      watch: ['*.graphql', '*.vtl'],
+    });
   }
 
   /**
