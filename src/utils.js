@@ -25,7 +25,7 @@ module.exports = {
         let unit = match[2];
 
         // 1 year could be 366 days on or before leap year,
-        // which would fail. Swap to 365 days
+        // which would fail. Swap for 365 days
         if (input.match(/^1y(ears?)?$/)) {
           amount = 365;
           unit = 'days';

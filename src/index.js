@@ -472,10 +472,9 @@ class ServerlessAppsyncPlugin {
 
         let expires;
         if (expiresAfter) {
-          const duration = parseDuration(expiresAfter);
           expires = moment.utc()
             .startOf('hour')
-            .add(duration);
+            .add(parseDuration(expiresAfter));
         } else if (expiresAt) {
           expires = moment.utc(expiresAt);
         } else {
