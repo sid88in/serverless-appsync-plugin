@@ -12,7 +12,7 @@ module.exports = {
         return parseInt(duration, 10);
       }
 
-      return parseStringDuration(duration, 's');
+      return parseStringDuration(duration, 'h');
     }
 
     return duration;

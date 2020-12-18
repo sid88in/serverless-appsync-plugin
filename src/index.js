@@ -483,13 +483,13 @@ class ServerlessAppsyncPlugin {
           // We accept 24h durations for simplicity of use
           // but fix them to be 25
           // Anything < 24h will be kept to make sure the validation fails later
-          if (duration >= 3600 * 24) {
-            duration = Math.max(duration, 3600 * 25);
+          if (duration >= 24) {
+            duration = Math.max(duration, 25);
           }
 
           expires = moment.utc()
             .startOf('hour')
-            .add(duration, 'seconds');
+            .add(duration, 'hours');
         } else if (expiresAt) {
           expires = moment.utc(expiresAt);
         } else {
