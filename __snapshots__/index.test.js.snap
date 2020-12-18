@@ -543,6 +543,158 @@ Object {
 }
 `;
 
+exports[`api keys should fail with a date > 1 year 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should fail with invalid duration 1`] = `"Could not parse foobar as a valid duration"`;
+
+exports[`api keys should fail with too long duration 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should fail with too short duration 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should fail with with a date < 1 day 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
+
+exports[`api keys should generate several keys 1`] = `
+Object {
+  "GraphQlApiKeyDefault": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "Default Key",
+      "Expires": 1610121600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+  "GraphQlApiKeyInlineKey": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "InlineKey",
+      "Expires": 1639065600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+  "GraphQlApiKeyJane": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "Jane",
+      "Expires": 1639065600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+  "GraphQlApiKeyJohn": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "John's key",
+      "Expires": 1615305600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+  "GraphQlApiKeyKey1": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "Unnamed Key1",
+      "Expires": 1607619600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+  "GraphQlApiKeyKey2": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": "da2-7hfy4mjkdmh64lp0une7yht765",
+      "Description": "Unnamed Key2",
+      "Expires": 1639065600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
+  },
+}
+`;
+
+exports[`api keys should generate several keys 2`] = `
+Object {
+  "GraphQlApiKeyDefault": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyDefault",
+        "ApiKey",
+      ],
+    },
+  },
+  "GraphQlApiKeyInlineKey": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyInlineKey",
+        "ApiKey",
+      ],
+    },
+  },
+  "GraphQlApiKeyJane": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyJane",
+        "ApiKey",
+      ],
+    },
+  },
+  "GraphQlApiKeyJohn": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyJohn",
+        "ApiKey",
+      ],
+    },
+  },
+  "GraphQlApiKeyKey1": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyKey1",
+        "ApiKey",
+      ],
+    },
+  },
+  "GraphQlApiKeyKey2": Object {
+    "Value": Object {
+      "Fn::GetAtt": Array [
+        "GraphQlApiKeyKey2",
+        "ApiKey",
+      ],
+    },
+  },
+}
+`;
+
 exports[`appsync config Additional authentication providers created 1`] = `
 Array [
   Object {
@@ -586,8 +738,9 @@ Object {
         "ApiId",
       ],
     },
-    "Description": "serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault",
-    "Expires": 31536010,
+    "ApiKeyId": undefined,
+    "Description": "Auto-generated api key",
+    "Expires": 1639065600,
   },
   "Type": "AWS::AppSync::ApiKey",
 }
@@ -711,6 +864,25 @@ Object {
       "Type": "AWS_LAMBDA",
     },
     "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config Deault API_KEY config created 1`] = `
+Object {
+  "GraphQlApiKeyDefault": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "ApiKeyId": undefined,
+      "Description": "Auto-generated api key",
+      "Expires": 1639065600,
+    },
+    "Type": "AWS::AppSync::ApiKey",
   },
 }
 `;

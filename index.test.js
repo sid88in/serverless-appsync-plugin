@@ -8,7 +8,9 @@ const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js'
 let serverless;
 let plugin;
 let config;
-jest.spyOn(Date, 'now').mockImplementation(() => 10000);
+
+// 2020-12-09T16:24:22+00:00
+jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 
 jest.mock('fs');
 jest.spyOn(fs, 'readFileSync').mockImplementation(path => `Content: ${path}`);
@@ -321,7 +323,7 @@ describe('appsync config', () => {
     });
   });
 
-  test('API_KEY config created', () => {
+  test('Deault API_KEY config created', () => {
     const apiConfig = {
       ...config,
       authenticationType: 'API_KEY',
@@ -331,14 +333,7 @@ describe('appsync config', () => {
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
     expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
-    expect(keyResources.GraphQlApiKeyDefault).toEqual({
-      Type: 'AWS::AppSync::ApiKey',
-      Properties: {
-        ApiId: { 'Fn::GetAtt': ['GraphQlApi', 'ApiId'] },
-        Description: 'serverless-appsync-plugin: AppSync API Key for GraphQlApiKeyDefault',
-        Expires: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60),
-      },
-    });
+    expect(keyResources).toMatchSnapshot();
     expect(outputs).toEqual({
       GraphQlApiKeyDefault: {
         Value: { 'Fn::GetAtt': ['GraphQlApiKeyDefault', 'ApiKey'] },
@@ -381,6 +376,7 @@ describe('appsync config', () => {
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
     expect(apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toMatchSnapshot();
+    expect(keyResources).toHaveProperty('GraphQlApiKeyDefault');
     expect(keyResources.GraphQlApiKeyDefault).toMatchSnapshot();
     expect(outputs).toEqual({
       GraphQlApiKeyDefault: {
@@ -1321,5 +1317,114 @@ describe('SyncConfig', () => {
 
     const result = plugin.getResolverResources(config);
     expect(result).toMatchSnapshot();
+  });
+});
+
+describe('api keys', () => {
+  it('should generate several keys', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'Default',
+          description: 'Default Key',
+          expiresAfter: '30d',
+        },
+        {
+          description: 'Unnamed Key1',
+          expiresAfter: '1d',
+        },
+        {
+          description: 'Unnamed Key2',
+          apiKeyId: 'da2-7hfy4mjkdmh64lp0une7yht765',
+        },
+        {
+          name: 'John',
+          description: 'John\'s key',
+          expiresAt: '2021-03-09T16:00:00+00:00',
+        },
+        {
+          name: 'Jane',
+          expiresAfter: '1y',
+        },
+        'InlineKey',
+      ],
+    };
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const outputs = plugin.getApiKeyOutputs(apiConfig);
+
+    expect(keyResources).toMatchSnapshot();
+    expect(outputs).toMatchSnapshot();
+  });
+
+  it('should fail with invalid duration', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAfter: 'foobar',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with too long duration', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAfter: '2y',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with too short duration', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAfter: '1h',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with a date > 1 year', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAt: '2021-12-09T17:00:00+00:00',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should fail with with a date < 1 day', () => {
+    const apiConfig = {
+      ...config,
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'MyKey',
+          expiresAt: '2020-12-10T16:00:00+00:00',
+        },
+      ],
+    };
+    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
   });
 });
