@@ -4,7 +4,6 @@ const chalk = require('chalk');
 const Serverless = require('serverless/lib/Serverless');
 const ServerlessAppsyncPlugin = require('./src');
 const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
-const moment = require('moment');
 
 let serverless;
 let plugin;
