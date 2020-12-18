@@ -1428,20 +1428,4 @@ describe('api keys', () => {
     };
     expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
   });
-
-  it('should auto-fix 24h durations to 25h', () => {
-    const apiConfig = {
-      ...config,
-      authenticationType: 'API_KEY',
-      apiKeys: [
-        {
-          name: 'MyKey',
-          expiresAfter: '24h',
-        },
-      ],
-    };
-    const keys = plugin.getApiKeyResources(apiConfig);
-    expect(keys.GraphQlApiKeyMyKey.Properties.Expires)
-      .toEqual(moment.utc().startOf('hour').add(25, 'hours').unix());
-  });
 });

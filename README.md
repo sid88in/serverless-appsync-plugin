@@ -322,7 +322,7 @@ The keys can either be a string (name of the key with defaults) or an object of 
 |--------------| ------------------|------------|
 | name         | *auto-generated*  | Name of the key. This is used under the hood to differentiate keys in the deployment process.<br/><br/>Names are used in the Cfn resource name. Please, keep them short and without spaces or special characters to avoid issues. Key names are case sensitive. |
 | description  | *name of the key*   | A short description for that key |
-| expiresAfter      | 1y                | Expiration time for the key. <br/>Can be expressed in hours or in "human" format. eg: `24`, `30d`, `2w`, `1y` (See [jkroso/parse-duration](https://github.com/jkroso/parse-duration)).<br/>Min: 1d, max: 1y |
+| expiresAfter | 365d                | Expiration time for the key. <br/>Can be expressed in hours or in "human" format (As in momentjs [add](https://momentjscom.readthedocs.io/en/latest/moment/03-manipulating/01-add/)).<br/>eg: `24`, `30d`, `1M`, `2w`, `1y`<br/>Min: 1d, max: 1y |
 | expiresAt      | *one year from now* | A specific expiration date in ISO 8601 format. Or as a unix timestamp |
 | apiKeyId      | `undefined`      | the id if the api to update. Useful for when an api key has been created manually in the AWS console. |
 

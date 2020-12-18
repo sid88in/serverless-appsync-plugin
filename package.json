@@ -29,7 +29,6 @@
     "graphql-playground-middleware-koa": "^1.6.4",
     "koa": "^2.5.2",
     "moment": "^2.29.1",
-    "parse-duration": "^0.4.4",
     "ramda": "^0.25.0"
   },
   "peerDependencies": {},

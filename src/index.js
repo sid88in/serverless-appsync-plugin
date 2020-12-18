@@ -472,31 +472,17 @@ class ServerlessAppsyncPlugin {
 
         let expires;
         if (expiresAfter) {
-          let duration = parseDuration(expiresAfter);
-          if (duration === null) {
-            throw new Error(`Could not parse ${expiresAfter} as a valid duration`);
-          }
-
-          // Minimum duration is 1 day from 'now'
-          // However, api key expiry is rounded down to the hour.
-          // meaning the minimum expiry date is in fact 25 hours
-          // We accept 24h durations for simplicity of use
-          // but fix them to be 25
-          // Anything < 24h will be kept to make sure the validation fails later
-          if (duration >= 24) {
-            duration = Math.max(duration, 25);
-          }
-
+          const duration = parseDuration(expiresAfter);
           expires = moment.utc()
             .startOf('hour')
-            .add(duration, 'hours');
+            .add(duration);
         } else if (expiresAt) {
           expires = moment.utc(expiresAt);
         } else {
           // 1 year by default
           expires = moment.utc()
             .startOf('hour')
-            .add(1, 'year');
+            .add(365, 'days');
         }
 
         if (expires.isBefore(moment.utc().add(1, 'day'))
