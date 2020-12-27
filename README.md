@@ -373,13 +373,7 @@ apiKeys:
   - expires: 30d # second unnamed key (Key2)
   - name: ThrottledAPIKey
     wafRules:
-      - action: Block
-        name: Throttle
-        statement:
-          RateBasedStatement:
-            AggregateKeyType: "IP"
-            Limit: 100
-
+      - throttle # throttle this API key to 100 requests per 5 min
 
   - name: GeoApiKey
     description: Us Only
@@ -414,13 +408,13 @@ This plugin comes with some handy pre-defined rules that you can enable in just 
 
 Throttling will disallow requests coming from the same ip address when a limit is reached within a 5-minutes period.
 
-There are several ways to configure it. Here are some examples:
+There are several ways to enable it. Here are some examples:
 
 ````yml
 wafConfig:
   enabled: true
   rules:
-    - throttle # (default) limit to 100 requests per 5 minutes period
+    - throttle # limit to 100 requests per 5 minutes period
     - throttle: 200 # limit to 200 requests per 5 minutes period
     # fine-grained config: See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-ratebasedstatementone.html
     - throttle:
@@ -435,7 +429,6 @@ wafConfig:
 
 Sometimes, you want to disable introspection to disallow untrusted consumers to discover the structure of your API.
 
-
 ````yml
 wafConfig:
   enabled: true
@@ -445,7 +438,7 @@ wafConfig:
 
 ### Per Api Key rules
 
-In some cases, you might want to enable a rule only for a given API key. You can specify wafRules under the `apiKey` configuration. The ruels will apply only to the api key under which the rule is set.
+In some cases, you might want to enable a rule only for a given API key only. You can specify `wafRules` under the `apiKey` configuration. The rules will apply only to the api key under which the rule is set.
 
 ````yml
 apiKeys:

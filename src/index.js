@@ -1209,7 +1209,6 @@ class ServerlessAppsyncPlugin {
   }
 
   buildWafRule(rule, defaultNamePrefix) {
-
     // Throttle pre-set rule
     if (rule === 'throttle' || rule.throttle) {
       return this.buildThrottleRule(rule.throttle || {}, defaultNamePrefix);
@@ -1251,17 +1250,14 @@ class ServerlessAppsyncPlugin {
     return rules
       .map(rule => this.buildWafRule(rule, 'Base'))
       .concat(this.buildApiKeysWafRules(apiConfig))
-      .map((rule) => {
-        return {
-          ...rule,
-          // eslint-disable-next-line no-plusplus
-          Priority: rule.Priority || DefaultPriority++,
-        };
-      });
+      .map(rule => ({
+        ...rule,
+        // eslint-disable-next-line no-plusplus
+        Priority: rule.Priority || DefaultPriority++,
+      }));
   }
 
   buildDisableIntrospecRule(config, defaultNamePrefix) {
-
     const Name = `${defaultNamePrefix}DisableIntrospection`;
     let Priority;
 
