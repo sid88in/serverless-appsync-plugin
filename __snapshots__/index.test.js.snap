@@ -543,6 +543,720 @@ Object {
 }
 `;
 
+exports[`WAF should generate API key WAF config 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "UsOnly",
+          "OverrideAction": undefined,
+          "Priority": 100,
+          "Statement": Object {
+            "AndStatement": Array [
+              Object {
+                "NotStatement": Object {
+                  "Statement": Object {
+                    "GeoMatchStatement": Object {
+                      "CountryCodes": Array [
+                        "US",
+                      ],
+                    },
+                  },
+                },
+              },
+              Object {
+                "ByteMatchStatement": Object {
+                  "FieldToMatch": Object {
+                    "SingleHeader": Object {
+                      "Name": "X-Api-key",
+                    },
+                  },
+                  "PositionalConstraint": "EXACTLY",
+                  "SearchString": Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlApiKeyGeoLimitedKey",
+                      "ApiKey",
+                    ],
+                  },
+                  "TextTransformations": Array [
+                    Object {
+                      "Priority": 0,
+                      "Type": "NONE",
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "UsOnly",
+            "SampledRequestsEnabled": true,
+          },
+        },
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "Throttle",
+          "OverrideAction": undefined,
+          "Priority": 1,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "IP",
+              "Limit": 500,
+              "ScopeDownStatement": Object {
+                "ByteMatchStatement": Object {
+                  "FieldToMatch": Object {
+                    "SingleHeader": Object {
+                      "Name": "X-Api-key",
+                    },
+                  },
+                  "PositionalConstraint": "EXACTLY",
+                  "SearchString": Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlApiKeyThrottledKey",
+                      "ApiKey",
+                    ],
+                  },
+                  "TextTransformations": Array [
+                    Object {
+                      "Priority": 0,
+                      "Type": "NONE",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "Throttle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate API key WAF with default preset rules 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "MyKeyThrottle",
+          "Priority": 100,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
+              "Limit": 100,
+              "ScopeDownStatement": Object {
+                "ByteMatchStatement": Object {
+                  "FieldToMatch": Object {
+                    "SingleHeader": Object {
+                      "Name": "X-Api-key",
+                    },
+                  },
+                  "PositionalConstraint": "EXACTLY",
+                  "SearchString": Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlApiKeyMyKey",
+                      "ApiKey",
+                    ],
+                  },
+                  "TextTransformations": Array [
+                    Object {
+                      "Priority": 0,
+                      "Type": "NONE",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "MyKeyThrottle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+        Object {
+          "Action": Object {
+            "Block": Object {},
+          },
+          "Name": "MyKeyDisableIntrospection",
+          "Priority": 101,
+          "Statement": Object {
+            "AndStatement": Array [
+              Object {
+                "ByteMatchStatement": Object {
+                  "FieldToMatch": Object {
+                    "Body": Object {},
+                  },
+                  "PositionalConstraint": "CONTAINS",
+                  "SearchString": "__schema",
+                  "TextTransformations": Array [
+                    Object {
+                      "Priority": 0,
+                      "Type": "NONE",
+                    },
+                  ],
+                },
+              },
+              Object {
+                "ByteMatchStatement": Object {
+                  "FieldToMatch": Object {
+                    "SingleHeader": Object {
+                      "Name": "X-Api-key",
+                    },
+                  },
+                  "PositionalConstraint": "EXACTLY",
+                  "SearchString": Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlApiKeyMyKey",
+                      "ApiKey",
+                    ],
+                  },
+                  "TextTransformations": Array [
+                    Object {
+                      "Priority": 0,
+                      "Type": "NONE",
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "MyKeyDisableIntrospection",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate WAF config 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Allow": Object {},
+          },
+          "Name": "UsOnly",
+          "OverrideAction": undefined,
+          "Priority": 100,
+          "Statement": Object {
+            "NotStatement": Object {
+              "Statement": Object {
+                "GeoMatchStatement": Object {
+                  "CountryCodes": Array [
+                    "US",
+                  ],
+                },
+              },
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "UsOnly",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF default throttle rule 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "BaseThrottle",
+          "Priority": 100,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
+              "Limit": 100,
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseThrottle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF throttle rule with FORWARDED_IP 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "BaseThrottle",
+          "Priority": 100,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "FORWARDED_IP",
+              "ForwardedIPConfig": Object {
+                "FallbackBehavior": "MATCH",
+                "HeaderName": "X-Forwarded-For",
+              },
+              "Limit": 300,
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseThrottle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF throttle rule with FORWARDED_IP and config 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "BaseThrottle",
+          "Priority": 100,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "FORWARDED_IP",
+              "ForwardedIPConfig": Object {
+                "FallbackBehavior": "NO_NOMATCH",
+                "HeaderName": "X-Reenviado-Para",
+              },
+              "Limit": 400,
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseThrottle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF throttle rule with limit 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Deny": Object {},
+          },
+          "Name": "BaseThrottle",
+          "Priority": 100,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
+              "Limit": 200,
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseThrottle",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF with default no-introspect rule 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Block": Object {},
+          },
+          "Name": "BaseDisableIntrospection",
+          "Priority": 100,
+          "Statement": Object {
+            "ByteMatchStatement": Object {
+              "FieldToMatch": Object {
+                "Body": Object {},
+              },
+              "PositionalConstraint": "CONTAINS",
+              "SearchString": "__schema",
+              "TextTransformations": Array [
+                Object {
+                  "Priority": 0,
+                  "Type": "NONE",
+                },
+              ],
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseDisableIntrospection",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should generate a WAF with no-introspect rule and priority 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync apiWaf",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Block": Object {},
+          },
+          "Name": "BaseDisableIntrospection",
+          "Priority": 20,
+          "Statement": Object {
+            "ByteMatchStatement": Object {
+              "FieldToMatch": Object {
+                "Body": Object {},
+              },
+              "PositionalConstraint": "CONTAINS",
+              "SearchString": "__schema",
+              "TextTransformations": Array [
+                Object {
+                  "Priority": 0,
+                  "Type": "NONE",
+                },
+              ],
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "BaseDisableIntrospection",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
 exports[`api keys should fail with a date > 1 year 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
 
 exports[`api keys should fail with invalid duration 1`] = `"Could not parse foobar as a valid duration"`;

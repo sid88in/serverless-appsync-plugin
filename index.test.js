@@ -1428,3 +1428,235 @@ describe('api keys', () => {
     expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
   });
 });
+
+describe('WAF', () => {
+  it('should generate WAF config', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [
+          {
+            action: 'Allow',
+            name: 'UsOnly',
+            priority: 0,
+            statement: {
+              NotStatement: {
+                Statement: {
+                  GeoMatchStatement: {
+                    CountryCodes: ['US'],
+                  },
+                },
+              },
+            },
+            visibilityConfig: {
+              cloudWatchMetricsEnabled: true,
+              metricName: 'usOnlyWafRule',
+              sampledRequestsEnabled: true,
+            },
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate API key WAF config', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: { enabled: true },
+      apiKeys: [
+        {
+          name: 'GeoLimitedKey',
+          wafRules: [
+            {
+              action: 'Deny',
+              name: 'UsOnly',
+              priority: 0,
+              statement: {
+                NotStatement: {
+                  Statement: {
+                    GeoMatchStatement: {
+                      CountryCodes: ['US'],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: 'ThrottledKey',
+          wafRules: [
+            {
+              action: 'Deny',
+              name: 'Throttle',
+              priority: 1,
+              statement: {
+                RateBasedStatement: {
+                  AggregateKeyType: 'IP',
+                  Limit: 500,
+                },
+              },
+            },
+          ],
+        },
+      ],
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF with default no-introspect rule', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: ['disableIntrospection'],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF with no-introspect rule and priority', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [
+          {
+            disableIntrospection: {
+              priority: 20,
+            },
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF default throttle rule', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: ['throttle'],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF throttle rule with limit', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [{ throttle: 200 }],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF throttle rule with FORWARDED_IP', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [
+          {
+            throttle: {
+              limit: 300,
+              aggregateKeyType: 'FORWARDED_IP',
+            },
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate a WAF throttle rule with FORWARDED_IP and config', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [
+          {
+            throttle: {
+              limit: 400,
+              aggregateKeyType: 'FORWARDED_IP',
+              forwardedIPConfig: {
+                HeaderName: 'X-Reenviado-Para',
+                FallbackBehavior: 'NO_NOMATCH',
+              },
+            },
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate API key WAF with default preset rules', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: { enabled: true },
+      apiKeys: [
+        {
+          name: 'MyKey',
+          wafRules: [
+            'throttle',
+            'disableIntrospection',
+          ],
+        },
+      ],
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
+  it('should generate consecutive but different priorities', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        rules: [
+          { name: 'Dummy1' },
+          { name: 'Dummy2' },
+          {
+            name: 'Dummy3',
+            priority: 5,
+          },
+          { name: 'Dummy4' },
+          {
+            name: 'Dummy5',
+            priority: 9,
+          },
+        ],
+      },
+      apiKeys: [
+        {
+          name: 'MyKey',
+          wafRules: [
+            {
+              throttle: {
+                limit: 100,
+                priority: 15,
+              },
+            },
+            {
+              disableIntrospection: {
+                priority: 16,
+              },
+            },
+            {
+              name: 'Dummy6',
+              statement: {},
+            },
+          ],
+        },
+      ],
+    };
+    const waf = plugin.getWafResources(apiConfig);
+    const priorities = waf.GraphQlWaf.Properties.Rules.map(r => r.Priority);
+    expect(priorities).toEqual([100, 101, 5, 102, 9, 15, 16, 103]);
+  });
+});

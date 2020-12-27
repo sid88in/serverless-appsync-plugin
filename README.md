@@ -240,6 +240,23 @@ custom:
       exampleVar1: "${self:service.name}"
       exampleVar2: {'Fn::ImportValue': 'Some-external-stuff'}
     xrayEnabled: true # Bool, Optional. Enable X-Ray. disabled by default.
+    wafConfig:
+      enabled: true
+      name: AppSyncWaf
+      defaultAction: Allow # or Deny. Defaults to Allow
+      description: 'My AppSync Waf rules'
+      rules:
+        - throttle: 100
+        - disableIntrospection
+        - name: UsOnly
+          action: Block
+          statement:
+            NotStatement:
+              Statement:
+                GeoMatchStatement:
+                  CountryCodes:
+                    - US
+
     tags: # Tags to be added to AppSync
       key1: value1
       key2: value2
@@ -354,6 +371,30 @@ apiKeys:
     expires: 2d
   - description: Unnamed key # first unnamed key (Key1)
   - expires: 30d # second unnamed key (Key2)
+  - name: ThrottledAPIKey
+    wafRules:
+      - action: Block
+        name: Throttle
+        statement:
+          RateBasedStatement:
+            AggregateKeyType: "IP"
+            Limit: 100
+
+
+  - name: GeoApiKey
+    description: Us Only
+    # Disallow this Api key outsite the US
+    wafRules:
+      - action: Block
+        name: UsOnly
+        statement:
+          NotStatement:
+            Statement:
+              GeoMatchStatement:
+                CountryCodes:
+                  - US
+
+
 ```
 
 :bulb:  Finally, if you dont't want serverless to handle keys for you, just pass an empty array:
