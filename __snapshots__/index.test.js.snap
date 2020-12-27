@@ -590,7 +590,7 @@ Object {
                   "TextTransformations": Array [
                     Object {
                       "Priority": 0,
-                      "Type": "NONE",
+                      "Type": "LOWERCASE",
                     },
                   ],
                 },
@@ -631,7 +631,7 @@ Object {
                   "TextTransformations": Array [
                     Object {
                       "Priority": 0,
-                      "Type": "NONE",
+                      "Type": "LOWERCASE",
                     },
                   ],
                 },
@@ -693,8 +693,11 @@ Object {
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "IP",
-              "ForwardedIPConfig": undefined,
+              "AggregateKeyType": "FORWARDED_IP",
+              "ForwardedIPConfig": Object {
+                "FallbackBehavior": "MATCH",
+                "HeaderName": "X-Forwarded-For",
+              },
               "Limit": 100,
               "ScopeDownStatement": Object {
                 "ByteMatchStatement": Object {
@@ -713,7 +716,7 @@ Object {
                   "TextTransformations": Array [
                     Object {
                       "Priority": 0,
-                      "Type": "NONE",
+                      "Type": "LOWERCASE",
                     },
                   ],
                 },
@@ -766,7 +769,7 @@ Object {
                   "TextTransformations": Array [
                     Object {
                       "Priority": 0,
-                      "Type": "NONE",
+                      "Type": "LOWERCASE",
                     },
                   ],
                 },
@@ -893,8 +896,11 @@ Object {
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "IP",
-              "ForwardedIPConfig": undefined,
+              "AggregateKeyType": "FORWARDED_IP",
+              "ForwardedIPConfig": Object {
+                "FallbackBehavior": "MATCH",
+                "HeaderName": "X-Forwarded-For",
+              },
               "Limit": 100,
             },
           },
@@ -1079,8 +1085,11 @@ Object {
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "IP",
-              "ForwardedIPConfig": undefined,
+              "AggregateKeyType": "FORWARDED_IP",
+              "ForwardedIPConfig": Object {
+                "FallbackBehavior": "MATCH",
+                "HeaderName": "X-Forwarded-For",
+              },
               "Limit": 200,
             },
           },

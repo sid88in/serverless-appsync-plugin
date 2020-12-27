@@ -4,7 +4,7 @@ const parseSchema = require('graphql/language').parse;
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
-const { has, isNil } = require('ramda');
+const { has, isNil, merge } = require('ramda');
 const { parseDuration } = require('./utils');
 const moment = require('moment');
 
@@ -1172,7 +1172,7 @@ class ServerlessAppsyncPlugin {
             SearchString: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
             TextTransformations: [
               {
-                Type: 'NONE',
+                Type: 'LOWERCASE',
                 Priority: 0,
               },
             ],
@@ -1301,7 +1301,7 @@ class ServerlessAppsyncPlugin {
   buildThrottleRule(config, defaultNamePrefix) {
     const Name = `${defaultNamePrefix}Throttle`;
     let Limit = 100;
-    let AggregateKeyType = 'IP';
+    let AggregateKeyType = 'FORWARDED_IP';
     let ForwardedIPConfig;
     let Priority;
 
@@ -1311,12 +1311,16 @@ class ServerlessAppsyncPlugin {
       AggregateKeyType = config.aggregateKeyType || AggregateKeyType;
       Limit = config.limit || Limit;
       Priority = config.priority;
-      if (AggregateKeyType === 'FORWARDED_IP') {
-        ForwardedIPConfig = config.forwardedIPConfig || {
+    }
+
+    if (AggregateKeyType === 'FORWARDED_IP') {
+      ForwardedIPConfig = merge(
+        {
           HeaderName: 'X-Forwarded-For',
           FallbackBehavior: 'MATCH',
-        };
-      }
+        },
+        config.forwardedIPConfig,
+      );
     }
 
     return {

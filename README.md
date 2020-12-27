@@ -4,7 +4,7 @@
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
 
-## Getting Started
+# Getting Started
 
 Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has to offer. Here are a few resources to help you understand everything needed to get started!
 
@@ -12,12 +12,12 @@ Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has 
 * [Data Sources and Resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html) - Get more information on what data sources are supported and how to set them up!
 * [Security](https://docs.aws.amazon.com/appsync/latest/devguide/security.html) - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
 
-## Minimum requirements
+# Minimum requirements
 
 * [Node.js v8 or higher](https://nodejs.org)
 * [Serverless v1.30.0 or higher](https://github.com/serverless/serverless)
 
-## Installation & Configuration
+# Installation & Configuration
 
 Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
@@ -31,7 +31,7 @@ or via [NPM](https://docs.npmjs.com/cli/install)
 npm install serverless-appsync-plugin
 ```
 
-### Configuring the plugin
+## Configuring the plugin
 
 Add ```serverless-appsync-plugin``` to the plugins section of ```serverless.yml```
 
@@ -264,7 +264,7 @@ custom:
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
 
-#### Multiple APIs
+### Multiple APIs
 
 If you have multiple APIs and do not want to split this up into another CloudFormation stack, simply change the `appSync` configuration property from an object into an array of objects:
 
@@ -295,7 +295,7 @@ custom:
 
 > Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
 
-#### Pipeline Resolvers
+### Pipeline Resolvers
 
 Amazon supports [pipeline resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/pipeline-resolvers.html)
 
@@ -329,7 +329,7 @@ custom:
         response: './mapping-templates/common-response.vtl' # defaults to {name}.response.vtl
 ```
 
-#### Managing API keys
+### Managing API keys
 
 Since v1.5.0, api keys management is supported. You can pass one or more api keys configuration as an array in the `appSync.apiKeys` property.
 
@@ -404,19 +404,92 @@ apiKeys:
 apiKeys: []
 ```
 
-## Cli Usage
+### WAF Request ACL
 
-### `serverless deploy`
+AppSync [supports WAF](https://aws.amazon.com/blogs/mobile/appsync-waf/). WAF is an Application Firewall that helps you protect your API against common web exploits.
+
+This plugin comes with some handy pre-defined rules that you can enable in just a few lines of code.
+
+### Throttling
+
+Throttling will disallow requests coming from the same ip address when a limit is reached within a 5-minutes period.
+
+There are several ways to configure it. Here are some examples:
+
+````yml
+wafConfig:
+  enabled: true
+  rules:
+    - throttle # (default) limit to 100 requests per 5 minutes period
+    - throttle: 200 # limit to 200 requests per 5 minutes period
+    # fine-grained config: See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-ratebasedstatementone.html
+    - throttle:
+        limit: 200
+        aggregateKeyType: FORWARDED_IP
+        forwardedIPConfig:
+          HeaderName: 'X-Forwarded-For'
+          FallbackBehavior: 'MATCH'
+````
+
+### Disable Introspection
+
+Sometimes, you want to disable introspection to disallow untrusted consumers to discover the structure of your API.
+
+
+````yml
+wafConfig:
+  enabled: true
+  rules:
+    - disableIntrospection  # disables introspection for everyone
+````
+
+### Per Api Key rules
+
+In some cases, you might want to enable a rule only for a given API key. You can specify wafRules under the `apiKey` configuration. The ruels will apply only to the api key under which the rule is set.
+
+````yml
+apiKeys:
+  - name: MyApiKey
+    expiresAfter: 365d
+    wafRules:
+      - throttle # throttles this API key
+      - disableIntrospection # disables introspection for this API key
+````
+
+### Advanced usage
+
+You can also specify custom rules. For more info on how to define a rule, see the [Cfn documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-rule.html)
+
+Exemple:
+
+````yml
+wafConfig:
+  enabled: true
+  rules:
+    # Block request coming from outside the US
+    - action: Block
+      name: UsOnly
+      statement:
+        NotStatement:
+          Statement:
+            GeoMatchStatement:
+              CountryCodes:
+                - US
+````
+
+# Cli Usage
+
+## `serverless deploy`
 
 This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
 
 * Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
 
-### `validate-schema`
+## `validate-schema`
 
 Validates your GraphQL Schema(s) without deploying.
 
-### `serverless graphql-playground`
+## `serverless graphql-playground`
 
 This command will start a local graphql-playground server which is connected to your deployed AppSync endpoint (in the cloud). The required options for the command are different depending on your AppSync authenticationType.
 
@@ -428,20 +501,20 @@ For OPENID_CONNECT, the --jwtToken option is required.
 
 The AWS_IAM authenticationType is not currently supported.
 
-## Offline support
+# Offline support
 
 There are 2 ways to work with offline development for serverless appsync.
 
-### serverless-appsync-simulator
+## serverless-appsync-simulator
 
 [serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-### serverless-appsync-simulator (deprecated/unmaintained)
+## serverless-appsync-simulator (deprecated/unmaintained)
 
 [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
 
 
-## Split Stacks Plugin
+# Split Stacks Plugin
 
 You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks) to migrate AppSync resources in nested stacks in order to work around the [~~200~~](~~) 500 resource limit.
 
@@ -449,7 +522,7 @@ You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serv
 
 ```
 yarn add --dev serverless-plugin-split-stacks
-# or
+ or
 npm install --save-dev serverless-plugin-split-stacks
 ```
 
@@ -478,19 +551,19 @@ module.exports = {
 
 5. Enjoy :beers:
 
-## Contributing
+# Contributing
 
 If you have any questions, issue, feature request, please feel free to [open an issue](/issues/new).
 
 You are also very welcome to open a PR and we will gladely review it.
 
-## Resources
+# Resources
 
-### Video tutorials
+## Video tutorials
 - [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
 
-### Blog tutorial
+## Blog tutorial
 
 - *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
 
@@ -500,7 +573,7 @@ You are also very welcome to open a PR and we will gladely review it.
 
 - *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
 
-## Contributors ✨
+# Contributors ✨
 
 Thanks goes to these wonderful people :clap:
 
