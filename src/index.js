@@ -1312,19 +1312,20 @@ class ServerlessAppsyncPlugin {
     if (typeof config === 'number') {
       Limit = config;
     } else if (typeof config === 'object') {
-      AggregateKeyType = config.aggregateKeyType || AggregateKeyType;
-      Limit = config.limit || Limit;
-      Priority = config.priority;
-    }
-
-    if (AggregateKeyType === 'FORWARDED_IP') {
-      ForwardedIPConfig = merge(
-        {
-          HeaderName: 'X-Forwarded-For',
-          FallbackBehavior: 'MATCH',
-        },
-        config.forwardedIPConfig,
-      );
+      const cfnConfig = toCfnKeys(config);
+      AggregateKeyType = cfnConfig.AggregateKeyType || AggregateKeyType;
+      Limit = cfnConfig.Limit || Limit;
+      // eslint-disable-next-line prefer-destructuring
+      Priority = cfnConfig.Priority;
+      if (AggregateKeyType === 'FORWARDED_IP') {
+        ForwardedIPConfig = merge(
+          {
+            HeaderName: 'X-Forwarded-For',
+            FallbackBehavior: 'MATCH',
+          },
+          toCfnKeys(cfnConfig.ForwardedIPConfig),
+        );
+      }
     }
 
     return {

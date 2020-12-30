@@ -398,7 +398,7 @@ apiKeys:
 apiKeys: []
 ```
 
-### WAF Request ACL
+### WAF Web ACL
 
 AppSync [supports WAF](https://aws.amazon.com/blogs/mobile/appsync-waf/). WAF is an Application Firewall that helps you protect your API against common web exploits.
 
@@ -416,13 +416,13 @@ wafConfig:
   rules:
     - throttle # limit to 100 requests per 5 minutes period
     - throttle: 200 # limit to 200 requests per 5 minutes period
-    # fine-grained config: See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-ratebasedstatementone.html
     - throttle:
         limit: 200
+        priority: 10
         aggregateKeyType: FORWARDED_IP
         forwardedIPConfig:
-          HeaderName: 'X-Forwarded-For'
-          FallbackBehavior: 'MATCH'
+          headerName: 'X-Forwarded-For'
+          fallbackBehavior: 'MATCH'
 ````
 
 ### Disable Introspection
@@ -449,13 +449,14 @@ apiKeys:
       - disableIntrospection # disables introspection for this API key
 ````
 
-Adding a rule to an API key without any statement will add a "match-all" rule for that key.
+Adding a rule to an API key without any _statement_ will add a "match-all" rule for that key.
 This is usefull for example to exclude api keys from high-level rules. In that case, you need to make sure to attribute a higher priority to that rule.
 
 Example:
 - Block all requests by default
-- Add a rule to allow US requests only for everyone
+- Add a rule to allow US requests
 - Remove restriction to the `WorldWideApiKey` key.
+
 ````yml
 wfConfig:
   enabled: true
@@ -466,17 +467,15 @@ wfConfig:
       name: UsOnly
       priority: 5
       statement:
-        Statement:
-          GeoMatchStatement:
-            CountryCodes:
-              - US
+        geoMatchStatement:
+          countryCodes:
+            - US
 apiKeys:
-  - name: UsOnlyApiKey # no rule is set, the top-level rule applies
+  - name: Key1 # no rule is set, the top-level rule applies (Us only)
+  - name: Key1 # no rule is set, the top-level rule applies (Us only)
   - name: WorldWideApiKey
     wafRules:
-      # Add an exception to the US-only rule for this API key
-      # by adding an match-all `Allow` rule
-      - name: AllowKey
+      - name: WorldWideApiKeyRule
         action: Allow
         priority: 1 # Make sure the priority is higher (lower number) to evaluate it first
 ````
@@ -487,8 +486,8 @@ The priorities don't need to be consecutive, but they must all be different.
 
 Setting a priority to the rules is not required, but recommended. If you don't set priority, it will be automatically attributed (sequentially) according to the following rules:
 
-First the global rules, in order that they are defined. Then, the api key rules, in order of api keys and rule definition.
-Auto-generated priorities start at 100. This gives you some room (0-99) to add rules that should get a high priority.
+First the global rules, in the order that they are defined. Then, the api key rules, in order of api key definitions, then rule definition.
+Auto-generated priorities start at 100. This gives you some room (0-99) to add other rules that should get a higher priority.
 
 Example:
 
@@ -532,10 +531,10 @@ wafConfig:
     - action: Block
       name: UsOnly
       statement:
-        NotStatement:
-          Statement:
-            GeoMatchStatement:
-              CountryCodes:
+        notStatement:
+          statement:
+            geoMatchStatement:
+              countryCodes:
                 - US
 ````
 

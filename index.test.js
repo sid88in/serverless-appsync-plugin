@@ -1585,8 +1585,8 @@ describe('WAF', () => {
               limit: 400,
               aggregateKeyType: 'FORWARDED_IP',
               forwardedIPConfig: {
-                HeaderName: 'X-Reenviado-Para',
-                FallbackBehavior: 'NO_NOMATCH',
+                headerName: 'X-Reenviado-Para',
+                fallbackBehavior: 'NO_NOMATCH',
               },
             },
           },
