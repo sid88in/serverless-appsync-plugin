@@ -1,4 +1,5 @@
 const moment = require('moment');
+const { upperFirst, transform } = require('lodash');
 
 const timeUnits = [
   'years?', 'y',
@@ -11,6 +12,21 @@ const timeUnits = [
   'seconds?', 's',
   'milliseconds?', 'ms',
 ];
+
+const toCfnKeys = object => transform(
+  object,
+  (acc, value, key) => {
+    const newKey = typeof key === 'string'
+      ? upperFirst(key)
+      : key;
+
+    acc[newKey] = typeof value === 'object'
+      ? toCfnKeys(value)
+      : value;
+
+    return acc;
+  },
+);
 
 module.exports = {
   parseDuration: (input) => {
@@ -51,4 +67,5 @@ module.exports = {
 
     return duration;
   },
+  toCfnKeys,
 };

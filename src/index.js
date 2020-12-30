@@ -5,7 +5,7 @@ const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
 const { has, isNil, merge } = require('ramda');
-const { parseDuration } = require('./utils');
+const { parseDuration, toCfnKeys } = require('./utils');
 const moment = require('moment');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -1180,22 +1180,30 @@ class ServerlessAppsyncPlugin {
         };
 
         let statement;
-        if (baseStatement.RateBasedStatement
+        if (baseStatement
+            && baseStatement.RateBasedStatement
             && !baseStatement.RateBasedStatement.ScopeDownStatement
         ) {
+          // RateBasedStatement
           statement = {
             RateBasedStatement: {
               ...baseStatement.RateBasedStatement,
               ScopeDownStatement: ApiKeyStatement,
             },
           };
-        } else {
+        } else if (baseStatement) {
+          // Other rules: combine them (And Statement)
           statement = {
-            AndStatement: [
-              baseStatement,
-              ApiKeyStatement,
-            ],
+            AndStatement: {
+              Statements: [
+                baseStatement,
+                ApiKeyStatement,
+              ],
+            },
           };
+        } else {
+          // No statement, the rule is the API key rule itself
+          statement = ApiKeyStatement;
         }
 
         acc.push({
@@ -1238,7 +1246,7 @@ class ServerlessAppsyncPlugin {
       Name: rule.name,
       OverrideAction: overrideAction,
       Priority: rule.priority,
-      Statement: rule.statement,
+      Statement: toCfnKeys(rule.statement),
       VisibilityConfig: this.getVisibilityConfig(rule.visibilityConfig, rule.name),
     };
   }
@@ -1280,7 +1288,7 @@ class ServerlessAppsyncPlugin {
           SearchString: '__schema',
           TextTransformations: [
             {
-              Type: 'NONE',
+              Type: 'COMPRESS_WHITE_SPACE',
               Priority: 0,
             },
           ],
@@ -1297,7 +1305,7 @@ class ServerlessAppsyncPlugin {
   buildThrottleRule(config, defaultNamePrefix) {
     const Name = `${defaultNamePrefix}Throttle`;
     let Limit = 100;
-    let AggregateKeyType = 'FORWARDED_IP';
+    let AggregateKeyType = 'IP';
     let ForwardedIPConfig;
     let Priority;
 
@@ -1321,7 +1329,7 @@ class ServerlessAppsyncPlugin {
 
     return {
       Action: {
-        Deny: {},
+        Block: {},
       },
       Name,
       Priority,

@@ -561,41 +561,43 @@ Object {
           "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
-            "AndStatement": Array [
-              Object {
-                "NotStatement": Object {
-                  "Statement": Object {
-                    "GeoMatchStatement": Object {
-                      "CountryCodes": Array [
-                        "US",
+            "AndStatement": Object {
+              "Statements": Array [
+                Object {
+                  "NotStatement": Object {
+                    "Statement": Object {
+                      "GeoMatchStatement": Object {
+                        "CountryCodes": Array [
+                          "US",
+                        ],
+                      },
+                    },
+                  },
+                },
+                Object {
+                  "ByteMatchStatement": Object {
+                    "FieldToMatch": Object {
+                      "SingleHeader": Object {
+                        "Name": "X-Api-key",
+                      },
+                    },
+                    "PositionalConstraint": "EXACTLY",
+                    "SearchString": Object {
+                      "Fn::GetAtt": Array [
+                        "GraphQlApiKeyGeoLimitedKey",
+                        "ApiKey",
                       ],
                     },
-                  },
-                },
-              },
-              Object {
-                "ByteMatchStatement": Object {
-                  "FieldToMatch": Object {
-                    "SingleHeader": Object {
-                      "Name": "X-Api-key",
-                    },
-                  },
-                  "PositionalConstraint": "EXACTLY",
-                  "SearchString": Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlApiKeyGeoLimitedKey",
-                      "ApiKey",
+                    "TextTransformations": Array [
+                      Object {
+                        "Priority": 0,
+                        "Type": "LOWERCASE",
+                      },
                     ],
                   },
-                  "TextTransformations": Array [
-                    Object {
-                      "Priority": 0,
-                      "Type": "LOWERCASE",
-                    },
-                  ],
                 },
-              },
-            ],
+              ],
+            },
           },
           "VisibilityConfig": Object {
             "CloudWatchMetricsEnabled": true,
@@ -687,17 +689,14 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "MyKeyThrottle",
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "FORWARDED_IP",
-              "ForwardedIPConfig": Object {
-                "FallbackBehavior": "MATCH",
-                "HeaderName": "X-Forwarded-For",
-              },
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
               "Limit": 100,
               "ScopeDownStatement": Object {
                 "ByteMatchStatement": Object {
@@ -736,45 +735,47 @@ Object {
           "Name": "MyKeyDisableIntrospection",
           "Priority": 101,
           "Statement": Object {
-            "AndStatement": Array [
-              Object {
-                "ByteMatchStatement": Object {
-                  "FieldToMatch": Object {
-                    "Body": Object {},
-                  },
-                  "PositionalConstraint": "CONTAINS",
-                  "SearchString": "__schema",
-                  "TextTransformations": Array [
-                    Object {
-                      "Priority": 0,
-                      "Type": "NONE",
+            "AndStatement": Object {
+              "Statements": Array [
+                Object {
+                  "ByteMatchStatement": Object {
+                    "FieldToMatch": Object {
+                      "Body": Object {},
                     },
-                  ],
-                },
-              },
-              Object {
-                "ByteMatchStatement": Object {
-                  "FieldToMatch": Object {
-                    "SingleHeader": Object {
-                      "Name": "X-Api-key",
-                    },
-                  },
-                  "PositionalConstraint": "EXACTLY",
-                  "SearchString": Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlApiKeyMyKey",
-                      "ApiKey",
+                    "PositionalConstraint": "CONTAINS",
+                    "SearchString": "__schema",
+                    "TextTransformations": Array [
+                      Object {
+                        "Priority": 0,
+                        "Type": "COMPRESS_WHITE_SPACE",
+                      },
                     ],
                   },
-                  "TextTransformations": Array [
-                    Object {
-                      "Priority": 0,
-                      "Type": "LOWERCASE",
-                    },
-                  ],
                 },
-              },
-            ],
+                Object {
+                  "ByteMatchStatement": Object {
+                    "FieldToMatch": Object {
+                      "SingleHeader": Object {
+                        "Name": "X-Api-key",
+                      },
+                    },
+                    "PositionalConstraint": "EXACTLY",
+                    "SearchString": Object {
+                      "Fn::GetAtt": Array [
+                        "GraphQlApiKeyMyKey",
+                        "ApiKey",
+                      ],
+                    },
+                    "TextTransformations": Array [
+                      Object {
+                        "Priority": 0,
+                        "Type": "LOWERCASE",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
           },
           "VisibilityConfig": Object {
             "CloudWatchMetricsEnabled": true,
@@ -890,17 +891,14 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "BaseThrottle",
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "FORWARDED_IP",
-              "ForwardedIPConfig": Object {
-                "FallbackBehavior": "MATCH",
-                "HeaderName": "X-Forwarded-For",
-              },
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
               "Limit": 100,
             },
           },
@@ -953,7 +951,7 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "BaseThrottle",
           "Priority": 100,
@@ -1016,7 +1014,7 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "BaseThrottle",
           "Priority": 100,
@@ -1079,17 +1077,14 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "BaseThrottle",
           "Priority": 100,
           "Statement": Object {
             "RateBasedStatement": Object {
-              "AggregateKeyType": "FORWARDED_IP",
-              "ForwardedIPConfig": Object {
-                "FallbackBehavior": "MATCH",
-                "HeaderName": "X-Forwarded-For",
-              },
+              "AggregateKeyType": "IP",
+              "ForwardedIPConfig": undefined,
               "Limit": 200,
             },
           },
@@ -1156,7 +1151,7 @@ Object {
               "TextTransformations": Array [
                 Object {
                   "Priority": 0,
-                  "Type": "NONE",
+                  "Type": "COMPRESS_WHITE_SPACE",
                 },
               ],
             },
@@ -1224,7 +1219,7 @@ Object {
               "TextTransformations": Array [
                 Object {
                   "Priority": 0,
-                  "Type": "NONE",
+                  "Type": "COMPRESS_WHITE_SPACE",
                 },
               ],
             },

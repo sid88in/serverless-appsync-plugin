@@ -438,7 +438,7 @@ wafConfig:
 
 ### Per Api Key rules
 
-In some cases, you might want to enable a rule only for a given API key only. You can specify `wafRules` under the `apiKey` configuration. The rules will apply only to the api key under which the rule is set.
+In some cases, you might want to enable a rule only for a given API key only. You can specify `wafRules` under the `apiKeys` configuration. The rules will apply only to the api key under which the rule is set.
 
 ````yml
 apiKeys:
@@ -448,6 +448,75 @@ apiKeys:
       - throttle # throttles this API key
       - disableIntrospection # disables introspection for this API key
 ````
+
+Adding a rule to an API key without any statement will add a "match-all" rule for that key.
+This is usefull for example to exclude api keys from high-level rules. In that case, you need to make sure to attribute a higher priority to that rule.
+
+Example:
+- Block all requests by default
+- Add a rule to allow US requests only for everyone
+- Remove restriction to the `WorldWideApiKey` key.
+````yml
+wfConfig:
+  enabled: true
+  defaultAction: Block # Block all by default
+  rules:
+    # allow US requests
+    - action: Allow
+      name: UsOnly
+      priority: 5
+      statement:
+        Statement:
+          GeoMatchStatement:
+            CountryCodes:
+              - US
+apiKeys:
+  - name: UsOnlyApiKey # no rule is set, the top-level rule applies
+  - name: WorldWideApiKey
+    wafRules:
+      # Add an exception to the US-only rule for this API key
+      # by adding an match-all `Allow` rule
+      - name: AllowKey
+        action: Allow
+        priority: 1 # Make sure the priority is higher (lower number) to evaluate it first
+````
+
+### About priority
+
+The priorities don't need to be consecutive, but they must all be different.
+
+Setting a priority to the rules is not required, but recommended. If you don't set priority, it will be automatically attributed (sequentially) according to the following rules:
+
+First the global rules, in order that they are defined. Then, the api key rules, in order of api keys and rule definition.
+Auto-generated priorities start at 100. This gives you some room (0-99) to add rules that should get a high priority.
+
+Example:
+
+````yml
+wfConfig:
+  enabled: true
+  rules:
+    - name: Rule1
+      # (no-set) Priority = 100
+    - name: Rule2
+      priority: 5 # Priority = 5
+    - name: Rule3
+      # (no-set) Priority = 101
+apiKeys:
+  - name: Key1
+    wafRules:
+      - name: Rule4
+        # (no-set) Priority = 102
+      - name: Rule5
+        # (no-set) Priority = 103
+  - name: Key
+    wafRules:
+      - name: Rule6
+        priority: 1 # Priority = 1
+      - name: Rule7
+        # (no-set) Priority = 104
+````
+
 
 ### Advanced usage
 
