@@ -4,7 +4,7 @@ const parseSchema = require('graphql/language').parse;
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
-const { has, isNil, merge } = require('ramda');
+const { has, merge } = require('ramda');
 const { parseDuration, toCfnKeys } = require('./utils');
 const moment = require('moment');
 
