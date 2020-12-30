@@ -555,7 +555,7 @@ Object {
       "Rules": Array [
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "UsOnly",
           "OverrideAction": undefined,
@@ -607,7 +607,7 @@ Object {
         },
         Object {
           "Action": Object {
-            "Deny": Object {},
+            "Block": Object {},
           },
           "Name": "Throttle",
           "OverrideAction": undefined,

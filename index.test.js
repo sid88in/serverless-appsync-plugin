@@ -1441,10 +1441,10 @@ describe('WAF', () => {
             name: 'UsOnly',
             priority: 0,
             statement: {
-              NotStatement: {
-                Statement: {
-                  GeoMatchStatement: {
-                    CountryCodes: ['US'],
+              notStatement: {
+                statement: {
+                  geoMatchStatement: {
+                    countryCodes: ['US'],
                   },
                 },
               },
@@ -1461,6 +1461,23 @@ describe('WAF', () => {
     expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
   });
 
+  it('should disable WAF', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: false,
+        rules: [
+          {
+            action: 'Allow',
+            name: 'MyRule',
+            statement: {},
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toEqual({});
+  });
+
   it('should generate API key WAF config', () => {
     const apiConfig = {
       ...config,
@@ -1470,7 +1487,7 @@ describe('WAF', () => {
           name: 'GeoLimitedKey',
           wafRules: [
             {
-              action: 'Deny',
+              action: 'Block',
               name: 'UsOnly',
               priority: 0,
               statement: {
@@ -1489,7 +1506,7 @@ describe('WAF', () => {
           name: 'ThrottledKey',
           wafRules: [
             {
-              action: 'Deny',
+              action: 'Block',
               name: 'Throttle',
               priority: 1,
               statement: {
@@ -1656,7 +1673,16 @@ describe('WAF', () => {
       ],
     };
     const waf = plugin.getWafResources(apiConfig);
-    const priorities = waf.GraphQlWaf.Properties.Rules.map(r => r.Priority);
-    expect(priorities).toEqual([100, 101, 5, 102, 9, 15, 16, 103]);
+    const priorities = waf.GraphQlWaf.Properties.Rules.map(r => [r.Name, r.Priority]);
+    expect(priorities).toEqual([
+      ['Dummy1', 100],
+      ['Dummy2', 101],
+      ['Dummy3', 5],
+      ['Dummy4', 102],
+      ['Dummy5', 9],
+      ['MyKeyThrottle', 15],
+      ['MyKeyDisableIntrospection', 16],
+      ['Dummy6', 103],
+    ]);
   });
 });

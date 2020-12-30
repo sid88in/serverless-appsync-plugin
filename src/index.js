@@ -1119,7 +1119,7 @@ class ServerlessAppsyncPlugin {
 
   getWafResources(apiConfig) {
     const { wafConfig } = apiConfig;
-    if (!wafConfig || !wafConfig.enabled) {
+    if (!wafConfig || wafConfig.enabled === false) {
       return {};
     }
 
@@ -1244,7 +1244,7 @@ class ServerlessAppsyncPlugin {
     return {
       Action: action,
       Name: rule.name,
-      OverrideAction: overrideAction,
+      OverrideAction: overrideAction ? toCfnKeys(overrideAction) : undefined,
       Priority: rule.priority,
       Statement: toCfnKeys(rule.statement),
       VisibilityConfig: this.getVisibilityConfig(rule.visibilityConfig, rule.name),

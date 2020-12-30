@@ -243,13 +243,13 @@ custom:
     wafConfig:
       enabled: true
       name: AppSyncWaf
-      defaultAction: Allow # or Deny. Defaults to Allow
+      defaultAction: Allow # or Block. Defaults to Allow
       description: 'My AppSync Waf rules'
       rules:
         - throttle: 100
         - disableIntrospection
         - name: UsOnly
-          action: Block
+          action: Block # Allow, Block, or Count
           statement:
             NotStatement:
               Statement:
@@ -526,16 +526,16 @@ Exemple:
 ````yml
 wafConfig:
   enabled: true
+  defaultAction: Block
   rules:
-    # Block request coming from outside the US
-    - action: Block
+    # Only allow US users
+    - action: Allow
       name: UsOnly
       statement:
-        notStatement:
-          statement:
-            geoMatchStatement:
-              countryCodes:
-                - US
+        statement:
+          geoMatchStatement:
+            countryCodes:
+              - US
 ````
 
 # Cli Usage
