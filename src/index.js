@@ -1105,16 +1105,15 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getVisibilityConfig(visibilityConfig = {}, defaultName) {
-    return {
-      CloudWatchMetricsEnabled: !isNil(visibilityConfig.cloudWatchMetricsEnabled)
-        ? visibilityConfig.cloudWatchMetricsEnabled
-        : true,
-      MetricName: visibilityConfig.name || defaultName,
-      SampledRequestsEnabled: !isNil(visibilityConfig.sampledRequestsEnabled)
-        ? visibilityConfig.sampledRequestsEnabled
-        : true,
-    };
+  getWafVisibilityConfig(visibilityConfig = {}, defaultName) {
+    return merge(
+      {
+        CloudWatchMetricsEnabled: true,
+        MetricName: defaultName,
+        SampledRequestsEnabled: true,
+      },
+      toCfnKeys(visibilityConfig),
+    );
   }
 
   getWafResources(apiConfig) {
@@ -1135,10 +1134,10 @@ class ServerlessAppsyncPlugin {
         Properties: {
           DefaultAction: { [defaultAction]: {} },
           Scope: 'REGIONAL',
-          Description: wafConfig.description || `ACL rules for AppSync ${Name}`,
+          Description: wafConfig.description || `ACL rules for AppSync ${apiConfig.name}`,
           Name,
           Rules: this.buildWafRules(wafConfig, apiConfig),
-          VisibilityConfig: this.getVisibilityConfig(wafConfig.visibilityConfig, Name),
+          VisibilityConfig: this.getWafVisibilityConfig(wafConfig.visibilityConfig, Name),
           Tags: apiConfig.tags,
         },
       },
@@ -1247,21 +1246,21 @@ class ServerlessAppsyncPlugin {
       OverrideAction: overrideAction ? toCfnKeys(overrideAction) : undefined,
       Priority: rule.priority,
       Statement: toCfnKeys(rule.statement),
-      VisibilityConfig: this.getVisibilityConfig(rule.visibilityConfig, rule.name),
+      VisibilityConfig: this.getWafVisibilityConfig(rule.visibilityConfig, rule.name),
     };
   }
 
   buildWafRules(wafConfig, apiConfig) {
     const rules = wafConfig.rules || [];
 
-    let DefaultPriority = 100;
+    let defaultPriority = 100;
     return rules
       .map(rule => this.buildWafRule(rule, 'Base'))
       .concat(this.buildApiKeysWafRules(apiConfig))
       .map(rule => ({
         ...rule,
         // eslint-disable-next-line no-plusplus
-        Priority: rule.Priority || DefaultPriority++,
+        Priority: rule.Priority || defaultPriority++,
       }));
   }
 
@@ -1296,8 +1295,8 @@ class ServerlessAppsyncPlugin {
       },
       VisibilityConfig: {
         SampledRequestsEnabled: true,
-        CloudWatchMetricsEnabled: true,
         MetricName: Name,
+        CloudWatchMetricsEnabled: true,
       },
     };
   }
@@ -1323,7 +1322,7 @@ class ServerlessAppsyncPlugin {
             HeaderName: 'X-Forwarded-For',
             FallbackBehavior: 'MATCH',
           },
-          toCfnKeys(cfnConfig.ForwardedIPConfig),
+          cfnConfig.ForwardedIPConfig,
         );
       }
     }

@@ -1434,7 +1434,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: [
           {
             action: 'Allow',
@@ -1527,7 +1526,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: ['disableIntrospection'],
       },
     };
@@ -1538,7 +1536,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: [
           {
             disableIntrospection: {
@@ -1555,7 +1552,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: ['throttle'],
       },
     };
@@ -1577,7 +1573,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: [
           {
             throttle: {
@@ -1595,7 +1590,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: [
           {
             throttle: {
@@ -1634,7 +1628,6 @@ describe('WAF', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
-        enabled: true,
         rules: [
           { name: 'Dummy1' },
           { name: 'Dummy2' },
