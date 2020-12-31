@@ -1624,6 +1624,24 @@ describe('WAF', () => {
     expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
   });
 
+  it('should generate match-all API key WAF rules', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: { enabled: true },
+      apiKeys: [
+        {
+          name: 'MyKey',
+          wafRules: [
+            {
+              name: 'MatchAllRule',
+            },
+          ],
+        },
+      ],
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
+
   it('should generate consecutive but different priorities', () => {
     const apiConfig = {
       ...config,

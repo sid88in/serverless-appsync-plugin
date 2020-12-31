@@ -1261,6 +1261,82 @@ Object {
 }
 `;
 
+exports[`WAF should generate match-all API key WAF rules 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync api",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Action": Object {
+            "Allow": Object {},
+          },
+          "Name": "MatchAllRule",
+          "OverrideAction": undefined,
+          "Priority": 100,
+          "Statement": Object {
+            "ByteMatchStatement": Object {
+              "FieldToMatch": Object {
+                "SingleHeader": Object {
+                  "Name": "X-Api-key",
+                },
+              },
+              "PositionalConstraint": "EXACTLY",
+              "SearchString": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApiKeyMyKey",
+                  "ApiKey",
+                ],
+              },
+              "TextTransformations": Array [
+                Object {
+                  "Priority": 0,
+                  "Type": "LOWERCASE",
+                },
+              ],
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "MatchAllRule",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
 exports[`api keys should fail with a date > 1 year 1`] = `"Api Key MyKey must be valid for a minimum of 1 day and a maximum of 365 days."`;
 
 exports[`api keys should fail with invalid duration 1`] = `"Could not parse foobar as a valid duration"`;

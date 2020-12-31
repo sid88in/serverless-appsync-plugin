@@ -1245,7 +1245,7 @@ class ServerlessAppsyncPlugin {
       Name: rule.name,
       OverrideAction: overrideAction ? toCfnKeys(overrideAction) : undefined,
       Priority: rule.priority,
-      Statement: toCfnKeys(rule.statement),
+      Statement: rule.statement ? toCfnKeys(rule.statement) : undefined,
       VisibilityConfig: this.getWafVisibilityConfig(rule.visibilityConfig, rule.name),
     };
   }
