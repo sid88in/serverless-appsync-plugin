@@ -4,8 +4,8 @@ const parseSchema = require('graphql/language').parse;
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
-const { has } = require('ramda');
-const { parseDuration } = require('./utils');
+const { has, merge } = require('ramda');
+const { parseDuration, toCfnKeys } = require('./utils');
 const moment = require('moment');
 
 const MIGRATION_DOCS = 'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -17,6 +17,8 @@ const RESOURCE_SCHEMA = 'GraphQlSchema';
 const RESOURCE_URL = 'GraphQlApiUrl';
 const RESOURCE_API_ID = 'GraphQlApiId';
 const RESOURCE_CACHING = 'GraphQlCaching';
+const RESOURCE_WAF = 'GraphQlWaf';
+const RESOURCE_WAF_ASSOC = 'GraphQlWafAssoc';
 
 class ServerlessAppsyncPlugin {
   constructor(serverless, options) {
@@ -316,7 +318,7 @@ class ServerlessAppsyncPlugin {
       Object.assign(resources, this.getDataSourceResources(apiConfig));
       Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
       Object.assign(resources, this.getResolverResources(apiConfig));
-
+      Object.assign(resources, this.getWafResources(apiConfig));
       Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
       Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
     });
@@ -1101,6 +1103,261 @@ class ServerlessAppsyncPlugin {
         },
       });
     }, {});
+  }
+
+  getWafVisibilityConfig(visibilityConfig = {}, defaultName) {
+    return merge(
+      {
+        CloudWatchMetricsEnabled: true,
+        MetricName: defaultName,
+        SampledRequestsEnabled: true,
+      },
+      toCfnKeys(visibilityConfig),
+    );
+  }
+
+  getWafResources(apiConfig) {
+    const { wafConfig } = apiConfig;
+    if (!wafConfig || wafConfig.enabled === false) {
+      return {};
+    }
+
+    const Name = wafConfig.name || `${apiConfig.name}Waf`;
+    const apiLogicalId = this.getLogicalId(apiConfig, RESOURCE_API);
+    const wafLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF);
+    const wafAssocLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF_ASSOC);
+    const defaultAction = wafConfig.defaultAction || 'Allow';
+
+    return {
+      [wafLogicalId]: {
+        Type: 'AWS::WAFv2::WebACL',
+        Properties: {
+          DefaultAction: { [defaultAction]: {} },
+          Scope: 'REGIONAL',
+          Description: wafConfig.description || `ACL rules for AppSync ${apiConfig.name}`,
+          Name,
+          Rules: this.buildWafRules(wafConfig, apiConfig),
+          VisibilityConfig: this.getWafVisibilityConfig(wafConfig.visibilityConfig, Name),
+          Tags: apiConfig.tags,
+        },
+      },
+      [wafAssocLogicalId]: {
+        Type: 'AWS::WAFv2::WebACLAssociation',
+        Properties: {
+          ResourceArn: { 'Fn::GetAtt': [apiLogicalId, 'Arn'] },
+          WebACLArn: { 'Fn::GetAtt': [wafLogicalId, 'Arn'] },
+        },
+      },
+    };
+  }
+
+  buildApiKeysWafRules(config) {
+    const apiKeysWithWafRules = this.getApiKeys(config).filter(k => k.wafRules) || [];
+
+    return apiKeysWithWafRules.reduce((acc, key) => {
+      const rules = key.wafRules;
+      // Build the rule and add a matching rule for the X-Api-Key header
+      // for the given api key
+      rules.forEach((keyRule) => {
+        const builtRule = this.buildWafRule(keyRule, key.name);
+        const logicalIdApiKey = this.getLogicalId(config, RESOURCE_API_KEY + key.name);
+        const { Statement: baseStatement } = builtRule;
+        const ApiKeyStatement = {
+          ByteMatchStatement: {
+            FieldToMatch: {
+              SingleHeader: { Name: 'X-Api-key' },
+            },
+            PositionalConstraint: 'EXACTLY',
+            SearchString: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
+            TextTransformations: [
+              {
+                Type: 'LOWERCASE',
+                Priority: 0,
+              },
+            ],
+          },
+        };
+
+        let statement;
+        if (baseStatement
+            && baseStatement.RateBasedStatement
+        ) {
+          let ScopeDownStatement;
+          if (baseStatement.RateBasedStatement.ScopeDownStatement) {
+            ScopeDownStatement = {
+              AndStatement: {
+                Statements: [
+                  baseStatement.RateBasedStatement.ScopeDownStatement,
+                  ApiKeyStatement,
+                ],
+              },
+            };
+          } else {
+            ScopeDownStatement = ApiKeyStatement;
+          }
+          // RateBasedStatement
+          statement = {
+            RateBasedStatement: {
+              ...baseStatement.RateBasedStatement,
+              ScopeDownStatement,
+            },
+          };
+        } else if (baseStatement) {
+          // Other rules: combine them (And Statement)
+          statement = {
+            AndStatement: {
+              Statements: [
+                baseStatement,
+                ApiKeyStatement,
+              ],
+            },
+          };
+        } else {
+          // No statement, the rule is the API key rule itself
+          statement = ApiKeyStatement;
+        }
+
+        acc.push({
+          ...builtRule,
+          Statement: statement,
+        });
+      });
+
+      return acc;
+    }, []);
+  }
+
+  buildWafRule(rule, defaultNamePrefix) {
+    // Throttle pre-set rule
+    if (rule === 'throttle' || rule.throttle) {
+      return this.buildThrottleRule(rule.throttle || {}, defaultNamePrefix);
+    }
+
+    // Disable Introspection pre-set rule
+    if (rule === 'disableIntrospection' || rule.disableIntrospection) {
+      return this.buildDisableIntrospecRule(
+        rule.disableIntrospection || {},
+        defaultNamePrefix,
+      );
+    }
+
+    // Other specific rules
+    let action = rule.action || 'Allow'; // fixme, if group, should not be set
+    if (typeof action === 'string') {
+      action = { [action]: {} };
+    }
+
+    let { overrideAction } = rule;
+    if (typeof overrideAction === 'string') {
+      overrideAction = { [overrideAction]: {} };
+    }
+
+    return {
+      Action: action,
+      Name: rule.name,
+      OverrideAction: overrideAction ? toCfnKeys(overrideAction) : undefined,
+      Priority: rule.priority,
+      Statement: rule.statement ? toCfnKeys(rule.statement) : undefined,
+      VisibilityConfig: this.getWafVisibilityConfig(rule.visibilityConfig, rule.name),
+    };
+  }
+
+  buildWafRules(wafConfig, apiConfig) {
+    const rules = wafConfig.rules || [];
+
+    let defaultPriority = 100;
+    return rules
+      .map(rule => this.buildWafRule(rule, 'Base'))
+      .concat(this.buildApiKeysWafRules(apiConfig))
+      .map(rule => ({
+        ...rule,
+        // eslint-disable-next-line no-plusplus
+        Priority: rule.Priority || defaultPriority++,
+      }));
+  }
+
+  buildDisableIntrospecRule(config, defaultNamePrefix) {
+    const Name = `${defaultNamePrefix}DisableIntrospection`;
+    let Priority;
+
+    if (typeof config === 'object') {
+      Priority = config.priority || Priority;
+    }
+
+    return {
+      Action: {
+        Block: {},
+      },
+      Name,
+      Priority,
+      Statement: {
+        ByteMatchStatement: {
+          FieldToMatch: {
+            Body: {},
+          },
+          PositionalConstraint: 'CONTAINS',
+          SearchString: '__schema',
+          TextTransformations: [
+            {
+              Type: 'COMPRESS_WHITE_SPACE',
+              Priority: 0,
+            },
+          ],
+        },
+      },
+      VisibilityConfig: {
+        SampledRequestsEnabled: true,
+        MetricName: Name,
+        CloudWatchMetricsEnabled: true,
+      },
+    };
+  }
+
+  buildThrottleRule(config, defaultNamePrefix) {
+    const Name = `${defaultNamePrefix}Throttle`;
+    let Limit = 100;
+    let AggregateKeyType = 'IP';
+    let ForwardedIPConfig;
+    let Priority;
+
+    if (typeof config === 'number') {
+      Limit = config;
+    } else if (typeof config === 'object') {
+      const cfnConfig = toCfnKeys(config);
+      AggregateKeyType = cfnConfig.AggregateKeyType || AggregateKeyType;
+      Limit = cfnConfig.Limit || Limit;
+      // eslint-disable-next-line prefer-destructuring
+      Priority = cfnConfig.Priority;
+      if (AggregateKeyType === 'FORWARDED_IP') {
+        ForwardedIPConfig = merge(
+          {
+            HeaderName: 'X-Forwarded-For',
+            FallbackBehavior: 'MATCH',
+          },
+          cfnConfig.ForwardedIPConfig,
+        );
+      }
+    }
+
+    return {
+      Action: {
+        Block: {},
+      },
+      Name,
+      Priority,
+      Statement: {
+        RateBasedStatement: {
+          AggregateKeyType,
+          Limit,
+          ForwardedIPConfig,
+        },
+      },
+      VisibilityConfig: {
+        CloudWatchMetricsEnabled: true,
+        MetricName: Name,
+        SampledRequestsEnabled: true,
+      },
+    };
   }
 
   getLogicalId(config, resourceType) {
