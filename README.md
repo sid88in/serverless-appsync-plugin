@@ -455,7 +455,7 @@ This is usefull for example to exclude api keys from high-level rules. In that c
 Example:
 - Block all requests by default
 - Add a rule to allow US requests
-- Remove restriction to the `WorldWideApiKey` key.
+- Except for the `WorldWideApiKey` key, that should have worldwide access.
 
 ````yml
 wfConfig:
@@ -486,8 +486,10 @@ The priorities don't need to be consecutive, but they must all be different.
 
 Setting a priority to the rules is not required, but recommended. If you don't set priority, it will be automatically attributed (sequentially) according to the following rules:
 
-First the global rules, in the order that they are defined. Then, the api key rules, in order of api key definitions, then rule definition.
-Auto-generated priorities start at 100. This gives you some room (0-99) to add other rules that should get a higher priority.
+First the global rules (under `wafConfig.rules`), in the order that they are defined. Then, the api key rules, in order of api key definitions, then rule definition.
+Auto-generated priorities start at 100. This gives you some room (0-99) to add other rules that should get a higher priority, if you need to.
+
+For more info about how rules are executed, pease refer to [the documentation](https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-processing.html)
 
 Example:
 
@@ -532,10 +534,9 @@ wafConfig:
     - action: Allow
       name: UsOnly
       statement:
-        statement:
-          geoMatchStatement:
-            countryCodes:
-              - US
+        geoMatchStatement:
+          countryCodes:
+            - US
 ````
 
 # Cli Usage

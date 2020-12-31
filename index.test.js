@@ -1517,6 +1517,31 @@ describe('WAF', () => {
             },
           ],
         },
+        {
+          name: 'ThrottledKeyWithScope',
+          wafRules: [
+            {
+              action: 'Block',
+              name: 'Throttle',
+              priority: 1,
+              statement: {
+                RateBasedStatement: {
+                  AggregateKeyType: 'IP',
+                  Limit: 500,
+                  ScopeDownStatement: {
+                    NotStatement: {
+                      Statement: {
+                        GeoMatchStatement: {
+                          CountryCodes: ['US'],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
       ],
     };
     expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();

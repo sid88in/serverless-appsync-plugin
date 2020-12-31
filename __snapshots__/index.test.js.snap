@@ -646,6 +646,64 @@ Object {
             "SampledRequestsEnabled": true,
           },
         },
+        Object {
+          "Action": Object {
+            "Block": Object {},
+          },
+          "Name": "Throttle",
+          "OverrideAction": undefined,
+          "Priority": 1,
+          "Statement": Object {
+            "RateBasedStatement": Object {
+              "AggregateKeyType": "IP",
+              "Limit": 500,
+              "ScopeDownStatement": Object {
+                "AndStatement": Object {
+                  "Statements": Array [
+                    Object {
+                      "NotStatement": Object {
+                        "Statement": Object {
+                          "GeoMatchStatement": Object {
+                            "CountryCodes": Array [
+                              "US",
+                            ],
+                          },
+                        },
+                      },
+                    },
+                    Object {
+                      "ByteMatchStatement": Object {
+                        "FieldToMatch": Object {
+                          "SingleHeader": Object {
+                            "Name": "X-Api-key",
+                          },
+                        },
+                        "PositionalConstraint": "EXACTLY",
+                        "SearchString": Object {
+                          "Fn::GetAtt": Array [
+                            "GraphQlApiKeyThrottledKeyWithScope",
+                            "ApiKey",
+                          ],
+                        },
+                        "TextTransformations": Array [
+                          Object {
+                            "Priority": 0,
+                            "Type": "LOWERCASE",
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "Throttle",
+            "SampledRequestsEnabled": true,
+          },
+        },
       ],
       "Scope": "REGIONAL",
       "Tags": undefined,

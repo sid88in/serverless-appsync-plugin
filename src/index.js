@@ -1181,13 +1181,25 @@ class ServerlessAppsyncPlugin {
         let statement;
         if (baseStatement
             && baseStatement.RateBasedStatement
-            && !baseStatement.RateBasedStatement.ScopeDownStatement
         ) {
+          let ScopeDownStatement;
+          if (baseStatement.RateBasedStatement.ScopeDownStatement) {
+            ScopeDownStatement = {
+              AndStatement: {
+                Statements: [
+                  baseStatement.RateBasedStatement.ScopeDownStatement,
+                  ApiKeyStatement,
+                ],
+              },
+            };
+          } else {
+            ScopeDownStatement = ApiKeyStatement;
+          }
           // RateBasedStatement
           statement = {
             RateBasedStatement: {
               ...baseStatement.RateBasedStatement,
-              ScopeDownStatement: ApiKeyStatement,
+              ScopeDownStatement,
             },
           };
         } else if (baseStatement) {
