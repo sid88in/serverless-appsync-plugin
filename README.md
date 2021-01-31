@@ -295,6 +295,37 @@ custom:
 
 > Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
 
+### Direct Lambda Resolvers
+
+Amazon supports [direct lambda resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html)
+
+With a direct lambda resolver, no VTL mapping template is required for either request or response. This can be an option if you would like to avoid usage of the Apache VTL langauge or require a complex resolver. Direct lambda resolvers can be enabled for all mappingTemplates with;
+
+```yml
+custom:
+  appsync:
+    defaultMappingTemplates:
+      request: false
+      response: false
+```
+
+In this mode, direct resolution will apply to all lambda resolvers that do not specifically declare the request or response mapping templates.
+
+Alternatively, direct resolution can be selectively applied to each mapping;
+
+```yml
+custom:
+  appsync:
+    mappingTemplates:
+    - type: Query
+      request: false
+      response: false
+      dataSource: myLambdaSource
+      field: getMyData
+```
+
+Furthermore, direct resolution can be enabled separately for the request and response templates.
+
 ### Pipeline Resolvers
 
 Amazon supports [pipeline resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/pipeline-resolvers.html)
