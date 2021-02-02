@@ -124,7 +124,7 @@ describe('appsync config', () => {
       ...config,
       logConfig: {
         level: 'ALL',
-        logGroupName: 'API_NAME'
+        logGroupName: 'API_NAME',
       },
     });
 

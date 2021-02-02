@@ -416,7 +416,7 @@ class ServerlessAppsyncPlugin {
           Type: 'AWS::Logs::LogGroup',
           Properties: {
             LogGroupName: (config.logConfig.logGroupName && config.logConfig.logGroupName === 'API_NAME')
-              ? { 'Fn::Join': ['/', ['/aws/appsync/apis', { 'Fn::Join': ['-', [config.name, this.provider.getStage()]] } ]] }
+              ? { 'Fn::Join': ['/', ['/aws/appsync/apis', { 'Fn::Join': ['-', [config.name, this.provider.getStage()]] }]] }
               : { 'Fn::Join': ['/', ['/aws/appsync/apis', { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] }]] },
             RetentionInDays: this.serverless.service.provider.logRetentionInDays,
           },
