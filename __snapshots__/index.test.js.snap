@@ -1598,6 +1598,32 @@ Object {
 }
 `;
 
+exports[`appsync config AppSync CloudWatch log group name is generated from API name and stage when logGroupName so configured 1`] = `
+Object {
+  "Properties": Object {
+    "LogGroupName": Object {
+      "Fn::Join": Array [
+        "/",
+        Array [
+          "/aws/appsync/apis",
+          Object {
+            "Fn::Join": Array [
+              "-",
+              Array [
+                "api",
+                "dev",
+              ],
+            ],
+          },
+        ],
+      ],
+    },
+    "RetentionInDays": 14,
+  },
+  "Type": "AWS::Logs::LogGroup",
+}
+`;
+
 exports[`appsync config Datasource generates HTTP authorization when authorizationConfig provided 1`] = `
 Object {
   "GraphQlDsHTTPSource": Object {

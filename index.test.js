@@ -118,6 +118,19 @@ describe('appsync config', () => {
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
   });
 
+  test('AppSync CloudWatch log group name is generated from API name and stage when logGroupName so configured', () => {
+    serverless.service.provider.logRetentionInDays = 14;
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      logConfig: {
+        level: 'ALL',
+        logGroupName: 'API_NAME'
+      },
+    });
+
+    expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
+  });
+
   test('Schema is transformed into App Sync compatible syntax', () => {
     Object.assign(
       config,

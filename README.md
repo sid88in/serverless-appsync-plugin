@@ -97,6 +97,7 @@ custom:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL
       excludeVerboseContent: false
+      #logGroupName: API_ID (default, not required) or API_NAME (API name prefixed for better differentiating APIs)
     defaultMappingTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
       request: my.request.template.tpl # or, e.g: false for Direct lambdas
       response: my.response.template.tpl # or e.g.: false for Direct lambdas
