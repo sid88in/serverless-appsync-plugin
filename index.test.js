@@ -38,6 +38,7 @@ beforeEach(() => {
     mappingTemplatesLocation: 'mapping-templates',
     defaultMappingTemplates: {},
     substitutions: {},
+    allowHashDescription: false,
     xrayEnabled: false,
   };
 });
