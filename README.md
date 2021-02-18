@@ -47,6 +47,7 @@ custom:
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
+    # apiId # if provided, will update the specified API.
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
     schema: # schema file or array of files to merge, defaults to schema.graphql
     # Caching options. Disabled by default
