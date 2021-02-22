@@ -38,6 +38,7 @@ beforeEach(() => {
     mappingTemplatesLocation: 'mapping-templates',
     defaultMappingTemplates: {},
     substitutions: {},
+    allowHashDescription: false,
     xrayEnabled: false,
   };
 });
@@ -135,6 +136,28 @@ describe('appsync config', () => {
         `,
       },
     );
+    const schema = plugin.getGraphQLSchemaResource(config);
+    expect(schema).toMatchSnapshot();
+  });
+
+  test('Schema allow hash comments when using allowHashDescription true in config', () => {
+    Object.assign(
+      config,
+      {
+        schema: `
+          """A valid schema"""
+          type Thing implements One & Another {
+            hello: ID!
+          }
+          # test enum
+          enum Method {
+            DELETE
+            GET
+          }
+        `,
+      },
+    );
+    config.allowHashDescription = true;
     const schema = plugin.getGraphQLSchemaResource(config);
     expect(schema).toMatchSnapshot();
   });
