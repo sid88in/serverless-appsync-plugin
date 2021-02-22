@@ -523,7 +523,7 @@ apiKeys:
 
 You can also specify custom rules. For more info on how to define a rule, see the [Cfn documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-wafv2-webacl-rule.html)
 
-Exemple:
+Example:
 
 ````yml
 wafConfig:
@@ -538,6 +538,19 @@ wafConfig:
           countryCodes:
             - US
 ````
+
+### Schema Comments
+In some cases you want to enable usage of old-style comments (#) in appSync. setting the ``allowHashDescription`` setting
+to true, will enable this.
+
+Example:
+```yml
+custom:
+  appSync:
+    name:  # defaults to api
+    allowHashDescription: true
+    # ... other settings
+```
 
 # Cli Usage
 
