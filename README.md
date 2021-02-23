@@ -265,6 +265,50 @@ custom:
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
 
+### Working with existing APIs
+
+If you already have an API created in AppSync through the UI or from a different CF stack
+and want to manage it via Serverless then the plugin can also support that.
+
+There is an optional *apiId* parameter that you can use to specify the ID of an existing AppSync API:
+```yaml
+custom:
+  appSync:
+    # ...
+    apiId: 1234abcd
+    # ...
+```
+Without *apiId* parameter the plugin will create a different endpoint with the same name alongside the original one.
+
+
+You can find the *apiId* value in the AppSync console, just open your existing AppSync API
+and go to Settings.
+
+In that case, the plugin will not attempt to create a new endpoint for you, instead, it will attach all newly configured resources to the
+existing endpoint.
+
+The following configuration options are only associated with the creation of a new AppSync endpoint
+and will be ignored if you provide *apiId* parameter:
+
+- name
+- authenticationType
+- caching
+- userPoolConfig
+- openIdConnectConfig
+- additionalAuthenticationProviders
+- logConfig
+- tags
+
+So later, if you wanted to change the name of the API, or add some tags, or change the logging configuration,
+ anything from the list above you would have to do that via a different method, for example from the UI.
+
+If the existing API already contains schema and resolvers those will be completely replaced by the new
+schema and resolvers from the code.
+
+If the existing API already contains data sources, those data sources will remain untouched unless they have the same
+names as the data sources in the code, in which case they will be replaced with the ones from the code.
+
+
 ### Multiple APIs
 
 If you have multiple APIs and do not want to split this up into another CloudFormation stack, simply change the `appSync` configuration property from an object into an array of objects:
