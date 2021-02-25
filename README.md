@@ -308,6 +308,9 @@ schema and resolvers from the code.
 If the existing API already contains data sources, those data sources will remain untouched unless they have the same
 names as the data sources in the code, in which case they will be replaced with the ones from the code.
 
+> **Note:** You should never set the apiId of an API that was previously deployed with the same serverless stack, otherwise, it would be deleted. That is because the resource would be removed from the stack.
+>
+> Only use the apiId parameter if you know what you are doing.
 
 ### Multiple APIs
 
@@ -338,7 +341,7 @@ custom:
       ...
 ```
 
-> Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
+> **Note:** CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
 
 ### Pipeline Resolvers
 
