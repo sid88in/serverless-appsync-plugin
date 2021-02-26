@@ -285,6 +285,86 @@ describe('appsync config', () => {
     expect(dataSources).toMatchSnapshot();
   });
 
+  test('appsync API is not created when ApiId is used', () => {
+    Object.assign(
+      config,
+      {
+        apiId: 'testApiId',
+      },
+    );
+    const resources = plugin.getGraphQlApiEndpointResource(config);
+    expect(resources).toBeNull();
+  });
+
+  test('Existing ApiId is used for all resources if provided', () => {
+    const apiConfig = {
+      ...config,
+      apiId: 'testApiId',
+      authenticationType: 'API_KEY',
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+      },
+      schema: `
+          """A valid schema"""
+          type Thing implements One & Another {
+            hello: ID!
+          }
+          """A valid enum"""
+          enum Method {
+            DELETE # Delete something
+            GET # Get something
+          }
+        `,
+      dataSources: [
+        {
+          type: 'AMAZON_DYNAMODB',
+          name: 'DynamoDbSource',
+          config: {
+            tableName: 'myTable',
+            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            region: 'us-east-1',
+          },
+        },
+      ],
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+        },
+      ],
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: true,
+        },
+      ],
+    };
+    const keyResources = plugin.getApiKeyResources(apiConfig);
+    const cachingResources = plugin.getApiCachingResource(apiConfig);
+    const schemaResources = plugin.getGraphQLSchemaResource(apiConfig);
+    const dataSourceResources = plugin.getDataSourceResources(apiConfig);
+    const functionConfigResources = plugin.getFunctionConfigurationResources(apiConfig);
+    const resolverResources = plugin.getResolverResources(apiConfig);
+    const outputs = plugin.getGraphQlApiOutputs(apiConfig);
+
+    expect(keyResources).toHaveProperty('GraphQlApiKeyDefault.Properties.ApiId', apiConfig.apiId);
+    expect(cachingResources).toHaveProperty('GraphQlCaching.Properties.ApiId', apiConfig.apiId);
+    expect(schemaResources).toHaveProperty('GraphQlSchema.Properties.ApiId', apiConfig.apiId);
+    expect(dataSourceResources).toHaveProperty('GraphQlDsDynamoDbSource.Properties.ApiId', apiConfig.apiId);
+    expect(functionConfigResources).toHaveProperty('GraphQlFunctionConfigurationpipeline.Properties.ApiId', apiConfig.apiId);
+    expect(resolverResources).toHaveProperty('GraphQlResolverQueryfield.Properties.ApiId', apiConfig.apiId);
+    expect(outputs).toEqual({
+      GraphQlApiId: {
+        Value: apiConfig.apiId,
+      },
+    });
+  });
+
   test('AMAZON_COGNITO_USER_POOLS config created', () => {
     const resources = plugin.getGraphQlApiEndpointResource({
       ...config,

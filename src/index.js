@@ -301,14 +301,6 @@ class ServerlessAppsyncPlugin {
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
 
     config.forEach((apiConfig) => {
-      if (apiConfig.apiId) {
-        this.log('WARNING: serverless-appsync has been updated in a breaking way and your '
-          + 'service is configured using a reference to an existing apiKey in '
-          + '`custom.appSync` which is used in the legacy deploy scripts. This deploy will create '
-          + `new graphql resources and WILL NOT update your existing api. See ${MIGRATION_DOCS} for `
-          + 'more information', { color: 'orange' });
-      }
-
       Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
       Object.assign(resources, this.getApiKeyResources(apiConfig));
       Object.assign(resources, this.getApiCachingResource(apiConfig));
@@ -372,6 +364,10 @@ class ServerlessAppsyncPlugin {
   }
 
   getGraphQlApiEndpointResource(config) {
+    if (config.apiId) {
+      this.log(`Updating an existing API endpoint: ${config.apiId}`);
+      return null;
+    }
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdCloudWatchLogsRole = this.getLogicalId(
       config,
@@ -496,7 +492,7 @@ class ServerlessAppsyncPlugin {
         acc[logicalIdApiKey] = {
           Type: 'AWS::AppSync::ApiKey',
           Properties: {
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             Description: description || name,
             Expires: expires.unix(),
             ApiKeyId: apiKeyId,
@@ -518,7 +514,7 @@ class ServerlessAppsyncPlugin {
           Type: 'AWS::AppSync::ApiCache',
           Properties: {
             ApiCachingBehavior: config.caching.behavior,
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             AtRestEncryptionEnabled: config.caching.atRestEncryption || false,
             TransitEncryptionEnabled: config.caching.transitEncryption || false,
             Ttl: config.caching.ttl || 3600,
@@ -817,7 +813,7 @@ class ServerlessAppsyncPlugin {
       const resource = {
         Type: 'AWS::AppSync::DataSource',
         Properties: {
-          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+          ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
           Name: ds.name,
           Description: ds.description,
           Type: ds.type,
@@ -916,7 +912,7 @@ class ServerlessAppsyncPlugin {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
           Definition: appSyncSafeSchema,
-          ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+          ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         },
       },
     };
@@ -937,7 +933,7 @@ class ServerlessAppsyncPlugin {
       );
 
       const Properties = {
-        ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         Name: this.getCfnName(tpl.name),
         DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
         Description: tpl.description,
@@ -997,7 +993,7 @@ class ServerlessAppsyncPlugin {
       );
 
       let Properties = {
-        ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         TypeName: tpl.type,
         FieldName: tpl.field,
       };
@@ -1377,14 +1373,18 @@ class ServerlessAppsyncPlugin {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLApiUrlOutput = this.getLogicalId(config, RESOURCE_URL);
     const logicalIdGraphQLApiIdOutput = this.getLogicalId(config, RESOURCE_API_ID);
-    return {
-      [logicalIdGraphQLApiUrlOutput]: {
-        Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
-      },
+    const results = {
       [logicalIdGraphQLApiIdOutput]: {
-        Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        Value: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
       },
     };
+    // output the URL if we are not updating a specific API endpoint
+    if (!config.apiId) {
+      results[[logicalIdGraphQLApiUrlOutput]] = {
+        Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
+      };
+    }
+    return results;
   }
 
   getApiKeyOutputs(config) {
