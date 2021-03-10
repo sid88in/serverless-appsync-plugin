@@ -30,7 +30,8 @@ const getConfig = (config, provider, servicePath) => {
       config.authenticationType === 'API_KEY' ||
       config.authenticationType === 'AWS_IAM' ||
       config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
-      config.authenticationType === 'OPENID_CONNECT'
+      config.authenticationType === 'OPENID_CONNECT' ||
+      config.apiId
     )
   ) {
     throw new Error('appSync property `authenticationType` is missing or invalid.');

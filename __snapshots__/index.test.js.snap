@@ -1598,6 +1598,78 @@ Object {
 }
 `;
 
+exports[`appsync config AppSync settings are not updated when ApiId is provided 1`] = `
+Object {
+  "GraphQlDsDynamoDbSource": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "Description": undefined,
+      "DynamoDBConfig": Object {
+        "AwsRegion": "us-east-1",
+        "TableName": "myTable",
+        "UseCallerCredentials": false,
+        "Versioned": false,
+      },
+      "Name": "DynamoDbSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+      "Type": "AMAZON_DYNAMODB",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+  "GraphQlFunctionConfigurationpipeline": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "Description": undefined,
+      "FunctionVersion": "2018-05-29",
+      "Name": "pipeline",
+      "RequestMappingTemplate": "Content: mapping-templates/request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/response.vtl",
+    },
+    "Type": "AWS::AppSync::FunctionConfiguration",
+  },
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "CachingConfig": Object {
+        "Ttl": 3600,
+      },
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+  "GraphQlSchema": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
+    },
+    "Type": "AWS::AppSync::GraphQLSchema",
+  },
+}
+`;
+
 exports[`appsync config Datasource generates HTTP authorization when authorizationConfig provided 1`] = `
 Object {
   "GraphQlDsHTTPSource": Object {
@@ -1735,6 +1807,75 @@ Object {
       "Expires": 1639065600,
     },
     "Type": "AWS::AppSync::ApiKey",
+  },
+}
+`;
+
+exports[`appsync config Existing ApiId is used for all resources if provided 1`] = `
+Object {
+  "GraphQlDsDynamoDbSource": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "Description": undefined,
+      "DynamoDBConfig": Object {
+        "AwsRegion": "us-east-1",
+        "TableName": "myTable",
+        "UseCallerCredentials": false,
+        "Versioned": false,
+      },
+      "Name": "DynamoDbSource",
+      "ServiceRoleArn": "arn:aws:iam::123456789012:role/service-role/myDynamoDbRole",
+      "Type": "AMAZON_DYNAMODB",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+  "GraphQlFunctionConfigurationpipeline": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "Description": undefined,
+      "FunctionVersion": "2018-05-29",
+      "Name": "pipeline",
+      "RequestMappingTemplate": "Content: mapping-templates/request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/response.vtl",
+    },
+    "Type": "AWS::AppSync::FunctionConfiguration",
+  },
+  "GraphQlResolverQueryfield": Object {
+    "DependsOn": "GraphQlSchema",
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsds",
+          "Name",
+        ],
+      },
+      "FieldName": "field",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content: mapping-templates/Query.field.request.vtl",
+      "ResponseMappingTemplate": "Content: mapping-templates/Query.field.response.vtl",
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+  "GraphQlSchema": Object {
+    "Properties": Object {
+      "ApiId": "testApiId",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
+    },
+    "Type": "AWS::AppSync::GraphQLSchema",
   },
 }
 `;

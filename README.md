@@ -298,6 +298,9 @@ and will be ignored if you provide *apiId* parameter:
 - additionalAuthenticationProviders
 - logConfig
 - tags
+- xrayEnabled
+- apiKeys
+- wafConfig
 
 So later, if you wanted to change the name of the API, or add some tags, or change the logging configuration,
  anything from the list above you would have to do that via a different method, for example from the UI.
