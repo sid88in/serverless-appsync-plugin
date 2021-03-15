@@ -292,7 +292,6 @@ and will be ignored if you provide *apiId* parameter:
 
 - name
 - authenticationType
-- caching
 - userPoolConfig
 - openIdConnectConfig
 - additionalAuthenticationProviders

@@ -1600,6 +1600,17 @@ Object {
 
 exports[`appsync config AppSync settings are not updated when ApiId is provided 1`] = `
 Object {
+  "GraphQlCaching": Object {
+    "Properties": Object {
+      "ApiCachingBehavior": "FULL_REQUEST_CACHING",
+      "ApiId": "testApiId",
+      "AtRestEncryptionEnabled": false,
+      "TransitEncryptionEnabled": false,
+      "Ttl": 3600,
+      "Type": "T2_SMALL",
+    },
+    "Type": "AWS::AppSync::ApiCache",
+  },
   "GraphQlDsDynamoDbSource": Object {
     "Properties": Object {
       "ApiId": "testApiId",

@@ -312,7 +312,6 @@ class ServerlessAppsyncPlugin {
           The following configuration options are ignored:
             - name
             - authenticationType
-            - caching
             - userPoolConfig
             - openIdConnectConfig
             - additionalAuthenticationProviders
@@ -325,11 +324,11 @@ class ServerlessAppsyncPlugin {
     } else {
       Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
       Object.assign(resources, this.getApiKeyResources(apiConfig));
-      Object.assign(resources, this.getApiCachingResource(apiConfig));
       Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
       Object.assign(resources, this.getWafResources(apiConfig));
       Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
     }
+    Object.assign(resources, this.getApiCachingResource(apiConfig));
     Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
     Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
     Object.assign(resources, this.getDataSourceResources(apiConfig));
@@ -532,7 +531,7 @@ class ServerlessAppsyncPlugin {
           Type: 'AWS::AppSync::ApiCache',
           Properties: {
             ApiCachingBehavior: config.caching.behavior,
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             AtRestEncryptionEnabled: config.caching.atRestEncryption || false,
             TransitEncryptionEnabled: config.caching.transitEncryption || false,
             Ttl: config.caching.ttl || 3600,
