@@ -285,6 +285,150 @@ describe('appsync config', () => {
     expect(dataSources).toMatchSnapshot();
   });
 
+  test('AppSync settings are not updated when ApiId is provided', () => {
+    const ignoredResources = {
+      caching: {
+        behavior: 'FULL_REQUEST_CACHING',
+      },
+      authenticationType: 'API_KEY',
+      apiKeys: [
+        {
+          name: 'Default',
+          description: 'Default Key',
+          expiresAfter: '30d',
+        },
+      ],
+      logConfig: {
+        level: 'ALL',
+      },
+      userPoolConfig: {
+        defaultAction: 'ALLOW',
+        awsRegion: 'eu-central-1',
+        userPoolId: 'userPoolGenerateId',
+        appIdClientRegex: 'appIdClientRegex',
+      },
+      openIdConnectConfig: {
+        issuer: 'issuer',
+        clientId: 'clientId',
+        iatTTL: 1000,
+        authTTL: 1000,
+      },
+      name: 'testApiName',
+      tags: {
+        testKey: 'testValue',
+      },
+      xrayEnabled: true,
+      wafConfig: {},
+    };
+
+    const apiConfig = {
+      ...config,
+      ...ignoredResources,
+      apiId: 'testApiId',
+      schema: `
+          """A valid schema"""
+          type Thing implements One & Another {
+            hello: ID!
+          }
+          """A valid enum"""
+          enum Method {
+            DELETE # Delete something
+            GET # Get something
+          }
+        `,
+      dataSources: [
+        {
+          type: 'AMAZON_DYNAMODB',
+          name: 'DynamoDbSource',
+          config: {
+            tableName: 'myTable',
+            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            region: 'us-east-1',
+          },
+        },
+      ],
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+        },
+      ],
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: true,
+        },
+      ],
+    };
+
+    const resources = {};
+    const outputs = {};
+    plugin.addResource(resources, outputs, apiConfig);
+    expect(resources).toMatchSnapshot();
+  });
+
+  test('Existing ApiId is used for all resources if provided', () => {
+    const apiConfig = {
+      ...config,
+      apiId: 'testApiId',
+      schema: `
+          """A valid schema"""
+          type Thing implements One & Another {
+            hello: ID!
+          }
+          """A valid enum"""
+          enum Method {
+            DELETE # Delete something
+            GET # Get something
+          }
+        `,
+      dataSources: [
+        {
+          type: 'AMAZON_DYNAMODB',
+          name: 'DynamoDbSource',
+          config: {
+            tableName: 'myTable',
+            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            region: 'us-east-1',
+          },
+        },
+      ],
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+        },
+      ],
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          caching: true,
+        },
+      ],
+    };
+
+    const resources = {};
+    const outputs = {};
+    plugin.addResource(resources, outputs, apiConfig);
+
+    expect(outputs).toEqual({
+      GraphQlApiId: {
+        Value: apiConfig.apiId,
+      },
+    });
+    expect(resources).toMatchSnapshot();
+  });
+
   test('AMAZON_COGNITO_USER_POOLS config created', () => {
     const resources = plugin.getGraphQlApiEndpointResource({
       ...config,
@@ -1745,3 +1889,4 @@ describe('WAF', () => {
     ]);
   });
 });
+

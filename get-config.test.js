@@ -19,6 +19,16 @@ test('authenticationType is missing', () => {
   expect(run).toThrowErrorMatchingSnapshot();
 });
 
+test('authenticationType can be missing when apiId is provided', () => {
+  expect(getConfig(
+    {
+      apiId: 'testApiId',
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
+});
+
 test('returns valid config', () => {
   expect(getConfig(
     {
@@ -103,6 +113,28 @@ test('Schema as array', () => {
     {
       authenticationType: 'AWS_IAM',
       schema: ['_type_tweet.graphql', '_type_user.graphql'],
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
+});
+
+test('Schema as absolute path', () => {
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: path.join(servicePath, 'schema.graphql'),
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
+});
+
+test('Schema as glob pattern', () => {
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: '_type_*.graphql',
     },
     { region: 'us-east-1' },
     servicePath,

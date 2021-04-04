@@ -1,5 +1,5 @@
 [![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-61-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-62-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -47,8 +47,9 @@ custom:
   appSync:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
+    # apiId # if provided, will update the specified API.
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
-    schema: # schema file or array of files to merge, defaults to schema.graphql
+    schema: # schema file or array of files to merge, defaults to schema.graphql (glob pattern is acceptable)
     # Caching options. Disabled by default
     # read more at https://aws.amazon.com/blogs/mobile/appsync-caching-transactions/
     # and https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html
@@ -264,6 +265,55 @@ custom:
 
 > Be sure to replace all variables that have been commented out, or have an empty value.
 
+### Working with existing APIs
+
+If you already have an API created in AppSync through the UI or from a different CF stack
+and want to manage it via Serverless then the plugin can also support that.
+
+There is an optional *apiId* parameter that you can use to specify the ID of an existing AppSync API:
+```yaml
+custom:
+  appSync:
+    # ...
+    apiId: 1234abcd
+    # ...
+```
+Without *apiId* parameter the plugin will create a different endpoint with the same name alongside the original one.
+
+
+You can find the *apiId* value in the AppSync console, just open your existing AppSync API
+and go to Settings.
+
+In that case, the plugin will not attempt to create a new endpoint for you, instead, it will attach all newly configured resources to the
+existing endpoint.
+
+The following configuration options are only associated with the creation of a new AppSync endpoint
+and will be ignored if you provide *apiId* parameter:
+
+- name
+- authenticationType
+- userPoolConfig
+- openIdConnectConfig
+- additionalAuthenticationProviders
+- logConfig
+- tags
+- xrayEnabled
+- apiKeys
+- wafConfig
+
+So later, if you wanted to change the name of the API, or add some tags, or change the logging configuration,
+ anything from the list above you would have to do that via a different method, for example from the UI.
+
+If the existing API already contains schema and resolvers those will be completely replaced by the new
+schema and resolvers from the code.
+
+If the existing API already contains data sources, those data sources will remain untouched unless they have the same
+names as the data sources in the code, in which case they will be replaced with the ones from the code.
+
+> **Note:** You should never set the apiId of an API that was previously deployed with the same serverless stack, otherwise, it would be deleted. That is because the resource would be removed from the stack.
+>
+> Only use the apiId parameter if you know what you are doing.
+
 ### Multiple APIs
 
 If you have multiple APIs and do not want to split this up into another CloudFormation stack, simply change the `appSync` configuration property from an object into an array of objects:
@@ -293,7 +343,7 @@ custom:
       ...
 ```
 
-> Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
+> **Note:** CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
 
 ### Pipeline Resolvers
 
@@ -738,6 +788,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/vicary"><img src="https://avatars0.githubusercontent.com/u/85772?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vicary A.</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=vicary" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/bsantare"><img src="https://avatars2.githubusercontent.com/u/29000522?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brian Santarelli</b></sub></a><br /><a href="#ideas-bsantare" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/EmiiFont"><img src="https://avatars.githubusercontent.com/u/4354709?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Emilio Font</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=EmiiFont" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/anastyn"><img src="https://avatars.githubusercontent.com/u/743872?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andriy Nastyn</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=anastyn" title="Code">💻</a> <a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=anastyn" title="Documentation">📖</a></td>
   </tr>
 </table>
 
