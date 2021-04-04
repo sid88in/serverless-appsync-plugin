@@ -569,6 +569,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "MarcusJones",
+      "name": "MarcusJones",
+      "avatar_url": "https://avatars.githubusercontent.com/u/797625?v=4",
+      "profile": "http://marcusjones.github.io/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7
