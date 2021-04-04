@@ -578,6 +578,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "h-kishi",
+      "name": "h-kishi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8940568?v=4",
+      "profile": "https://github.com/h-kishi",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7

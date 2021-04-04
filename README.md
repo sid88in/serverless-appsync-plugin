@@ -1,5 +1,5 @@
 [![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-63-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-64-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -810,6 +810,9 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/EmiiFont"><img src="https://avatars.githubusercontent.com/u/4354709?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Emilio Font</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=EmiiFont" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/anastyn"><img src="https://avatars.githubusercontent.com/u/743872?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andriy Nastyn</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=anastyn" title="Code">💻</a> <a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=anastyn" title="Documentation">📖</a></td>
     <td align="center"><a href="http://marcusjones.github.io/"><img src="https://avatars.githubusercontent.com/u/797625?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MarcusJones</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=MarcusJones" title="Documentation">📖</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/h-kishi"><img src="https://avatars.githubusercontent.com/u/8940568?v=4?s=100" width="100px;" alt=""/><br /><sub><b>h-kishi</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=h-kishi" title="Code">💻</a></td>
   </tr>
 </table>
 
