@@ -299,20 +299,9 @@ custom:
 
 Amazon supports [direct lambda resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html)
 
-With a direct lambda resolver, no VTL mapping template is required for either request or response. This can be an option if you would like to avoid usage of the Apache VTL langauge or require a complex resolver. Direct lambda resolvers can be enabled for all mappingTemplates with;
+With a direct lambda resolver, no VTL mapping template is required for either request or response. This can be an option if you would like to avoid usage of the Apache VTL langauge or require a complex resolver. You can enable direct Lambda resolvers by setting `false` as the `request` and/or `response` value.
 
-```yml
-custom:
-  appsync:
-    defaultMappingTemplates:
-      request: false
-      response: false
-```
-
-In this mode, direct resolution will apply to all lambda resolvers that do not specifically declare the request or response mapping templates.
-
-Alternatively, direct resolution can be selectively applied to each mapping;
-
+Example:
 ```yml
 custom:
   appsync:
