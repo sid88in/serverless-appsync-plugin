@@ -301,19 +301,40 @@ class ServerlessAppsyncPlugin {
     const outputs = this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
 
     config.forEach((apiConfig) => {
+      this.addResource(resources, outputs, apiConfig);
+    });
+  }
+
+  addResource(resources, outputs, apiConfig) {
+    if (apiConfig.apiId) {
+      this.log(`
+          Updating an existing API endpoint: ${apiConfig.apiId}.
+          The following configuration options are ignored:
+            - name
+            - authenticationType
+            - userPoolConfig
+            - openIdConnectConfig
+            - additionalAuthenticationProviders
+            - logConfig
+            - tags
+            - xrayEnabled
+            - apiKeys
+            - wafConfig
+        `);
+    } else {
       Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
       Object.assign(resources, this.getApiKeyResources(apiConfig));
-      Object.assign(resources, this.getApiCachingResource(apiConfig));
-      Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
       Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
-      Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
-      Object.assign(resources, this.getDataSourceResources(apiConfig));
-      Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
-      Object.assign(resources, this.getResolverResources(apiConfig));
       Object.assign(resources, this.getWafResources(apiConfig));
-      Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
       Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
-    });
+    }
+    Object.assign(resources, this.getApiCachingResource(apiConfig));
+    Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
+    Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
+    Object.assign(resources, this.getDataSourceResources(apiConfig));
+    Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
+    Object.assign(resources, this.getResolverResources(apiConfig));
+    Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
   }
 
   getUserPoolConfig(provider, region) {
@@ -364,10 +385,6 @@ class ServerlessAppsyncPlugin {
   }
 
   getGraphQlApiEndpointResource(config) {
-    if (config.apiId) {
-      this.log(`Updating an existing API endpoint: ${config.apiId}`);
-      return null;
-    }
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdCloudWatchLogsRole = this.getLogicalId(
       config,
@@ -492,7 +509,7 @@ class ServerlessAppsyncPlugin {
         acc[logicalIdApiKey] = {
           Type: 'AWS::AppSync::ApiKey',
           Properties: {
-            ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
             Description: description || name,
             Expires: expires.unix(),
             ApiKeyId: apiKeyId,
