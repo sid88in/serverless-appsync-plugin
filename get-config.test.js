@@ -119,3 +119,24 @@ test('Schema as array', () => {
   )).toMatchSnapshot();
 });
 
+test('Schema as absolute path', () => {
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: path.join(servicePath, 'schema.graphql'),
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
+});
+
+test('Schema as glob pattern', () => {
+  expect(getConfig(
+    {
+      authenticationType: 'AWS_IAM',
+      schema: '_type_*.graphql',
+    },
+    { region: 'us-east-1' },
+    servicePath,
+  )).toMatchSnapshot();
+});

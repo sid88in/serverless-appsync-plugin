@@ -4,6 +4,7 @@ const { mergeTypeDefs } = require('@graphql-tools/merge');
 const {
   mapObjIndexed, pipe, values, merge,
 } = require('ramda');
+const globby = require('globby');
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed((item, key) => merge({ name: key }, item)),
@@ -23,6 +24,7 @@ const mergeTypes = (types, options) => {
     ...options,
   });
 };
+
 
 const getConfig = (config, provider, servicePath) => {
   if (
@@ -59,13 +61,14 @@ const getConfig = (config, provider, servicePath) => {
   const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
+  const toAbsolutePath =
+      filePath => (path.isAbsolute(filePath) ? filePath : path.join(servicePath, filePath));
   const readSchemaFile =
-      schemaRelPath => fs.readFileSync(path.join(servicePath, schemaRelPath), { encoding: 'utf8' });
+      filePath => fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  const schemaContent =
-    Array.isArray(config.schema) ?
-      mergeTypes(config.schema.map(readSchemaFile)) :
-      readSchemaFile(config.schema || 'schema.graphql');
+  const schema = Array.isArray(config.schema) ? config.schema : [config.schema || 'schema.graphql'];
+  const schemaFiles = [].concat(...schema.map(s => globby.sync(toAbsolutePath(s))));
+  const schemaContent = mergeTypes(schemaFiles.map(readSchemaFile));
 
   let dataSources = [];
   if (Array.isArray(config.dataSources)) {
