@@ -424,6 +424,11 @@ describe('appsync config', () => {
     expect(outputs).toEqual({
       GraphQlApiId: {
         Value: apiConfig.apiId,
+        Export: {
+          Name: {
+            'Fn::Sub': '${AWS::StackName}-GraphQlApiId',
+          },
+        },
       },
     });
     expect(resources).toMatchSnapshot();
@@ -1889,4 +1894,3 @@ describe('WAF', () => {
     ]);
   });
 });
-
