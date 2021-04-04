@@ -1393,12 +1393,18 @@ class ServerlessAppsyncPlugin {
     const results = {
       [logicalIdGraphQLApiIdOutput]: {
         Value: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
+        Export: {
+          Name: { 'Fn::Sub': `\${AWS::StackName}-${logicalIdGraphQLApiIdOutput}` },
+        },
       },
     };
     // output the URL if we are not updating a specific API endpoint
     if (!config.apiId) {
       results[[logicalIdGraphQLApiUrlOutput]] = {
         Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
+        Export: {
+          Name: { 'Fn::Sub': `\${AWS::StackName}-${logicalIdGraphQLApiUrlOutput}` },
+        },
       };
     }
     return results;

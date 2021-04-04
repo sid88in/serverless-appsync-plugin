@@ -602,6 +602,10 @@ custom:
     # ... other settings
 ```
 
+### Stack Outputs & Exports
+`GraphQlApiId`and `GraphQlApiUrl` are exported to allow cross-stack resource reference using `Fn::ImportValue`.
+Output Exports are named with a `${AWS::StackName}-` prefix to the logical IDs. For example, `${AWS::StackName}-GraphQlApiId`. 
+> Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
 # Cli Usage
 
 ## `serverless deploy`
