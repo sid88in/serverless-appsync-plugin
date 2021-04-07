@@ -614,15 +614,8 @@ class ServerlessAppsyncPlugin {
 
   getDataSourceIamRolesResouces(config) {
     return config.dataSources.reduce((acc, ds) => {
-      // Only generate DataSource Roles for compatible types
-      // and if `serviceRoleArn` not provided
-      const include = [
-        'AWS_LAMBDA',
-        'AMAZON_DYNAMODB',
-        'AMAZON_ELASTICSEARCH',
-        'RELATIONAL_DATABASE',
-      ];
-      if (!include.includes(ds.type) || (ds.config && ds.config.serviceRoleArn)) {
+      // Only generate DataSource Roles if `serviceRoleArn` not provided
+      if (ds.config && ds.config.serviceRoleArn) {
         return acc;
       }
 
@@ -635,7 +628,7 @@ class ServerlessAppsyncPlugin {
         statements = this.getDefaultDataSourcePolicyStatements(ds, config);
 
         // If we could not generate it, skip this step.
-        if (statements === false) {
+        if (statements.length === 0 || statements === false) {
           return acc;
         }
       }
