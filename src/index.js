@@ -621,6 +621,15 @@ class ServerlessAppsyncPlugin {
 
       let statements;
 
+      if (ds.type === 'HTTP' &&
+        ds.config &&
+        ds.config.authorizationConfig &&
+        ds.config.authorizationConfig.authorizationType === 'AWS_IAM' &&
+        !ds.config.iamRoleStatements
+      ) {
+        throw new Error(`${ds.name}: When using AWS_IAM signature, you must also specify the required iamRoleStatements`);
+      }
+
       if (ds.config && ds.config.iamRoleStatements) {
         statements = ds.config.iamRoleStatements;
       } else {
@@ -628,7 +637,7 @@ class ServerlessAppsyncPlugin {
         statements = this.getDefaultDataSourcePolicyStatements(ds, config);
 
         // If we could not generate it, skip this step.
-        if (statements.length === 0 || statements === false) {
+        if (statements === false) {
           return acc;
         }
       }

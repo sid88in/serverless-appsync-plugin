@@ -1598,6 +1598,8 @@ Object {
 }
 `;
 
+exports[`appsync config An error is thrown when AWS_IAM signature is enabled but no iamRoleStatements are passed 1`] = `"awsService: When using AWS_IAM signature, you must also specify the required iamRoleStatements"`;
+
 exports[`appsync config AppSync settings are not updated when ApiId is provided 1`] = `
 Object {
   "GraphQlCaching": Object {
@@ -1917,6 +1919,47 @@ Object {
       "Type": "HTTP",
     },
     "Type": "AWS::AppSync::DataSource",
+  },
+}
+`;
+
+exports[`appsync config It passes when AWS_IAM signature is enabled and iamRoleStatements are passed 1`] = `
+Object {
+  "GraphQlDsawsServiceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": "*",
+                "Effect": "Allow",
+                "Resource": "*",
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsawsServicePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
   },
 }
 `;
