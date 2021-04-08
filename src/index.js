@@ -614,19 +614,21 @@ class ServerlessAppsyncPlugin {
 
   getDataSourceIamRolesResouces(config) {
     return config.dataSources.reduce((acc, ds) => {
-      // Only generate DataSource Roles for compatible types
-      // and if `serviceRoleArn` not provided
-      const include = [
-        'AWS_LAMBDA',
-        'AMAZON_DYNAMODB',
-        'AMAZON_ELASTICSEARCH',
-        'RELATIONAL_DATABASE',
-      ];
-      if (!include.includes(ds.type) || (ds.config && ds.config.serviceRoleArn)) {
+      // Only generate DataSource Roles if `serviceRoleArn` not provided
+      if (ds.config && ds.config.serviceRoleArn) {
         return acc;
       }
 
       let statements;
+
+      if (ds.type === 'HTTP' &&
+        ds.config &&
+        ds.config.authorizationConfig &&
+        ds.config.authorizationConfig.authorizationType === 'AWS_IAM' &&
+        !ds.config.iamRoleStatements
+      ) {
+        throw new Error(`${ds.name}: When using AWS_IAM signature, you must also specify the required iamRoleStatements`);
+      }
 
       if (ds.config && ds.config.iamRoleStatements) {
         statements = ds.config.iamRoleStatements;

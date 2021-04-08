@@ -14,21 +14,21 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "all-contributors-cli": "^6.19.0",
+    "all-contributors-cli": "^6.20.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-import": "^2.22.1",
     "jest": "^22.1.4",
-    "serverless": "^1.30.0"
+    "serverless": "^1.83.3"
   },
   "dependencies": {
-    "@graphql-tools/merge": "^6.0.16",
-    "aws-sdk": "^2.404.0",
+    "@graphql-tools/merge": "^6.2.11",
+    "aws-sdk": "^2.881.0",
     "chalk": "^2.4.2",
     "globby": "^11.0.3",
-    "graphql": "^14.5.8",
-    "graphql-playground-middleware-koa": "^1.6.4",
-    "koa": "^2.5.2",
+    "graphql": "^14.7.0",
+    "graphql-playground-middleware-koa": "^1.6.21",
+    "koa": "^2.13.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "ramda": "^0.25.0"

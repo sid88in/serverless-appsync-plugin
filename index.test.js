@@ -285,6 +285,65 @@ describe('appsync config', () => {
     expect(dataSources).toMatchSnapshot();
   });
 
+  test('It passes when AWS_IAM signature is enabled and iamRoleStatements are passed', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'HTTP',
+            name: 'awsService',
+            config: {
+              endpoint: 'https://states.eu-east-1.amazonaws.com/',
+              iamRoleStatements: [
+                {
+                  Effect: 'Allow',
+                  Action: '*',
+                  Resource: '*',
+                },
+              ],
+              authorizationConfig: {
+                authorizationType: 'AWS_IAM',
+                awsIamConfig: {
+                  signingServiceName: 'states',
+                },
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    expect(plugin.getDataSourceIamRolesResouces(config)).toMatchSnapshot();
+  });
+
+  test('An error is thrown when AWS_IAM signature is enabled but no iamRoleStatements are passed', () => {
+    Object.assign(
+      config,
+      {
+        dataSources: [
+          {
+            type: 'HTTP',
+            name: 'awsService',
+            config: {
+              endpoint: 'https://states.eu-east-1.amazonaws.com/',
+              authorizationConfig: {
+                authorizationType: 'AWS_IAM',
+                awsIamConfig: {
+                  signingServiceName: 'states',
+                },
+              },
+            },
+          },
+        ],
+      },
+    );
+
+    expect(() => {
+      plugin.getDataSourceIamRolesResouces(config);
+    }).toThrowErrorMatchingSnapshot();
+  });
+
   test('AppSync settings are not updated when ApiId is provided', () => {
     const ignoredResources = {
       caching: {
