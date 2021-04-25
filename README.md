@@ -1,5 +1,5 @@
 [![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-66-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-67-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -815,6 +815,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/h-kishi"><img src="https://avatars.githubusercontent.com/u/8940568?v=4?s=100" width="100px;" alt=""/><br /><sub><b>h-kishi</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=h-kishi" title="Code">💻</a></td>
     <td align="center"><a href="https://dillonbrowne.com/"><img src="https://avatars.githubusercontent.com/u/32145095?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dillon Browne</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=dillonbrowne" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/pgrzesik"><img src="https://avatars.githubusercontent.com/u/17499590?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Piotr Grzesik</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=pgrzesik" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/AleksaC"><img src="https://avatars.githubusercontent.com/u/25728391?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aleksa Cukovic</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=AleksaC" title="Code">💻</a></td>
   </tr>
 </table>
 

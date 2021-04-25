@@ -605,6 +605,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "AleksaC",
+      "name": "Aleksa Cukovic",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25728391?v=4",
+      "profile": "https://github.com/AleksaC",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
