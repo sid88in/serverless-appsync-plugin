@@ -596,6 +596,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pgrzesik",
+      "name": "Piotr Grzesik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17499590?v=4",
+      "profile": "https://github.com/pgrzesik",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
