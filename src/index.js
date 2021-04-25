@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const parseSchema = require('graphql/language').parse;
+const { buildASTSchema } = require('graphql/utilities');
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
@@ -44,28 +45,34 @@ class ServerlessAppsyncPlugin {
           clientId: {
             usage: 'Specify your cognito client id (for AMAZON_COGNITO_USER_POOLS authType)',
             required: false,
+            type: 'string',
           },
           username: {
             usage: 'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'u',
             required: false,
+            type: 'string',
           },
           password: {
             usage: 'Specify your password (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'p',
             required: false,
+            type: 'string',
           },
           jwtToken: {
             usage: 'Specify your jwtToken (for OPENID_CONNECT authType)',
             required: false,
+            type: 'string',
           },
           apiKey: {
             usage: 'Specify your appsync api key (for API_KEY authType)',
             required: false,
+            type: 'string',
           },
           port: {
             usage: 'Specify the local port graphql playground should run from',
             required: false,
+            type: 'string',
           },
         },
         lifecycleEvents: ['run'],
@@ -234,10 +241,18 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  getSchemas() {
+  validateSchemas() {
     const config = this.loadConfig();
 
     const awsTypes = `
+      directive @aws_iam on FIELD_DEFINITION | OBJECT
+      directive @aws_oidc on FIELD_DEFINITION | OBJECT
+      directive @aws_api_key on FIELD_DEFINITION | OBJECT
+      directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
+      directive @aws_cognito_user_pools(
+        cognito_groups: [String]
+      ) on FIELD_DEFINITION | OBJECT
+
       scalar AWSDate
       scalar AWSTime
       scalar AWSDateTime
@@ -249,12 +264,10 @@ class ServerlessAppsyncPlugin {
       scalar AWSIPAddress
     `;
 
-    return config.map(apiConfig => `${apiConfig.schema} ${awsTypes}`);
-  }
-
-  validateSchemas() {
     try {
-      this.getSchemas().forEach(parseSchema);
+      config.forEach((apiConfig) => {
+        buildASTSchema(parseSchema(`${apiConfig.schema} ${awsTypes}`));
+      });
       this.log('GraphQl schema valid');
     } catch (errors) {
       this.log(errors, { color: 'red' });
