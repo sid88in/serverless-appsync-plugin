@@ -44,28 +44,34 @@ class ServerlessAppsyncPlugin {
           clientId: {
             usage: 'Specify your cognito client id (for AMAZON_COGNITO_USER_POOLS authType)',
             required: false,
+            type: 'string',
           },
           username: {
             usage: 'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'u',
             required: false,
+            type: 'string',
           },
           password: {
             usage: 'Specify your password (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'p',
             required: false,
+            type: 'string',
           },
           jwtToken: {
             usage: 'Specify your jwtToken (for OPENID_CONNECT authType)',
             required: false,
+            type: 'string',
           },
           apiKey: {
             usage: 'Specify your appsync api key (for API_KEY authType)',
             required: false,
+            type: 'string',
           },
           port: {
             usage: 'Specify the local port graphql playground should run from',
             required: false,
+            type: 'string',
           },
         },
         lifecycleEvents: ['run'],
