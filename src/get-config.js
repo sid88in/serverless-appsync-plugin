@@ -61,13 +61,13 @@ const getConfig = (config, provider, servicePath) => {
   const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
-  const toAbsolutePath =
-      filePath => (path.isAbsolute(filePath) ? filePath : path.join(servicePath, filePath));
+  const toAbsolutePosixPath =
+      filePath => (path.isAbsolute(filePath) ? filePath : path.join(servicePath, filePath)).replace(/\\/g, '/');
   const readSchemaFile =
       filePath => fs.readFileSync(filePath, { encoding: 'utf8' });
 
   const schema = Array.isArray(config.schema) ? config.schema : [config.schema || 'schema.graphql'];
-  const schemaFiles = [].concat(...schema.map(s => globby.sync(toAbsolutePath(s))));
+  const schemaFiles = [].concat(...schema.map(s => globby.sync(toAbsolutePosixPath(s))));
   const schemaContent = mergeTypes(schemaFiles.map(readSchemaFile));
 
   let dataSources = [];
