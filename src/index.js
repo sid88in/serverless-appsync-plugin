@@ -253,7 +253,7 @@ class ServerlessAppsyncPlugin {
         cognito_groups: [String]
       ) on FIELD_DEFINITION | OBJECT
 
-      directive @aws_subscription(mutations: [String]) on FIELD_DEFINITION
+      directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
 
       scalar AWSDate
       scalar AWSTime
