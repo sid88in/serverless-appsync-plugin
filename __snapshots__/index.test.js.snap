@@ -558,7 +558,6 @@ Object {
             "Block": Object {},
           },
           "Name": "UsOnly",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "AndStatement": Object {
@@ -610,7 +609,6 @@ Object {
             "Block": Object {},
           },
           "Name": "Throttle",
-          "OverrideAction": undefined,
           "Priority": 1,
           "Statement": Object {
             "RateBasedStatement": Object {
@@ -651,7 +649,6 @@ Object {
             "Block": Object {},
           },
           "Name": "Throttle",
-          "OverrideAction": undefined,
           "Priority": 1,
           "Statement": Object {
             "RateBasedStatement": Object {
@@ -887,7 +884,6 @@ Object {
             "Allow": Object {},
           },
           "Name": "UsOnly",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "NotStatement": Object {
@@ -1334,7 +1330,6 @@ Object {
             "Allow": Object {},
           },
           "Name": "MatchAllRule",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "ByteMatchStatement": Object {
