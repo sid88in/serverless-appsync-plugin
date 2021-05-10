@@ -1952,4 +1952,29 @@ describe('WAF', () => {
       ['Dummy6', 103],
     ]);
   });
+
+  it('should suppress the Action option if OverrideAction is set', () => {
+    // Using the README example
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        rules: [
+          {
+            name: 'MyRule1',
+            // This setting should create 'OverrideAction' but suppress 'Action' in the CF output
+            overrideAction: {
+              none: {},
+            },
+            statement: {
+              managedRuleGroupStatement: {
+                vendorName: 'AWS',
+                name: 'AWSManagedRulesCommonRuleSet',
+              },
+            },
+          },
+        ],
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
 });
