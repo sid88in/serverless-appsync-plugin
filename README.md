@@ -708,6 +708,10 @@ You are also very welcome to open a PR and we will gladely review it.
 
 # Resources
 
+## VSCode extensions
+- [AppSync Utils](https://marketplace.visualstudio.com/items?itemName=bboure.vscode-appsync-utils): A collection of snippets that make AppSync development easier
+- [AppSync Resolver Autocomplete](https://marketplace.visualstudio.com/items?itemName=theBenForce.appsync-resolver-autocomplete): Autocomplete support for VTL template files.
+
 ## Video tutorials
 - [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
