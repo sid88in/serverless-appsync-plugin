@@ -506,6 +506,31 @@ wafConfig:
     - disableIntrospection  # disables introspection for everyone
 ````
 
+### Using AWS Managed Rules
+
+You can use
+[AWS Managed Rules](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups.html)
+using this configuration:
+
+```yml
+wafConfig:
+  enabled: true
+  rules:
+    - name: MyRule1 # this is your rule name
+      overrideAction:
+        none: {}
+      statement:
+        managedRuleGroupStatement:
+          vendorName: AWS
+          name: AWSManagedRulesCommonRuleSet # this is the name of the managed rule
+```
+
+Managed rules require `overrideAction` set and `action` not set.
+
+For more information view the
+[AWS Managed Rule Groups List](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html).
+
+
 ### Per Api Key rules
 
 In some cases, you might want to enable a rule only for a given API key only. You can specify `wafRules` under the `apiKeys` configuration. The rules will apply only to the api key under which the rule is set.

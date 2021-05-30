@@ -1283,14 +1283,19 @@ class ServerlessAppsyncPlugin {
       overrideAction = { [overrideAction]: {} };
     }
 
-    return {
-      Action: action,
+    const result = {
       Name: rule.name,
-      OverrideAction: overrideAction ? toCfnKeys(overrideAction) : undefined,
       Priority: rule.priority,
       Statement: rule.statement ? toCfnKeys(rule.statement) : undefined,
       VisibilityConfig: this.getWafVisibilityConfig(rule.visibilityConfig, rule.name),
     };
+    // only one of Action or OverrideAction is allowed
+    if (overrideAction) {
+      result.OverrideAction = toCfnKeys(overrideAction);
+    } else if (action) {
+      result.Action = action;
+    }
+    return result;
   }
 
   buildWafRules(wafConfig, apiConfig) {

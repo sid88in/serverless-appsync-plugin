@@ -558,7 +558,6 @@ Object {
             "Block": Object {},
           },
           "Name": "UsOnly",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "AndStatement": Object {
@@ -610,7 +609,6 @@ Object {
             "Block": Object {},
           },
           "Name": "Throttle",
-          "OverrideAction": undefined,
           "Priority": 1,
           "Statement": Object {
             "RateBasedStatement": Object {
@@ -651,7 +649,6 @@ Object {
             "Block": Object {},
           },
           "Name": "Throttle",
-          "OverrideAction": undefined,
           "Priority": 1,
           "Statement": Object {
             "RateBasedStatement": Object {
@@ -887,7 +884,6 @@ Object {
             "Allow": Object {},
           },
           "Name": "UsOnly",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "NotStatement": Object {
@@ -1334,7 +1330,6 @@ Object {
             "Allow": Object {},
           },
           "Name": "MatchAllRule",
-          "OverrideAction": undefined,
           "Priority": 100,
           "Statement": Object {
             "ByteMatchStatement": Object {
@@ -1361,6 +1356,65 @@ Object {
           "VisibilityConfig": Object {
             "CloudWatchMetricsEnabled": true,
             "MetricName": "MatchAllRule",
+            "SampledRequestsEnabled": true,
+          },
+        },
+      ],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "apiWaf",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`WAF should suppress the Action option if OverrideAction is set 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "ACL rules for AppSync api",
+      "Name": "apiWaf",
+      "Rules": Array [
+        Object {
+          "Name": "MyRule1",
+          "OverrideAction": Object {
+            "None": Object {},
+          },
+          "Priority": 100,
+          "Statement": Object {
+            "ManagedRuleGroupStatement": Object {
+              "Name": "AWSManagedRulesCommonRuleSet",
+              "VendorName": "AWS",
+            },
+          },
+          "VisibilityConfig": Object {
+            "CloudWatchMetricsEnabled": true,
+            "MetricName": "MyRule1",
             "SampledRequestsEnabled": true,
           },
         },
