@@ -553,7 +553,7 @@ Example:
 - Except for the `WorldWideApiKey` key, that should have worldwide access.
 
 ````yml
-wfConfig:
+wafConfig:
   enabled: true
   defaultAction: Block # Block all by default
   rules:
@@ -589,7 +589,7 @@ For more info about how rules are executed, pease refer to [the documentation](h
 Example:
 
 ````yml
-wfConfig:
+wafConfig:
   enabled: true
   rules:
     - name: Rule1
