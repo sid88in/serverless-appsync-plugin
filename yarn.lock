@@ -716,6 +716,11 @@ append-transform@^0.4.0:
   dependencies:
     default-require-extensions "^1.0.0"
 
+appsync-schema-converter@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/appsync-schema-converter/-/appsync-schema-converter-1.1.1.tgz#7e9c5a9ccd90d5039cb29bebd4cf9e5be9ee7baa"
+  integrity sha512-ogq+welg16eu7s0FH5hebmn9cxWSWqslC3ueRR0uE+4bhYnVG/AzhL4SNd1FRY+GmMzpaDg7bd/TvybITQW/hw==
+
 archive-type@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/archive-type/-/archive-type-4.0.0.tgz#f92e72233056dfc6969472749c267bdb046b1d70"

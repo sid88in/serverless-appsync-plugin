@@ -1,13 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const parseSchema = require('graphql/language').parse;
-const { buildASTSchema } = require('graphql/utilities');
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
 const { has, merge } = require('ramda');
 const { parseDuration, toCfnKeys } = require('./utils');
 const moment = require('moment');
+const { convertAppSyncSchemas } = require('appsync-schema-converter');
 
 const MIGRATION_DOCS =
   'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -264,34 +263,8 @@ class ServerlessAppsyncPlugin {
 
   validateSchemas() {
     const config = this.loadConfig();
-
-    const awsTypes = `
-      directive @aws_iam on FIELD_DEFINITION | OBJECT
-      directive @aws_oidc on FIELD_DEFINITION | OBJECT
-      directive @aws_api_key on FIELD_DEFINITION | OBJECT
-      directive @aws_lambda on FIELD_DEFINITION | OBJECT
-      directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
-      directive @aws_cognito_user_pools(
-        cognito_groups: [String]
-      ) on FIELD_DEFINITION | OBJECT
-
-      directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
-
-      scalar AWSDate
-      scalar AWSTime
-      scalar AWSDateTime
-      scalar AWSTimestamp
-      scalar AWSEmail
-      scalar AWSJSON
-      scalar AWSURL
-      scalar AWSPhone
-      scalar AWSIPAddress
-    `;
-
     try {
-      config.forEach((apiConfig) => {
-        buildASTSchema(parseSchema(`${apiConfig.schema} ${awsTypes}`));
-      });
+      convertSchemas(config.map(({schema})=> schema));
       this.log('GraphQl schema valid');
     } catch (errors) {
       this.log(errors, { color: 'red' });
@@ -1082,10 +1055,7 @@ class ServerlessAppsyncPlugin {
   getGraphQLSchemaResource(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
-    const appSyncSafeSchema = this.cleanCommentsFromSchema(
-      config.schema,
-      config.allowHashDescription,
-    );
+    const appSyncSafeSchema = convertAppSyncSchemas(config.schema);
 
     if (config.allowHashDescription) {
       this.log(

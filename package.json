@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@graphql-tools/merge": "^6.2.11",
+    "appsync-schema-converter": "^1.1.1",
     "aws-sdk": "^2.881.0",
     "chalk": "^2.4.2",
     "globby": "^11.0.3",
