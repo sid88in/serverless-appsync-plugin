@@ -398,10 +398,10 @@ class ServerlessAppsyncPlugin {
             config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS'
               ? undefined
               : this.getUserPoolConfig(config, config.region),
-          LambdaAuthorizerConfig:
-            config.authenticationType !== 'AWS_LAMBDA' ? undefined : this.getLambdaAuthorizerConfig(config),
           OpenIDConnectConfig:
             config.authenticationType !== 'OPENID_CONNECT' ? undefined : this.getOpenIDConnectConfig(config),
+          LambdaAuthorizerConfig:
+            config.authenticationType !== 'AWS_LAMBDA' ? undefined : this.getLambdaAuthorizerConfig(config),
           LogConfig: !config.logConfig
             ? undefined
             : {
@@ -452,13 +452,10 @@ class ServerlessAppsyncPlugin {
   }
 
   hasApiKeyAuth(config) {
-    if (
+    return (
       config.authenticationType === 'API_KEY' ||
       config.additionalAuthenticationProviders.some(({ authenticationType }) => authenticationType === 'API_KEY')
-    ) {
-      return true;
-    }
-    return false;
+    );
   }
 
   getApiKeys(config) {
@@ -1389,16 +1386,6 @@ class ServerlessAppsyncPlugin {
       }, {});
     }
     return {};
-  }
-
-  cleanCommentsFromSchema(schema, allowHashDescription) {
-    const newStyleDescription = /"""[^"]*"""\n/g; // appsync does not support the new style descriptions
-    const oldStyleDescription = /#.*\n/g; // appysnc does not support old-style # comments in enums, so remove them all
-    const joinInterfaces = / *& */g; // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
-    if (allowHashDescription) {
-      return schema.replace(newStyleDescription, '').replace(joinInterfaces, ', ');
-    }
-    return schema.replace(newStyleDescription, '').replace(oldStyleDescription, '').replace(joinInterfaces, ', ');
   }
 
   getCfnName(name) {
