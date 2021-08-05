@@ -248,6 +248,7 @@ class ServerlessAppsyncPlugin {
       directive @aws_iam on FIELD_DEFINITION | OBJECT
       directive @aws_oidc on FIELD_DEFINITION | OBJECT
       directive @aws_api_key on FIELD_DEFINITION | OBJECT
+      directive @aws_lambda on FIELD_DEFINITION | OBJECT
       directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
       directive @aws_cognito_user_pools(
         cognito_groups: [String]
@@ -377,6 +378,21 @@ class ServerlessAppsyncPlugin {
     return openIdConnectConfig;
   }
 
+  getLambdaAuthorizerConfig(provider) {
+    if (!provider.lambdaAuthorizerConfig || !(provider.lambdaAuthorizerConfig.functionArn || provider.lambdaAuthorizerConfig.functionName)) {
+      throw new this.serverless.classes.Error('lambdaAuthorizerConfig `functionArn` or `functionName` must be present');
+    }
+    const [functionName, functionAlias] = (provider.lambdaAuthorizerConfig.functionName || '').split(':')
+
+    const lambdaAuthorizerConfig = {
+      AuthorizerUri: provider.lambdaAuthorizerConfig.functionArn || this.generateLambdaArn(functionName, functionAlias),
+      IdentityValidationExpression: provider.lambdaAuthorizerConfig.identityValidationExpression,
+      AuthorizerResultTtlInSeconds: provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds
+    };
+
+    return lambdaAuthorizerConfig;
+  }
+
   getTagsConfig(config) {
     return Object.keys(config.tags).map(key => ({
       Key: key,
@@ -394,6 +410,9 @@ class ServerlessAppsyncPlugin {
       OpenIDConnectConfig: authenticationType !== 'OPENID_CONNECT'
         ? undefined
         : this.getOpenIDConnectConfig(provider),
+      LambdaAuthorizerConfig: authenticationType !== 'AWS_LAMBDA'
+        ? undefined
+        : this.getLambdaAuthorizerConfig(provider),
     };
 
     return Provider;
@@ -425,6 +444,9 @@ class ServerlessAppsyncPlugin {
           UserPoolConfig: config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS'
             ? undefined
             : this.getUserPoolConfig(config, config.region),
+          LambdaAuthorizerConfig: config.authenticationType !== 'AWS_LAMBDA'
+            ? undefined
+            : this.getLambdaAuthorizerConfig(config),
           OpenIDConnectConfig: config.authenticationType !== 'OPENID_CONNECT'
             ? undefined
             : this.getOpenIDConnectConfig(config),
@@ -439,6 +461,17 @@ class ServerlessAppsyncPlugin {
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
       },
+      ...(config.authenticationType === 'AWS_LAMBDA' && {
+        [`${logicalIdGraphQLApi}LambdaAuthorizerPermission`]: {
+          Type: 'AWS::Lambda::Permission',
+          Properties: {
+            Action: 'lambda:InvokeFunction',
+            FunctionName: this.getLambdaAuthorizerConfig(config).AuthorizerUri,
+            Principal: 'appsync.amazonaws.com',
+            SourceArn: { Ref: logicalIdGraphQLApi }
+          }
+        }
+      }),
       ...(config.logConfig && config.logConfig.level && {
         [`${logicalIdGraphQLApi}LogGroup`]: {
           Type: 'AWS::Logs::LogGroup',

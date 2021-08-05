@@ -33,6 +33,7 @@ const getConfig = (config, provider, servicePath) => {
       config.authenticationType === 'AWS_IAM' ||
       config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
       config.authenticationType === 'OPENID_CONNECT' ||
+      config.authenticationType === 'AWS_LAMBDA' ||
       config.apiId
     )
   ) {
@@ -40,6 +41,9 @@ const getConfig = (config, provider, servicePath) => {
   }
   if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' && !config.userPoolConfig) {
     throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
+  }  
+  if (config.authenticationType === 'AWS_LAMBDA' && !config.lambdaAuthorizerConfig) {
+    throw new Error('appSync property `lambdaAuthorizerConfig` is required when authenticationType `AWS_LAMBDA` is chosen.');
   }
   if (config.authenticationType === 'OPENID_CONNECT' && !config.openIdConnectConfig) {
     throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
