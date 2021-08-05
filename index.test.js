@@ -526,7 +526,7 @@ describe('appsync config', () => {
     expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
     expect(resources.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
       AuthorizerUri: {
-        'Fn::GetAtt': ['MyTestFunctionLambdaFunction', 'Arn']
+        'Fn::GetAtt': ['MyTestFunctionLambdaFunction', 'Arn'],
       },
       IdentityValidationExpression: '.+',
       AuthorizerResultTtlInSeconds: 300,
@@ -540,7 +540,7 @@ describe('appsync config', () => {
       lambdaAuthorizerConfig: {
         functionName: 'MyTestFunction',
         functionArn: {
-          'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn']
+          'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
         },
         identityValidationExpression: '.+',
         authorizerResultTtlInSeconds: 300,
@@ -549,7 +549,7 @@ describe('appsync config', () => {
     expect(resources2.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
     expect(resources2.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
       AuthorizerUri: {
-        'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn']
+        'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
       },
       IdentityValidationExpression: '.+',
       AuthorizerResultTtlInSeconds: 300,
@@ -632,7 +632,7 @@ describe('appsync config', () => {
           lambdaAuthorizerConfig: {
             functionName: 'lambdaAuthorizer',
             identityValidationExpression: '.+',
-            authorizerResultTtlInSeconds: 300
+            authorizerResultTtlInSeconds: 300,
           },
         },
         {

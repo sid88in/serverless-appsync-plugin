@@ -379,16 +379,24 @@ class ServerlessAppsyncPlugin {
   }
 
   getLambdaAuthorizerConfig(provider) {
-    if (!provider.lambdaAuthorizerConfig || !(provider.lambdaAuthorizerConfig.functionArn || provider.lambdaAuthorizerConfig.functionName)) {
+    if (
+      !provider.lambdaAuthorizerConfig ||
+      !(provider.lambdaAuthorizerConfig.functionArn || provider.lambdaAuthorizerConfig.functionName)
+    ) {
       throw new this.serverless.classes.Error('lambdaAuthorizerConfig `functionArn` or `functionName` must be present');
     }
-    const [functionName, functionAlias] = (provider.lambdaAuthorizerConfig.functionName || '').split(':')
 
     const lambdaAuthorizerConfig = {
-      AuthorizerUri: provider.lambdaAuthorizerConfig.functionArn || this.generateLambdaArn(functionName, functionAlias),
       IdentityValidationExpression: provider.lambdaAuthorizerConfig.identityValidationExpression,
-      AuthorizerResultTtlInSeconds: provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds
+      AuthorizerResultTtlInSeconds: provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
     };
+
+    if (provider.lambdaAuthorizerConfig.functionArn) {
+      lambdaAuthorizerConfig.AuthorizerUri = provider.lambdaAuthorizerConfig.functionArn;
+    } else {
+      const [functionName, functionAlias] = provider.lambdaAuthorizerConfig.functionName.split(':');
+      lambdaAuthorizerConfig.AuthorizerUri = this.generateLambdaArn(functionName, functionAlias);
+    }
 
     return lambdaAuthorizerConfig;
   }
@@ -468,9 +476,9 @@ class ServerlessAppsyncPlugin {
             Action: 'lambda:InvokeFunction',
             FunctionName: this.getLambdaAuthorizerConfig(config).AuthorizerUri,
             Principal: 'appsync.amazonaws.com',
-            SourceArn: { Ref: logicalIdGraphQLApi }
-          }
-        }
+            SourceArn: { Ref: logicalIdGraphQLApi },
+          },
+        },
       }),
       ...(config.logConfig && config.logConfig.level && {
         [`${logicalIdGraphQLApi}LogGroup`]: {
