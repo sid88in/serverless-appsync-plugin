@@ -379,24 +379,11 @@ class ServerlessAppsyncPlugin {
   }
 
   getLambdaAuthorizerConfig(provider) {
-    if (
-      !provider.lambdaAuthorizerConfig ||
-      !(provider.lambdaAuthorizerConfig.functionArn || provider.lambdaAuthorizerConfig.functionName)
-    ) {
-      throw new this.serverless.classes.Error('lambdaAuthorizerConfig `functionArn` or `functionName` must be present');
-    }
-
     const lambdaAuthorizerConfig = {
+      AuthorizerUri: this.getLambdaArn(provider.lambdaAuthorizerConfig),
       IdentityValidationExpression: provider.lambdaAuthorizerConfig.identityValidationExpression,
       AuthorizerResultTtlInSeconds: provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
     };
-
-    if (provider.lambdaAuthorizerConfig.functionArn) {
-      lambdaAuthorizerConfig.AuthorizerUri = provider.lambdaAuthorizerConfig.functionArn;
-    } else {
-      const [functionName, functionAlias] = provider.lambdaAuthorizerConfig.functionName.split(':');
-      lambdaAuthorizerConfig.AuthorizerUri = this.generateLambdaArn(functionName, functionAlias);
-    }
 
     return lambdaAuthorizerConfig;
   }
@@ -469,17 +456,7 @@ class ServerlessAppsyncPlugin {
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
       },
-      ...(config.authenticationType === 'AWS_LAMBDA' && {
-        [`${logicalIdGraphQLApi}LambdaAuthorizerPermission`]: {
-          Type: 'AWS::Lambda::Permission',
-          Properties: {
-            Action: 'lambda:InvokeFunction',
-            FunctionName: this.getLambdaAuthorizerConfig(config).AuthorizerUri,
-            Principal: 'appsync.amazonaws.com',
-            SourceArn: { Ref: logicalIdGraphQLApi },
-          },
-        },
-      }),
+      ...this.getLambdaAuthorizerPermission(config, logicalIdGraphQLApi),
       ...(config.logConfig && config.logConfig.level && {
         [`${logicalIdGraphQLApi}LogGroup`]: {
           Type: 'AWS::Logs::LogGroup',
@@ -490,6 +467,23 @@ class ServerlessAppsyncPlugin {
         },
       }),
     };
+  }
+
+  getLambdaAuthorizerPermission(config, logicalIdGraphQLApi) {
+    const lambdaConfig = [config, ...config.additionalAuthenticationProviders]
+      .find(e => e.authenticationType === 'AWS_LAMBDA');
+
+    return lambdaConfig ? {
+      [`${logicalIdGraphQLApi}LambdaAuthorizerPermission`]: {
+        Type: 'AWS::Lambda::Permission',
+        Properties: {
+          Action: 'lambda:InvokeFunction',
+          FunctionName: this.getLambdaArn(lambdaConfig.lambdaAuthorizerConfig),
+          Principal: 'appsync.amazonaws.com',
+          SourceArn: { Ref: logicalIdGraphQLApi },
+        },
+      },
+    } : undefined;
   }
 
   hasApiKeyAuth(config) {

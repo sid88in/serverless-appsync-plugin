@@ -67,8 +67,9 @@ custom:
       appIdClientRegex: # optional      
     # if AWS_LAMBDA
     lambdaAuthorizerConfig:
-      functionName: # The function name in your serverless.yml. Ignored if functionArn is provided.
-      functionArn: # required if functionName is not defined
+      functionName: # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+      functionAlias: # optional, used with functionName
+      lambdaFunctionArn: # required if functionName is not defined
       identityValidationExpression: # optional
       authorizerResultTtlInSeconds: # optional
     # if OPENID_CONNECT
@@ -102,8 +103,9 @@ custom:
           appIdClientRegex: # optional
       - authenticationType: AWS_LAMBDA
         lambdaAuthorizerConfig:
-          functionName: # The function name in your serverless.yml. Ignored if functionArn is provided.
-          functionArn: # required if functionName is not defined
+          functionName: # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+          functionAlias: # optional, used with functionName
+          lambdaFunctionArn: # required if functionName is not defined
           identityValidationExpression: # optional
           authorizerResultTtlInSeconds: # optional
     logConfig:

@@ -532,14 +532,14 @@ describe('appsync config', () => {
       AuthorizerResultTtlInSeconds: 300,
     });
 
-    // using both `functionName` and `functionArn`
-    // functionArn has priority
+    // using both `functionName` and `lambdaFunctionArn`
+    // lambdaFunctionArn has priority
     const resources2 = plugin.getGraphQlApiEndpointResource({
       ...config,
       authenticationType: 'AWS_LAMBDA',
       lambdaAuthorizerConfig: {
         functionName: 'MyTestFunction',
-        functionArn: {
+        lambdaFunctionArn: {
           'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
         },
         identityValidationExpression: '.+',
