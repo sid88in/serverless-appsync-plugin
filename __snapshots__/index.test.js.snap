@@ -1605,6 +1605,7 @@ exports[`appsync config Additional authentication providers created 1`] = `
 Array [
   Object {
     "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+    "LambdaAuthorizerConfig": undefined,
     "OpenIDConnectConfig": undefined,
     "UserPoolConfig": Object {
       "AppIdClientRegex": "appIdClientRegex",
@@ -1613,7 +1614,23 @@ Array [
     },
   },
   Object {
+    "AuthenticationType": "AWS_LAMBDA",
+    "LambdaAuthorizerConfig": Object {
+      "AuthorizerResultTtlInSeconds": 300,
+      "AuthorizerUri": Object {
+        "Fn::GetAtt": Array [
+          "LambdaAuthorizerLambdaFunction",
+          "Arn",
+        ],
+      },
+      "IdentityValidationExpression": ".+",
+    },
+    "OpenIDConnectConfig": undefined,
+    "UserPoolConfig": undefined,
+  },
+  Object {
     "AuthenticationType": "OPENID_CONNECT",
+    "LambdaAuthorizerConfig": undefined,
     "OpenIDConnectConfig": Object {
       "AuthTTL": 1000,
       "ClientId": "clientId",
@@ -1624,11 +1641,13 @@ Array [
   },
   Object {
     "AuthenticationType": "API_KEY",
+    "LambdaAuthorizerConfig": undefined,
     "OpenIDConnectConfig": undefined,
     "UserPoolConfig": undefined,
   },
   Object {
     "AuthenticationType": "AWS_IAM",
+    "LambdaAuthorizerConfig": undefined,
     "OpenIDConnectConfig": undefined,
     "UserPoolConfig": undefined,
   },

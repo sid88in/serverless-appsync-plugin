@@ -48,7 +48,7 @@ custom:
     name:  # defaults to api
     # apiKey # only required for update-appsync/delete-appsync
     # apiId # if provided, will update the specified API.
-    authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT
+    authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT or AWS_LAMBDA
     schema: # schema file or array of files to merge, defaults to schema.graphql (glob pattern is acceptable)
     # Caching options. Disabled by default
     # read more at https://aws.amazon.com/blogs/mobile/appsync-caching-transactions/
@@ -64,7 +64,14 @@ custom:
       awsRegion: # defaults to provider region
       defaultAction: # required # ALLOW or DENY
       userPoolId: # required # user pool ID
-      appIdClientRegex: # optional
+      appIdClientRegex: # optional      
+    # if AWS_LAMBDA
+    lambdaAuthorizerConfig:
+      functionName: # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+      functionAlias: # optional, used with functionName
+      lambdaFunctionArn: # required if functionName is not defined
+      identityValidationExpression: # optional
+      authorizerResultTtlInSeconds: # optional
     # if OPENID_CONNECT
     openIdConnectConfig:
       issuer:
@@ -94,6 +101,13 @@ custom:
           awsRegion: # defaults to provider region
           userPoolId: # required # user pool ID
           appIdClientRegex: # optional
+      - authenticationType: AWS_LAMBDA
+        lambdaAuthorizerConfig:
+          functionName: # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
+          functionAlias: # optional, used with functionName
+          lambdaFunctionArn: # required if functionName is not defined
+          identityValidationExpression: # optional
+          authorizerResultTtlInSeconds: # optional
     logConfig:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL

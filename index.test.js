@@ -13,7 +13,7 @@ let config;
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 
 jest.mock('fs');
-jest.spyOn(fs, 'readFileSync').mockImplementation(path => `Content: ${path}`);
+jest.spyOn(fs, 'readFileSync').mockImplementation(path => `Content: ${path.replace(/\\/g, '/')}`);
 
 beforeEach(() => {
   const cli = {
@@ -513,6 +513,49 @@ describe('appsync config', () => {
     });
   });
 
+  test('AWS_LAMBDA authorizer config created', () => {
+    const resources = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'AWS_LAMBDA',
+      lambdaAuthorizerConfig: {
+        functionName: 'MyTestFunction',
+        identityValidationExpression: '.+',
+        authorizerResultTtlInSeconds: 300,
+      },
+    });
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
+    expect(resources.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
+      AuthorizerUri: {
+        'Fn::GetAtt': ['MyTestFunctionLambdaFunction', 'Arn'],
+      },
+      IdentityValidationExpression: '.+',
+      AuthorizerResultTtlInSeconds: 300,
+    });
+
+    // using both `functionName` and `lambdaFunctionArn`
+    // lambdaFunctionArn has priority
+    const resources2 = plugin.getGraphQlApiEndpointResource({
+      ...config,
+      authenticationType: 'AWS_LAMBDA',
+      lambdaAuthorizerConfig: {
+        functionName: 'MyTestFunction',
+        lambdaFunctionArn: {
+          'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
+        },
+        identityValidationExpression: '.+',
+        authorizerResultTtlInSeconds: 300,
+      },
+    });
+    expect(resources2.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
+    expect(resources2.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
+      AuthorizerUri: {
+        'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
+      },
+      IdentityValidationExpression: '.+',
+      AuthorizerResultTtlInSeconds: 300,
+    });
+  });
+
   test('xrayEnabled config created', () => {
     const resources = plugin.getGraphQlApiEndpointResource({
       ...config,
@@ -582,6 +625,14 @@ describe('appsync config', () => {
             awsRegion: 'eu-central-1',
             userPoolId: 'userPoolGenerateId',
             appIdClientRegex: 'appIdClientRegex',
+          },
+        },
+        {
+          authenticationType: 'AWS_LAMBDA',
+          lambdaAuthorizerConfig: {
+            functionName: 'lambdaAuthorizer',
+            identityValidationExpression: '.+',
+            authorizerResultTtlInSeconds: 300,
           },
         },
         {
