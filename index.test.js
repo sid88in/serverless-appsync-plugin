@@ -1064,64 +1064,64 @@ describe('iamRoleStatements', () => {
     const roles = plugin.getDataSourceIamRolesResouces(config);
     expect(roles).toEqual({});
   });
+});
 
-  describe('template substitutions', () => {
-    test('Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects', () => {
-      const template = '#set($partitionKey = "${globalPK}")\n' +
-        '{\n' +
-        '"version" : "2018-05-29",\n' +
-        '"operation" : "GetItem",\n' +
-        '"key" : {\n' +
-        '"partitionKey": { "S": "${globalPK}" },\n' +
-        '"sortKey": { "S": "${globalSK}" },\n' +
-        '}\n' +
-        '}';
+describe('template substitutions', () => {
+  test('Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects', () => {
+    const template = '#set($partitionKey = "${globalPK}")\n' +
+      '{\n' +
+      '"version" : "2018-05-29",\n' +
+      '"operation" : "GetItem",\n' +
+      '"key" : {\n' +
+      '"partitionKey": { "S": "${globalPK}" },\n' +
+      '"sortKey": { "S": "${globalSK}" },\n' +
+      '}\n' +
+      '}';
 
-      const variables =
-      {
-        globalPK: 'PK',
-        globalSK: 'SK',
-      };
+    const variables =
+    {
+      globalPK: 'PK',
+      globalSK: 'SK',
+    };
 
-      const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
-      expect(transformedTemplate).toMatchSnapshot();
-    });
+    const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
+    expect(transformedTemplate).toMatchSnapshot();
   });
+});
 
-  describe('individual template substitutions', () => {
-    test('Substitutions for individual template should override global substitutions.', () => {
-      const template = '#set($partitionKey = "${globalPK}")\n' +
-        '{\n' +
-        '"version" : "2018-05-29",\n' +
-        '"operation" : "GetItem",\n' +
-        '"key" : {\n' +
-        '"partitionKey": { "S": "${globalPK}" },\n' +
-        '"sortKey": { "S": "${globalSK}" },\n' +
-        '}\n' +
-        '}';
+describe('individual template substitutions', () => {
+  test('Substitutions for individual template should override global substitutions.', () => {
+    const template = '#set($partitionKey = "${globalPK}")\n' +
+      '{\n' +
+      '"version" : "2018-05-29",\n' +
+      '"operation" : "GetItem",\n' +
+      '"key" : {\n' +
+      '"partitionKey": { "S": "${globalPK}" },\n' +
+      '"sortKey": { "S": "${globalSK}" },\n' +
+      '}\n' +
+      '}';
 
-      const configuration =
+    const configuration =
+    {
+      substitutions:
       {
-        substitutions:
-        {
-          globalPK: 'WrongValue',
-          globalSK: 'WrongValue',
-        },
-      };
+        globalPK: 'WrongValue',
+        globalSK: 'WrongValue',
+      },
+    };
 
-      const individualSubstitutions =
-      {
-        globalPK: 'PK',
-        globalSK: 'SK',
-      };
+    const individualSubstitutions =
+    {
+      globalPK: 'PK',
+      globalSK: 'SK',
+    };
 
-      const transformedTemplate = plugin.processTemplate(
-        template,
-        configuration,
-        individualSubstitutions,
-      );
-      expect(transformedTemplate).toMatchSnapshot();
-    });
+    const transformedTemplate = plugin.processTemplate(
+      template,
+      configuration,
+      individualSubstitutions,
+    );
+    expect(transformedTemplate).toMatchSnapshot();
   });
 });
 

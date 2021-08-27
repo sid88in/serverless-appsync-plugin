@@ -2781,7 +2781,7 @@ Object {
 }
 `;
 
-exports[`iamRoleStatements individual template substitutions Substitutions for individual template should override global substitutions. 1`] = `
+exports[`individual template substitutions Substitutions for individual template should override global substitutions. 1`] = `
 Object {
   "Fn::Join": Array [
     "",
@@ -2827,7 +2827,7 @@ Object {
 }
 `;
 
-exports[`iamRoleStatements template substitutions Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects 1`] = `
+exports[`template substitutions Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects 1`] = `
 Object {
   "Fn::Join": Array [
     "",
