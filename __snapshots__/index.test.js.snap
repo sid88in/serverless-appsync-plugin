@@ -2827,6 +2827,44 @@ Object {
 }
 `;
 
+exports[`template substitutions Falsy substitutions work 1`] = `
+Object {
+  "Fn::Join": Array [
+    "",
+    Array [
+      "emptyString=",
+      Object {
+        "Fn::Sub": Array [
+          "\${emptyString}",
+          Object {
+            "emptyString": "",
+          },
+        ],
+      },
+      "booleanFalse=",
+      Object {
+        "Fn::Sub": Array [
+          "\${booleanFalse}",
+          Object {
+            "booleanFalse": false,
+          },
+        ],
+      },
+      "numberZero=",
+      Object {
+        "Fn::Sub": Array [
+          "\${numberZero}",
+          Object {
+            "numberZero": 0,
+          },
+        ],
+      },
+      "",
+    ],
+  ],
+}
+`;
+
 exports[`template substitutions Templates with substitutions should be transformed into Fn::Join with Fn::Sub objects 1`] = `
 Object {
   "Fn::Join": Array [

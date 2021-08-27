@@ -1087,6 +1087,24 @@ describe('template substitutions', () => {
     const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
     expect(transformedTemplate).toMatchSnapshot();
   });
+
+  test('Falsy substitutions work', () => {
+    const template = [
+      'emptyString=${emptyString}',
+      'booleanFalse=${booleanFalse}',
+      'numberZero=${numberZero}'
+    ].join('');
+
+    const variables =
+    {
+      emptyString: '',
+      booleanFalse: false,
+      numberZero: 0,
+    };
+
+    const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
+    expect(transformedTemplate).toMatchSnapshot();
+  });
 });
 
 describe('individual template substitutions', () => {
