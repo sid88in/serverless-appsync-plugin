@@ -1543,7 +1543,7 @@ class ServerlessAppsyncPlugin {
 
     const templateJoin = substituteTemplate.split('|||');
     for (let i = 0; i < templateJoin.length; i += 1) {
-      if (substitutions[templateJoin[i]]) {
+      if (typeof substitutions[templateJoin[i]] !== 'undefined') {
         const subs = { [templateJoin[i]]: substitutions[templateJoin[i]] };
         templateJoin[i] = { 'Fn::Sub': [`\${${templateJoin[i]}}`, subs] };
       }
