@@ -2,31 +2,34 @@ const moment = require('moment');
 const { upperFirst, transform } = require('lodash');
 
 const timeUnits = [
-  'years?', 'y',
-  'quarters?', 'Q',
-  'months?', 'M',
-  'weeks?', 'w',
-  'days?', 'd',
-  'hours?', 'h',
-  'minutes?', 'm',
-  'seconds?', 's',
-  'milliseconds?', 'ms',
+  'years?',
+  'y',
+  'quarters?',
+  'Q',
+  'months?',
+  'M',
+  'weeks?',
+  'w',
+  'days?',
+  'd',
+  'hours?',
+  'h',
+  'minutes?',
+  'm',
+  'seconds?',
+  's',
+  'milliseconds?',
+  'ms',
 ];
 
-const toCfnKeys = object => transform(
-  object,
-  (acc, value, key) => {
-    const newKey = typeof key === 'string'
-      ? upperFirst(key)
-      : key;
+const toCfnKeys = (object) =>
+  transform(object, (acc, value, key) => {
+    const newKey = typeof key === 'string' ? upperFirst(key) : key;
 
-    acc[newKey] = typeof value === 'object'
-      ? toCfnKeys(value)
-      : value;
+    acc[newKey] = typeof value === 'object' ? toCfnKeys(value) : value;
 
     return acc;
-  },
-);
+  });
 
 module.exports = {
   parseDuration: (input) => {

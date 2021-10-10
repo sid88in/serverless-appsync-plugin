@@ -7,15 +7,13 @@ function getValue(provider, value, name) {
     return Promise.resolve(value);
   } else if (value && typeof value.Ref === 'string') {
     return provider
-      .request(
-        'CloudFormation',
-        'listStackResources',
-        {
-          StackName: getServerlessStackName(provider),
-        },
-      )
+      .request('CloudFormation', 'listStackResources', {
+        StackName: getServerlessStackName(provider),
+      })
       .then((result) => {
-        const resource = result.StackResourceSummaries.find(r => r.LogicalResourceId === value.Ref);
+        const resource = result.StackResourceSummaries.find(
+          (r) => r.LogicalResourceId === value.Ref,
+        );
         if (!resource) {
           throw new Error(`${name}: Ref "${value.Ref} not found`);
         }
