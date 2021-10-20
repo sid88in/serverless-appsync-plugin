@@ -1092,7 +1092,7 @@ describe('template substitutions', () => {
     const template = [
       'emptyString=${emptyString}',
       'booleanFalse=${booleanFalse}',
-      'numberZero=${numberZero}'
+      'numberZero=${numberZero}',
     ].join('');
 
     const variables =
