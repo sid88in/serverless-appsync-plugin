@@ -79,8 +79,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -146,6 +145,12 @@ type TweetConnection {
   nextToken: String
 }
 
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
 type User {
   name: String!
   handle: String!
@@ -160,14 +165,7 @@ type User {
   
   # search functionality is available in elasticsearch integration
   searchTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -233,6 +231,12 @@ type TweetConnection {
   nextToken: String
 }
 
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
 type User {
   name: String!
   handle: String!
@@ -247,14 +251,7 @@ type User {
   
   # search functionality is available in elasticsearch integration
   searchTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -340,8 +337,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -428,8 +424,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -528,8 +523,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -632,8 +626,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
@@ -728,8 +721,7 @@ schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
-}
-",
+}",
     "substitutions": Object {},
     "xrayEnabled": false,
   },
