@@ -12,7 +12,6 @@ describe('parseDuration', () => {
     expect(() => parseDuration('foo')).toThrowError();
   });
 
-
   it('should auto-fix 24h durations to 25h', () => {
     expect(parseDuration(24).toString()).toEqual('PT25H');
     expect(parseDuration('1day').toString()).toEqual('PT25H');

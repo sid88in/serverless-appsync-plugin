@@ -1,9 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
-const {
-  mapObjIndexed, pipe, values, merge,
-} = require('ramda');
+const { mapObjIndexed, pipe, values, merge } = require('ramda');
 const globby = require('globby');
 
 const objectToArrayWithNameProp = pipe(
@@ -12,9 +10,10 @@ const objectToArrayWithNameProp = pipe(
 );
 
 const mergeTypes = (types, options) => {
-  const schemaDefinition = options && typeof options.schemaDefinition === 'boolean'
-    ? options.schemaDefinition
-    : true;
+  const schemaDefinition =
+    options && typeof options.schemaDefinition === 'boolean'
+      ? options.schemaDefinition
+      : true;
   return mergeTypeDefs(types, {
     useSchemaDefinition: schemaDefinition,
     forceSchemaDefinition: schemaDefinition,
@@ -24,7 +23,6 @@ const mergeTypes = (types, options) => {
     ...options,
   });
 };
-
 
 const getConfig = (config, provider, servicePath) => {
   if (
@@ -37,20 +35,39 @@ const getConfig = (config, provider, servicePath) => {
       config.apiId
     )
   ) {
-    throw new Error('appSync property `authenticationType` is missing or invalid.');
+    throw new Error(
+      'appSync property `authenticationType` is missing or invalid.',
+    );
   }
-  if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' && !config.userPoolConfig) {
-    throw new Error('appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.');
+  if (
+    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' &&
+    !config.userPoolConfig
+  ) {
+    throw new Error(
+      'appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.',
+    );
   }
-  if (config.authenticationType === 'AWS_LAMBDA' && !config.lambdaAuthorizerConfig) {
-    throw new Error('appSync property `lambdaAuthorizerConfig` is required when authenticationType `AWS_LAMBDA` is chosen.');
+  if (
+    config.authenticationType === 'AWS_LAMBDA' &&
+    !config.lambdaAuthorizerConfig
+  ) {
+    throw new Error(
+      'appSync property `lambdaAuthorizerConfig` is required when authenticationType `AWS_LAMBDA` is chosen.',
+    );
   }
-  if (config.authenticationType === 'OPENID_CONNECT' && !config.openIdConnectConfig) {
-    throw new Error('appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.');
+  if (
+    config.authenticationType === 'OPENID_CONNECT' &&
+    !config.openIdConnectConfig
+  ) {
+    throw new Error(
+      'appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.',
+    );
   }
 
   if (config.logConfig && !config.logConfig.level) {
-    throw new Error('logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.');
+    throw new Error(
+      'logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.',
+    );
   }
   if (config.substitutions && typeof config.substitutions !== 'object') {
     throw new Error('substitutions property must be an object');
@@ -59,33 +76,38 @@ const getConfig = (config, provider, servicePath) => {
     throw new Error('xrayEnabled must be a boolean');
   }
 
-  const mappingTemplatesLocation = config.mappingTemplatesLocation || 'mapping-templates';
-  const functionConfigurationsLocation = config.functionConfigurationsLocation
-    || mappingTemplatesLocation;
+  const mappingTemplatesLocation =
+    config.mappingTemplatesLocation || 'mapping-templates';
+  const functionConfigurationsLocation =
+    config.functionConfigurationsLocation || mappingTemplatesLocation;
   const functionConfigurations = config.functionConfigurations || [];
   const mappingTemplates = config.mappingTemplates || [];
 
-  const toAbsolutePosixPath =
-      filePath => (path.isAbsolute(filePath) ? filePath : path.join(servicePath, filePath)).replace(/\\/g, '/');
-  const readSchemaFile =
-      filePath => fs.readFileSync(filePath, { encoding: 'utf8' });
+  const toAbsolutePosixPath = (filePath) =>
+    (path.isAbsolute(filePath)
+      ? filePath
+      : path.join(servicePath, filePath)
+    ).replace(/\\/g, '/');
+  const readSchemaFile = (filePath) =>
+    fs.readFileSync(filePath, { encoding: 'utf8' });
 
-  const schema = Array.isArray(config.schema) ? config.schema : [config.schema || 'schema.graphql'];
-  const schemaFiles = [].concat(...schema.map(s => globby.sync(toAbsolutePosixPath(s))));
+  const schema = Array.isArray(config.schema)
+    ? config.schema
+    : [config.schema || 'schema.graphql'];
+  const schemaFiles = [].concat(
+    ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
+  );
   const schemaContent = mergeTypes(schemaFiles.map(readSchemaFile));
 
   let dataSources = [];
   if (Array.isArray(config.dataSources)) {
-    dataSources = config.dataSources.reduce(
-      (acc, value) => {
-        // Do not call `objectToArrayWithNameProp` on datasources objects``
-        if (value.name !== undefined && typeof value.name === 'string') {
-          return acc.concat(value);
-        }
-        return acc.concat(objectToArrayWithNameProp(value));
-      },
-      [],
-    );
+    dataSources = config.dataSources.reduce((acc, value) => {
+      // Do not call `objectToArrayWithNameProp` on datasources objects``
+      if (value.name !== undefined && typeof value.name === 'string') {
+        return acc.concat(value);
+      }
+      return acc.concat(objectToArrayWithNameProp(value));
+    }, []);
   } else {
     dataSources = objectToArrayWithNameProp(config.dataSources);
   }
@@ -95,7 +117,8 @@ const getConfig = (config, provider, servicePath) => {
     name: config.name || 'api',
     region: provider.region,
     authenticationType: config.authenticationType,
-    additionalAuthenticationProviders: config.additionalAuthenticationProviders || [],
+    additionalAuthenticationProviders:
+      config.additionalAuthenticationProviders || [],
     schema: schemaContent,
     // TODO verify dataSources structure
     dataSources,
@@ -109,12 +132,13 @@ const getConfig = (config, provider, servicePath) => {
   };
 };
 
-
 module.exports = (config, provider, servicePath) => {
   if (!config) {
     return [];
   } else if (config.constructor === Array) {
-    return config.map(apiConfig => getConfig(apiConfig, provider, servicePath));
+    return config.map((apiConfig) =>
+      getConfig(apiConfig, provider, servicePath),
+    );
   }
   const singleConfig = getConfig(config, provider, servicePath);
   singleConfig.isSingleConfig = true;
