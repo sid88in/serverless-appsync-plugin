@@ -111,7 +111,7 @@ custom:
     logConfig:
       loggingRoleArn: { Fn::GetAtt: [AppSyncLoggingServiceRole, Arn] } # Where AppSyncLoggingServiceRole is a role with CloudWatch Logs write access
       level: ERROR # Logging Level: NONE | ERROR | ALL
-      excludeVerboseContent: false
+      excludeVerboseContent: false # Bool, Optional. Enable ExcludeVerboseContent. disabled by default(= Include verbose content in logs is default).
     defaultMappingTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
       request: my.request.template.tpl # or, e.g: false for Direct lambdas
       response: my.response.template.tpl # or e.g.: false for Direct lambdas
