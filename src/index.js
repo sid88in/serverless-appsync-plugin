@@ -1337,7 +1337,7 @@ class ServerlessAppsyncPlugin {
             wafConfig.visibilityConfig,
             Name,
           ),
-          Tags: apiConfig.tags,
+          Tags: !apiConfig.tags ? undefined : this.getTagsConfig(apiConfig),
         },
       },
       [wafAssocLogicalId]: {
