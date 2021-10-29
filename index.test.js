@@ -2026,4 +2026,20 @@ describe('WAF', () => {
     };
     expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
   });
+
+  it('should generate API key WAF with tags', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: { enabled: true },
+      tags: {
+        testKey: 'testValue',
+      },
+    };
+
+    const waf = plugin.getWafResources(apiConfig);
+    const tags = waf.GraphQlWaf.Properties.Tags;
+
+    expect(tags[0].Key).toBe('testKey');
+    expect(tags[0].Value).toBe('testValue');
+  });
 });
