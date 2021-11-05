@@ -11,9 +11,7 @@ function getValue(provider, value, name) {
         StackName: getServerlessStackName(provider),
       })
       .then((result) => {
-        const resource = result.StackResourceSummaries.find(
-          (r) => r.LogicalResourceId === value.Ref,
-        );
+        const resource = result.StackResourceSummaries.find((r) => r.LogicalResourceId === value.Ref);
         if (!resource) {
           throw new Error(`${name}: Ref "${value.Ref} not found`);
         }
