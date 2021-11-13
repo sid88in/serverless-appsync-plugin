@@ -1,7 +1,7 @@
-const getConfig = require('./src/get-config');
-const path = require('path');
+import { getConfig } from '../src/get-config';
+import path from 'path';
 
-const servicePath = path.join(__dirname, 'example');
+const servicePath = path.join(__dirname, '../example');
 
 test('authenticationType is missing', () => {
   const run = () => getConfig({}, {}, servicePath);

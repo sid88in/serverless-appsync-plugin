@@ -25,7 +25,4 @@ function getValue(provider, value, name) {
   return Promise.reject(new Error(`${value} is not a valid ${name}`));
 }
 
-module.exports = {
-  getServerlessStackName,
-  getValue,
-};
+export { getServerlessStackName, getValue };

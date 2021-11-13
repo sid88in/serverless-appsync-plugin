@@ -1,13 +1,44 @@
-const fs = require('fs');
-const path = require('path');
-const parseSchema = require('graphql/language').parse;
-const { buildASTSchema } = require('graphql/utilities');
-const runPlayground = require('./graphql-playground');
-const getConfig = require('./get-config');
-const chalk = require('chalk');
-const { has, merge } = require('ramda');
-const { parseDuration, toCfnKeys } = require('./utils');
-const moment = require('moment');
+import fs from 'fs';
+import path from 'path';
+import { parse as parseSchema } from 'graphql/language';
+import { buildASTSchema } from 'graphql/utilities';
+import { runGraphqlPlayground as runPlayground } from './graphql-playground';
+import { getConfig } from './get-config';
+import chalk from 'chalk';
+import { has, map, mapObjIndexed, merge } from 'ramda';
+import { parseDuration, toCfnKeys } from './utils';
+import moment from 'moment';
+import Serverless from 'serverless';
+// @ts-ignore
+import Aws from 'serverless/plugins/aws/provider/awsProvider';
+import Plugin from 'serverless/classes/Plugin';
+import {
+  CfnDataSource,
+  FnJoin,
+  CfnFunctionResolver,
+  CfnResolver,
+  ApiKeyConfig,
+  WafRule,
+  WafThrottleConfig,
+  DsLambdaConfig,
+  DsRelationalDbConfig,
+  IntrinsictFunction,
+  DataSource,
+  CfnOutput,
+  Auth,
+  AppSyncConfig,
+  LambdaConfig,
+  CognitoAuth,
+  OidcAuth,
+  LambdaAuth,
+  CfnApiKey,
+  DsDynamoDBConfig,
+  FunctionConfig,
+  Resolver,
+  WafAction,
+  WafConfig,
+} from './types';
+import { Data } from 'aws-sdk/clients/firehose';
 
 const MIGRATION_DOCS =
   'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -22,14 +53,27 @@ const RESOURCE_CACHING = 'GraphQlCaching';
 const RESOURCE_WAF = 'GraphQlWaf';
 const RESOURCE_WAF_ASSOC = 'GraphQlWafAssoc';
 
-class ServerlessAppsyncPlugin {
-  constructor(serverless, options) {
+export class ServerlessAppsyncPlugin implements Plugin {
+  provider: Aws.Provider;
+  gatheredData: {
+    endpoints: string[];
+    apiKeys: string[];
+  };
+  hooks: Plugin.Hooks;
+  commands?: Plugin.Commands;
+  variableResolvers?: Plugin.VariableResolvers;
+
+  constructor(
+    private serverless: Serverless,
+    private options: Record<string, string>,
+  ) {
     this.gatheredData = {
       endpoints: [],
       apiKeys: [],
     };
     this.serverless = serverless;
     this.options = options;
+    // @ts-ignore
     this.provider = this.serverless.getProvider('aws');
     this.commands = {
       'delete-appsync': {
@@ -48,36 +92,30 @@ class ServerlessAppsyncPlugin {
             usage:
               'Specify your cognito client id (for AMAZON_COGNITO_USER_POOLS authType)',
             required: false,
-            type: 'string',
           },
           username: {
             usage:
               'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'u',
             required: false,
-            type: 'string',
           },
           password: {
             usage:
               'Specify your password (for AMAZON_COGNITO_USER_POOLS authType)',
             shortcut: 'p',
             required: false,
-            type: 'string',
           },
           jwtToken: {
             usage: 'Specify your jwtToken (for OPENID_CONNECT authType)',
             required: false,
-            type: 'string',
           },
           apiKey: {
             usage: 'Specify your appsync api key (for API_KEY authType)',
             required: false,
-            type: 'string',
           },
           port: {
             usage: 'Specify the local port graphql playground should run from',
             required: false,
-            type: 'string',
           },
         },
         lifecycleEvents: ['run'],
@@ -94,8 +132,8 @@ class ServerlessAppsyncPlugin {
 
     this.log = this.log.bind(this);
 
-    const generateMigrationErrorMessage = (command) => () => {
-      throw new this.serverless.classes.Error(
+    const generateMigrationErrorMessage = (command: string) => () => {
+      throw new Error(
         `serverless-appsync: ${command} ` +
           `is no longer supported. See ${MIGRATION_DOCS} for more information`,
       );
@@ -117,14 +155,14 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  log(message, options) {
+  log(message: string, options?: Serverless.LogOptions) {
     this.serverless.cli.log(message, 'AppSync Plugin', options);
   }
 
-  getLambdaArn(config) {
-    if (config && config.lambdaFunctionArn) {
+  getLambdaArn(config: LambdaConfig) {
+    if (config && has('lambdaFunctionArn', config)) {
       return config.lambdaFunctionArn;
-    } else if (config && config.functionName) {
+    } else if (config && has('functionName', config)) {
       return this.generateLambdaArn(config.functionName, config.functionAlias);
     }
     throw new Error(
@@ -132,8 +170,12 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  generateLambdaArn(functionName, functionAlias) {
+  generateLambdaArn(
+    functionName: string,
+    functionAlias?: string,
+  ): IntrinsictFunction {
     const lambdaLogicalId =
+      // @ts-ignore
       this.provider.naming.getLambdaLogicalId(functionName);
     const lambdaArn = { 'Fn::GetAtt': [lambdaLogicalId, 'Arn'] };
 
@@ -142,7 +184,7 @@ class ServerlessAppsyncPlugin {
       : lambdaArn;
   }
 
-  getDbClusterArn(config) {
+  getDbClusterArn(config: DsRelationalDbConfig['config']) {
     if (config && config.dbClusterIdentifier) {
       return this.generateDbClusterArn(
         config.dbClusterIdentifier,
@@ -155,7 +197,10 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  generateDbClusterArn(dbClusterIdentifier, region) {
+  generateDbClusterArn(
+    dbClusterIdentifier: string | IntrinsictFunction,
+    region: string | IntrinsictFunction,
+  ): FnJoin {
     return {
       'Fn::Join': [
         ':',
@@ -172,7 +217,7 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getDeltaSyncConfig(config) {
+  getDeltaSyncConfig(config: DsDynamoDBConfig['config']) {
     if (config && config.deltaSyncConfig) {
       if (!config.deltaSyncConfig.deltaSyncTableName) {
         throw new Error(
@@ -197,24 +242,29 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  gatherData() {
+  async gatherData() {
+    // @ts-ignore
     const stackName = this.provider.naming.getStackName();
+    // @ts-ignore
+    const result = await this.provider.request(
+      'CloudFormation',
+      'describeStacks',
+      {
+        StackName: stackName,
+      },
+    );
 
-    return this.provider
-      .request('CloudFormation', 'describeStacks', { StackName: stackName })
-      .then((result) => {
-        const outputs = result.Stacks[0].Outputs;
-        outputs
-          .filter((x) => x.OutputKey.match(new RegExp(`${RESOURCE_URL}$`)))
-          .forEach((x) => {
-            this.gatheredData.endpoints.push(x.OutputValue);
-          });
+    const outputs: CfnOutput[] = result.Stacks[0].Outputs;
+    outputs
+      .filter((x) => x.OutputKey.match(new RegExp(`${RESOURCE_URL}$`)))
+      .forEach((x) => {
+        this.gatheredData.endpoints.push(x.OutputValue);
+      });
 
-        outputs
-          .filter((x) => x.OutputKey.match(new RegExp(`^${RESOURCE_API_KEY}`)))
-          .forEach((x) => {
-            this.gatheredData.apiKeys.push(x.OutputValue);
-          });
+    outputs
+      .filter((x) => x.OutputKey.match(new RegExp(`^${RESOURCE_API_KEY}`)))
+      .forEach((x) => {
+        this.gatheredData.apiKeys.push(x.OutputValue);
       });
   }
 
@@ -228,7 +278,7 @@ class ServerlessAppsyncPlugin {
       endpointsMessage += '\n  None';
     }
 
-    this.serverless.cli.consoleLog(endpointsMessage);
+    this.serverless.cli.log(endpointsMessage);
 
     return endpointsMessage;
   }
@@ -249,7 +299,7 @@ class ServerlessAppsyncPlugin {
       apiKeysMessage += '\n  None';
     }
 
-    this.serverless.cli.consoleLog(apiKeysMessage);
+    this.serverless.cli.log(apiKeysMessage);
 
     return apiKeysMessage;
   }
@@ -294,7 +344,7 @@ class ServerlessAppsyncPlugin {
       });
       this.log('GraphQl schema valid');
     } catch (errors) {
-      this.log(errors, { color: 'red' });
+      this.log(`${errors}`, { color: 'red' });
     }
   }
 
@@ -304,7 +354,7 @@ class ServerlessAppsyncPlugin {
       config.map((apiConfig) => {
         const { apiId } = apiConfig;
         if (!apiId) {
-          throw new this.serverless.classes.Error(
+          throw new Error(
             'serverless-appsync: no apiId is defined. If you are not ' +
               `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
         + 'for more information`,
@@ -312,15 +362,18 @@ class ServerlessAppsyncPlugin {
         }
 
         this.log(`Deleting GraphQL Endpoint (${apiId})...`);
-        return this.provider
-          .request('AppSync', 'deleteGraphqlApi', {
-            apiId,
-          })
-          .then((data) => {
-            if (data) {
-              this.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
-            }
-          });
+        return (
+          this.provider
+            // @ts-ignore
+            .request('AppSync', 'deleteGraphqlApi', {
+              apiId,
+            })
+            .then((data) => {
+              if (data) {
+                this.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
+              }
+            })
+        );
       }),
     );
   }
@@ -348,7 +401,11 @@ class ServerlessAppsyncPlugin {
     });
   }
 
-  addResource(resources, outputs, apiConfig) {
+  addResource(
+    resources: Record<string, any>,
+    outputs: Record<string, any> | undefined,
+    apiConfig: AppSyncConfig,
+  ) {
     if (apiConfig.apiId) {
       this.log(`
           Updating an existing API endpoint: ${apiConfig.apiId}.
@@ -380,23 +437,27 @@ class ServerlessAppsyncPlugin {
     Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
   }
 
-  getUserPoolConfig(provider, region) {
+  getUserPoolConfig(config: CognitoAuth, region: string) {
     const userPoolConfig = {
-      AwsRegion: provider.userPoolConfig.awsRegion || region,
-      UserPoolId: provider.userPoolConfig.userPoolId,
-      AppIdClientRegex: provider.userPoolConfig.appIdClientRegex,
+      AwsRegion: config.userPoolConfig.awsRegion || region,
+      UserPoolId: config.userPoolConfig.userPoolId,
+      AppIdClientRegex: config.userPoolConfig.appIdClientRegex,
     };
 
-    if (provider.userPoolConfig.defaultAction) {
+    if (config.userPoolConfig.defaultAction) {
       Object.assign(userPoolConfig, {
-        DefaultAction: provider.userPoolConfig.defaultAction,
+        DefaultAction: config.userPoolConfig.defaultAction,
       });
     }
 
     return userPoolConfig;
   }
 
-  getOpenIDConnectConfig(provider) {
+  getOpenIDConnectConfig(provider: OidcAuth) {
+    if (!provider.openIdConnectConfig) {
+      return;
+    }
+
     const openIdConnectConfig = {
       Issuer: provider.openIdConnectConfig.issuer,
       ClientId: provider.openIdConnectConfig.clientId,
@@ -407,7 +468,11 @@ class ServerlessAppsyncPlugin {
     return openIdConnectConfig;
   }
 
-  getLambdaAuthorizerConfig(provider) {
+  getLambdaAuthorizerConfig(provider: LambdaAuth) {
+    if (!provider.lambdaAuthorizerConfig) {
+      return;
+    }
+
     const lambdaAuthorizerConfig = {
       AuthorizerUri: this.getLambdaArn(provider.lambdaAuthorizerConfig),
       IdentityValidationExpression:
@@ -419,14 +484,19 @@ class ServerlessAppsyncPlugin {
     return lambdaAuthorizerConfig;
   }
 
-  getTagsConfig(config) {
+  getTagsConfig(config: AppSyncConfig) {
+    if (!config.tags) {
+      return [];
+    }
+
+    const tags = config.tags;
     return Object.keys(config.tags).map((key) => ({
       Key: key,
-      Value: config.tags[key],
+      Value: tags[key],
     }));
   }
 
-  mapAuthenticationProvider(provider, region) {
+  mapAuthenticationProvider(provider: Auth, region: string) {
     const { authenticationType } = provider;
     const Provider = {
       AuthenticationType: authenticationType,
@@ -447,7 +517,7 @@ class ServerlessAppsyncPlugin {
     return Provider;
   }
 
-  getGraphQlApiEndpointResource(config) {
+  getGraphQlApiEndpointResource(config: AppSyncConfig) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdCloudWatchLogsRole = this.getLogicalId(
       config,
@@ -456,13 +526,11 @@ class ServerlessAppsyncPlugin {
 
     if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
       if (!config.userPoolConfig.defaultAction) {
-        throw new this.serverless.classes.Error(
-          'userPoolConfig defaultAction is required',
-        );
+        throw new Error('userPoolConfig defaultAction is required');
       } else if (
         ['ALLOW', 'DENY'].indexOf(config.userPoolConfig.defaultAction) === -1
       ) {
-        throw new this.serverless.classes.Error(
+        throw new Error(
           'userPoolConfig defaultAction must be either ALLOW or DENY',
         );
       }
@@ -475,7 +543,7 @@ class ServerlessAppsyncPlugin {
           Name: config.name,
           AuthenticationType: config.authenticationType,
           AdditionalAuthenticationProviders:
-            config.additionalAuthenticationProviders.map((provider) =>
+            config.additionalAuthenticationProviders?.map((provider) =>
               this.mapAuthenticationProvider(provider, config.region),
             ),
           UserPoolConfig:
@@ -519,6 +587,7 @@ class ServerlessAppsyncPlugin {
                 ],
               },
               RetentionInDays:
+                // @ts-ignore
                 this.serverless.service.provider.logRetentionInDays,
             },
           },
@@ -526,8 +595,12 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getLambdaAuthorizerPermission(config, logicalIdGraphQLApi) {
-    const lambdaConfig = [
+  getLambdaAuthorizerPermission(
+    config: AppSyncConfig,
+    logicalIdGraphQLApi: string,
+  ) {
+    // @ts-ignore
+    const lambdaConfig: LambdaAuth = [
       config,
       ...config.additionalAuthenticationProviders,
     ].find((e) => e.authenticationType === 'AWS_LAMBDA');
@@ -549,7 +622,7 @@ class ServerlessAppsyncPlugin {
       : undefined;
   }
 
-  hasApiKeyAuth(config) {
+  hasApiKeyAuth(config: AppSyncConfig) {
     if (
       config.authenticationType === 'API_KEY' ||
       config.additionalAuthenticationProviders.some(
@@ -561,7 +634,7 @@ class ServerlessAppsyncPlugin {
     return false;
   }
 
-  getApiKeys(config) {
+  getApiKeys(config: AppSyncConfig): ApiKeyConfig[] {
     if (!config.apiKeys) {
       return [
         {
@@ -595,7 +668,7 @@ class ServerlessAppsyncPlugin {
     });
   }
 
-  getApiKeyResources(config) {
+  getApiKeyResources(config: AppSyncConfig): Record<string, CfnApiKey> {
     if (this.hasApiKeyAuth(config)) {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const keys = this.getApiKeys(config);
@@ -640,12 +713,12 @@ class ServerlessAppsyncPlugin {
         };
 
         return acc;
-      }, {});
+      }, {} as Record<string, CfnApiKey>);
     }
     return {};
   }
 
-  getApiCachingResource(config) {
+  getApiCachingResource(config: AppSyncConfig) {
     if (config.caching) {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdCaching = this.getLogicalId(config, RESOURCE_CACHING);
@@ -669,7 +742,7 @@ class ServerlessAppsyncPlugin {
     return {};
   }
 
-  getCloudWatchLogsRole(config) {
+  getCloudWatchLogsRole(config: AppSyncConfig) {
     if (!config.logConfig || config.logConfig.loggingRoleArn) {
       return {};
     }
@@ -732,10 +805,10 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getDataSourceIamRolesResouces(config) {
+  getDataSourceIamRolesResouces(config: AppSyncConfig) {
     return config.dataSources.reduce((acc, ds) => {
       // Only generate DataSource Roles if `serviceRoleArn` not provided
-      if (ds.config && ds.config.serviceRoleArn) {
+      if (has('config', ds) && ds.config.serviceRoleArn) {
         return acc;
       }
 
@@ -753,7 +826,7 @@ class ServerlessAppsyncPlugin {
         );
       }
 
-      if (ds.config && ds.config.iamRoleStatements) {
+      if (has('config', ds) && ds.config.iamRoleStatements) {
         statements = ds.config.iamRoleStatements;
       } else {
         // Try to generate default statements for the given DataSource.
@@ -800,7 +873,7 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getDefaultDataSourcePolicyStatements(ds, config) {
+  getDefaultDataSourcePolicyStatements(ds: DataSource, config: AppSyncConfig) {
     const defaultStatements = [];
 
     switch (ds.type) {
@@ -915,7 +988,7 @@ class ServerlessAppsyncPlugin {
             /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
-            throw new this.serverless.classes.Error(
+            throw new Error(
               `Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`,
             );
           }
@@ -933,7 +1006,7 @@ class ServerlessAppsyncPlugin {
             ],
           };
         } else {
-          throw new this.serverless.classes.Error(
+          throw new Error(
             `Could not determine the Arn for dataSource '${ds.name}`,
           );
         }
@@ -963,10 +1036,10 @@ class ServerlessAppsyncPlugin {
     return defaultStatements;
   }
 
-  getDataSourceResources(config) {
+  getDataSourceResources(config: AppSyncConfig) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     return config.dataSources.reduce((acc, ds) => {
-      const resource = {
+      const resource: CfnDataSource = {
         Type: 'AWS::AppSync::DataSource',
         Properties: {
           ApiId: config.apiId || {
@@ -979,7 +1052,7 @@ class ServerlessAppsyncPlugin {
       };
 
       // If a serviceRoleArn was given for this DataSource, use it
-      if (ds.config && ds.config.serviceRoleArn) {
+      if (has('config', ds) && ds.config.serviceRoleArn) {
         resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
       } else {
         const logicalIdDataSourceRole = this.getLogicalId(
@@ -1067,9 +1140,9 @@ class ServerlessAppsyncPlugin {
           ...authorizationConfig,
         };
       } else if (ds.type !== 'NONE') {
-        throw new this.serverless.classes.Error(
-          `Data Source Type not supported: ${ds.type}`,
-        );
+        // FIXME: take validation elsewhere
+        // @ts-ignore
+        throw new Error(`Data Source Type not supported: ${ds.type}`);
       }
       const logicalIdDataSource = this.getLogicalId(
         config,
@@ -1079,7 +1152,7 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getGraphQLSchemaResource(config) {
+  getGraphQLSchemaResource(config: AppSyncConfig) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
     const appSyncSafeSchema = this.cleanCommentsFromSchema(
@@ -1105,11 +1178,13 @@ class ServerlessAppsyncPlugin {
       },
     };
   }
-  getFunctionConfigurationResources(config) {
+  getFunctionConfigurationResources(
+    config: AppSyncConfig,
+  ): CfnFunctionResolver {
     const flattenedFunctionConfigurationResources =
       config.functionConfigurations.reduce(
         (accumulator, currentValue) => accumulator.concat(currentValue),
-        [],
+        [] as FunctionConfig[],
       );
     const functionConfigLocation = config.functionConfigurationsLocation;
     return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
@@ -1123,7 +1198,7 @@ class ServerlessAppsyncPlugin {
         this.getDataSourceCfnName(tpl.dataSource),
       );
 
-      const Properties = {
+      const Properties: CfnFunctionResolver['Properties'] = {
         ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         Name: this.getCfnName(tpl.name),
         DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
@@ -1133,7 +1208,7 @@ class ServerlessAppsyncPlugin {
 
       const requestTemplate = has('request')(tpl)
         ? tpl.request
-        : config.defaultMappingTemplates.request;
+        : config.defaultMappingTemplates?.request;
       if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           functionConfigLocation,
@@ -1149,7 +1224,7 @@ class ServerlessAppsyncPlugin {
 
       const responseTemplate = has('response')(tpl)
         ? tpl.response
-        : config.defaultMappingTemplates.response;
+        : config.defaultMappingTemplates?.response;
       if (responseTemplate !== false) {
         const respTemplPath = path.join(
           functionConfigLocation,
@@ -1169,14 +1244,15 @@ class ServerlessAppsyncPlugin {
           Properties,
         },
       });
-    }, {});
+    }, {} as CfnFunctionResolver);
   }
 
-  getResolverResources(config) {
-    const flattenedMappingTemplates = config.mappingTemplates.reduce(
-      (accumulator, currentValue) => accumulator.concat(currentValue),
-      [],
-    );
+  getResolverResources(config: AppSyncConfig): CfnResolver {
+    const flattenedMappingTemplates: Resolver[] =
+      config.mappingTemplates.reduce(
+        (accumulator, currentValue) => accumulator.concat(currentValue),
+        [] as Resolver[],
+      );
     return flattenedMappingTemplates.reduce((acc, tpl) => {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
       const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
@@ -1187,7 +1263,7 @@ class ServerlessAppsyncPlugin {
         )}`,
       );
 
-      let Properties = {
+      let Properties: CfnResolver['Properties'] = {
         ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
         TypeName: tpl.type,
         FieldName: tpl.field,
@@ -1195,7 +1271,7 @@ class ServerlessAppsyncPlugin {
 
       const requestTemplate = has('request')(tpl)
         ? tpl.request
-        : config.defaultMappingTemplates.request;
+        : config.defaultMappingTemplates?.request;
       if (requestTemplate !== false) {
         const reqTemplPath = path.join(
           config.mappingTemplatesLocation,
@@ -1211,7 +1287,7 @@ class ServerlessAppsyncPlugin {
 
       const responseTemplate = has('response')(tpl)
         ? tpl.response
-        : config.defaultMappingTemplates.response;
+        : config.defaultMappingTemplates?.response;
       if (responseTemplate !== false) {
         const respTemplPath = path.join(
           config.mappingTemplatesLocation,
@@ -1297,10 +1373,11 @@ class ServerlessAppsyncPlugin {
           Properties,
         },
       });
-    }, {});
+    }, {} as CfnResolver);
   }
 
-  getWafVisibilityConfig(visibilityConfig = {}, defaultName) {
+  // FIXME: type of visibilityConfig
+  getWafVisibilityConfig(visibilityConfig: object = {}, defaultName: string) {
     return merge(
       {
         CloudWatchMetricsEnabled: true,
@@ -1311,7 +1388,7 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  getWafResources(apiConfig) {
+  getWafResources(apiConfig: AppSyncConfig) {
     const { wafConfig } = apiConfig;
     if (!wafConfig || wafConfig.enabled === false) {
       return {};
@@ -1350,7 +1427,7 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  buildApiKeysWafRules(config) {
+  buildApiKeysWafRules(config: AppSyncConfig) {
     const apiKeysWithWafRules =
       this.getApiKeys(config).filter((k) => k.wafRules) || [];
 
@@ -1358,7 +1435,7 @@ class ServerlessAppsyncPlugin {
       const rules = key.wafRules;
       // Build the rule and add a matching rule for the X-Api-Key header
       // for the given api key
-      rules.forEach((keyRule) => {
+      rules?.forEach((keyRule) => {
         const builtRule = this.buildWafRule(keyRule, key.name);
         const logicalIdApiKey = this.getLogicalId(
           config,
@@ -1425,22 +1502,26 @@ class ServerlessAppsyncPlugin {
     }, []);
   }
 
-  buildWafRule(rule, defaultNamePrefix) {
+  buildWafRule(rule: WafRule, defaultNamePrefix?: string) {
     // Throttle pre-set rule
-    if (rule === 'throttle' || rule.throttle) {
-      return this.buildThrottleRule(rule.throttle || {}, defaultNamePrefix);
+    if (rule === 'throttle') {
+      return this.buildThrottleRule({}, defaultNamePrefix);
+    } else if (has('throttle')(rule)) {
+      return this.buildThrottleRule(rule.throttle, defaultNamePrefix);
     }
 
     // Disable Introspection pre-set rule
-    if (rule === 'disableIntrospection' || rule.disableIntrospection) {
+    if (rule === 'disableIntrospection') {
+      return this.buildDisableIntrospecRule({}, defaultNamePrefix);
+    } else if (has('disableIntrospection')(rule)) {
       return this.buildDisableIntrospecRule(
-        rule.disableIntrospection || {},
+        rule.disableIntrospection,
         defaultNamePrefix,
       );
     }
 
     // Other specific rules
-    let action = rule.action || 'Allow'; // fixme, if group, should not be set
+    let action: WafAction = rule.action || 'Allow'; // fixme, if group, should not be set
     if (typeof action === 'string') {
       action = { [action]: {} };
     }
@@ -1468,7 +1549,7 @@ class ServerlessAppsyncPlugin {
     return result;
   }
 
-  buildWafRules(wafConfig, apiConfig) {
+  buildWafRules(wafConfig: WafConfig, apiConfig: AppSyncConfig) {
     const rules = wafConfig.rules || [];
 
     let defaultPriority = 100;
@@ -1482,7 +1563,7 @@ class ServerlessAppsyncPlugin {
       }));
   }
 
-  buildDisableIntrospecRule(config, defaultNamePrefix) {
+  buildDisableIntrospecRule(config: any, defaultNamePrefix?: string) {
     const Name = `${defaultNamePrefix}DisableIntrospection`;
     let Priority;
 
@@ -1519,7 +1600,7 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  buildThrottleRule(config, defaultNamePrefix) {
+  buildThrottleRule(config: WafThrottleConfig, defaultNamePrefix?: string) {
     const Name = `${defaultNamePrefix}Throttle`;
     let Limit = 100;
     let AggregateKeyType = 'IP';
@@ -1566,7 +1647,7 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  getLogicalId(config, resourceType) {
+  getLogicalId(config: AppSyncConfig, resourceType: string): string {
     // Similar to serverless' implementation of functions
     // (e.g. getUser becomes GetUserLambdaFunction for CloudFormation logical ID,
     //  myService becomes MyServiceGraphQLApi or `MyService${resourceType}`)
@@ -1580,7 +1661,7 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  getGraphQlApiOutputs(config) {
+  getGraphQlApiOutputs(config: AppSyncConfig) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLApiUrlOutput = this.getLogicalId(
       config,
@@ -1614,7 +1695,7 @@ class ServerlessAppsyncPlugin {
     return results;
   }
 
-  getApiKeyOutputs(config) {
+  getApiKeyOutputs(config: AppSyncConfig) {
     if (this.hasApiKeyAuth(config)) {
       const keys = this.getApiKeys(config);
       return keys.reduce((acc, { name }) => {
@@ -1632,7 +1713,7 @@ class ServerlessAppsyncPlugin {
     return {};
   }
 
-  cleanCommentsFromSchema(schema, allowHashDescription) {
+  cleanCommentsFromSchema(schema: string, allowHashDescription?: boolean) {
     const newStyleDescription = /"""[^"]*"""\n/g; // appsync does not support the new style descriptions
     const oldStyleDescription = /#.*\n/g; // appysnc does not support old-style # comments in enums, so remove them all
     const joinInterfaces = / *& */g; // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
@@ -1647,20 +1728,24 @@ class ServerlessAppsyncPlugin {
       .replace(joinInterfaces, ', ');
   }
 
-  getCfnName(name) {
+  getCfnName(name: string) {
     return name.replace(/[^a-zA-Z0-9]/g, '');
   }
 
-  getDataSourceCfnName(name) {
+  getDataSourceCfnName(name: string) {
     return `GraphQlDs${this.getCfnName(name)}`;
   }
 
-  processTemplate(template, config, tplSubstitutions) {
+  processTemplate(
+    template: string,
+    config: AppSyncConfig,
+    tplSubstitutions: Record<string, string | IntrinsictFunction>,
+  ) {
     // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
     const allSubstitutions = { ...config.substitutions, ...tplSubstitutions };
     const configVariables = Object.keys(allSubstitutions);
-    const templateVariables = [];
+    const templateVariables: string[] = [];
     let searchResult;
     // eslint-disable-next-line no-cond-assign
     while ((searchResult = variableSyntax.exec(template)) !== null) {
@@ -1692,20 +1777,24 @@ class ServerlessAppsyncPlugin {
    * @param {*} template
    * @param {*} substitutions
    */
-  substituteGlobalTemplateVariables(template, substitutions) {
+  substituteGlobalTemplateVariables(
+    template: string,
+    substitutions: Record<string, string | IntrinsictFunction>,
+  ) {
     const variables = Object.keys(substitutions).join('|');
     const regex = new RegExp(`\\\${(${variables})}`, 'g');
     const substituteTemplate = template.replace(regex, '|||$1|||');
 
     const templateJoin = substituteTemplate.split('|||');
+    const parts: (string | IntrinsictFunction)[] = [];
     for (let i = 0; i < templateJoin.length; i += 1) {
       if (typeof substitutions[templateJoin[i]] !== 'undefined') {
         const subs = { [templateJoin[i]]: substitutions[templateJoin[i]] };
-        templateJoin[i] = { 'Fn::Sub': [`\${${templateJoin[i]}}`, subs] };
+        parts[i] = { 'Fn::Sub': [`\${${templateJoin[i]}}`, subs] };
+      } else {
+        parts[i] = templateJoin[i];
       }
     }
-    return { 'Fn::Join': ['', templateJoin] };
+    return { 'Fn::Join': ['', parts] };
   }
 }
-
-module.exports = ServerlessAppsyncPlugin;

@@ -349,7 +349,6 @@ Array [
   Object {
     "additionalAuthenticationProviders": Array [],
     "apiId": "testApiId",
-    "authenticationType": undefined,
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],

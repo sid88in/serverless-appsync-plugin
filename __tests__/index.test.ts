@@ -1,9 +1,8 @@
-/* eslint-disable no-template-curly-in-string */
-const fs = require('fs');
-const chalk = require('chalk');
-const Serverless = require('serverless/lib/Serverless');
-const ServerlessAppsyncPlugin = require('./src');
-const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
+import fs from 'fs';
+import chalk from 'chalk';
+import Serverless from 'serverless';
+import { ServerlessAppsyncPlugin } from '../src';
+import AwsProvider from 'serverless/lib/plugins/aws/provider';
 
 let serverless;
 let plugin;
@@ -15,7 +14,7 @@ jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 jest.mock('fs');
 jest
   .spyOn(fs, 'readFileSync')
-  .mockImplementation((path) => `Content: ${path.replace(/\\/g, '/')}`);
+  .mockImplementation((path) => `Content: ${`${path}`.replace(/\\/g, '/')}`);
 
 beforeEach(() => {
   const cli = {

@@ -9,34 +9,38 @@
     "/src"
   ],
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest __tests__",
+    "test:watch": "jest __tests__ --watch",
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "all-contributors-cli": "^6.20.0",
-    "eslint": "^7.28.0",
+    "esbuild": "^0.13.8",
+    "esbuild-runner": "^2.2.1",
+    "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^22.1.4",
+    "jest": "^27.3.1",
     "prettier": "^2.4.1",
-    "serverless": "^1.83.3"
+    "serverless": "^2.64.1",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@graphql-tools/merge": "^6.2.11",
+    "@graphql-tools/merge": "^8.2.0",
+    "@types/ramda": "^0.27.45",
+    "@types/serverless": "^1.78.38",
     "aws-sdk": "^2.881.0",
-    "chalk": "^2.4.2",
-    "globby": "^11.0.3",
-    "graphql": "^14.7.0",
+    "chalk": "^4.1.2",
+    "globby": "^11.0.4",
+    "graphql": "^15.6.1",
     "graphql-playground-middleware-koa": "^1.6.21",
     "koa": "^2.13.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "ramda": "^0.25.0"
+    "ramda": "^0.27.1"
   },
-  "peerDependencies": {},
-  "jest": {
-    "testEnvironment": "node"
-  }
+  "peerDependencies": {}
 }

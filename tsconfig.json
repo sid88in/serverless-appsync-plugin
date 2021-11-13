@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "noEmit": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./src",
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules"]
+}

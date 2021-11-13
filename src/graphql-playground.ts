@@ -99,7 +99,7 @@ function getHeaders(provider, config, options) {
   }
 }
 
-function runGraphqlPlayground(provider, config, options) {
+export function runGraphqlPlayground(provider, config, options) {
   return Promise.all([
     getHeaders(provider, config, options),
     getOutputValue(provider, 'GraphQlApiUrl'),
@@ -128,5 +128,3 @@ function runGraphqlPlayground(provider, config, options) {
     return graphiqlUrl;
   });
 }
-
-module.exports = runGraphqlPlayground;
