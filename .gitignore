@@ -2,6 +2,7 @@
 node_modules
 npm-debug.log
 yarn-error.json
+yarn-error.log
 users.json
 
 # serverless zip
