@@ -2,7 +2,7 @@
   "name": "serverless-appsync-plugin",
   "version": "1.12.0",
   "description": "AWS AppSync support for the Serverless Framework",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "repository": "https://github.com/sid88in/serverless-appsync-plugin",
   "license": "MIT",
   "files": [
@@ -11,20 +11,20 @@
   "scripts": {
     "test": "jest __tests__",
     "test:watch": "jest __tests__ --watch",
-    "lint": "eslint ."
+    "build": "tsc",
+    "lint": "eslint . && tsc --noEmit"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "all-contributors-cli": "^6.20.0",
-    "esbuild": "^0.13.8",
-    "esbuild-runner": "^2.2.1",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
-    "serverless": "^2.64.1",
+    "serverless": "^2.66.1",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },

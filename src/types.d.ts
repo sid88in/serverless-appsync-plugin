@@ -3,7 +3,7 @@ import { NumberSelectionBehavior } from 'aws-sdk/clients/chime';
 type IamStatement = {
   Effect: 'Allow' | 'Deny';
   Action: string[];
-  Resource: string | string[];
+  Resource: (string | IntrinsictFunction) | (string | IntrinsictFunction)[];
 };
 
 export type WafThrottleConfig =
@@ -20,7 +20,7 @@ export type WafThrottleConfig =
     };
 
 type WafActionKeys = 'Allow' | 'Block';
-type WafAction = WafActionKeys | { [WafActionKeys]: {} };
+type WafAction = WafActionKeys | CfnWafAction;
 
 type WafRuleThrottle = {
   throttle: WafThrottleConfig;
@@ -31,7 +31,7 @@ type WafRuleCustom = {
   priority?: number;
   action?: WafAction;
   overrideAction?: WafAction;
-  statement: any;
+  statement: CfnWafRuleStatement;
   visibilityConfig: any;
 };
 
@@ -144,7 +144,6 @@ type DsDynamoDBConfig = {
     useCallerCredentials?: boolean;
     serviceRoleArn?: string | IntrinsictFunction;
     region: string | IntrinsictFunction;
-    serviceRoleArn?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
     versioned?: boolean;
     deltaSyncConfig?: {
@@ -165,7 +164,6 @@ type DsRelationalDbConfig = {
     databaseName: string | IntrinsictFunction;
     schema: string;
     awsSecretStoreArn: string | IntrinsictFunction;
-    serviceRoleArn?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
@@ -177,7 +175,6 @@ type DsElasticSearchConfig = {
     region: string | IntrinsictFunction;
     serviceRoleArn?: string | IntrinsictFunction;
     endpoint: string | IntrinsictFunction;
-    serviceRoleArn?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
@@ -194,7 +191,6 @@ type LambdaConfig =
 type DsLambdaConfig = {
   type: 'AWS_LAMBDA';
   config: {
-    serviceRoleArn?: string | IntrinsictFunction;
     serviceRoleArn?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
   } & LambdaConfig;
@@ -246,7 +242,7 @@ export type AppSyncConfig = {
   isSingleConfig?: boolean;
   name: string;
   region: string;
-  schema: string | string[];
+  schema: string;
   apiKeys?: ApiKeyConfig[];
   allowHashDescription?: boolean;
   caching?: {
@@ -357,8 +353,8 @@ export type CfnResolver = {
     DataSourceName?: string | IntrinsictFunction;
     Description?: string;
     FunctionVersion?: string;
-    RequestMappingTemplate?: string;
-    ResponseMappingTemplate?: string;
+    RequestMappingTemplate?: string | IntrinsictFunction;
+    ResponseMappingTemplate?: string | IntrinsictFunction;
     PipelineConfig?: {
       Functions: (string | IntrinsictFunction)[];
     };
@@ -384,8 +380,8 @@ export type CfnFunctionResolver = {
     DataSourceName: string | IntrinsictFunction;
     Description?: string;
     FunctionVersion?: string;
-    RequestMappingTemplate?: string;
-    ResponseMappingTemplate?: string;
+    RequestMappingTemplate?: string | IntrinsictFunction;
+    ResponseMappingTemplate?: string | IntrinsictFunction;
   };
 };
 
@@ -397,6 +393,46 @@ export type CfnApiKey = {
     Expires: number;
     ApiKeyId?: string;
   };
+};
+
+type CfnWafAction = { [WafActionKeys]: {} };
+
+type CfnWafRule = {
+  Action?: CfnWafAction;
+  Name: string;
+  OverrideAction?: WafAction;
+  Priority?: number;
+  Statement: CfnWafRuleStatement;
+  VisibilityConfig: any;
+};
+
+type CfnWafRuleStatement = {
+  RateBasedStatement?: CfnWafRuleRateBasedStatement;
+  ByteMatchStatement?: CfnWafRuleRateByteMatchStatement;
+  AndStatement?: {
+    Statements: CfnWafRuleStatement[];
+  };
+};
+
+type CfnWafRuleRateBasedStatement = {
+  AggregateKeyType: string;
+  ForwardedIPConfig?: {
+    FallbackBehavior: string;
+    HeaderName: string;
+  };
+  Limit: number;
+  ScopeDownStatement?: CfnWafRuleStatement;
+};
+
+type CfnWafRuleRateByteMatchStatement = {
+  FieldToMatch: FieldToMatch;
+  PositionalConstraint: string;
+  SearchString?: string | IntrinsictFunction;
+  SearchStringBase64?: string;
+  TextTransformations: {
+    Priority: number;
+    Type: string;
+  }[];
 };
 
 export type CfnOutput = {

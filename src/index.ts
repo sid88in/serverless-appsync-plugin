@@ -2,10 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { parse as parseSchema } from 'graphql/language';
 import { buildASTSchema } from 'graphql/utilities';
-import { runGraphqlPlayground as runPlayground } from './graphql-playground';
+// import { runGraphqlPlayground as runPlayground } from './graphql-playground';
 import { getConfig } from './get-config';
 import chalk from 'chalk';
-import { has, map, mapObjIndexed, merge } from 'ramda';
+import { has, isEmpty, merge } from 'ramda';
 import { parseDuration, toCfnKeys } from './utils';
 import moment from 'moment';
 import Serverless from 'serverless';
@@ -20,7 +20,6 @@ import {
   ApiKeyConfig,
   WafRule,
   WafThrottleConfig,
-  DsLambdaConfig,
   DsRelationalDbConfig,
   IntrinsictFunction,
   DataSource,
@@ -37,11 +36,14 @@ import {
   Resolver,
   WafAction,
   WafConfig,
+  CfnWafAction,
+  CfnWafRule,
+  CfnWafRuleStatement,
+  IamStatement,
 } from './types';
 import { Data } from 'aws-sdk/clients/firehose';
+import { IAMPolicy } from 'aws-sdk/clients/backup';
 
-const MIGRATION_DOCS =
-  'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
 const RESOURCE_API_CLOUDWATCH_LOGS_POLICY = 'GraphQlApiCloudWatchLogsPolicy';
@@ -53,7 +55,7 @@ const RESOURCE_CACHING = 'GraphQlCaching';
 const RESOURCE_WAF = 'GraphQlWaf';
 const RESOURCE_WAF_ASSOC = 'GraphQlWafAssoc';
 
-export class ServerlessAppsyncPlugin implements Plugin {
+class ServerlessAppsyncPlugin implements Plugin {
   provider: Aws.Provider;
   gatheredData: {
     endpoints: string[];
@@ -120,33 +122,16 @@ export class ServerlessAppsyncPlugin implements Plugin {
         },
         lifecycleEvents: ['run'],
       },
-      'deploy-appsync': {
-        usage: 'DEPRECATED: Helps you deploy AppSync API',
-        lifecycleEvents: ['deploy'],
-      },
-      'update-appsync': {
-        usage: 'DEPRECATED: Helps you update AppSync API',
-        lifecycleEvents: ['update'],
-      },
     };
 
     this.log = this.log.bind(this);
 
-    const generateMigrationErrorMessage = (command: string) => () => {
-      throw new Error(
-        `serverless-appsync: ${command} ` +
-          `is no longer supported. See ${MIGRATION_DOCS} for more information`,
-      );
-    };
     // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
     // by package:initialize.
     this.hooks = {
       'package:initialize': () => this.validateSchemas(),
       'validate-schema:run': () => this.validateSchemas(),
-      'delete-appsync:delete': () => this.deleteGraphQLEndpoint(),
       'graphql-playground:run': () => this.runGraphqlPlayground(),
-      'deploy-appsync:deploy': generateMigrationErrorMessage('deploy-appsync'),
-      'update-appsync:update': generateMigrationErrorMessage('update-appsync'),
       'after:aws:package:finalize:mergeCustomProviderResources': () =>
         this.addResources(),
       'after:aws:info:gatherData': () => this.gatherData(),
@@ -348,44 +333,14 @@ export class ServerlessAppsyncPlugin implements Plugin {
     }
   }
 
-  deleteGraphQLEndpoint() {
-    const config = this.loadConfig();
-    return Promise.all(
-      config.map((apiConfig) => {
-        const { apiId } = apiConfig;
-        if (!apiId) {
-          throw new Error(
-            'serverless-appsync: no apiId is defined. If you are not ' +
-              `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
-        + 'for more information`,
-          );
-        }
-
-        this.log(`Deleting GraphQL Endpoint (${apiId})...`);
-        return (
-          this.provider
-            // @ts-ignore
-            .request('AppSync', 'deleteGraphqlApi', {
-              apiId,
-            })
-            .then((data) => {
-              if (data) {
-                this.log(`Successfully deleted GraphQL Endpoint: ${apiId}`);
-              }
-            })
-        );
-      }),
-    );
-  }
-
   runGraphqlPlayground() {
     // Use the first config or config map
-    const firstConfig = this.loadConfig()[0];
-    return runPlayground(this.provider, firstConfig, this.options)
-      .then((url) => {
-        this.log(`Graphql Playground Server Running at: ${url}`);
-      })
-      .then(() => new Promise(() => {}));
+    // const firstConfig = this.loadConfig()[0];
+    // return runPlayground(this.provider, firstConfig, this.options)
+    //   .then((url) => {
+    //     this.log(`Graphql Playground Server Running at: ${url}`);
+    //   })
+    //   .then(() => new Promise(() => {}));
   }
 
   addResources() {
@@ -874,14 +829,14 @@ export class ServerlessAppsyncPlugin implements Plugin {
   }
 
   getDefaultDataSourcePolicyStatements(ds: DataSource, config: AppSyncConfig) {
-    const defaultStatements = [];
+    const defaultStatements: IamStatement[] = [];
 
     switch (ds.type) {
       case 'AWS_LAMBDA': {
         const lambdaArn = this.getLambdaArn(ds.config);
 
         // Allow "invoke" for the Datasource's function and its aliases/versions
-        const defaultLambdaStatement = {
+        const defaultLambdaStatement: IamStatement = {
           Action: ['lambda:invokeFunction'],
           Effect: 'Allow',
           Resource: [lambdaArn, { 'Fn::Join': [':', [lambdaArn, '*']] }],
@@ -891,7 +846,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
         break;
       }
       case 'AMAZON_DYNAMODB': {
-        const dynamoDbResourceArn = {
+        const dynamoDbResourceArn: IntrinsictFunction = {
           'Fn::Join': [
             ':',
             [
@@ -906,7 +861,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
         };
 
         // Allow any action on the Datasource's table
-        const defaultDynamoDBStatement = {
+        const defaultDynamoDBStatement: IamStatement = {
           Action: [
             'dynamodb:DeleteItem',
             'dynamodb:GetItem',
@@ -929,7 +884,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
         break;
       }
       case 'RELATIONAL_DATABASE': {
-        const dDbResourceArn = {
+        const dDbResourceArn: IntrinsictFunction = {
           'Fn::Join': [
             ':',
             [
@@ -943,7 +898,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
             ],
           ],
         };
-        const dbStatement = {
+        const dbStatement: IamStatement = {
           Effect: 'Allow',
           Action: [
             'rds-data:DeleteItems',
@@ -959,7 +914,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
           ],
         };
 
-        const secretManagerStatement = {
+        const secretManagerStatement: IamStatement = {
           Effect: 'Allow',
           Action: ['secretsmanager:GetSecretValue'],
           Resource: [
@@ -1012,7 +967,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
         }
 
         // Allow any action on the Datasource's ES endpoint
-        const defaultESStatement = {
+        const defaultESStatement: IamStatement = {
           Action: [
             'es:ESHttpDelete',
             'es:ESHttpGet',
@@ -1398,13 +1353,17 @@ export class ServerlessAppsyncPlugin implements Plugin {
     const apiLogicalId = this.getLogicalId(apiConfig, RESOURCE_API);
     const wafLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF);
     const wafAssocLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF_ASSOC);
-    const defaultAction = wafConfig.defaultAction || 'Allow';
+    const defaultActionSource = wafConfig.defaultAction || 'Allow';
+    const defaultAction: CfnWafAction =
+      typeof defaultActionSource === 'string'
+        ? { [defaultActionSource]: {} }
+        : defaultActionSource;
 
     return {
       [wafLogicalId]: {
         Type: 'AWS::WAFv2::WebACL',
         Properties: {
-          DefaultAction: { [defaultAction]: {} },
+          DefaultAction: defaultAction,
           Scope: 'REGIONAL',
           Description:
             wafConfig.description || `ACL rules for AppSync ${apiConfig.name}`,
@@ -1427,7 +1386,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
     };
   }
 
-  buildApiKeysWafRules(config: AppSyncConfig) {
+  buildApiKeysWafRules(config: AppSyncConfig): CfnWafRule[] {
     const apiKeysWithWafRules =
       this.getApiKeys(config).filter((k) => k.wafRules) || [];
 
@@ -1442,7 +1401,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
           RESOURCE_API_KEY + key.name,
         );
         const { Statement: baseStatement } = builtRule;
-        const ApiKeyStatement = {
+        const ApiKeyStatement: CfnWafRuleStatement = {
           ByteMatchStatement: {
             FieldToMatch: {
               SingleHeader: { Name: 'X-Api-key' },
@@ -1458,10 +1417,10 @@ export class ServerlessAppsyncPlugin implements Plugin {
           },
         };
 
-        let statement;
-        if (baseStatement && baseStatement.RateBasedStatement) {
-          let ScopeDownStatement;
-          if (baseStatement.RateBasedStatement.ScopeDownStatement) {
+        let statement: CfnWafRuleStatement;
+        if (baseStatement && baseStatement?.RateBasedStatement) {
+          let ScopeDownStatement: CfnWafRuleStatement;
+          if (baseStatement.RateBasedStatement?.ScopeDownStatement) {
             ScopeDownStatement = {
               AndStatement: {
                 Statements: [
@@ -1480,7 +1439,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
               ScopeDownStatement,
             },
           };
-        } else if (baseStatement) {
+        } else if (!isEmpty(baseStatement)) {
           // Other rules: combine them (And Statement)
           statement = {
             AndStatement: {
@@ -1499,10 +1458,10 @@ export class ServerlessAppsyncPlugin implements Plugin {
       });
 
       return acc;
-    }, []);
+    }, [] as CfnWafRule[]);
   }
 
-  buildWafRule(rule: WafRule, defaultNamePrefix?: string) {
+  buildWafRule(rule: WafRule, defaultNamePrefix?: string): CfnWafRule {
     // Throttle pre-set rule
     if (rule === 'throttle') {
       return this.buildThrottleRule({}, defaultNamePrefix);
@@ -1531,10 +1490,10 @@ export class ServerlessAppsyncPlugin implements Plugin {
       overrideAction = { [overrideAction]: {} };
     }
 
-    const result = {
+    const result: CfnWafRule = {
       Name: rule.name,
       Priority: rule.priority,
-      Statement: rule.statement ? toCfnKeys(rule.statement) : undefined,
+      Statement: toCfnKeys(rule.statement),
       VisibilityConfig: this.getWafVisibilityConfig(
         rule.visibilityConfig,
         rule.name,
@@ -1563,7 +1522,10 @@ export class ServerlessAppsyncPlugin implements Plugin {
       }));
   }
 
-  buildDisableIntrospecRule(config: any, defaultNamePrefix?: string) {
+  buildDisableIntrospecRule(
+    config: any,
+    defaultNamePrefix?: string,
+  ): CfnWafRule {
     const Name = `${defaultNamePrefix}DisableIntrospection`;
     let Priority;
 
@@ -1600,7 +1562,10 @@ export class ServerlessAppsyncPlugin implements Plugin {
     };
   }
 
-  buildThrottleRule(config: WafThrottleConfig, defaultNamePrefix?: string) {
+  buildThrottleRule(
+    config: WafThrottleConfig,
+    defaultNamePrefix?: string,
+  ): CfnWafRule {
     const Name = `${defaultNamePrefix}Throttle`;
     let Limit = 100;
     let AggregateKeyType = 'IP';
@@ -1683,7 +1648,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
     };
     // output the URL if we are not updating a specific API endpoint
     if (!config.apiId) {
-      results[[logicalIdGraphQLApiUrlOutput]] = {
+      results[logicalIdGraphQLApiUrlOutput] = {
         Value: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'GraphQLUrl'] },
         Export: {
           Name: {
@@ -1708,7 +1673,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
         };
 
         return acc;
-      }, {});
+      }, {} as Record<string, { Value: IntrinsictFunction }>);
     }
     return {};
   }
@@ -1739,8 +1704,8 @@ export class ServerlessAppsyncPlugin implements Plugin {
   processTemplate(
     template: string,
     config: AppSyncConfig,
-    tplSubstitutions: Record<string, string | IntrinsictFunction>,
-  ) {
+    tplSubstitutions?: Record<string, string | IntrinsictFunction>,
+  ): string | IntrinsictFunction {
     // TODO use serverless variable parser and serverless variable syntax config
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
     const allSubstitutions = { ...config.substitutions, ...tplSubstitutions };
@@ -1780,7 +1745,7 @@ export class ServerlessAppsyncPlugin implements Plugin {
   substituteGlobalTemplateVariables(
     template: string,
     substitutions: Record<string, string | IntrinsictFunction>,
-  ) {
+  ): IntrinsictFunction {
     const variables = Object.keys(substitutions).join('|');
     const regex = new RegExp(`\\\${(${variables})}`, 'g');
     const substituteTemplate = template.replace(regex, '|||$1|||');
@@ -1798,3 +1763,5 @@ export class ServerlessAppsyncPlugin implements Plugin {
     return { 'Fn::Join': ['', parts] };
   }
 }
+
+export = ServerlessAppsyncPlugin;

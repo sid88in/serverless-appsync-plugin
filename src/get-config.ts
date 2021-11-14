@@ -196,7 +196,7 @@ const getAppSyncConfig = (
 };
 
 export const getConfig = (
-  config: AppSyncConfig | AppSyncConfig[],
+  config: AppSyncConfigInput | AppSyncConfigInput[],
   provider: Service['provider'],
   servicePath: string,
 ) => {

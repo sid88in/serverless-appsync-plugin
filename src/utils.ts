@@ -29,12 +29,13 @@ export const toCfnKeys = <T extends Record<string, any>>(
   transform(object, (acc, value, key) => {
     const newKey = typeof key === 'string' ? upperFirst(key) : key;
 
+    // @ts-ignore
     acc[newKey] = typeof value === 'object' ? toCfnKeys(value) : value;
 
     return acc;
   });
 
-export const parseDuration = (input) => {
+export const parseDuration = (input: string) => {
   let duration;
   if (typeof input === 'number') {
     duration = moment.duration(input, 'hours');

@@ -1,14 +1,23 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2020",
+    "target": "es5",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
-    "noEmit": true,
     "strict": true,
     "resolveJsonModule": true,
     "baseUrl": "./src",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "lib",
+    "noImplicitAny": false
   },
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "src/**/*.d.ts",
+    "src/graphql-playground.ts",
+    "src/get-stack-value.ts"
+  ]
 }

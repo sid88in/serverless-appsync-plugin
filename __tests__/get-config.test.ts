@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getConfig } from '../src/get-config';
 import path from 'path';
 

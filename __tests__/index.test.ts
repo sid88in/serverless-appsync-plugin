@@ -1,8 +1,8 @@
 import fs from 'fs';
 import chalk from 'chalk';
 import Serverless from 'serverless';
-import { ServerlessAppsyncPlugin } from '../src';
-import AwsProvider from 'serverless/lib/plugins/aws/provider';
+import ServerlessAppsyncPlugin from '../src';
+const AwsProvider = require('serverless/lib/plugins/aws/provider.js');
 
 let serverless;
 let plugin;
