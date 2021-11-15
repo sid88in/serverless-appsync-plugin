@@ -13,7 +13,9 @@ let config;
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 
 jest.mock('fs');
-jest.spyOn(fs, 'readFileSync').mockImplementation((path) => `Content: ${path.replace(/\\/g, '/')}`);
+jest
+  .spyOn(fs, 'readFileSync')
+  .mockImplementation((path) => `Content: ${path.replace(/\\/g, '/')}`);
 
 beforeEach(() => {
   const cli = {
@@ -89,7 +91,8 @@ describe('appsync config', () => {
     Object.assign(config, {
       logConfig: {
         level: 'ALL',
-        loggingRoleArn: 'arn:aws:iam::123456789012:role/service-role/appsyncRole',
+        loggingRoleArn:
+          'arn:aws:iam::123456789012:role/service-role/appsyncRole',
       },
     });
     const role = plugin.getCloudWatchLogsRole(config);
@@ -165,7 +168,8 @@ describe('appsync config', () => {
           description: 'lambdaSource Desc',
           config: {
             functionName: 'myFunc',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
           },
         },
       ],
@@ -185,7 +189,8 @@ describe('appsync config', () => {
           config: {
             functionName: 'myFunc',
             functionAlias: 'myAlias',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
           },
         },
       ],
@@ -207,7 +212,8 @@ describe('appsync config', () => {
             lambdaFunctionArn: {
               'Fn::GetAtt': ['MyFuncLambdaFunction', 'Arn'],
             },
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
           },
         },
       ],
@@ -226,7 +232,8 @@ describe('appsync config', () => {
           description: 'HTTPSource Desc',
           config: {
             endpoint: 'https://www.example.com/api',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
             authorizationConfig: {
               authorizationType: 'AWS_IAM',
               awsIamConfig: {
@@ -252,7 +259,8 @@ describe('appsync config', () => {
           description: 'HTTPSource Desc',
           config: {
             endpoint: 'https://www.example.com/api',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
             authorizationConfig: {
               authorizationType: 'AWS_IAM',
               awsIamConfig: {
@@ -381,7 +389,8 @@ describe('appsync config', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
           },
         },
@@ -435,7 +444,8 @@ describe('appsync config', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
           },
         },
@@ -487,7 +497,9 @@ describe('appsync config', () => {
         appIdClientRegex: 'appIdClientRegex',
       },
     });
-    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AMAZON_COGNITO_USER_POOLS');
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe(
+      'AMAZON_COGNITO_USER_POOLS',
+    );
     expect(resources.GraphQlApi.Properties.UserPoolConfig).toEqual({
       DefaultAction: 'ALLOW',
       AwsRegion: 'eu-central-1',
@@ -506,7 +518,9 @@ describe('appsync config', () => {
         authorizerResultTtlInSeconds: 300,
       },
     });
-    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe(
+      'AWS_LAMBDA',
+    );
     expect(resources.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
       AuthorizerUri: {
         'Fn::GetAtt': ['MyTestFunctionLambdaFunction', 'Arn'],
@@ -529,7 +543,9 @@ describe('appsync config', () => {
         authorizerResultTtlInSeconds: 300,
       },
     });
-    expect(resources2.GraphQlApi.Properties.AuthenticationType).toBe('AWS_LAMBDA');
+    expect(resources2.GraphQlApi.Properties.AuthenticationType).toBe(
+      'AWS_LAMBDA',
+    );
     expect(resources2.GraphQlApi.Properties.LambdaAuthorizerConfig).toEqual({
       AuthorizerUri: {
         'Fn::GetAtt': ['MyTestFunction2LambdaFunction', 'Arn'],
@@ -575,7 +591,9 @@ describe('appsync config', () => {
         authTTL: 1000,
       },
     });
-    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe('OPENID_CONNECT');
+    expect(resources.GraphQlApi.Properties.AuthenticationType).toBe(
+      'OPENID_CONNECT',
+    );
     expect(resources.GraphQlApi.Properties.OpenIDConnectConfig).toEqual({
       Issuer: 'issuer',
       ClientId: 'clientId',
@@ -593,7 +611,9 @@ describe('appsync config', () => {
     const keyResources = plugin.getApiKeyResources(apiConfig);
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
-    expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe('API_KEY');
+    expect(apiResources.GraphQlApi.Properties.AuthenticationType).toBe(
+      'API_KEY',
+    );
     expect(keyResources).toMatchSnapshot();
     expect(outputs).toEqual({
       GraphQlApiKeyDefault: {
@@ -644,7 +664,9 @@ describe('appsync config', () => {
     const keyResources = plugin.getApiKeyResources(apiConfig);
     const outputs = plugin.getApiKeyOutputs(apiConfig);
 
-    expect(apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders).toMatchSnapshot();
+    expect(
+      apiResources.GraphQlApi.Properties.AdditionalAuthenticationProviders,
+    ).toMatchSnapshot();
     expect(keyResources).toHaveProperty('GraphQlApiKeyDefault');
     expect(keyResources.GraphQlApiKeyDefault).toMatchSnapshot();
     expect(outputs).toEqual({
@@ -772,7 +794,9 @@ describe('iamRoleStatements', () => {
               {
                 Effect: 'Allow',
                 Action: ['lambda:invokeFunction'],
-                Resource: ['arn:aws:lambda:us-east-1:123456789012:function:myTestFunction'],
+                Resource: [
+                  'arn:aws:lambda:us-east-1:123456789012:function:myTestFunction',
+                ],
               },
             ],
           },
@@ -804,7 +828,8 @@ describe('iamRoleStatements', () => {
             dbClusterIdentifier: 'aurora-cluster-id',
             databaseName: 'myDatabaseName',
             schema: 'mySchema',
-            awsSecretStoreArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
+            awsSecretStoreArn:
+              'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
             iamRoleStatements: [
               {
                 Action: [
@@ -838,12 +863,15 @@ describe('iamRoleStatements', () => {
           description: 'My ElasticSearch Source',
           config: {
             region: 'us-east-1',
-            endpoint: 'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
+            endpoint:
+              'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
             iamRoleStatements: [
               {
                 Effect: 'Allow',
                 Action: ['ES:ESHttpGet'],
-                Resource: ['arn:aws:es:us-east-1:123456789012:domain/my-domain'],
+                Resource: [
+                  'arn:aws:es:us-east-1:123456789012:domain/my-domain',
+                ],
               },
             ],
           },
@@ -908,7 +936,8 @@ describe('iamRoleStatements', () => {
             dbClusterIdentifier: 'aurora-cluster-id',
             databaseName: 'myDatabaseName',
             schema: 'mySchema',
-            awsSecretStoreArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
+            awsSecretStoreArn:
+              'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
           },
         },
         {
@@ -917,7 +946,8 @@ describe('iamRoleStatements', () => {
           description: 'My ElasticSearch Source',
           config: {
             region: 'us-east-1',
-            endpoint: 'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
+            endpoint:
+              'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
           },
         },
         {
@@ -946,7 +976,8 @@ describe('iamRoleStatements', () => {
           name: 'LambdaSource',
           description: 'My Lambda Source',
           config: {
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myLambdaRole',
             lambdaFunctionArn: {
               'Fn::GetAtt': ['MyTestFunctionLambdaFunction', 'Arn'],
             },
@@ -959,7 +990,8 @@ describe('iamRoleStatements', () => {
           config: {
             tableName: 'myTable',
             region: 'us-east-1',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
           },
         },
         {
@@ -971,8 +1003,10 @@ describe('iamRoleStatements', () => {
             dbClusterIdentifier: 'aurora-cluster-id',
             databaseName: 'myDatabaseName',
             schema: 'mySchema',
-            awsSecretStoreArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myRelationalDbRole',
+            awsSecretStoreArn:
+              'arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-cluster-secret-XuztPa',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myRelationalDbRole',
           },
         },
         {
@@ -980,9 +1014,11 @@ describe('iamRoleStatements', () => {
           name: 'ElasticSearchSource',
           description: 'My ElasticSearch Source',
           config: {
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myEsRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myEsRole',
             region: 'us-east-1',
-            endpoint: 'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
+            endpoint:
+              'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
           },
         },
         {
@@ -990,7 +1026,8 @@ describe('iamRoleStatements', () => {
           name: 'HTTPSource',
           description: 'My HTTP Source',
           config: {
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myHTTPRole',
             region: 'us-east-1',
             endpoint: 'https://www.example.com/api',
           },
@@ -1042,14 +1079,19 @@ describe('template substitutions', () => {
       globalSK: 'SK',
     };
 
-    const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
+    const transformedTemplate = plugin.substituteGlobalTemplateVariables(
+      template,
+      variables,
+    );
     expect(transformedTemplate).toMatchSnapshot();
   });
 
   test('Falsy substitutions work', () => {
-    const template = ['emptyString=${emptyString}', 'booleanFalse=${booleanFalse}', 'numberZero=${numberZero}'].join(
-      '',
-    );
+    const template = [
+      'emptyString=${emptyString}',
+      'booleanFalse=${booleanFalse}',
+      'numberZero=${numberZero}',
+    ].join('');
 
     const variables = {
       emptyString: '',
@@ -1057,7 +1099,10 @@ describe('template substitutions', () => {
       numberZero: 0,
     };
 
-    const transformedTemplate = plugin.substituteGlobalTemplateVariables(template, variables);
+    const transformedTemplate = plugin.substituteGlobalTemplateVariables(
+      template,
+      variables,
+    );
     expect(transformedTemplate).toMatchSnapshot();
   });
 });
@@ -1087,7 +1132,11 @@ describe('individual template substitutions', () => {
       globalSK: 'SK',
     };
 
-    const transformedTemplate = plugin.processTemplate(template, configuration, individualSubstitutions);
+    const transformedTemplate = plugin.processTemplate(
+      template,
+      configuration,
+      individualSubstitutions,
+    );
     expect(transformedTemplate).toMatchSnapshot();
   });
 });
@@ -1101,7 +1150,8 @@ describe('Delta sync', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
           },
         },
@@ -1120,7 +1170,8 @@ describe('Delta sync', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
             versioned: true,
             deltaSyncConfig: {
@@ -1143,7 +1194,8 @@ describe('Delta sync', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
             versioned: true,
             deltaSyncConfig: {
@@ -1168,7 +1220,8 @@ describe('Delta sync', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
             versioned: true,
             deltaSyncConfig: {},
@@ -1190,7 +1243,8 @@ describe('Delta sync', () => {
           name: 'DynamoDbSource',
           config: {
             tableName: 'myTable',
-            serviceRoleArn: 'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myDynamoDbRole',
             region: 'us-east-1',
             versioned: true,
           },
@@ -1242,8 +1296,12 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getResolverResources(apiConfig);
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('ResponseMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('RequestMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('ResponseMappingTemplate');
   });
 
   test('Should use specified template when defaultMappingTemplates are false', () => {
@@ -1347,8 +1405,12 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getResolverResources(apiConfig);
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('ResponseMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('RequestMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('ResponseMappingTemplate');
   });
 
   test('Resolver with template', () => {
@@ -1366,8 +1428,12 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getResolverResources(apiConfig);
-    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty('ResponseMappingTemplate');
+    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty(
+      'RequestMappingTemplate',
+    );
+    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty(
+      'ResponseMappingTemplate',
+    );
   });
 
   test('Resolver without template', () => {
@@ -1385,8 +1451,12 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getResolverResources(apiConfig);
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlResolverQueryfield.Properties).not.toHaveProperty('ResponseMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('RequestMappingTemplate');
+    expect(
+      apiResources.GraphQlResolverQueryfield.Properties,
+    ).not.toHaveProperty('ResponseMappingTemplate');
   });
 
   test('Pileline Resolver with template', () => {
@@ -1404,8 +1474,12 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties).toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties).toHaveProperty('ResponseMappingTemplate');
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('RequestMappingTemplate');
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('ResponseMappingTemplate');
   });
 
   test('Pileline Resolver without template', () => {
@@ -1422,8 +1496,12 @@ describe('Templates', () => {
       ],
     };
     const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties).not.toHaveProperty('RequestMappingTemplate');
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties).not.toHaveProperty('ResponseMappingTemplate');
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).not.toHaveProperty('RequestMappingTemplate');
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).not.toHaveProperty('ResponseMappingTemplate');
   });
 });
 
@@ -1573,7 +1651,9 @@ describe('api keys', () => {
         },
       ],
     };
-    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+    expect(() =>
+      plugin.getApiKeyResources(apiConfig),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('should fail with too long duration', () => {
@@ -1587,7 +1667,9 @@ describe('api keys', () => {
         },
       ],
     };
-    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+    expect(() =>
+      plugin.getApiKeyResources(apiConfig),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('should fail with too short duration', () => {
@@ -1601,7 +1683,9 @@ describe('api keys', () => {
         },
       ],
     };
-    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+    expect(() =>
+      plugin.getApiKeyResources(apiConfig),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('should fail with a date > 1 year', () => {
@@ -1615,7 +1699,9 @@ describe('api keys', () => {
         },
       ],
     };
-    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+    expect(() =>
+      plugin.getApiKeyResources(apiConfig),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('should fail with with a date < 1 day', () => {
@@ -1629,7 +1715,9 @@ describe('api keys', () => {
         },
       ],
     };
-    expect(() => plugin.getApiKeyResources(apiConfig)).toThrowErrorMatchingSnapshot();
+    expect(() =>
+      plugin.getApiKeyResources(apiConfig),
+    ).toThrowErrorMatchingSnapshot();
   });
 });
 
@@ -1910,7 +1998,10 @@ describe('WAF', () => {
       ],
     };
     const waf = plugin.getWafResources(apiConfig);
-    const priorities = waf.GraphQlWaf.Properties.Rules.map((r) => [r.Name, r.Priority]);
+    const priorities = waf.GraphQlWaf.Properties.Rules.map((r) => [
+      r.Name,
+      r.Priority,
+    ]);
     expect(priorities).toEqual([
       ['Dummy1', 100],
       ['Dummy2', 101],

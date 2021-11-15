@@ -24,11 +24,17 @@ function getHeaders(provider, config, options) {
   switch (config.authenticationType) {
     case 'AMAZON_COGNITO_USER_POOLS': {
       if (!options.username || !options.password) {
-        throw new Error('Username and Password required for authentication type - AMAZON_COGNITO_USER_POOLS');
+        throw new Error(
+          'Username and Password required for authentication type - AMAZON_COGNITO_USER_POOLS',
+        );
       }
 
       return Promise.all([
-        getValue(provider, config.userPoolConfig.userPoolId, 'userPoolConfig.userPoolId'),
+        getValue(
+          provider,
+          config.userPoolConfig.userPoolId,
+          'userPoolConfig.userPoolId',
+        ),
         getValue(
           provider,
           options.clientId || config.userPoolConfig.playgroundClientId,
@@ -36,7 +42,9 @@ function getHeaders(provider, config, options) {
         ),
       ])
         .then(([UserPoolId, ClientId]) => {
-          const cognito = new AWS.CognitoIdentityServiceProvider(provider.getCredentials());
+          const cognito = new AWS.CognitoIdentityServiceProvider(
+            provider.getCredentials(),
+          );
           return cognito
             .adminInitiateAuth({
               AuthFlow: 'ADMIN_NO_SRP_AUTH',
@@ -77,43 +85,48 @@ function getHeaders(provider, config, options) {
     }
     case 'OPENID_CONNECT': {
       if (!options.jwtToken) {
-        throw new Error('jwtToken required for authentication type - OPENID_CONNECT');
+        throw new Error(
+          'jwtToken required for authentication type - OPENID_CONNECT',
+        );
       }
 
       return Promise.resolve({ Authorization: options.jwtToken });
     }
     default:
-      throw new Error(`Authentication Type ${config.authenticationType} Not Supported for Graphiql`);
+      throw new Error(
+        `Authentication Type ${config.authenticationType} Not Supported for Graphiql`,
+      );
   }
 }
 
 function runGraphqlPlayground(provider, config, options) {
-  return Promise.all([getHeaders(provider, config, options), getOutputValue(provider, 'GraphQlApiUrl')]).then(
-    ([headers, endpoint]) => {
-      const app = new Koa();
-      app.use(
-        koaPlayground({
-          endpoint,
-          settings: {
-            'editor.cursorShape': 'line',
-            'editor.reuseHeaders': true,
+  return Promise.all([
+    getHeaders(provider, config, options),
+    getOutputValue(provider, 'GraphQlApiUrl'),
+  ]).then(([headers, endpoint]) => {
+    const app = new Koa();
+    app.use(
+      koaPlayground({
+        endpoint,
+        settings: {
+          'editor.cursorShape': 'line',
+          'editor.reuseHeaders': true,
+        },
+        tabs: [
+          {
+            endpoint,
+            headers,
           },
-          tabs: [
-            {
-              endpoint,
-              headers,
-            },
-          ],
-        }),
-      );
+        ],
+      }),
+    );
 
-      const port = options.port || 3000;
-      app.listen(port);
-      const graphiqlUrl = `http://localhost:${port}`;
+    const port = options.port || 3000;
+    app.listen(port);
+    const graphiqlUrl = `http://localhost:${port}`;
 
-      return graphiqlUrl;
-    },
-  );
+    return graphiqlUrl;
+  });
 }
 
 module.exports = runGraphqlPlayground;
