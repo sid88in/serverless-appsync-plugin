@@ -95,7 +95,8 @@ class ServerlessAppsyncPlugin {
 
     const generateMigrationErrorMessage = (command) => () => {
       throw new this.serverless.classes.Error(
-        `serverless-appsync: ${command} is no longer supported. See ${MIGRATION_DOCS} for more information`,
+        `serverless-appsync: ${command} ` +
+          `is no longer supported. See ${MIGRATION_DOCS} for more information`,
       );
     };
     // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
@@ -277,9 +278,9 @@ class ServerlessAppsyncPlugin {
         const { apiId } = apiConfig;
         if (!apiId) {
           throw new this.serverless.classes.Error(
-            'serverless-appsync: no apiId is defined. If you are not migrating ' +
-              'from a previous version of the plugin this is expected.  See ' +
-              `${MIGRATION_DOCS} for more information`,
+            'serverless-appsync: no apiId is defined. If you are not ' +
+              'migrating from a previous version of the plugin this is ' +
+              `expected.  See ${MIGRATION_DOCS} for more information`,
           );
         }
 
