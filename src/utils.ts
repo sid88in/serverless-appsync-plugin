@@ -23,19 +23,22 @@ const timeUnits = [
   'ms',
 ] as const;
 
-export const toCfnKeys = <T extends Record<string, any>>(
+const isRecord = (value?: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object';
+};
+
+export const toCfnKeys = <T extends Record<string, unknown>>(
   object: T,
 ): TransformKeysToCfnCase<T> =>
   transform(object, (acc, value, key) => {
     const newKey = typeof key === 'string' ? upperFirst(key) : key;
 
-    // @ts-ignore
-    acc[newKey] = typeof value === 'object' ? toCfnKeys(value) : value;
+    acc[newKey] = isRecord(value) ? toCfnKeys(value) : value;
 
     return acc;
   });
 
-export const parseDuration = (input: string) => {
+export const parseDuration = (input: string | number) => {
   let duration;
   if (typeof input === 'number') {
     duration = moment.duration(input, 'hours');

@@ -1,5 +1,3 @@
-import { NumberSelectionBehavior } from 'aws-sdk/clients/chime';
-
 type IamStatement = {
   Effect: 'Allow' | 'Deny';
   Action: string[];
@@ -19,6 +17,10 @@ export type WafThrottleConfig =
       };
     };
 
+export type WafDisableIntrospectionConfig = {
+  priority?: number;
+};
+
 type WafActionKeys = 'Allow' | 'Block';
 type WafAction = WafActionKeys | CfnWafAction;
 
@@ -32,14 +34,11 @@ type WafRuleCustom = {
   action?: WafAction;
   overrideAction?: WafAction;
   statement: CfnWafRuleStatement;
-  visibilityConfig: any;
+  visibilityConfig: Record<string, unknown>;
 };
 
 type WafRuleDisableIntrospection = {
-  disableIntrospection: {
-    priority?: number;
-    action?: WafAction;
-  };
+  disableIntrospection: WafDisableIntrospectionConfig;
 };
 
 type WafRule =
@@ -233,7 +232,7 @@ export type WafConfig = {
   name: string;
   defaultAction?: WafAction;
   description?: string;
-  visibilityConfig?: any;
+  visibilityConfig?: Record<string, unknown>;
   rules: WafRule[];
 };
 
@@ -303,7 +302,14 @@ export type CfnDataSource = {
     ApiId: string | IntrinsictFunction;
     Name: string | IntrinsictFunction;
     Description?: string;
-    Type?: DataSourceType;
+    Type?:
+      | 'AWS_LAMBDA'
+      | 'AMAZON_DYNAMODB'
+      | 'AMAZON_ELASTICSEARCH'
+      | 'AMAZON_OPENSEARCH_SERVICE'
+      | 'NONE'
+      | 'HTTP'
+      | 'RELATIONAL_DATABASE';
     ServiceRoleArn?: string | IntrinsictFunction;
     LambdaConfig?: {
       LambdaFunctionArn: string | IntrinsictFunction;
@@ -395,7 +401,7 @@ export type CfnApiKey = {
   };
 };
 
-type CfnWafAction = { [WafActionKeys]: {} };
+type CfnWafAction = { ['Allow' | 'Action']: ?Record<string, never> };
 
 type CfnWafRule = {
   Action?: CfnWafAction;
@@ -403,7 +409,7 @@ type CfnWafRule = {
   OverrideAction?: WafAction;
   Priority?: number;
   Statement: CfnWafRuleStatement;
-  VisibilityConfig: any;
+  VisibilityConfig: unknown;
 };
 
 type CfnWafRuleStatement = {
@@ -425,7 +431,7 @@ type CfnWafRuleRateBasedStatement = {
 };
 
 type CfnWafRuleRateByteMatchStatement = {
-  FieldToMatch: FieldToMatch;
+  FieldToMatch: unknown;
   PositionalConstraint: string;
   SearchString?: string | IntrinsictFunction;
   SearchStringBase64?: string;

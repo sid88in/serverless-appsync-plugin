@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { parse as parseSchema } from 'graphql/language';
 import { buildASTSchema } from 'graphql/utilities';
-// import { runGraphqlPlayground as runPlayground } from './graphql-playground';
 import { getConfig } from './get-config';
 import chalk from 'chalk';
 import { has, isEmpty, merge } from 'ramda';
@@ -40,9 +39,8 @@ import {
   CfnWafRule,
   CfnWafRuleStatement,
   IamStatement,
+  WafRuleDisableIntrospection,
 } from './types';
-import { Data } from 'aws-sdk/clients/firehose';
-import { IAMPolicy } from 'aws-sdk/clients/backup';
 
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
@@ -78,60 +76,17 @@ class ServerlessAppsyncPlugin implements Plugin {
     // @ts-ignore
     this.provider = this.serverless.getProvider('aws');
     this.commands = {
-      'delete-appsync': {
-        usage: 'Helps you delete AppSync API',
-        lifecycleEvents: ['delete'],
-      },
       'validate-schema': {
         usage: 'Validates your graphql schema',
-        lifecycleEvents: ['run'],
-      },
-      'graphql-playground': {
-        usage:
-          'Runs a local graphql playground instance using your appsync config',
-        options: {
-          clientId: {
-            usage:
-              'Specify your cognito client id (for AMAZON_COGNITO_USER_POOLS authType)',
-            required: false,
-          },
-          username: {
-            usage:
-              'Specify your username (for AMAZON_COGNITO_USER_POOLS authType)',
-            shortcut: 'u',
-            required: false,
-          },
-          password: {
-            usage:
-              'Specify your password (for AMAZON_COGNITO_USER_POOLS authType)',
-            shortcut: 'p',
-            required: false,
-          },
-          jwtToken: {
-            usage: 'Specify your jwtToken (for OPENID_CONNECT authType)',
-            required: false,
-          },
-          apiKey: {
-            usage: 'Specify your appsync api key (for API_KEY authType)',
-            required: false,
-          },
-          port: {
-            usage: 'Specify the local port graphql playground should run from',
-            required: false,
-          },
-        },
         lifecycleEvents: ['run'],
       },
     };
 
     this.log = this.log.bind(this);
 
-    // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
-    // by package:initialize.
     this.hooks = {
       'package:initialize': () => this.validateSchemas(),
       'validate-schema:run': () => this.validateSchemas(),
-      'graphql-playground:run': () => this.runGraphqlPlayground(),
       'after:aws:package:finalize:mergeCustomProviderResources': () =>
         this.addResources(),
       'after:aws:info:gatherData': () => this.gatherData(),
@@ -333,16 +288,6 @@ class ServerlessAppsyncPlugin implements Plugin {
     }
   }
 
-  runGraphqlPlayground() {
-    // Use the first config or config map
-    // const firstConfig = this.loadConfig()[0];
-    // return runPlayground(this.provider, firstConfig, this.options)
-    //   .then((url) => {
-    //     this.log(`Graphql Playground Server Running at: ${url}`);
-    //   })
-    //   .then(() => new Promise(() => {}));
-  }
-
   addResources() {
     const config = this.loadConfig();
 
@@ -357,8 +302,8 @@ class ServerlessAppsyncPlugin implements Plugin {
   }
 
   addResource(
-    resources: Record<string, any>,
-    outputs: Record<string, any> | undefined,
+    resources: Record<string, unknown>,
+    outputs: Record<string, unknown> | undefined,
     apiConfig: AppSyncConfig,
   ) {
     if (apiConfig.apiId) {
@@ -1332,7 +1277,10 @@ class ServerlessAppsyncPlugin implements Plugin {
   }
 
   // FIXME: type of visibilityConfig
-  getWafVisibilityConfig(visibilityConfig: object = {}, defaultName: string) {
+  getWafVisibilityConfig(
+    visibilityConfig: Record<string, unknown> | undefined = {},
+    defaultName: string,
+  ) {
     return merge(
       {
         CloudWatchMetricsEnabled: true,
@@ -1523,22 +1471,17 @@ class ServerlessAppsyncPlugin implements Plugin {
   }
 
   buildDisableIntrospecRule(
-    config: any,
+    config: WafRuleDisableIntrospection['disableIntrospection'],
     defaultNamePrefix?: string,
   ): CfnWafRule {
     const Name = `${defaultNamePrefix}DisableIntrospection`;
-    let Priority;
-
-    if (typeof config === 'object') {
-      Priority = config.priority || Priority;
-    }
 
     return {
       Action: {
         Block: {},
       },
       Name,
-      Priority,
+      Priority: config.priority,
       Statement: {
         ByteMatchStatement: {
           FieldToMatch: {

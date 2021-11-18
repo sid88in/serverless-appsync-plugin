@@ -1,4 +1,4 @@
-const { parseDuration } = require('../src/utils');
+import { parseDuration } from '../src/utils';
 
 describe('parseDuration', () => {
   it('should parse valid duration', () => {

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 type LowerToUpperToLowerCaseMapper = {
   a: 'A';
   b: 'B';
@@ -67,6 +70,7 @@ type ToCfnCase<T> = T extends ''
   ? T
   : `${LetterToUpper<HeadLetter<T>>}${TailLetters<T>}`;
 
+// eslint-disable-next-line no-unused-vars
 type LetterToUpper<T> = T extends `${infer FirstLetter}${infer _Rest}`
   ? FirstLetter extends keyof LowerToUpperToLowerCaseMapper
     ? LowerToUpperToLowerCaseMapper[FirstLetter]
