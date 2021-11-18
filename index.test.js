@@ -116,9 +116,12 @@ describe('appsync config', () => {
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
   });
 
-  test('Schema is transformed into App Sync compatible syntax', () => {
+  test('Schema is transformed into App Sync compatible syntax', async () => {
     Object.assign(config, {
       schema: `
+          interface One
+          interface Another
+
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -130,13 +133,16 @@ describe('appsync config', () => {
           }
         `,
     });
-    const schema = plugin.getGraphQLSchemaResource(config);
+    const schema = await plugin.getGraphQLSchemaResource(config);
     expect(schema).toMatchSnapshot();
   });
 
-  test('Schema allow hash comments when using allowHashDescription true in config', () => {
+  test('Schema allow hash comments when using allowHashDescription true in config', async () => {
     Object.assign(config, {
       schema: `
+          interface One
+          interface Another
+
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -149,7 +155,7 @@ describe('appsync config', () => {
         `,
     });
     config.allowHashDescription = true;
-    const schema = plugin.getGraphQLSchemaResource(config);
+    const schema = await plugin.getGraphQLSchemaResource(config);
     expect(schema).toMatchSnapshot();
   });
 
@@ -323,7 +329,7 @@ describe('appsync config', () => {
     }).toThrowErrorMatchingSnapshot();
   });
 
-  test('AppSync settings are not updated when ApiId is provided', () => {
+  test('AppSync settings are not updated when ApiId is provided', async () => {
     const ignoredResources = {
       caching: {
         behavior: 'FULL_REQUEST_CACHING',
@@ -364,6 +370,9 @@ describe('appsync config', () => {
       ...ignoredResources,
       apiId: 'testApiId',
       schema: `
+          interface One
+          interface Another
+
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -407,15 +416,18 @@ describe('appsync config', () => {
 
     const resources = {};
     const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
+    await plugin.addResource(resources, outputs, apiConfig);
     expect(resources).toMatchSnapshot();
   });
 
-  test('Existing ApiId is used for all resources if provided', () => {
+  test('Existing ApiId is used for all resources if provided', async () => {
     const apiConfig = {
       ...config,
       apiId: 'testApiId',
       schema: `
+          interface One
+          interface Another
+
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -459,7 +471,7 @@ describe('appsync config', () => {
 
     const resources = {};
     const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
+    await plugin.addResource(resources, outputs, apiConfig);
 
     expect(outputs).toEqual({
       GraphQlApiId: {

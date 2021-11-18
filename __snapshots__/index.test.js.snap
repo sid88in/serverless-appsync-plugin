@@ -1743,13 +1743,19 @@ Object {
   "GraphQlSchema": Object {
     "Properties": Object {
       "ApiId": "testApiId",
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-                    enum Method {
-            DELETE             GET           }
-        ",
+      "Definition": "interface One
+
+interface Another
+
+# A valid schema
+type Thing implements One, Another  {
+  hello: ID!
+}
+
+enum Method {
+  DELETE
+  GET
+}",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -1953,13 +1959,19 @@ Object {
   "GraphQlSchema": Object {
     "Properties": Object {
       "ApiId": "testApiId",
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-                    enum Method {
-            DELETE             GET           }
-        ",
+      "Definition": "interface One
+
+interface Another
+
+# A valid schema
+type Thing implements One, Another  {
+  hello: ID!
+}
+
+enum Method {
+  DELETE
+  GET
+}",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -2047,16 +2059,19 @@ Object {
           "ApiId",
         ],
       },
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-          # test enum
-          enum Method {
-            DELETE
-            GET
-          }
-        ",
+      "Definition": "interface One
+
+interface Another
+
+# A valid schema
+type Thing implements One, Another  {
+  hello: ID!
+}
+
+enum Method {
+  DELETE
+  GET
+}",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -2073,13 +2088,19 @@ Object {
           "ApiId",
         ],
       },
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-                    enum Method {
-            DELETE             GET           }
-        ",
+      "Definition": "interface One
+
+interface Another
+
+# A valid schema
+type Thing implements One, Another  {
+  hello: ID!
+}
+
+enum Method {
+  DELETE
+  GET
+}",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
