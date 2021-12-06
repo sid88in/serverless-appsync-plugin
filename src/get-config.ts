@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { mergeTypeDefs } from '@graphql-tools/merge';
 import { has, mapObjIndexed, pipe, values } from 'ramda';
 import globby from 'globby';
 import {
@@ -25,6 +26,16 @@ const objectToArrayWithNameProp = pipe(
   ),
   values,
 );
+
+const mergeTypes = (types) => {
+  return mergeTypeDefs(types, {
+    useSchemaDefinition: true,
+    forceSchemaDefinition: true,
+    throwOnConflict: true,
+    commentDescriptions: true,
+    reverseDirectives: true,
+  });
+};
 
 export type AppSyncConfigInput = {
   apiId?: string;
@@ -150,10 +161,11 @@ const getAppSyncConfig = async (
     ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
   );
 
-  console.log({ schemaContent: schemaFiles.map(readSchemaFile) });
-  const schemaContent = await convertAppSyncSchemas(
-    schemaFiles.map(readSchemaFile),
-  );
+  console.log({ merged: mergeTypes(schemaFiles.map(readSchemaFile)) });
+  const schemaContent = await convertAppSyncSchemas([
+    mergeTypes(schemaFiles.map(readSchemaFile)),
+  ]);
+  console.log({ schemaContent });
 
   let dataSources: DataSource[] = [];
   if (Array.isArray(config.dataSources)) {
