@@ -273,11 +273,11 @@ class ServerlessAppsyncPlugin {
     }
   }
 
-  loadConfig() {
+  async loadConfig() {
     if (!this.serverless.configurationInput.custom.appSync) {
       throw new this.serverless.classes.Error('AppSync config not found');
     }
-    this.config = getConfig(
+    this.config = await getConfig(
       this.serverless.configurationInput.custom.appSync,
       this.serverless.service.provider,
       this.serverless.config.servicePath,
@@ -290,9 +290,6 @@ class ServerlessAppsyncPlugin {
         await this.loadConfig();
       }
       this.log.info('Validating schema');
-      await new Promise((r) => {
-        setTimeout(r, 5000);
-      });
       await convertAppSyncSchemas(this.config?.map(({ schema }) => schema));
       this.log.info('GraphQL schema valid');
     } catch (error) {
@@ -1638,12 +1635,11 @@ class ServerlessAppsyncPlugin {
           RESOURCE_API_KEY + name,
         );
         acc[logicalIdApiKey] = {
-          Description: name || 'Default',
           Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
         };
 
         return acc;
-      }, {} as Record<string, { Description: string; Value: IntrinsictFunction }>);
+      }, {} as Record<string, { Value: IntrinsictFunction }>);
     }
     return {};
   }

@@ -4,19 +4,17 @@ import path from 'path';
 
 const servicePath = path.join(__dirname, '../example');
 
-test('authenticationType is missing', () => {
-  const run = () => getConfig({}, {}, servicePath);
-  expect(run).toThrowErrorMatchingSnapshot();
+test('authenticationType is missing', async () => {
+  await expect(getConfig({}, {}, servicePath)).rejects.toMatchSnapshot();
 });
 
-test('authenticationType is missing', () => {
-  const run = () => getConfig({}, {}, servicePath);
-  expect(run).toThrowErrorMatchingSnapshot();
+test('authenticationType is missing', async () => {
+  await expect(getConfig({}, {}, servicePath)).rejects.toMatchSnapshot();
 });
 
-test('authenticationType can be missing when apiId is provided', () => {
+test('authenticationType can be missing when apiId is provided', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         apiId: 'testApiId',
       },
@@ -26,9 +24,9 @@ test('authenticationType can be missing when apiId is provided', () => {
   ).toMatchSnapshot();
 });
 
-test('returns valid config', () => {
+test('returns valid config', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         dataSources: {
@@ -46,9 +44,9 @@ test('returns valid config', () => {
   ).toMatchSnapshot();
 });
 
-test('datasources as array', () => {
+test('datasources as array', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         dataSources: [
@@ -68,9 +66,9 @@ test('datasources as array', () => {
   ).toMatchSnapshot();
 });
 
-test('datasources as array form different files (array of arrays or objects)', () => {
+test('datasources as array form different files (array of arrays or objects)', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         dataSources: [
@@ -102,9 +100,9 @@ test('datasources as array form different files (array of arrays or objects)', (
   ).toMatchSnapshot();
 });
 
-test('Schema as string', () => {
+test('Schema as string', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         schema: 'schema.graphql',
@@ -115,9 +113,9 @@ test('Schema as string', () => {
   ).toMatchSnapshot();
 });
 
-test('Schema as array', () => {
+test.only('Schema as array', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         schema: ['_type_tweet.graphql', '_type_user.graphql'],
@@ -128,9 +126,9 @@ test('Schema as array', () => {
   ).toMatchSnapshot();
 });
 
-test('Schema as absolute path', () => {
+test('Schema as absolute path', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         schema: path.join(servicePath, 'schema.graphql'),
@@ -141,9 +139,9 @@ test('Schema as absolute path', () => {
   ).toMatchSnapshot();
 });
 
-test('Schema as glob pattern', () => {
+test('Schema as glob pattern', async () => {
   expect(
-    getConfig(
+    await getConfig(
       {
         authenticationType: 'AWS_IAM',
         schema: '_type_*.graphql',

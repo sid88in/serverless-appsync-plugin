@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { mergeTypeDefs } from '@graphql-tools/merge';
 import { has, mapObjIndexed, pipe, values } from 'ramda';
 import globby from 'globby';
-import { TypeSource } from '@graphql-tools/utils';
 import {
   ApiKeyConfig,
   AppSyncConfig,
@@ -15,6 +13,7 @@ import {
   WafRule,
 } from './types';
 import { AWS } from '@serverless/typescript';
+import { convertAppSyncSchemas } from 'appsync-schema-converter';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
@@ -26,16 +25,6 @@ const objectToArrayWithNameProp = pipe(
   ),
   values,
 );
-
-const mergeTypes = (types: TypeSource) => {
-  return mergeTypeDefs(types, {
-    useSchemaDefinition: true,
-    forceSchemaDefinition: true,
-    throwOnConflict: true,
-    commentDescriptions: true,
-    reverseDirectives: true,
-  });
-};
 
 export type AppSyncConfigInput = {
   apiId?: string;
@@ -81,11 +70,11 @@ export type AppSyncConfigInput = {
   tags?: Record<string, string>;
 } & Auth;
 
-const getAppSyncConfig = (
+const getAppSyncConfig = async (
   config: AppSyncConfigInput,
   provider: AWS['provider'],
   servicePath: string,
-): AppSyncConfig => {
+): Promise<AppSyncConfig> => {
   if (
     !(
       config.apiId ||
@@ -160,7 +149,11 @@ const getAppSyncConfig = (
   const schemaFiles = ([] as string[]).concat(
     ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
   );
-  const schemaContent = mergeTypes(schemaFiles.map(readSchemaFile));
+
+  console.log({ schemaContent: schemaFiles.map(readSchemaFile) });
+  const schemaContent = await convertAppSyncSchemas(
+    schemaFiles.map(readSchemaFile),
+  );
 
   let dataSources: DataSource[] = [];
   if (Array.isArray(config.dataSources)) {
@@ -195,7 +188,7 @@ const getAppSyncConfig = (
   };
 };
 
-export const getConfig = (
+export const getConfig = async (
   config: AppSyncConfigInput | AppSyncConfigInput[],
   provider: AWS['provider'],
   servicePath: string,
@@ -203,11 +196,15 @@ export const getConfig = (
   if (!config) {
     return [];
   } else if (Array.isArray(config)) {
-    return config.map((apiConfig) =>
-      getAppSyncConfig(apiConfig, provider, servicePath),
-    );
+    const conf: AppSyncConfig[] = [];
+    for (const key in config) {
+      conf.push(await getAppSyncConfig(config[key], provider, servicePath));
+    }
+    return conf;
   }
-  const singleConfig = getAppSyncConfig(config, provider, servicePath);
+
+  const singleConfig = await getAppSyncConfig(config, provider, servicePath);
   singleConfig.isSingleConfig = true;
+
   return [singleConfig];
 };

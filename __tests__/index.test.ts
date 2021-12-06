@@ -22,6 +22,9 @@ beforeEach(() => {
     consoleLog: jest.fn(),
   };
   serverless = new Serverless();
+  serverless.serviceOutputs = new Map();
+  serverless.servicePluginOutputs = new Map();
+
   serverless.cli = cli;
 
   const options = {
@@ -48,24 +51,23 @@ describe('appsync display', () => {
   test('appsync api keys are displayed', () => {
     plugin.gatheredData.apiKeys = ['dummy-api-key-1', 'dummy-api-key-2'];
 
-    let expectedMessage = '';
-    expectedMessage += `${chalk.yellow('appsync api keys:')}`;
-    expectedMessage += '\n  dummy-api-key-1';
-    expectedMessage += '\n  dummy-api-key-2';
-
-    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+    plugin.displayApiKeys();
+    expect(serverless.servicePluginOutputs).toMatchInlineSnapshot(`
+      Map {
+        "AppSync API keys" => Array [
+          "dummy-api-key-1",
+          "dummy-api-key-2",
+        ],
+      }
+    `);
   });
 
   test('appsync api keys are hidden when `--conceal` is given', () => {
     plugin.options.conceal = true;
     plugin.gatheredData.apiKeys = ['dummy-api-key-1', 'dummy-api-key-2'];
 
-    let expectedMessage = '';
-    expectedMessage += `${chalk.yellow('appsync api keys:')}`;
-    expectedMessage += '\n  *** (concealed)';
-    expectedMessage += '\n  *** (concealed)';
-
-    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+    plugin.displayApiKeys();
+    expect(serverless.servicePluginOutputs).toMatchInlineSnapshot(`Map {}`);
   });
 });
 
@@ -404,10 +406,8 @@ describe('appsync config', () => {
       ],
     };
 
-    const resources = {};
-    const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
-    expect(resources).toMatchSnapshot();
+    plugin.addResource(apiConfig);
+    expect(serverless.service.resources.Resources).toMatchSnapshot();
   });
 
   test('Existing ApiId is used for all resources if provided', () => {
@@ -456,11 +456,9 @@ describe('appsync config', () => {
       ],
     };
 
-    const resources = {};
-    const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
+    plugin.addResource(apiConfig);
 
-    expect(outputs).toEqual({
+    expect(serverless.service.resources.Outputs).toEqual({
       GraphQlApiId: {
         Value: apiConfig.apiId,
         Export: {
@@ -470,7 +468,7 @@ describe('appsync config', () => {
         },
       },
     });
-    expect(resources).toMatchSnapshot();
+    expect(serverless.service.resources.Resources).toMatchSnapshot();
   });
 
   test('AMAZON_COGNITO_USER_POOLS config created', () => {
