@@ -1,13 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const parseSchema = require('graphql/language').parse;
-const { buildASTSchema } = require('graphql/utilities');
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
 const { has, merge } = require('ramda');
 const { parseDuration, toCfnKeys } = require('./utils');
 const moment = require('moment');
+const { convertAppSyncSchemas } = require('appsync-schema-converter');
 
 const MIGRATION_DOCS =
   'https://github.com/sid88in/serverless-appsync-plugin/blob/master/README.md#cfn-migration';
@@ -262,36 +261,10 @@ class ServerlessAppsyncPlugin {
     );
   }
 
-  validateSchemas() {
+  async validateSchemas() {
     const config = this.loadConfig();
-
-    const awsTypes = `
-      directive @aws_iam on FIELD_DEFINITION | OBJECT
-      directive @aws_oidc on FIELD_DEFINITION | OBJECT
-      directive @aws_api_key on FIELD_DEFINITION | OBJECT
-      directive @aws_lambda on FIELD_DEFINITION | OBJECT
-      directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
-      directive @aws_cognito_user_pools(
-        cognito_groups: [String]
-      ) on FIELD_DEFINITION | OBJECT
-
-      directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
-
-      scalar AWSDate
-      scalar AWSTime
-      scalar AWSDateTime
-      scalar AWSTimestamp
-      scalar AWSEmail
-      scalar AWSJSON
-      scalar AWSURL
-      scalar AWSPhone
-      scalar AWSIPAddress
-    `;
-
     try {
-      config.forEach((apiConfig) => {
-        buildASTSchema(parseSchema(`${apiConfig.schema} ${awsTypes}`));
-      });
+      await convertAppSyncSchemas(config.map(({ schema }) => schema));
       this.log('GraphQl schema valid');
     } catch (errors) {
       this.log(errors, { color: 'red' });
@@ -306,8 +279,8 @@ class ServerlessAppsyncPlugin {
         if (!apiId) {
           throw new this.serverless.classes.Error(
             'serverless-appsync: no apiId is defined. If you are not ' +
-              `migrating from a previous version of the plugin this is expected.  See ${MIGRATION_DOCS} '
-        + 'for more information`,
+              'migrating from a previous version of the plugin this is ' +
+              `expected.  See ${MIGRATION_DOCS} for more information`,
           );
         }
 
@@ -335,7 +308,7 @@ class ServerlessAppsyncPlugin {
       .then(() => new Promise(() => {}));
   }
 
-  addResources() {
+  async addResources() {
     const config = this.loadConfig();
 
     const resources =
@@ -343,12 +316,12 @@ class ServerlessAppsyncPlugin {
     const outputs =
       this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
 
-    config.forEach((apiConfig) => {
-      this.addResource(resources, outputs, apiConfig);
-    });
+    for (const apiConfig of config) {
+      await this.addResource(resources, outputs, apiConfig);
+    }
   }
 
-  addResource(resources, outputs, apiConfig) {
+  async addResource(resources, outputs, apiConfig) {
     if (apiConfig.apiId) {
       this.log(`
           Updating an existing API endpoint: ${apiConfig.apiId}.
@@ -372,7 +345,7 @@ class ServerlessAppsyncPlugin {
       Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
     }
     Object.assign(resources, this.getApiCachingResource(apiConfig));
-    Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
+    Object.assign(resources, await this.getGraphQLSchemaResource(apiConfig));
     Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
     Object.assign(resources, this.getDataSourceResources(apiConfig));
     Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
@@ -482,14 +455,14 @@ class ServerlessAppsyncPlugin {
             config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS'
               ? undefined
               : this.getUserPoolConfig(config, config.region),
-          LambdaAuthorizerConfig:
-            config.authenticationType !== 'AWS_LAMBDA'
-              ? undefined
-              : this.getLambdaAuthorizerConfig(config),
           OpenIDConnectConfig:
             config.authenticationType !== 'OPENID_CONNECT'
               ? undefined
               : this.getOpenIDConnectConfig(config),
+          LambdaAuthorizerConfig:
+            config.authenticationType !== 'AWS_LAMBDA'
+              ? undefined
+              : this.getLambdaAuthorizerConfig(config),
           LogConfig: !config.logConfig
             ? undefined
             : {
@@ -550,15 +523,12 @@ class ServerlessAppsyncPlugin {
   }
 
   hasApiKeyAuth(config) {
-    if (
+    return (
       config.authenticationType === 'API_KEY' ||
       config.additionalAuthenticationProviders.some(
         ({ authenticationType }) => authenticationType === 'API_KEY',
       )
-    ) {
-      return true;
-    }
-    return false;
+    );
   }
 
   getApiKeys(config) {
@@ -1079,13 +1049,10 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getGraphQLSchemaResource(config) {
+  async getGraphQLSchemaResource(config) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
-    const appSyncSafeSchema = this.cleanCommentsFromSchema(
-      config.schema,
-      config.allowHashDescription,
-    );
+    const appSyncSafeSchema = await convertAppSyncSchemas(config.schema);
 
     if (config.allowHashDescription) {
       this.log(
@@ -1630,21 +1597,6 @@ class ServerlessAppsyncPlugin {
       }, {});
     }
     return {};
-  }
-
-  cleanCommentsFromSchema(schema, allowHashDescription) {
-    const newStyleDescription = /"""[^"]*"""\n/g; // appsync does not support the new style descriptions
-    const oldStyleDescription = /#.*\n/g; // appysnc does not support old-style # comments in enums, so remove them all
-    const joinInterfaces = / *& */g; // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
-    if (allowHashDescription) {
-      return schema
-        .replace(newStyleDescription, '')
-        .replace(joinInterfaces, ', ');
-    }
-    return schema
-      .replace(newStyleDescription, '')
-      .replace(oldStyleDescription, '')
-      .replace(joinInterfaces, ', ');
   }
 
   getCfnName(name) {
