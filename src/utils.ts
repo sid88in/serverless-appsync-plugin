@@ -1,6 +1,7 @@
 import moment, { unitOfTime } from 'moment';
 import { upperFirst, transform } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
+import { ServerlessLogger } from 'types/serverless';
 
 const timeUnits = [
   'years?',
@@ -76,3 +77,12 @@ export const parseDuration = (input: string | number) => {
 
   return duration;
 };
+
+export const logger: (log: (message) => void) => ServerlessLogger = (log) => ({
+  error: log,
+  warning: log,
+  notice: log,
+  info: log,
+  debug: log,
+  success: log,
+});

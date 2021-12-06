@@ -1,16 +1,19 @@
 import fs from 'fs';
 import path from 'path';
-import { parse as parseSchema } from 'graphql/language';
-import { buildASTSchema } from 'graphql/utilities';
 import { getConfig } from './get-config';
 import chalk from 'chalk';
-import { has, isEmpty, merge } from 'ramda';
-import { parseDuration, toCfnKeys } from './utils';
+import { has, isEmpty } from 'ramda';
+import { merge } from 'lodash';
+import { logger, parseDuration, toCfnKeys } from './utils';
 import moment from 'moment';
-import Serverless from 'serverless';
-// @ts-ignore
-import Aws from 'serverless/plugins/aws/provider/awsProvider';
-import Plugin from 'serverless/classes/Plugin';
+import {
+  CommandsDefinition,
+  Hook,
+  Provider,
+  Serverless,
+  ServerlessHelpers,
+  ServerlessLogger,
+} from 'types/serverless';
 import {
   CfnDataSource,
   FnJoin,
@@ -22,7 +25,6 @@ import {
   DsRelationalDbConfig,
   IntrinsictFunction,
   DataSource,
-  CfnOutput,
   Auth,
   AppSyncConfig,
   LambdaConfig,
@@ -41,6 +43,11 @@ import {
   IamStatement,
   WafRuleDisableIntrospection,
 } from './types';
+import type {
+  DescribeStacksInput,
+  DescribeStacksOutput,
+} from 'aws-sdk/clients/cloudformation';
+import { convertAppSyncSchemas } from 'appsync-schema-converter';
 
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
@@ -53,19 +60,21 @@ const RESOURCE_CACHING = 'GraphQlCaching';
 const RESOURCE_WAF = 'GraphQlWaf';
 const RESOURCE_WAF_ASSOC = 'GraphQlWafAssoc';
 
-class ServerlessAppsyncPlugin implements Plugin {
-  provider: Aws.Provider;
-  gatheredData: {
+class ServerlessAppsyncPlugin {
+  private provider: Provider;
+  private gatheredData: {
     endpoints: string[];
     apiKeys: string[];
   };
-  hooks: Plugin.Hooks;
-  commands?: Plugin.Commands;
-  variableResolvers?: Plugin.VariableResolvers;
+  public readonly hooks: Record<string, Hook>;
+  public readonly commands?: CommandsDefinition;
+  private config?: AppSyncConfig[];
+  private log: ServerlessLogger;
 
   constructor(
     private serverless: Serverless,
     private options: Record<string, string>,
+    helpers?: ServerlessHelpers,
   ) {
     this.gatheredData = {
       endpoints: [],
@@ -73,7 +82,6 @@ class ServerlessAppsyncPlugin implements Plugin {
     };
     this.serverless = serverless;
     this.options = options;
-    // @ts-ignore
     this.provider = this.serverless.getProvider('aws');
     this.commands = {
       'validate-schema': {
@@ -82,21 +90,19 @@ class ServerlessAppsyncPlugin implements Plugin {
       },
     };
 
-    this.log = this.log.bind(this);
+    this.log = helpers?.log || logger(serverless.cli.log);
 
     this.hooks = {
-      'package:initialize': () => this.validateSchemas(),
+      'package:initialize': async () => {
+        await this.loadConfig();
+        await this.validateSchemas();
+      },
       'validate-schema:run': () => this.validateSchemas(),
-      'after:aws:package:finalize:mergeCustomProviderResources': () =>
-        this.addResources(),
+      'after:package:compileEvents': () => this.addResources(),
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayEndpoints': () => this.displayEndpoints(),
       'after:aws:info:displayApiKeys': () => this.displayApiKeys(),
     };
-  }
-
-  log(message: string, options?: Serverless.LogOptions) {
-    this.serverless.cli.log(message, 'AppSync Plugin', options);
   }
 
   getLambdaArn(config: LambdaConfig) {
@@ -186,128 +192,124 @@ class ServerlessAppsyncPlugin implements Plugin {
     // @ts-ignore
     const stackName = this.provider.naming.getStackName();
     // @ts-ignore
-    const result = await this.provider.request(
-      'CloudFormation',
-      'describeStacks',
-      {
-        StackName: stackName,
-      },
-    );
+    const result = await this.provider.request<
+      DescribeStacksInput,
+      DescribeStacksOutput
+    >('CloudFormation', 'describeStacks', { StackName: stackName });
 
-    const outputs: CfnOutput[] = result.Stacks[0].Outputs;
-    outputs
-      .filter((x) => x.OutputKey.match(new RegExp(`${RESOURCE_URL}$`)))
-      .forEach((x) => {
-        this.gatheredData.endpoints.push(x.OutputValue);
-      });
+    const outputs = result.Stacks?.[0].Outputs;
+    if (outputs) {
+      outputs
+        .filter((x) => x.OutputKey?.match(new RegExp(`${RESOURCE_URL}$`)))
+        .forEach((x) => {
+          if (x.OutputValue) {
+            this.gatheredData.endpoints.push(x.OutputValue);
+          }
+        });
 
-    outputs
-      .filter((x) => x.OutputKey.match(new RegExp(`^${RESOURCE_API_KEY}`)))
-      .forEach((x) => {
-        this.gatheredData.apiKeys.push(x.OutputValue);
-      });
+      outputs
+        .filter((x) => x.OutputKey?.match(new RegExp(`^${RESOURCE_API_KEY}`)))
+        .forEach((x) => {
+          if (x.OutputValue) {
+            this.gatheredData.apiKeys.push(x.OutputValue);
+          }
+        });
+    }
   }
 
   displayEndpoints() {
-    let endpointsMessage = `${chalk.yellow('appsync endpoints:')}`;
-    if (this.gatheredData.endpoints && this.gatheredData.endpoints.length) {
-      this.gatheredData.endpoints.forEach((endpoint) => {
-        endpointsMessage += `\n  ${endpoint}`;
-      });
-    } else {
-      endpointsMessage += '\n  None';
+    if (this.gatheredData.endpoints.length === 0) {
+      return;
     }
 
-    this.serverless.cli.log(endpointsMessage);
+    if (this.serverless.addServiceOutputSection) {
+      this.serverless.addServiceOutputSection(
+        'AppSync Endpoints',
+        this.gatheredData.endpoints,
+      );
+    } else {
+      let endpointsMessage = `${chalk.yellow('appsync endpoints:')}`;
+      if (this.gatheredData.endpoints && this.gatheredData.endpoints.length) {
+        this.gatheredData.endpoints.forEach((endpoint) => {
+          endpointsMessage += `\n  ${endpoint}`;
+        });
+      } else {
+        endpointsMessage += '\n  None';
+      }
 
-    return endpointsMessage;
+      this.log.info(endpointsMessage);
+    }
   }
 
   displayApiKeys() {
-    const { conceal } = this.options;
-
-    let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
-    if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
-      this.gatheredData.apiKeys.forEach((key) => {
-        if (conceal) {
-          apiKeysMessage += '\n  *** (concealed)';
-        } else {
-          apiKeysMessage += `\n  ${key}`;
-        }
-      });
-    } else {
-      apiKeysMessage += '\n  None';
+    if (this.gatheredData.apiKeys.length === 0) {
+      return;
     }
 
-    this.serverless.cli.log(apiKeysMessage);
+    const { conceal } = this.options;
 
-    return apiKeysMessage;
+    if (this.serverless.addServiceOutputSection) {
+      if (!conceal) {
+        this.serverless.addServiceOutputSection(
+          'AppSync API keys',
+          this.gatheredData.apiKeys,
+        );
+      }
+    } else {
+      let apiKeysMessage = `${chalk.yellow('appsync api keys:')}`;
+      if (this.gatheredData.apiKeys && this.gatheredData.apiKeys.length) {
+        this.gatheredData.apiKeys.forEach((key) => {
+          if (conceal) {
+            apiKeysMessage += '\n  *** (concealed)';
+          } else {
+            apiKeysMessage += `\n  ${key}`;
+          }
+        });
+      } else {
+        apiKeysMessage += '\n  None';
+      }
+
+      this.log.info(apiKeysMessage);
+    }
   }
 
   loadConfig() {
-    return getConfig(
-      this.serverless.service.custom.appSync,
+    if (!this.serverless.configurationInput.custom.appSync) {
+      throw new this.serverless.classes.Error('AppSync config not found');
+    }
+    this.config = getConfig(
+      this.serverless.configurationInput.custom.appSync,
       this.serverless.service.provider,
       this.serverless.config.servicePath,
     );
   }
 
-  validateSchemas() {
-    const config = this.loadConfig();
-
-    const awsTypes = `
-      directive @aws_iam on FIELD_DEFINITION | OBJECT
-      directive @aws_oidc on FIELD_DEFINITION | OBJECT
-      directive @aws_api_key on FIELD_DEFINITION | OBJECT
-      directive @aws_lambda on FIELD_DEFINITION | OBJECT
-      directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
-      directive @aws_cognito_user_pools(
-        cognito_groups: [String]
-      ) on FIELD_DEFINITION | OBJECT
-
-      directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
-
-      scalar AWSDate
-      scalar AWSTime
-      scalar AWSDateTime
-      scalar AWSTimestamp
-      scalar AWSEmail
-      scalar AWSJSON
-      scalar AWSURL
-      scalar AWSPhone
-      scalar AWSIPAddress
-    `;
-
+  async validateSchemas() {
     try {
-      config.forEach((apiConfig) => {
-        buildASTSchema(parseSchema(`${apiConfig.schema} ${awsTypes}`));
+      if (!this.config) {
+        await this.loadConfig();
+      }
+      this.log.info('Validating schema');
+      await new Promise((r) => {
+        setTimeout(r, 5000);
       });
-      this.log('GraphQl schema valid');
-    } catch (errors) {
-      this.log(`${errors}`, { color: 'red' });
+      await convertAppSyncSchemas(this.config?.map(({ schema }) => schema));
+      this.log.info('GraphQL schema valid');
+    } catch (error) {
+      this.log.error('GraphQL schema invalid');
+      throw error;
     }
   }
 
   addResources() {
-    const config = this.loadConfig();
-
-    const resources =
-      this.serverless.service.provider.compiledCloudFormationTemplate.Resources;
-    const outputs =
-      this.serverless.service.provider.compiledCloudFormationTemplate.Outputs;
-
-    config.forEach((apiConfig) => {
-      this.addResource(resources, outputs, apiConfig);
+    this.config?.forEach((apiConfig) => {
+      this.addResource(apiConfig);
     });
   }
 
-  addResource(
-    resources: Record<string, unknown>,
-    outputs: Record<string, unknown> | undefined,
-    apiConfig: AppSyncConfig,
-  ) {
+  addResource(apiConfig: AppSyncConfig) {
     if (apiConfig.apiId) {
-      this.log(`
+      this.log.info(`
           Updating an existing API endpoint: ${apiConfig.apiId}.
           The following configuration options are ignored:
             - name
@@ -322,19 +324,45 @@ class ServerlessAppsyncPlugin implements Plugin {
             - wafConfig
         `);
     } else {
-      Object.assign(resources, this.getGraphQlApiEndpointResource(apiConfig));
-      Object.assign(resources, this.getApiKeyResources(apiConfig));
-      Object.assign(resources, this.getCloudWatchLogsRole(apiConfig));
-      Object.assign(resources, this.getWafResources(apiConfig));
-      Object.assign(outputs, this.getApiKeyOutputs(apiConfig));
+      merge(this.serverless.service, {
+        resources: { Resources: this.getGraphQlApiEndpointResource(apiConfig) },
+      });
+      merge(this.serverless.service, {
+        resources: { Resources: this.getApiKeyResources(apiConfig) },
+      });
+      merge(this.serverless.service, {
+        resources: { Resources: this.getCloudWatchLogsRole(apiConfig) },
+      });
+      merge(this.serverless.service, {
+        resources: { Resources: this.getWafResources(apiConfig) },
+      });
+      merge(this.serverless.service, {
+        resources: { Outputs: this.getApiKeyOutputs(apiConfig) },
+      });
     }
-    Object.assign(resources, this.getApiCachingResource(apiConfig));
-    Object.assign(resources, this.getGraphQLSchemaResource(apiConfig));
-    Object.assign(resources, this.getDataSourceIamRolesResouces(apiConfig));
-    Object.assign(resources, this.getDataSourceResources(apiConfig));
-    Object.assign(resources, this.getFunctionConfigurationResources(apiConfig));
-    Object.assign(resources, this.getResolverResources(apiConfig));
-    Object.assign(outputs, this.getGraphQlApiOutputs(apiConfig));
+    merge(this.serverless.service, {
+      resources: { Resources: this.getApiCachingResource(apiConfig) },
+    });
+    merge(this.serverless.service, {
+      resources: { Resources: this.getGraphQLSchemaResource(apiConfig) },
+    });
+    merge(this.serverless.service, {
+      resources: { Resources: this.getDataSourceIamRolesResouces(apiConfig) },
+    });
+    merge(this.serverless.service, {
+      resources: { Resources: this.getDataSourceResources(apiConfig) },
+    });
+    merge(this.serverless.service, {
+      resources: {
+        Resources: this.getFunctionConfigurationResources(apiConfig),
+      },
+    });
+    merge(this.serverless.service, {
+      resources: { Resources: this.getResolverResources(apiConfig) },
+    });
+    merge(this.serverless.service, {
+      resources: { Outputs: this.getGraphQlApiOutputs(apiConfig) },
+    });
   }
 
   getUserPoolConfig(config: CognitoAuth, region: string) {
@@ -960,10 +988,8 @@ class ServerlessAppsyncPlugin implements Plugin {
           `${this.getDataSourceCfnName(ds.name)}Role`,
         );
         // If a Role Resource was generated for this DataSource, use it
-        const resources =
-          this.serverless.service.provider.compiledCloudFormationTemplate
-            .Resources;
-        const role = resources[logicalIdDataSourceRole];
+        const resources = this.serverless.service.resources?.Resources;
+        const role = resources?.[logicalIdDataSourceRole];
         if (role) {
           resource.Properties.ServiceRoleArn = {
             'Fn::GetAtt': [logicalIdDataSourceRole, 'Arn'],
@@ -1061,7 +1087,7 @@ class ServerlessAppsyncPlugin implements Plugin {
     );
 
     if (config.allowHashDescription) {
-      this.log(
+      this.log.info(
         'WARNING: allowing hash description is enabled, please be aware ENUM description is not supported in Appsync',
       );
     }
@@ -1612,11 +1638,12 @@ class ServerlessAppsyncPlugin implements Plugin {
           RESOURCE_API_KEY + name,
         );
         acc[logicalIdApiKey] = {
+          Description: name || 'Default',
           Value: { 'Fn::GetAtt': [logicalIdApiKey, 'ApiKey'] },
         };
 
         return acc;
-      }, {} as Record<string, { Value: IntrinsictFunction }>);
+      }, {} as Record<string, { Description: string; Value: IntrinsictFunction }>);
     }
     return {};
   }

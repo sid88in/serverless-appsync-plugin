@@ -15,10 +15,12 @@
     "lint": "eslint . && tsc --noEmit"
   },
   "devDependencies": {
+    "@serverless/typescript": "^2.68.0",
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "all-contributors-cli": "^6.20.0",
+    "appsync-schema-converter": "^2.0.0",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
@@ -43,6 +45,5 @@
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "ramda": "^0.27.1"
-  },
-  "peerDependencies": {}
+  }
 }

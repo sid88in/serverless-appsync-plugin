@@ -14,7 +14,7 @@ import {
   Resolver,
   WafRule,
 } from './types';
-import Service from 'serverless/classes/Service';
+import { AWS } from '@serverless/typescript';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
@@ -37,7 +37,7 @@ const mergeTypes = (types: TypeSource) => {
   });
 };
 
-type AppSyncConfigInput = {
+export type AppSyncConfigInput = {
   apiId?: string;
   allowHashDescription?: boolean;
   isSingleConfig?: boolean;
@@ -83,7 +83,7 @@ type AppSyncConfigInput = {
 
 const getAppSyncConfig = (
   config: AppSyncConfigInput,
-  provider: Service['provider'],
+  provider: AWS['provider'],
   servicePath: string,
 ): AppSyncConfig => {
   if (
@@ -179,7 +179,7 @@ const getAppSyncConfig = (
   return {
     ...config,
     name: config.name || 'api',
-    region: provider.region,
+    region: provider.region || 'us-east-1',
     additionalAuthenticationProviders:
       config.additionalAuthenticationProviders || [],
     schema: schemaContent,
@@ -197,7 +197,7 @@ const getAppSyncConfig = (
 
 export const getConfig = (
   config: AppSyncConfigInput | AppSyncConfigInput[],
-  provider: Service['provider'],
+  provider: AWS['provider'],
   servicePath: string,
 ) => {
   if (!config) {
