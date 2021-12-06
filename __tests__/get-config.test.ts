@@ -113,7 +113,7 @@ test('Schema as string', async () => {
   ).toMatchSnapshot();
 });
 
-test.only('Schema as array', async () => {
+test('Schema as array', async () => {
   expect(
     await getConfig(
       {

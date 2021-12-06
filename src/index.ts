@@ -95,7 +95,6 @@ class ServerlessAppsyncPlugin {
     this.hooks = {
       'package:initialize': async () => {
         await this.loadConfig();
-        await this.validateSchemas();
       },
       'validate-schema:run': () => this.validateSchemas(),
       'after:package:compileEvents': () => this.addResources(),
@@ -286,11 +285,9 @@ class ServerlessAppsyncPlugin {
 
   async validateSchemas() {
     try {
-      if (!this.config) {
-        await this.loadConfig();
-      }
       this.log.info('Validating schema');
-      await convertAppSyncSchemas(this.config?.map(({ schema }) => schema));
+      // Loading the config already validates the schema
+      await this.loadConfig();
       this.log.info('GraphQL schema valid');
     } catch (error) {
       this.log.error('GraphQL schema invalid');

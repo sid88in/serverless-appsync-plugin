@@ -27,6 +27,9 @@ const objectToArrayWithNameProp = pipe(
   values,
 );
 
+const readSchemaFile = (filePath: string) =>
+  fs.readFileSync(filePath, { encoding: 'utf8' });
+
 const mergeTypes = (types) => {
   return mergeTypeDefs(types, {
     useSchemaDefinition: true,
@@ -35,6 +38,15 @@ const mergeTypes = (types) => {
     commentDescriptions: true,
     reverseDirectives: true,
   });
+};
+
+const buildAppSyncSchema = (schemaFiles: string[]) => {
+  // Merge files
+  const mergedSchema = mergeTypes(schemaFiles.map(readSchemaFile))
+    .replace(/ *#(.*)/g, '"""\n$1\n"""')
+    .replace(/"""\n"""\n/, '');
+
+  return convertAppSyncSchemas(mergedSchema);
 };
 
 export type AppSyncConfigInput = {
@@ -151,8 +163,6 @@ const getAppSyncConfig = async (
       ? filePath
       : path.join(servicePath, filePath)
     ).replace(/\\/g, '/');
-  const readSchemaFile = (filePath: string) =>
-    fs.readFileSync(filePath, { encoding: 'utf8' });
 
   const schema = Array.isArray(config.schema)
     ? config.schema
@@ -161,11 +171,7 @@ const getAppSyncConfig = async (
     ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
   );
 
-  console.log({ merged: mergeTypes(schemaFiles.map(readSchemaFile)) });
-  const schemaContent = await convertAppSyncSchemas([
-    mergeTypes(schemaFiles.map(readSchemaFile)),
-  ]);
-  console.log({ schemaContent });
+  const schemaContent = buildAppSyncSchema(schemaFiles);
 
   let dataSources: DataSource[] = [];
   if (Array.isArray(config.dataSources)) {
