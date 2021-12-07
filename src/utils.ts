@@ -2,6 +2,7 @@ import moment, { unitOfTime } from 'moment';
 import { upperFirst, transform } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
 import { ServerlessLogger } from 'types/serverless';
+import chalk from 'chalk';
 
 const timeUnits = [
   'years?',
@@ -79,10 +80,10 @@ export const parseDuration = (input: string | number) => {
 };
 
 export const logger: (log: (message) => void) => ServerlessLogger = (log) => ({
-  error: log,
-  warning: log,
-  notice: log,
-  info: log,
+  error: (message) => log(chalk.red(message)),
+  warning: (message) => log(chalk.yellow(message)),
+  notice: (message) => log(chalk.yellow(message)),
+  info: (message) => log(chalk.blueBright(message)),
   debug: log,
-  success: log,
+  success: (message) => log(chalk.green(message)),
 });

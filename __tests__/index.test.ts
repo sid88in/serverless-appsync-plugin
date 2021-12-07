@@ -1,5 +1,4 @@
 import fs from 'fs';
-import chalk from 'chalk';
 import Serverless from 'serverless';
 import ServerlessAppsyncPlugin from '../src';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';

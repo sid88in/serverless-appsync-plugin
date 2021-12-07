@@ -287,7 +287,7 @@ class ServerlessAppsyncPlugin {
       this.log.info('Validating schema');
       // Loading the config already validates the schema
       await this.loadConfig();
-      this.log.info('GraphQL schema valid');
+      this.log.success('GraphQL schema valid');
     } catch (error) {
       this.log.error('GraphQL schema invalid');
       throw error;
