@@ -1,10 +1,19 @@
 module.exports = {
-  extends: ['prettier', 'plugin:prettier/recommended', 'eslint:recommended'],
+  extends: [
+    'prettier',
+    'plugin:prettier/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'eslint:recommended',
+  ],
   plugins: [],
   parserOptions: {
     ecmaVersion: 2018,
   },
   rules: {
+    // used for tests until all erros aget fixed
+    '@typescript-eslint/ban-ts-comment': 'off',
+    // already handled by ts/no-unused
+    'no-unused-vars': 'off',
     'no-console': 'off',
     'class-methods-use-this': 'off',
   },
@@ -13,4 +22,5 @@ module.exports = {
     node: true,
     es6: true,
   },
+  ignorePatterns: ['lib/**/*', 'node_modules'],
 };

@@ -1,9 +1,7 @@
-/* eslint-disable no-template-curly-in-string */
-const fs = require('fs');
-const chalk = require('chalk');
-const Serverless = require('serverless/lib/Serverless');
-const ServerlessAppsyncPlugin = require('./src');
-const AwsProvider = require('serverless/lib/plugins/aws/provider/awsProvider.js');
+import fs from 'fs';
+import Serverless from 'serverless';
+import ServerlessAppsyncPlugin from '../src';
+import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
 
 let serverless;
 let plugin;
@@ -15,7 +13,7 @@ jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 jest.mock('fs');
 jest
   .spyOn(fs, 'readFileSync')
-  .mockImplementation((path) => `Content: ${path.replace(/\\/g, '/')}`);
+  .mockImplementation((path) => `Content: ${`${path}`.replace(/\\/g, '/')}`);
 
 beforeEach(() => {
   const cli = {
@@ -23,6 +21,9 @@ beforeEach(() => {
     consoleLog: jest.fn(),
   };
   serverless = new Serverless();
+  serverless.serviceOutputs = new Map();
+  serverless.servicePluginOutputs = new Map();
+
   serverless.cli = cli;
 
   const options = {
@@ -40,7 +41,6 @@ beforeEach(() => {
     mappingTemplatesLocation: 'mapping-templates',
     defaultMappingTemplates: {},
     substitutions: {},
-    allowHashDescription: false,
     xrayEnabled: false,
   };
 });
@@ -49,24 +49,23 @@ describe('appsync display', () => {
   test('appsync api keys are displayed', () => {
     plugin.gatheredData.apiKeys = ['dummy-api-key-1', 'dummy-api-key-2'];
 
-    let expectedMessage = '';
-    expectedMessage += `${chalk.yellow('appsync api keys:')}`;
-    expectedMessage += '\n  dummy-api-key-1';
-    expectedMessage += '\n  dummy-api-key-2';
-
-    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+    plugin.displayApiKeys();
+    expect(serverless.servicePluginOutputs).toMatchInlineSnapshot(`
+      Map {
+        "AppSync API keys" => Array [
+          "dummy-api-key-1",
+          "dummy-api-key-2",
+        ],
+      }
+    `);
   });
 
   test('appsync api keys are hidden when `--conceal` is given', () => {
     plugin.options.conceal = true;
     plugin.gatheredData.apiKeys = ['dummy-api-key-1', 'dummy-api-key-2'];
 
-    let expectedMessage = '';
-    expectedMessage += `${chalk.yellow('appsync api keys:')}`;
-    expectedMessage += '\n  *** (concealed)';
-    expectedMessage += '\n  *** (concealed)';
-
-    expect(plugin.displayApiKeys()).toEqual(expectedMessage);
+    plugin.displayApiKeys();
+    expect(serverless.servicePluginOutputs).toMatchInlineSnapshot(`Map {}`);
   });
 });
 
@@ -114,43 +113,6 @@ describe('appsync config', () => {
     });
 
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
-  });
-
-  test('Schema is transformed into App Sync compatible syntax', () => {
-    Object.assign(config, {
-      schema: `
-          """A valid schema"""
-          type Thing implements One & Another {
-            hello: ID!
-          }
-          """A valid enum"""
-          enum Method {
-            DELETE # Delete something
-            GET # Get something
-          }
-        `,
-    });
-    const schema = plugin.getGraphQLSchemaResource(config);
-    expect(schema).toMatchSnapshot();
-  });
-
-  test('Schema allow hash comments when using allowHashDescription true in config', () => {
-    Object.assign(config, {
-      schema: `
-          """A valid schema"""
-          type Thing implements One & Another {
-            hello: ID!
-          }
-          # test enum
-          enum Method {
-            DELETE
-            GET
-          }
-        `,
-    });
-    config.allowHashDescription = true;
-    const schema = plugin.getGraphQLSchemaResource(config);
-    expect(schema).toMatchSnapshot();
   });
 
   test('Datasource generates lambdaFunctionArn from functionName', () => {
@@ -364,14 +326,12 @@ describe('appsync config', () => {
       ...ignoredResources,
       apiId: 'testApiId',
       schema: `
-          """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
           }
-          """A valid enum"""
           enum Method {
-            DELETE # Delete something
-            GET # Get something
+            DELETE
+            GET
           }
         `,
       dataSources: [
@@ -405,10 +365,8 @@ describe('appsync config', () => {
       ],
     };
 
-    const resources = {};
-    const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
-    expect(resources).toMatchSnapshot();
+    plugin.addResource(apiConfig);
+    expect(serverless.service.resources.Resources).toMatchSnapshot();
   });
 
   test('Existing ApiId is used for all resources if provided', () => {
@@ -416,14 +374,12 @@ describe('appsync config', () => {
       ...config,
       apiId: 'testApiId',
       schema: `
-          """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
           }
-          """A valid enum"""
           enum Method {
-            DELETE # Delete something
-            GET # Get something
+            DELETE
+            GET
           }
         `,
       dataSources: [
@@ -457,11 +413,9 @@ describe('appsync config', () => {
       ],
     };
 
-    const resources = {};
-    const outputs = {};
-    plugin.addResource(resources, outputs, apiConfig);
+    plugin.addResource(apiConfig);
 
-    expect(outputs).toEqual({
+    expect(serverless.service.resources.Outputs).toEqual({
       GraphQlApiId: {
         Value: apiConfig.apiId,
         Export: {
@@ -471,7 +425,7 @@ describe('appsync config', () => {
         },
       },
     });
-    expect(resources).toMatchSnapshot();
+    expect(serverless.service.resources.Resources).toMatchSnapshot();
   });
 
   test('AMAZON_COGNITO_USER_POOLS config created', () => {

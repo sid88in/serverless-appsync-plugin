@@ -1744,11 +1744,13 @@ Object {
     "Properties": Object {
       "ApiId": "testApiId",
       "Definition": "
-                    type Thing implements One, Another {
+          type Thing implements One & Another {
             hello: ID!
           }
-                    enum Method {
-            DELETE             GET           }
+          enum Method {
+            DELETE
+            GET
+          }
         ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
@@ -1954,11 +1956,13 @@ Object {
     "Properties": Object {
       "ApiId": "testApiId",
       "Definition": "
-                    type Thing implements One, Another {
+          type Thing implements One & Another {
             hello: ID!
           }
-                    enum Method {
-            DELETE             GET           }
+          enum Method {
+            DELETE
+            GET
+          }
         ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
@@ -2033,55 +2037,6 @@ Object {
       ],
     },
     "Type": "AWS::IAM::Role",
-  },
-}
-`;
-
-exports[`appsync config Schema allow hash comments when using allowHashDescription true in config 1`] = `
-Object {
-  "GraphQlSchema": Object {
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
-          "GraphQlApi",
-          "ApiId",
-        ],
-      },
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-          # test enum
-          enum Method {
-            DELETE
-            GET
-          }
-        ",
-    },
-    "Type": "AWS::AppSync::GraphQLSchema",
-  },
-}
-`;
-
-exports[`appsync config Schema is transformed into App Sync compatible syntax 1`] = `
-Object {
-  "GraphQlSchema": Object {
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
-          "GraphQlApi",
-          "ApiId",
-        ],
-      },
-      "Definition": "
-                    type Thing implements One, Another {
-            hello: ID!
-          }
-                    enum Method {
-            DELETE             GET           }
-        ",
-    },
-    "Type": "AWS::AppSync::GraphQLSchema",
   },
 }
 `;
