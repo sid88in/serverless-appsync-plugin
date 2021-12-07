@@ -43,7 +43,7 @@ const mergeTypes = (types) => {
 const buildAppSyncSchema = (schemaFiles: string[]) => {
   // Merge files
   const mergedSchema = mergeTypes(schemaFiles.map(readSchemaFile))
-    .replace(/ *#(.*)/g, '"""\n$1\n"""')
+    .replace(/ *#+(.*)/g, '"""\n$1\n"""')
     .replace(/"""\n"""\n/, '');
 
   return convertAppSyncSchemas(mergedSchema);

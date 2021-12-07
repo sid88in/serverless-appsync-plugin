@@ -47,7 +47,6 @@ import type {
   DescribeStacksInput,
   DescribeStacksOutput,
 } from 'aws-sdk/clients/cloudformation';
-import { convertAppSyncSchemas } from 'appsync-schema-converter';
 
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
