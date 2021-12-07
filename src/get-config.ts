@@ -9,12 +9,12 @@ import {
   Auth,
   DataSource,
   FunctionConfig,
-  IntrinsictFunction,
   Resolver,
   WafRule,
-} from './types';
+} from './types/plugin';
 import { AWS } from '@serverless/typescript';
 import { convertAppSyncSchemas } from 'appsync-schema-converter';
+import { IntrinsictFunction } from 'types/cloudFormation';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
@@ -51,7 +51,6 @@ const buildAppSyncSchema = (schemaFiles: string[]) => {
 
 export type AppSyncConfigInput = {
   apiId?: string;
-  allowHashDescription?: boolean;
   isSingleConfig?: boolean;
   name?: string;
   region: string;

@@ -41,7 +41,6 @@ beforeEach(() => {
     mappingTemplatesLocation: 'mapping-templates',
     defaultMappingTemplates: {},
     substitutions: {},
-    allowHashDescription: false,
     xrayEnabled: false,
   };
 });
@@ -114,43 +113,6 @@ describe('appsync config', () => {
     });
 
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
-  });
-
-  test('Schema is transformed into App Sync compatible syntax', () => {
-    Object.assign(config, {
-      schema: `
-          """A valid schema"""
-          type Thing implements One & Another {
-            hello: ID!
-          }
-          """A valid enum"""
-          enum Method {
-            DELETE # Delete something
-            GET # Get something
-          }
-        `,
-    });
-    const schema = plugin.getGraphQLSchemaResource(config);
-    expect(schema).toMatchSnapshot();
-  });
-
-  test('Schema allow hash comments when using allowHashDescription true in config', () => {
-    Object.assign(config, {
-      schema: `
-          """A valid schema"""
-          type Thing implements One & Another {
-            hello: ID!
-          }
-          # test enum
-          enum Method {
-            DELETE
-            GET
-          }
-        `,
-    });
-    config.allowHashDescription = true;
-    const schema = plugin.getGraphQLSchemaResource(config);
-    expect(schema).toMatchSnapshot();
   });
 
   test('Datasource generates lambdaFunctionArn from functionName', () => {
@@ -364,14 +326,12 @@ describe('appsync config', () => {
       ...ignoredResources,
       apiId: 'testApiId',
       schema: `
-          """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
           }
-          """A valid enum"""
           enum Method {
-            DELETE # Delete something
-            GET # Get something
+            DELETE
+            GET
           }
         `,
       dataSources: [
@@ -414,14 +374,12 @@ describe('appsync config', () => {
       ...config,
       apiId: 'testApiId',
       schema: `
-          """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
           }
-          """A valid enum"""
           enum Method {
-            DELETE # Delete something
-            GET # Get something
+            DELETE
+            GET
           }
         `,
       dataSources: [

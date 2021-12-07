@@ -15,15 +15,10 @@ import {
   ServerlessLogger,
 } from 'types/serverless';
 import {
-  CfnDataSource,
-  FnJoin,
-  CfnFunctionResolver,
-  CfnResolver,
   ApiKeyConfig,
   WafRule,
   WafThrottleConfig,
   DsRelationalDbConfig,
-  IntrinsictFunction,
   DataSource,
   Auth,
   AppSyncConfig,
@@ -31,22 +26,29 @@ import {
   CognitoAuth,
   OidcAuth,
   LambdaAuth,
-  CfnApiKey,
   DsDynamoDBConfig,
   FunctionConfig,
   Resolver,
   WafAction,
   WafConfig,
-  CfnWafAction,
-  CfnWafRule,
-  CfnWafRuleStatement,
   IamStatement,
   WafRuleDisableIntrospection,
-} from './types';
+} from './types/plugin';
 import type {
   DescribeStacksInput,
   DescribeStacksOutput,
 } from 'aws-sdk/clients/cloudformation';
+import {
+  IntrinsictFunction,
+  FnJoin,
+  CfnApiKey,
+  CfnDataSource,
+  CfnFunctionResolver,
+  CfnResolver,
+  CfnWafAction,
+  CfnWafRule,
+  CfnWafRuleStatement,
+} from 'types/cloudFormation';
 
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
@@ -1074,22 +1076,12 @@ class ServerlessAppsyncPlugin {
   getGraphQLSchemaResource(config: AppSyncConfig) {
     const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
     const logicalIdGraphQLSchema = this.getLogicalId(config, RESOURCE_SCHEMA);
-    const appSyncSafeSchema = this.cleanCommentsFromSchema(
-      config.schema,
-      config.allowHashDescription,
-    );
-
-    if (config.allowHashDescription) {
-      this.log.info(
-        'WARNING: allowing hash description is enabled, please be aware ENUM description is not supported in Appsync',
-      );
-    }
 
     return {
       [logicalIdGraphQLSchema]: {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
-          Definition: appSyncSafeSchema,
+          Definition: config.schema,
           ApiId: config.apiId || {
             'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
           },
@@ -1638,21 +1630,6 @@ class ServerlessAppsyncPlugin {
       }, {} as Record<string, { Value: IntrinsictFunction }>);
     }
     return {};
-  }
-
-  cleanCommentsFromSchema(schema: string, allowHashDescription?: boolean) {
-    const newStyleDescription = /"""[^"]*"""\n/g; // appsync does not support the new style descriptions
-    const oldStyleDescription = /#.*\n/g; // appysnc does not support old-style # comments in enums, so remove them all
-    const joinInterfaces = / *& */g; // appsync does not support the standard '&', but the "unofficial" ',' join for interfaces
-    if (allowHashDescription) {
-      return schema
-        .replace(newStyleDescription, '')
-        .replace(joinInterfaces, ', ');
-    }
-    return schema
-      .replace(newStyleDescription, '')
-      .replace(oldStyleDescription, '')
-      .replace(joinInterfaces, ', ');
   }
 
   getCfnName(name: string) {

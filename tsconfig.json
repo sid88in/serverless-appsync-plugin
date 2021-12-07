@@ -13,11 +13,6 @@
     "outDir": "lib",
     "noImplicitAny": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "src/**/*.d.ts",
-    "src/graphql-playground.ts",
-    "src/get-stack-value.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["node_modules"]
 }
