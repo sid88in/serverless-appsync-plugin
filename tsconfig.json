@@ -13,6 +13,6 @@
     "outDir": "lib",
     "noImplicitAny": false
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "__tests__/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,3 @@
-import fs from 'fs';
 import Serverless from 'serverless';
 import ServerlessAppsyncPlugin from '../src';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
@@ -9,11 +8,6 @@ let config;
 
 // 2020-12-09T16:24:22+00:00
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
-
-jest.mock('fs');
-jest
-  .spyOn(fs, 'readFileSync')
-  .mockImplementation((path) => `Content: ${`${path}`.replace(/\\/g, '/')}`);
 
 beforeEach(() => {
   const cli = {

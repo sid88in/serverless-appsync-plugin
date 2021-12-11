@@ -7,7 +7,7 @@ import {
   ApiKeyConfig,
   AppSyncConfig,
   Auth,
-  DataSource,
+  DataSourceConfig,
   FunctionConfig,
   Resolver,
   WafRule,
@@ -18,11 +18,11 @@ import { IntrinsictFunction } from 'types/cloudFormation';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
-    (item: DataSource | Omit<DataSource, 'name'>, key) =>
+    (item: DataSourceConfig | Omit<DataSourceConfig, 'name'>, key) =>
       ({
         name: key,
         ...item,
-      } as DataSource),
+      } as DataSourceConfig),
   ),
   values,
 );
@@ -78,8 +78,8 @@ export type AppSyncConfigInput = {
   mappingTemplates?: Resolver[];
   functionConfigurations?: FunctionConfig[];
   dataSources:
-    | (DataSource | Record<string, DataSource>)[]
-    | Record<string, DataSource>;
+    | (DataSourceConfig | Record<string, DataSourceConfig>)[]
+    | Record<string, DataSourceConfig>;
   substitutions?: Record<string, string | IntrinsictFunction>;
   xrayEnabled?: boolean;
   wafConfig?: {
@@ -92,7 +92,7 @@ export type AppSyncConfigInput = {
   tags?: Record<string, string>;
 } & Auth;
 
-const getAppSyncConfig = async (
+export const getAppSyncConfig = async (
   config: AppSyncConfigInput,
   provider: AWS['provider'],
   servicePath: string,
@@ -153,9 +153,16 @@ const getAppSyncConfig = async (
     config.mappingTemplatesLocation || 'mapping-templates';
   const functionConfigurationsLocation =
     config.functionConfigurationsLocation || mappingTemplatesLocation;
-  const functionConfigurations: FunctionConfig[] =
-    config.functionConfigurations || [];
-  const mappingTemplates: Resolver[] = config.mappingTemplates || [];
+  const functionConfigurations: FunctionConfig[] = (
+    config.functionConfigurations || []
+  ).reduce(
+    (accumulator, currentValue) => accumulator.concat(currentValue),
+    [] as FunctionConfig[],
+  );
+  const mappingTemplates: Resolver[] = (config.mappingTemplates || []).reduce(
+    (accumulator, currentValue) => accumulator.concat(currentValue),
+    [] as Resolver[],
+  );
 
   const toAbsolutePosixPath = (filePath: string) =>
     (path.isAbsolute(filePath)
@@ -172,7 +179,7 @@ const getAppSyncConfig = async (
 
   const schemaContent = buildAppSyncSchema(schemaFiles);
 
-  let dataSources: DataSource[] = [];
+  let dataSources: DataSourceConfig[] = [];
   if (Array.isArray(config.dataSources)) {
     dataSources = config.dataSources.reduce((acc, value) => {
       // Do not call `objectToArrayWithNameProp` on datasources objects``
@@ -181,7 +188,7 @@ const getAppSyncConfig = async (
       } else {
         return acc.concat(objectToArrayWithNameProp(value));
       }
-    }, [] as DataSource[]);
+    }, [] as DataSourceConfig[]);
   } else if (config.dataSources) {
     dataSources = objectToArrayWithNameProp(config.dataSources);
   }

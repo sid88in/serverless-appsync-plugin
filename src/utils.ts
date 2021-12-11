@@ -1,29 +1,23 @@
-import moment, { unitOfTime } from 'moment';
-import { upperFirst, transform } from 'lodash';
+import { upperFirst, transform, values } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
 import { ServerlessLogger } from 'types/serverless';
 import chalk from 'chalk';
+import { Duration } from 'luxon';
 
-const timeUnits = [
-  'years?',
-  'y',
-  'quarters?',
-  'Q',
-  'months?',
-  'M',
-  'weeks?',
-  'w',
-  'days?',
-  'd',
-  'hours?',
-  'h',
-  'minutes?',
-  'm',
-  'seconds?',
-  's',
-  'milliseconds?',
-  'ms',
-] as const;
+const timeUnits = {
+  y: 'years',
+  q: 'quarters',
+  M: 'months',
+  w: 'weeks',
+  d: 'days',
+  h: 'hours',
+  m: 'minutes',
+  s: 'seconds',
+  ms: 'milliseconds',
+} as const;
+
+const units = values(timeUnits);
+export type TimeUnit = typeof units[number];
 
 const isRecord = (value?: unknown): value is Record<string, unknown> => {
   return typeof value === 'object';
@@ -41,15 +35,15 @@ export const toCfnKeys = <T extends Record<string, unknown>>(
   });
 
 export const parseDuration = (input: string | number) => {
-  let duration;
+  let duration: Duration;
   if (typeof input === 'number') {
-    duration = moment.duration(input, 'hours');
+    duration = Duration.fromDurationLike({ hours: input });
   } else if (typeof input === 'string') {
-    const regexp = new RegExp(`^(\\d+)(${timeUnits.join('|')})$`);
+    const regexp = new RegExp(`^(\\d+)(${Object.keys(timeUnits).join('|')})$`);
     const match = input.match(regexp);
     if (match) {
       let amount: number = parseInt(match[1], 10);
-      let unit: unitOfTime.Base = match[2] as unitOfTime.Base;
+      let unit = timeUnits[match[2]] as TimeUnit;
 
       // 1 year could be 366 days on or before leap year,
       // which would fail. Swap for 365 days
@@ -58,7 +52,7 @@ export const parseDuration = (input: string | number) => {
         unit = 'days';
       }
 
-      duration = moment.duration(amount, unit || 'hours');
+      duration = Duration.fromDurationLike({ [unit]: amount });
     } else {
       throw new Error(`Could not parse ${input} as a valid duration`);
     }
@@ -72,8 +66,8 @@ export const parseDuration = (input: string | number) => {
   // We accept 24h durations for simplicity of use
   // but fix them to be 25
   // Anything < 24h will be kept to make sure the validation fails later
-  if (duration.asHours() >= 24 && duration.asHours() < 25) {
-    duration = moment.duration(25, 'hours');
+  if (duration.as('hours') >= 24 && duration.as('hours') < 25) {
+    duration = Duration.fromDurationLike({ hours: 25 });
   }
 
   return duration;

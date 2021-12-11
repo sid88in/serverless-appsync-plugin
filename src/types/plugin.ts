@@ -22,6 +22,7 @@ export type AppSyncConfig = {
   logConfig?: {
     loggingRoleArn?: string | IntrinsictFunction;
     level?: 'ERROR' | 'NONE' | 'ALL';
+    logRetentionInDays?: number;
     excludeVerboseContent?: boolean;
   };
   defaultMappingTemplates?: {
@@ -32,7 +33,7 @@ export type AppSyncConfig = {
   functionConfigurationsLocation: string;
   mappingTemplates: Resolver[];
   functionConfigurations: FunctionConfig[];
-  dataSources: DataSource[];
+  dataSources: DataSourceConfig[];
   substitutions: Record<string, string | IntrinsictFunction>;
   xrayEnabled: boolean;
   wafConfig?: WafConfig;
@@ -89,14 +90,16 @@ export type WafRule =
   | 'disableIntrospection'
   | 'throttle';
 
-export type ApiKeyConfig = {
+export type ApiKeyConfigObject = {
   apiKeyId?: string;
-  name?: string;
+  name: string;
   description?: string;
   expiresAfter?: string;
   expiresAt?: string;
   wafRules?: WafRule[];
 };
+
+export type ApiKeyConfig = ApiKeyConfigObject | string;
 
 export type CognitoAuth = {
   authenticationType: 'AMAZON_COGNITO_USER_POOLS';
@@ -141,9 +144,9 @@ export type Resolver = {
   type: string;
   request?: string | false;
   response?: string | false;
-  caching:
+  caching?:
     | {
-        ttl: number;
+        ttl?: number;
         keys?: string[];
       }
     | boolean;
@@ -256,7 +259,7 @@ export type DsNone = {
   type: 'NONE';
 };
 
-export type DataSource = {
+export type DataSourceConfig = {
   name: string;
   description?: string;
 } & (

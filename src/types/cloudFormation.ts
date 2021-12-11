@@ -1,3 +1,5 @@
+import { AWS } from '@serverless/typescript';
+
 export type FnGetAtt = {
   'Fn::GetAtt': string[];
 };
@@ -21,6 +23,9 @@ export type CfnDeltaSyncConfig = {
   DeltaSyncTableName: string | IntrinsictFunction;
   DeltaSyncTableTTL: number;
 };
+
+export type CfnResources = Required<Required<AWS>['resources']>['Resources'];
+export type CfnResource = CfnResources[string];
 
 export type CfnDataSource = {
   Type: 'AWS::AppSync::DataSource';

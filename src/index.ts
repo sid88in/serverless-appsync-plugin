@@ -1,11 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { getConfig } from './get-config';
+import { AppSyncConfigInput, getAppSyncConfig } from './get-config';
 import chalk from 'chalk';
 import { has, isEmpty } from 'ramda';
 import { merge } from 'lodash';
-import { logger, parseDuration, toCfnKeys } from './utils';
-import moment from 'moment';
+import { logger, toCfnKeys } from './utils';
 import {
   CommandsDefinition,
   Hook,
@@ -15,11 +14,9 @@ import {
   ServerlessLogger,
 } from 'types/serverless';
 import {
-  ApiKeyConfig,
   WafRule,
   WafThrottleConfig,
-  DsRelationalDbConfig,
-  DataSource,
+  DataSourceConfig,
   Auth,
   AppSyncConfig,
   LambdaConfig,
@@ -33,6 +30,7 @@ import {
   WafConfig,
   IamStatement,
   WafRuleDisableIntrospection,
+  ApiKeyConfigObject,
 } from './types/plugin';
 import type {
   DescribeStacksInput,
@@ -40,15 +38,13 @@ import type {
 } from 'aws-sdk/clients/cloudformation';
 import {
   IntrinsictFunction,
-  FnJoin,
-  CfnApiKey,
-  CfnDataSource,
   CfnFunctionResolver,
   CfnResolver,
   CfnWafAction,
   CfnWafRule,
   CfnWafRuleStatement,
 } from 'types/cloudFormation';
+import { Api } from './resources/Api';
 
 const RESOURCE_API = 'GraphQlApi';
 const RESOURCE_API_CLOUDWATCH_LOGS_ROLE = 'GraphQlApiCloudWatchLogsRole';
@@ -69,11 +65,12 @@ class ServerlessAppsyncPlugin {
   };
   public readonly hooks: Record<string, Hook>;
   public readonly commands?: CommandsDefinition;
-  private config?: AppSyncConfig[];
+  private config: AppSyncConfigInput[];
   private log: ServerlessLogger;
+  private apis: Api[] = [];
 
   constructor(
-    private serverless: Serverless,
+    public serverless: Serverless,
     private options: Record<string, string>,
     helpers?: ServerlessHelpers,
   ) {
@@ -84,6 +81,16 @@ class ServerlessAppsyncPlugin {
     this.serverless = serverless;
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
+
+    if (!this.serverless.configurationInput.custom.appSync) {
+      throw new Error('AppSync config is not defined');
+    }
+
+    const config = this.serverless.configurationInput.custom.appSync;
+    this.config = Array.isArray(config)
+      ? config
+      : [{ ...config, isSingleConfig: true }];
+
     this.commands = {
       'validate-schema': {
         usage: 'Validates your graphql schema',
@@ -128,64 +135,6 @@ class ServerlessAppsyncPlugin {
     return functionAlias
       ? { 'Fn::Join': [':', [lambdaArn, functionAlias]] }
       : lambdaArn;
-  }
-
-  getDbClusterArn(config: DsRelationalDbConfig['config']) {
-    if (config && config.dbClusterIdentifier) {
-      return this.generateDbClusterArn(
-        config.dbClusterIdentifier,
-        config.region,
-      );
-    }
-
-    throw new Error(
-      'You must specify either `dbClusterIdentifier` for the resolver.',
-    );
-  }
-
-  generateDbClusterArn(
-    dbClusterIdentifier: string | IntrinsictFunction,
-    region: string | IntrinsictFunction,
-  ): FnJoin {
-    return {
-      'Fn::Join': [
-        ':',
-        [
-          'arn',
-          'aws',
-          'rds',
-          region,
-          { Ref: 'AWS::AccountId' },
-          'cluster',
-          dbClusterIdentifier,
-        ],
-      ],
-    };
-  }
-
-  getDeltaSyncConfig(config: DsDynamoDBConfig['config']) {
-    if (config && config.deltaSyncConfig) {
-      if (!config.deltaSyncConfig.deltaSyncTableName) {
-        throw new Error(
-          'You must specify `deltaSyncTableName` for Delta Sync configuration.',
-        );
-      }
-      return {
-        BaseTableTTL:
-          typeof config.deltaSyncConfig.baseTableTTL === 'undefined'
-            ? 0
-            : config.deltaSyncConfig.baseTableTTL,
-        DeltaSyncTableName: config.deltaSyncConfig.deltaSyncTableName,
-        DeltaSyncTableTTL:
-          typeof config.deltaSyncConfig.deltaSyncTableTTL === 'undefined'
-            ? 60
-            : config.deltaSyncConfig.deltaSyncTableTTL,
-      };
-    }
-
-    throw new Error(
-      'You must specify `deltaSyncConfig` for Delta Sync configuration.',
-    );
   }
 
   async gatherData() {
@@ -274,21 +223,22 @@ class ServerlessAppsyncPlugin {
   }
 
   async loadConfig() {
-    if (!this.serverless.configurationInput.custom.appSync) {
-      throw new this.serverless.classes.Error('AppSync config not found');
+    for (let i = 0; i < this.config.length; i++) {
+      const config = await getAppSyncConfig(
+        this.config[i],
+        this.serverless.service.provider,
+        this.serverless.config.servicePath,
+      );
+
+      const api = new Api(config, this);
+      this.apis.push(api);
     }
-    this.config = await getConfig(
-      this.serverless.configurationInput.custom.appSync,
-      this.serverless.service.provider,
-      this.serverless.config.servicePath,
-    );
   }
 
   async validateSchemas() {
     try {
       this.log.info('Validating schema');
-      // Loading the config already validates the schema
-      await this.loadConfig();
+      // todo validate
       this.log.success('GraphQL schema valid');
     } catch (error) {
       this.log.error('GraphQL schema invalid');
@@ -297,8 +247,8 @@ class ServerlessAppsyncPlugin {
   }
 
   addResources() {
-    this.config?.forEach((apiConfig) => {
-      this.addResource(apiConfig);
+    this.apis?.forEach((api) => {
+      console.log(JSON.stringify(api.compile(), null, 2));
     });
   }
 
@@ -320,12 +270,6 @@ class ServerlessAppsyncPlugin {
         `);
     } else {
       merge(this.serverless.service, {
-        resources: { Resources: this.getGraphQlApiEndpointResource(apiConfig) },
-      });
-      merge(this.serverless.service, {
-        resources: { Resources: this.getApiKeyResources(apiConfig) },
-      });
-      merge(this.serverless.service, {
         resources: { Resources: this.getCloudWatchLogsRole(apiConfig) },
       });
       merge(this.serverless.service, {
@@ -344,9 +288,7 @@ class ServerlessAppsyncPlugin {
     merge(this.serverless.service, {
       resources: { Resources: this.getDataSourceIamRolesResouces(apiConfig) },
     });
-    merge(this.serverless.service, {
-      resources: { Resources: this.getDataSourceResources(apiConfig) },
-    });
+
     merge(this.serverless.service, {
       resources: {
         Resources: this.getFunctionConfigurationResources(apiConfig),
@@ -440,84 +382,6 @@ class ServerlessAppsyncPlugin {
     return Provider;
   }
 
-  getGraphQlApiEndpointResource(config: AppSyncConfig) {
-    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-    const logicalIdCloudWatchLogsRole = this.getLogicalId(
-      config,
-      RESOURCE_API_CLOUDWATCH_LOGS_ROLE,
-    );
-
-    if (config.authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
-      if (!config.userPoolConfig.defaultAction) {
-        throw new Error('userPoolConfig defaultAction is required');
-      } else if (
-        ['ALLOW', 'DENY'].indexOf(config.userPoolConfig.defaultAction) === -1
-      ) {
-        throw new Error(
-          'userPoolConfig defaultAction must be either ALLOW or DENY',
-        );
-      }
-    }
-
-    return {
-      [logicalIdGraphQLApi]: {
-        Type: 'AWS::AppSync::GraphQLApi',
-        Properties: {
-          Name: config.name,
-          AuthenticationType: config.authenticationType,
-          AdditionalAuthenticationProviders:
-            config.additionalAuthenticationProviders?.map((provider) =>
-              this.mapAuthenticationProvider(provider, config.region),
-            ),
-          UserPoolConfig:
-            config.authenticationType !== 'AMAZON_COGNITO_USER_POOLS'
-              ? undefined
-              : this.getUserPoolConfig(config, config.region),
-          LambdaAuthorizerConfig:
-            config.authenticationType !== 'AWS_LAMBDA'
-              ? undefined
-              : this.getLambdaAuthorizerConfig(config),
-          OpenIDConnectConfig:
-            config.authenticationType !== 'OPENID_CONNECT'
-              ? undefined
-              : this.getOpenIDConnectConfig(config),
-          LogConfig: !config.logConfig
-            ? undefined
-            : {
-                CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn || {
-                  'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
-                },
-                FieldLogLevel: config.logConfig.level,
-                ExcludeVerboseContent: config.logConfig.excludeVerboseContent,
-              },
-          XrayEnabled: config.xrayEnabled,
-          Tags: !config.tags ? undefined : this.getTagsConfig(config),
-        },
-      },
-      ...this.getLambdaAuthorizerPermission(config, logicalIdGraphQLApi),
-      ...(config.logConfig &&
-        config.logConfig.level && {
-          [`${logicalIdGraphQLApi}LogGroup`]: {
-            Type: 'AWS::Logs::LogGroup',
-            Properties: {
-              LogGroupName: {
-                'Fn::Join': [
-                  '/',
-                  [
-                    '/aws/appsync/apis',
-                    { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-                  ],
-                ],
-              },
-              RetentionInDays:
-                // @ts-ignore
-                this.serverless.service.provider.logRetentionInDays,
-            },
-          },
-        }),
-    };
-  }
-
   getLambdaAuthorizerPermission(
     config: AppSyncConfig,
     logicalIdGraphQLApi: string,
@@ -557,7 +421,7 @@ class ServerlessAppsyncPlugin {
     return false;
   }
 
-  getApiKeys(config: AppSyncConfig): ApiKeyConfig[] {
+  getApiKeys(config: AppSyncConfig): ApiKeyConfigObject[] {
     if (!config.apiKeys) {
       return [
         {
@@ -589,56 +453,6 @@ class ServerlessAppsyncPlugin {
         name,
       };
     });
-  }
-
-  getApiKeyResources(config: AppSyncConfig): Record<string, CfnApiKey> {
-    if (this.hasApiKeyAuth(config)) {
-      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-      const keys = this.getApiKeys(config);
-
-      return keys.reduce((acc, key) => {
-        const { name, expiresAt, expiresAfter, description, apiKeyId } = key;
-
-        let expires;
-        if (expiresAfter) {
-          expires = moment
-            .utc()
-            .startOf('hour')
-            .add(parseDuration(expiresAfter));
-        } else if (expiresAt) {
-          expires = moment.utc(expiresAt);
-        } else {
-          // 1 year by default
-          expires = moment.utc().startOf('hour').add(365, 'days');
-        }
-
-        if (
-          expires.isBefore(moment.utc().add(1, 'day')) ||
-          expires.isAfter(moment.utc().add(1, 'year'))
-        ) {
-          throw new Error(
-            `Api Key ${name} must be valid for a minimum of 1 day and a maximum of 365 days.`,
-          );
-        }
-
-        const logicalIdApiKey = this.getLogicalId(
-          config,
-          RESOURCE_API_KEY + name,
-        );
-        acc[logicalIdApiKey] = {
-          Type: 'AWS::AppSync::ApiKey',
-          Properties: {
-            ApiId: { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-            Description: description || name,
-            Expires: expires.unix(),
-            ApiKeyId: apiKeyId,
-          },
-        };
-
-        return acc;
-      }, {} as Record<string, CfnApiKey>);
-    }
-    return {};
   }
 
   getApiCachingResource(config: AppSyncConfig) {
@@ -796,7 +610,10 @@ class ServerlessAppsyncPlugin {
     }, {});
   }
 
-  getDefaultDataSourcePolicyStatements(ds: DataSource, config: AppSyncConfig) {
+  getDefaultDataSourcePolicyStatements(
+    ds: DataSourceConfig,
+    config: AppSyncConfig,
+  ) {
     const defaultStatements: IamStatement[] = [];
 
     switch (ds.type) {
@@ -957,120 +774,6 @@ class ServerlessAppsyncPlugin {
     }
 
     return defaultStatements;
-  }
-
-  getDataSourceResources(config: AppSyncConfig) {
-    const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-    return config.dataSources.reduce((acc, ds) => {
-      const resource: CfnDataSource = {
-        Type: 'AWS::AppSync::DataSource',
-        Properties: {
-          ApiId: config.apiId || {
-            'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
-          },
-          Name: ds.name,
-          Description: ds.description,
-          Type: ds.type,
-        },
-      };
-
-      // If a serviceRoleArn was given for this DataSource, use it
-      if (has('config', ds) && ds.config.serviceRoleArn) {
-        resource.Properties.ServiceRoleArn = ds.config.serviceRoleArn;
-      } else {
-        const logicalIdDataSourceRole = this.getLogicalId(
-          config,
-          `${this.getDataSourceCfnName(ds.name)}Role`,
-        );
-        // If a Role Resource was generated for this DataSource, use it
-        const resources = this.serverless.service.resources?.Resources;
-        const role = resources?.[logicalIdDataSourceRole];
-        if (role) {
-          resource.Properties.ServiceRoleArn = {
-            'Fn::GetAtt': [logicalIdDataSourceRole, 'Arn'],
-          };
-        }
-      }
-
-      if (ds.type === 'AWS_LAMBDA') {
-        resource.Properties.LambdaConfig = {
-          LambdaFunctionArn: this.getLambdaArn(ds.config),
-        };
-      } else if (ds.type === 'AMAZON_DYNAMODB') {
-        resource.Properties.DynamoDBConfig = {
-          AwsRegion: ds.config.region || config.region,
-          TableName: ds.config.tableName,
-          UseCallerCredentials: !!ds.config.useCallerCredentials,
-          Versioned: !!ds.config.versioned,
-        };
-        if (resource.Properties.DynamoDBConfig.Versioned) {
-          resource.Properties.DynamoDBConfig.DeltaSyncConfig =
-            this.getDeltaSyncConfig(Object.assign({}, ds.config));
-        }
-      } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
-        resource.Properties.ElasticsearchConfig = {
-          AwsRegion: ds.config.region || config.region,
-          Endpoint: ds.config.endpoint || {
-            'Fn::Join': [
-              '',
-              [
-                'https://',
-                { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] },
-              ],
-            ],
-          },
-        };
-      } else if (ds.type === 'RELATIONAL_DATABASE') {
-        resource.Properties.RelationalDatabaseConfig = {
-          RdsHttpEndpointConfig: {
-            AwsRegion: ds.config.region || config.region,
-            DbClusterIdentifier: this.getDbClusterArn(
-              Object.assign({}, ds.config, config),
-            ),
-            DatabaseName: ds.config.databaseName,
-            Schema: ds.config.schema,
-            AwsSecretStoreArn: ds.config.awsSecretStoreArn,
-          },
-          RelationalDatabaseSourceType:
-            ds.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
-        };
-      } else if (ds.type === 'HTTP') {
-        const authConfig = ds.config.authorizationConfig;
-        const authorizationConfig = {
-          ...(authConfig && {
-            AuthorizationConfig: {
-              ...(authConfig.authorizationType && {
-                AuthorizationType: authConfig.authorizationType,
-              }),
-              ...(authConfig.awsIamConfig && {
-                AwsIamConfig: {
-                  SigningRegion:
-                    authConfig.awsIamConfig.signingRegion || config.region,
-                  ...(authConfig.awsIamConfig.signingServiceName && {
-                    SigningServiceName:
-                      authConfig.awsIamConfig.signingServiceName,
-                  }),
-                },
-              }),
-            },
-          }),
-        };
-
-        resource.Properties.HttpConfig = {
-          Endpoint: ds.config.endpoint,
-          ...authorizationConfig,
-        };
-      } else if (ds.type !== 'NONE') {
-        // FIXME: take validation elsewhere
-        // @ts-ignore
-        throw new Error(`Data Source Type not supported: ${ds.type}`);
-      }
-      const logicalIdDataSource = this.getLogicalId(
-        config,
-        this.getDataSourceCfnName(ds.name),
-      );
-      return Object.assign({}, acc, { [logicalIdDataSource]: resource });
-    }, {});
   }
 
   getGraphQLSchemaResource(config: AppSyncConfig) {
