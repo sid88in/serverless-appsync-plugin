@@ -245,8 +245,8 @@ export type DsHttpConfig = {
     serviceRoleArn?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
     authorizationConfig?: {
-      authorizationType?: 'AWS_IAM';
-      awsIamConfig?: {
+      authorizationType: 'AWS_IAM';
+      awsIamConfig: {
         signingRegion: string | IntrinsictFunction;
         signingServiceName?: string | IntrinsictFunction;
       };

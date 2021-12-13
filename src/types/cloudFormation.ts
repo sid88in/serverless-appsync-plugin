@@ -46,10 +46,10 @@ export type CfnDataSource = {
       LambdaFunctionArn: string | IntrinsictFunction;
     };
     DynamoDBConfig?: {
-      Versioned: boolean;
       TableName: string | IntrinsictFunction;
       AwsRegion: string | IntrinsictFunction;
       UseCallerCredentials: boolean;
+      Versioned?: boolean;
       DeltaSyncConfig?: CfnDeltaSyncConfig;
     };
     ElasticsearchConfig?: {

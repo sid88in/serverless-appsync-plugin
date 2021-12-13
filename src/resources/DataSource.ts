@@ -5,7 +5,14 @@ import {
   CfnResources,
   IntrinsictFunction,
 } from 'types/cloudFormation';
-import { DataSourceConfig, IamStatement } from 'types/plugin';
+import {
+  DataSourceConfig,
+  DsDynamoDBConfig,
+  DsElasticSearchConfig,
+  DsHttpConfig,
+  DsRelationalDbConfig,
+  IamStatement,
+} from 'types/plugin';
 import { Api } from './Api';
 
 export class DataSource {
@@ -27,84 +34,22 @@ export class DataSource {
         LambdaFunctionArn: this.api.getLambdaArn(this.config.config),
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
-      resource.Properties.DynamoDBConfig = {
-        AwsRegion: this.config.config.region || { Ref: 'AWS::Region' },
-        TableName: this.config.config.tableName,
-        UseCallerCredentials: !!this.config.config.useCallerCredentials,
-        Versioned: !!this.config.config.versioned,
-      };
-      if (this.config.config.versioned) {
-        resource.Properties.DynamoDBConfig.DeltaSyncConfig =
-          this.getDeltaSyncConfig();
-      }
+      resource.Properties.DynamoDBConfig = this.getDynamoDbConfig(this.config);
     } else if (
       this.config.type === 'AMAZON_ELASTICSEARCH' ||
       this.config.type === 'AMAZON_OPENSEARCH_SERVICE'
     ) {
-      const endpoint =
-        this.config.config.endpoint ||
-        (this.config.config.domain && {
-          'Fn::Join': [
-            '',
-            [
-              'https://',
-              { 'Fn::GetAtt': [this.config.config.domain, 'DomainEndpoint'] },
-            ],
-          ],
-        });
-      // FIXME: can we validate this and make TS infer mutually eclusive types?
-      if (!endpoint) {
-        throw new Error('Specify eithe rendpoint or domain');
-      }
-      resource.Properties.ElasticsearchConfig = {
-        AwsRegion: this.config.config.region || { Ref: 'AWS::Region' },
-        Endpoint: endpoint,
-      };
+      resource.Properties.ElasticsearchConfig = this.getOpenSearchConfig(
+        this.config,
+      );
     } else if (this.config.type === 'RELATIONAL_DATABASE') {
-      resource.Properties.RelationalDatabaseConfig = {
-        RdsHttpEndpointConfig: {
-          AwsRegion: this.config.config.region || { Ref: 'AWS::Region' },
-          DbClusterIdentifier: this.api.generateDbClusterArn(
-            this.config.config,
-          ),
-          DatabaseName: this.config.config.databaseName,
-          Schema: this.config.config.schema,
-          AwsSecretStoreArn: this.config.config.awsSecretStoreArn,
-        },
-        RelationalDatabaseSourceType:
-          this.config.config.relationalDatabaseSourceType ||
-          'RDS_HTTP_ENDPOINT',
-      };
+      resource.Properties.RelationalDatabaseConfig = this.getRelationalDbConfig(
+        this.config,
+      );
     } else if (this.config.type === 'HTTP') {
-      const authConfig = this.config.config.authorizationConfig;
-      const authorizationConfig = {
-        ...(authConfig && {
-          AuthorizationConfig: {
-            ...(authConfig.authorizationType && {
-              AuthorizationType: authConfig.authorizationType,
-            }),
-            ...(authConfig.awsIamConfig && {
-              AwsIamConfig: {
-                SigningRegion: authConfig.awsIamConfig.signingRegion || {
-                  Ref: 'AWS::Region',
-                },
-                ...(authConfig.awsIamConfig.signingServiceName && {
-                  SigningServiceName:
-                    authConfig.awsIamConfig.signingServiceName,
-                }),
-              },
-            }),
-          },
-        }),
-      };
-
-      resource.Properties.HttpConfig = {
-        Endpoint: this.config.config.endpoint,
-        ...authorizationConfig,
-      };
+      resource.Properties.HttpConfig = this.getHttpConfig(this.config);
     } else if (this.config.type !== 'NONE') {
       // FIXME: take validation elsewhere
-      // @ts-ignore
       throw new Error(`Data Source Type not supported: ${this.config.type}`);
     }
 
@@ -132,23 +77,107 @@ export class DataSource {
     return resources;
   }
 
-  getDeltaSyncConfig() {
-    if (this.config.type !== 'AMAZON_DYNAMODB') {
-      return undefined;
-    }
-    // FIXME: move to proper validation
-    if (!this.config.config.deltaSyncConfig) {
-      throw new Error(
-        'You must specify `deltaSyncConfig` for Delta Sync configuration.',
-      );
-    }
-
+  getDynamoDbConfig(
+    config: DsDynamoDBConfig,
+  ): CfnDataSource['Properties']['DynamoDBConfig'] {
     return {
-      BaseTableTTL: this.config.config.deltaSyncConfig.baseTableTTL || 0,
-      DeltaSyncTableName: this.config.config.deltaSyncConfig.deltaSyncTableName,
-      DeltaSyncTableTTL:
-        this.config.config.deltaSyncConfig.deltaSyncTableTTL || 60,
+      AwsRegion: config.config.region || { Ref: 'AWS::Region' },
+      TableName: config.config.tableName,
+      UseCallerCredentials: !!config.config.useCallerCredentials,
+      ...this.getDeltaSyncConfig(config),
     };
+  }
+
+  getDeltaSyncConfig(config: DsDynamoDBConfig) {
+    if (config.config.versioned && config.config.deltaSyncConfig) {
+      return {
+        DeltaSyncConfig: {
+          BaseTableTTL: config.config.deltaSyncConfig.baseTableTTL || 0,
+          DeltaSyncTableName: config.config.deltaSyncConfig.deltaSyncTableName,
+          DeltaSyncTableTTL:
+            config.config.deltaSyncConfig.deltaSyncTableTTL || 60,
+        },
+      };
+    }
+  }
+
+  getOpenSearchConfig(
+    config: DsElasticSearchConfig,
+  ): CfnDataSource['Properties']['ElasticsearchConfig'] {
+    const endpoint =
+      config.config.endpoint ||
+      (config.config.domain && {
+        'Fn::Join': [
+          '',
+          [
+            'https://',
+            { 'Fn::GetAtt': [config.config.domain, 'DomainEndpoint'] },
+          ],
+        ],
+      });
+    // FIXME: can we validate this and make TS infer mutually eclusive types?
+    if (!endpoint) {
+      throw new Error('Specify eithe rendpoint or domain');
+    }
+    return {
+      AwsRegion: config.config.region || { Ref: 'AWS::Region' },
+      Endpoint: endpoint,
+    };
+  }
+
+  getRelationalDbConfig(
+    config: DsRelationalDbConfig,
+  ): CfnDataSource['Properties']['RelationalDatabaseConfig'] {
+    return {
+      RdsHttpEndpointConfig: {
+        AwsRegion: config.config.region || { Ref: 'AWS::Region' },
+        DbClusterIdentifier: {
+          'Fn::Join': [
+            ':',
+            [
+              'arn',
+              'aws',
+              'rds',
+              config.config.region || { Ref: 'AWS::Region' },
+              { Ref: 'AWS::AccountId' },
+              'cluster',
+              config.config.dbClusterIdentifier,
+            ],
+          ],
+        },
+        DatabaseName: config.config.databaseName,
+        Schema: config.config.schema,
+        AwsSecretStoreArn: config.config.awsSecretStoreArn,
+      },
+      RelationalDatabaseSourceType:
+        config.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
+    };
+  }
+
+  getHttpConfig(
+    config: DsHttpConfig,
+  ): CfnDataSource['Properties']['HttpConfig'] {
+    return {
+      Endpoint: config.config.endpoint,
+      ...this.getHttpAuthorizationConfig(config),
+    };
+  }
+
+  getHttpAuthorizationConfig(config: DsHttpConfig) {
+    const authConfig = config.config.authorizationConfig;
+    if (authConfig) {
+      return {
+        AuthorizationConfig: {
+          AuthorizationType: authConfig.authorizationType,
+          AwsIamConfig: {
+            SigningRegion: authConfig.awsIamConfig.signingRegion || {
+              Ref: 'AWS::Region',
+            },
+            SigningServiceName: authConfig.awsIamConfig.signingServiceName,
+          },
+        },
+      };
+    }
   }
 
   compileDataSourceIamRole(): CfnResources | undefined {

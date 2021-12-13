@@ -75,7 +75,150 @@ describe('DataSource', () => {
                 },
                 "TableName": "data",
                 "UseCallerCredentials": false,
-                "Versioned": false,
+              },
+              "Name": "dynamo",
+              "ServiceRoleArn": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsdynamoRole",
+                  "Arn",
+                ],
+              },
+              "Type": "AMAZON_DYNAMODB",
+            },
+            "Type": "AWS::AppSync::DataSource",
+          },
+          "GraphQlDsdynamoRole": Object {
+            "Properties": Object {
+              "AssumeRolePolicyDocument": Object {
+                "Statement": Array [
+                  Object {
+                    "Action": Array [
+                      "sts:AssumeRole",
+                    ],
+                    "Effect": "Allow",
+                    "Principal": Object {
+                      "Service": Array [
+                        "appsync.amazonaws.com",
+                      ],
+                    },
+                  },
+                ],
+                "Version": "2012-10-17",
+              },
+              "Policies": Array [
+                Object {
+                  "PolicyDocument": Object {
+                    "Statement": Array [
+                      Object {
+                        "Action": Array [
+                          "dynamodb:DeleteItem",
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:BatchGetItem",
+                          "dynamodb:BatchWriteItem",
+                          "dynamodb:ConditionCheckItem",
+                        ],
+                        "Effect": "Allow",
+                        "Resource": Array [
+                          Object {
+                            "Fn::Join": Array [
+                              ":",
+                              Array [
+                                "arn",
+                                "aws",
+                                "dynamodb",
+                                Object {
+                                  "Ref": "AWS::Region",
+                                },
+                                Object {
+                                  "Ref": "AWS::AccountId",
+                                },
+                                "table/data",
+                              ],
+                            ],
+                          },
+                          Object {
+                            "Fn::Join": Array [
+                              "/",
+                              Array [
+                                Object {
+                                  "Fn::Join": Array [
+                                    ":",
+                                    Array [
+                                      "arn",
+                                      "aws",
+                                      "dynamodb",
+                                      Object {
+                                        "Ref": "AWS::Region",
+                                      },
+                                      Object {
+                                        "Ref": "AWS::AccountId",
+                                      },
+                                      "table/data",
+                                    ],
+                                  ],
+                                },
+                                "*",
+                              ],
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                    "Version": "2012-10-17",
+                  },
+                  "PolicyName": "AppSync-Datasource-dynamo",
+                },
+              ],
+            },
+            "Type": "AWS::IAM::Role",
+          },
+        }
+      `);
+    });
+
+    it('should generate Resource with default deltaSync', () => {
+      const api = new Api(config, plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_DYNAMODB',
+        name: 'dynamo',
+        description: 'My dynamo table',
+        config: {
+          tableName: 'data',
+          versioned: true,
+          deltaSyncConfig: {
+            deltaSyncTableName: 'syncTable',
+            baseTableTTL: 60,
+            deltaSyncTableTTL: 120,
+          },
+        },
+      });
+
+      expect(dataSource.compile()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlDsdynamo": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Description": "My dynamo table",
+              "DynamoDBConfig": Object {
+                "AwsRegion": Object {
+                  "Ref": "AWS::Region",
+                },
+                "DeltaSyncConfig": Object {
+                  "BaseTableTTL": 60,
+                  "DeltaSyncTableName": "syncTable",
+                  "DeltaSyncTableTTL": 120,
+                },
+                "TableName": "data",
+                "UseCallerCredentials": false,
               },
               "Name": "dynamo",
               "ServiceRoleArn": Object {
@@ -208,7 +351,6 @@ describe('DataSource', () => {
                 "AwsRegion": "us-east-2",
                 "TableName": "data",
                 "UseCallerCredentials": false,
-                "Versioned": false,
               },
               "Name": "dynamo",
               "ServiceRoleArn": Object {
@@ -605,6 +747,109 @@ describe('DataSource', () => {
               "Type": "HTTP",
             },
             "Type": "AWS::AppSync::DataSource",
+          },
+        }
+      `);
+    });
+
+    it('should generate Resource with IAM authorization config', () => {
+      const api = new Api(config, plugin);
+      const dataSource = new DataSource(api, {
+        type: 'HTTP',
+        name: 'myEndpoint',
+        description: 'My HTTP resolver',
+        config: {
+          endpoint: 'https://events.us-east-1.amazonaws.com/',
+          authorizationConfig: {
+            authorizationType: 'AWS_IAM',
+            awsIamConfig: {
+              signingRegion: { Ref: 'AWS::Region' },
+              signingServiceName: 'events',
+            },
+          },
+          iamRoleStatements: [
+            {
+              Effect: 'Allow',
+              Action: ['events:PutEvents'],
+              Resource: ['*'],
+            },
+          ],
+        },
+      });
+
+      expect(dataSource.compile()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlDsmyEndpoint": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Description": "My HTTP resolver",
+              "HttpConfig": Object {
+                "AuthorizationConfig": Object {
+                  "AuthorizationType": "AWS_IAM",
+                  "AwsIamConfig": Object {
+                    "SigningRegion": Object {
+                      "Ref": "AWS::Region",
+                    },
+                    "SigningServiceName": "events",
+                  },
+                },
+                "Endpoint": "https://events.us-east-1.amazonaws.com/",
+              },
+              "Name": "myEndpoint",
+              "ServiceRoleArn": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyEndpointRole",
+                  "Arn",
+                ],
+              },
+              "Type": "HTTP",
+            },
+            "Type": "AWS::AppSync::DataSource",
+          },
+          "GraphQlDsmyEndpointRole": Object {
+            "Properties": Object {
+              "AssumeRolePolicyDocument": Object {
+                "Statement": Array [
+                  Object {
+                    "Action": Array [
+                      "sts:AssumeRole",
+                    ],
+                    "Effect": "Allow",
+                    "Principal": Object {
+                      "Service": Array [
+                        "appsync.amazonaws.com",
+                      ],
+                    },
+                  },
+                ],
+                "Version": "2012-10-17",
+              },
+              "Policies": Array [
+                Object {
+                  "PolicyDocument": Object {
+                    "Statement": Array [
+                      Object {
+                        "Action": Array [
+                          "events:PutEvents",
+                        ],
+                        "Effect": "Allow",
+                        "Resource": Array [
+                          "*",
+                        ],
+                      },
+                    ],
+                    "Version": "2012-10-17",
+                  },
+                  "PolicyName": "AppSync-Datasource-myEndpoint",
+                },
+              ],
+            },
+            "Type": "AWS::IAM::Role",
           },
         }
       `);
