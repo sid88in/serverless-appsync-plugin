@@ -487,23 +487,6 @@ export class Api {
     );
   }
 
-  generateDbClusterArn(config: DsRelationalDbConfig['config']): FnJoin {
-    return {
-      'Fn::Join': [
-        ':',
-        [
-          'arn',
-          'aws',
-          'rds',
-          config.region || { Ref: 'AWS::Region' },
-          { Ref: 'AWS::AccountId' },
-          'cluster',
-          config.dbClusterIdentifier,
-        ],
-      ],
-    };
-  }
-
   getUserPoolConfig(config: CognitoAuth) {
     const userPoolConfig = {
       AwsRegion: config.userPoolConfig.awsRegion || this.config.region,
