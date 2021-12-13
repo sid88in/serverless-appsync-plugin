@@ -61,8 +61,8 @@ export type CfnDataSource = {
       RdsHttpEndpointConfig?: {
         AwsRegion: string | IntrinsictFunction;
         DbClusterIdentifier: string | IntrinsictFunction;
-        DatabaseName: string | IntrinsictFunction;
-        Schema: string | IntrinsictFunction;
+        DatabaseName?: string | IntrinsictFunction;
+        Schema?: string | IntrinsictFunction;
         AwsSecretStoreArn: string | IntrinsictFunction;
       };
     };

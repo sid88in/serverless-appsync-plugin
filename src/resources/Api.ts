@@ -4,7 +4,6 @@ import fs from 'fs';
 import { merge, set } from 'lodash';
 import { has } from 'ramda';
 import {
-  CfnDataSource,
   CfnFunctionResolver,
   CfnResolver,
   CfnResource,
@@ -18,10 +17,8 @@ import {
   Auth,
   CognitoAuth,
   DataSourceConfig,
-  DsDynamoDBConfig,
   DsRelationalDbConfig,
   FunctionConfig,
-  IamStatement,
   LambdaAuth,
   LambdaConfig,
   OidcAuth,
@@ -30,9 +27,10 @@ import {
 import { parseDuration } from 'utils';
 import { DateTime } from 'luxon';
 import { Naming } from './Naming';
+import { DataSource } from './DataSource';
 
 export class Api {
-  private naming: Naming;
+  public naming: Naming;
 
   constructor(
     private config: AppSyncConfig,
@@ -311,191 +309,9 @@ export class Api {
     return {};
   }
 
-  compileDataSource(datasource: DataSourceConfig): CfnResources {
-    const resource: CfnDataSource = {
-      Type: 'AWS::AppSync::DataSource',
-      Properties: {
-        ApiId: this.getApiId(),
-        Name: datasource.name,
-        Description: datasource.description,
-        Type: datasource.type,
-      },
-    };
-
-    if (datasource.type === 'AWS_LAMBDA') {
-      resource.Properties.LambdaConfig = {
-        LambdaFunctionArn: this.getLambdaArn(datasource.config),
-      };
-    } else if (datasource.type === 'AMAZON_DYNAMODB') {
-      resource.Properties.DynamoDBConfig = {
-        AwsRegion: datasource.config.region || { Ref: 'AWS::Region' },
-        TableName: datasource.config.tableName,
-        UseCallerCredentials: !!datasource.config.useCallerCredentials,
-        Versioned: !!datasource.config.versioned,
-      };
-      if (datasource.config.versioned) {
-        resource.Properties.DynamoDBConfig.DeltaSyncConfig =
-          this.getDeltaSyncConfig(Object.assign({}, datasource.config));
-      }
-    } else if (datasource.type === 'AMAZON_ELASTICSEARCH') {
-      resource.Properties.ElasticsearchConfig = {
-        AwsRegion: datasource.config.region || { Ref: 'AWS::Region' },
-        Endpoint: datasource.config.endpoint || {
-          'Fn::Join': [
-            '',
-            [
-              'https://',
-              { 'Fn::GetAtt': [datasource.config.domain, 'DomainEndpoint'] },
-            ],
-          ],
-        },
-      };
-    } else if (datasource.type === 'RELATIONAL_DATABASE') {
-      resource.Properties.RelationalDatabaseConfig = {
-        RdsHttpEndpointConfig: {
-          AwsRegion: datasource.config.region || { Ref: 'AWS::Region' },
-          DbClusterIdentifier: this.generateDbClusterArn(datasource.config),
-          DatabaseName: datasource.config.databaseName,
-          Schema: datasource.config.schema,
-          AwsSecretStoreArn: datasource.config.awsSecretStoreArn,
-        },
-        RelationalDatabaseSourceType:
-          datasource.config.relationalDatabaseSourceType || 'RDS_HTTP_ENDPOINT',
-      };
-    } else if (datasource.type === 'HTTP') {
-      const authConfig = datasource.config.authorizationConfig;
-      const authorizationConfig = {
-        ...(authConfig && {
-          AuthorizationConfig: {
-            ...(authConfig.authorizationType && {
-              AuthorizationType: authConfig.authorizationType,
-            }),
-            ...(authConfig.awsIamConfig && {
-              AwsIamConfig: {
-                SigningRegion: authConfig.awsIamConfig.signingRegion || {
-                  Ref: 'AWS::Region',
-                },
-                ...(authConfig.awsIamConfig.signingServiceName && {
-                  SigningServiceName:
-                    authConfig.awsIamConfig.signingServiceName,
-                }),
-              },
-            }),
-          },
-        }),
-      };
-
-      resource.Properties.HttpConfig = {
-        Endpoint: datasource.config.endpoint,
-        ...authorizationConfig,
-      };
-    } else if (datasource.type !== 'NONE') {
-      // FIXME: take validation elsewhere
-      // @ts-ignore
-      throw new Error(`Data Source Type not supported: ${datasource.type}`);
-    }
-
-    const logicalId = this.naming.getDataSourceLogicalId(datasource.name);
-
-    const resources = {
-      [logicalId]: resource,
-    };
-
-    if (has('config', datasource) && datasource.config.serviceRoleArn) {
-      resource.Properties.ServiceRoleArn = datasource.config.serviceRoleArn;
-    } else {
-      const role = this.compileDataSourceIamRole(datasource);
-      if (role) {
-        const roleLogicalId = this.naming.getDataSourceRoleLogicalId(
-          datasource.name,
-        );
-        resource.Properties.ServiceRoleArn = {
-          'Fn::GetAtt': [roleLogicalId, 'Arn'],
-        };
-        merge(resources, role);
-      }
-    }
-
-    return resources;
-  }
-
-  getDeltaSyncConfig(config: DsDynamoDBConfig['config']) {
-    // FIXME: move to proper validation
-    if (!config.deltaSyncConfig) {
-      throw new Error(
-        'You must specify `deltaSyncConfig` for Delta Sync configuration.',
-      );
-    }
-
-    return {
-      BaseTableTTL: config.deltaSyncConfig.baseTableTTL || 0,
-      DeltaSyncTableName: config.deltaSyncConfig.deltaSyncTableName,
-      DeltaSyncTableTTL: config.deltaSyncConfig.deltaSyncTableTTL || 60,
-    };
-  }
-
-  compileDataSourceIamRole(
-    datasource: DataSourceConfig,
-  ): CfnResources | undefined {
-    if (has('config', datasource) && datasource.config.serviceRoleArn) {
-      return;
-    }
-
-    let statements: IamStatement[] | undefined;
-
-    if (
-      datasource.type === 'HTTP' &&
-      datasource.config &&
-      datasource.config.authorizationConfig &&
-      datasource.config.authorizationConfig.authorizationType === 'AWS_IAM' &&
-      !datasource.config.iamRoleStatements
-    ) {
-      throw new Error(
-        `${datasource.name}: When using AWS_IAM signature, you must also specify the required iamRoleStatements`,
-      );
-    }
-
-    if (has('config', datasource) && datasource.config.iamRoleStatements) {
-      statements = datasource.config.iamRoleStatements;
-    } else {
-      // Try to generate default statements for the given DataSource.
-      statements = this.getDefaultDataSourcePolicyStatements(datasource);
-    }
-
-    if (!statements || statements.length === 0) {
-      return;
-    }
-
-    const logicalId = this.naming.getDataSourceRoleLogicalId(datasource.name);
-
-    return {
-      [logicalId]: {
-        Type: 'AWS::IAM::Role',
-        Properties: {
-          AssumeRolePolicyDocument: {
-            Version: '2012-10-17',
-            Statement: [
-              {
-                Effect: 'Allow',
-                Principal: {
-                  Service: ['appsync.amazonaws.com'],
-                },
-                Action: ['sts:AssumeRole'],
-              },
-            ],
-          },
-          Policies: [
-            {
-              PolicyName: `AppSync-Datasource-${datasource.name}`,
-              PolicyDocument: {
-                Version: '2012-10-17',
-                Statement: statements,
-              },
-            },
-          ],
-        },
-      },
-    };
+  compileDataSource(dsConfig: DataSourceConfig): CfnResources {
+    const dataSource = new DataSource(this, dsConfig);
+    return dataSource.compile();
   }
 
   compileResolver(resolver: Resolver): CfnResources {
@@ -686,160 +502,6 @@ export class Api {
         ],
       ],
     };
-  }
-
-  getDefaultDataSourcePolicyStatements(
-    ds: DataSourceConfig,
-  ): IamStatement[] | undefined {
-    switch (ds.type) {
-      case 'AWS_LAMBDA': {
-        const lambdaArn = this.getLambdaArn(ds.config);
-
-        // Allow "invoke" for the Datasource's function and its aliases/versions
-        const defaultLambdaStatement: IamStatement = {
-          Action: ['lambda:invokeFunction'],
-          Effect: 'Allow',
-          Resource: [lambdaArn, { 'Fn::Join': [':', [lambdaArn, '*']] }],
-        };
-
-        return [defaultLambdaStatement];
-      }
-      case 'AMAZON_DYNAMODB': {
-        const dynamoDbResourceArn: IntrinsictFunction = {
-          'Fn::Join': [
-            ':',
-            [
-              'arn',
-              'aws',
-              'dynamodb',
-              ds.config.region || { Ref: 'AWS::Region' },
-              { Ref: 'AWS::AccountId' },
-              `table/${ds.config.tableName}`,
-            ],
-          ],
-        };
-
-        // Allow any action on the Datasource's table
-        const defaultDynamoDBStatement: IamStatement = {
-          Action: [
-            'dynamodb:DeleteItem',
-            'dynamodb:GetItem',
-            'dynamodb:PutItem',
-            'dynamodb:Query',
-            'dynamodb:Scan',
-            'dynamodb:UpdateItem',
-            'dynamodb:BatchGetItem',
-            'dynamodb:BatchWriteItem',
-            'dynamodb:ConditionCheckItem',
-          ],
-          Effect: 'Allow',
-          Resource: [
-            dynamoDbResourceArn,
-            { 'Fn::Join': ['/', [dynamoDbResourceArn, '*']] },
-          ],
-        };
-
-        return [defaultDynamoDBStatement];
-      }
-      case 'RELATIONAL_DATABASE': {
-        const dDbResourceArn: IntrinsictFunction = {
-          'Fn::Join': [
-            ':',
-            [
-              'arn',
-              'aws',
-              'rds',
-              ds.config.region || { Ref: 'AWS::Region' },
-              { Ref: 'AWS::AccountId' },
-              'cluster',
-              ds.config.dbClusterIdentifier,
-            ],
-          ],
-        };
-        const dbStatement: IamStatement = {
-          Effect: 'Allow',
-          Action: [
-            'rds-data:DeleteItems',
-            'rds-data:ExecuteSql',
-            'rds-data:ExecuteStatement',
-            'rds-data:GetItems',
-            'rds-data:InsertItems',
-            'rds-data:UpdateItems',
-          ],
-          Resource: [
-            dDbResourceArn,
-            { 'Fn::Join': [':', [dDbResourceArn, '*']] },
-          ],
-        };
-
-        const secretManagerStatement: IamStatement = {
-          Effect: 'Allow',
-          Action: ['secretsmanager:GetSecretValue'],
-          Resource: [
-            ds.config.awsSecretStoreArn,
-            { 'Fn::Join': [':', [ds.config.awsSecretStoreArn, '*']] },
-          ],
-        };
-
-        return [dbStatement, secretManagerStatement];
-      }
-      case 'AMAZON_ELASTICSEARCH': {
-        let arn;
-        if (ds.config.domain) {
-          arn = {
-            'Fn::Join': [
-              '/',
-              [{ 'Fn::GetAtt': [ds.config.domain, 'Arn'] }, '*'],
-            ],
-          };
-        } else if (
-          ds.config.endpoint &&
-          typeof ds.config.endpoint === 'string'
-        ) {
-          const rx =
-            /^https:\/\/([a-z0-9-]+\.\w{2}-[a-z]+-\d\.es\.amazonaws\.com)$/;
-          const result = rx.exec(ds.config.endpoint);
-          if (!result) {
-            throw new Error(
-              `Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`,
-            );
-          }
-          arn = {
-            'Fn::Join': [
-              ':',
-              [
-                'arn',
-                'aws',
-                'es',
-                ds.config.region || { Ref: 'AWS::Region' },
-                { Ref: 'AWS::AccountId' },
-                `domain/${result[1]}/*`,
-              ],
-            ],
-          };
-        } else {
-          throw new Error(
-            `Could not determine the Arn for dataSource '${ds.name}`,
-          );
-        }
-
-        // Allow any action on the Datasource's ES endpoint
-        const defaultESStatement: IamStatement = {
-          Action: [
-            'es:ESHttpDelete',
-            'es:ESHttpGet',
-            'es:ESHttpHead',
-            'es:ESHttpPost',
-            'es:ESHttpPut',
-            'es:ESHttpPatch',
-          ],
-          Effect: 'Allow',
-          Resource: [arn],
-        };
-
-        return [defaultESStatement];
-      }
-    }
   }
 
   getUserPoolConfig(config: CognitoAuth) {

@@ -185,7 +185,7 @@ export type DsDynamoDBConfig = {
     tableName: string | IntrinsictFunction;
     useCallerCredentials?: boolean;
     serviceRoleArn?: string | IntrinsictFunction;
-    region: string | IntrinsictFunction;
+    region?: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
     versioned?: boolean;
     deltaSyncConfig?: {
@@ -199,24 +199,24 @@ export type DsDynamoDBConfig = {
 export type DsRelationalDbConfig = {
   type: 'RELATIONAL_DATABASE';
   config: {
-    region: string;
+    region?: string;
     relationalDatabaseSourceType?: 'RDS_HTTP_ENDPOINT';
     serviceRoleArn?: string | IntrinsictFunction;
     dbClusterIdentifier: string | IntrinsictFunction;
-    databaseName: string | IntrinsictFunction;
-    schema: string;
+    databaseName?: string | IntrinsictFunction;
+    schema?: string;
     awsSecretStoreArn: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
 
 export type DsElasticSearchConfig = {
-  type: 'AMAZON_ELASTICSEARCH';
+  type: 'AMAZON_ELASTICSEARCH' | 'AMAZON_OPENSEARCH_SERVICE';
   config: {
-    domain: string;
-    region: string | IntrinsictFunction;
+    domain?: string;
+    endpoint?: string | IntrinsictFunction;
+    region?: string | IntrinsictFunction;
     serviceRoleArn?: string | IntrinsictFunction;
-    endpoint: string | IntrinsictFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
