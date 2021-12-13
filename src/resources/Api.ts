@@ -5,6 +5,7 @@ import { merge, set } from 'lodash';
 import { has } from 'ramda';
 import {
   CfnDataSource,
+  CfnFunctionResolver,
   CfnResolver,
   CfnResource,
   CfnResources,
@@ -19,6 +20,7 @@ import {
   DataSourceConfig,
   DsDynamoDBConfig,
   DsRelationalDbConfig,
+  FunctionConfig,
   IamStatement,
   LambdaAuth,
   LambdaConfig,
@@ -40,7 +42,6 @@ export class Api {
   }
 
   compile() {
-    // function config
     // Waf
     // Output variables
 
@@ -57,6 +58,10 @@ export class Api {
 
     this.config.dataSources.forEach((ds) => {
       merge(resources, this.compileDataSource(ds));
+    });
+
+    this.config.functionConfigurations.forEach((func) => {
+      merge(resources, this.compilePipelineFunctionResource(func));
     });
 
     this.config.mappingTemplates.forEach((resolver) => {
@@ -494,7 +499,6 @@ export class Api {
   }
 
   compileResolver(resolver: Resolver): CfnResources {
-    console.log(resolver);
     let Properties: CfnResolver['Properties'] = {
       ApiId: this.getApiId(),
       TypeName: resolver.type,
@@ -571,7 +575,7 @@ export class Api {
         PipelineConfig: {
           Functions: resolver.functions.map((functionAttributeName) => {
             const logicalIdDataSource =
-              this.naming.getPipelineResolverLogicalId(functionAttributeName);
+              this.naming.getPipelineFunctionLogicalId(functionAttributeName);
             return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
           }),
         },
@@ -599,6 +603,60 @@ export class Api {
       [logicalIdResolver]: {
         Type: 'AWS::AppSync::Resolver',
         DependsOn: [logicalIdGraphQLSchema],
+        Properties,
+      },
+    };
+  }
+
+  compilePipelineFunctionResource(config: FunctionConfig): CfnResources {
+    const functionConfigLocation = this.config.functionConfigurationsLocation;
+
+    const logicalId = this.naming.getPipelineFunctionLogicalId(config.name);
+    const logicalIdDataSource = this.naming.getDataSourceLogicalId(
+      config.dataSource,
+    );
+
+    const Properties: CfnFunctionResolver['Properties'] = {
+      ApiId: this.getApiId(),
+      Name: config.name,
+      DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+      Description: config.description,
+      FunctionVersion: '2018-05-29',
+    };
+
+    const requestTemplate = has('request')(config)
+      ? config.request
+      : this.config.defaultMappingTemplates?.request;
+    if (requestTemplate !== false) {
+      const reqTemplPath = path.join(
+        functionConfigLocation,
+        requestTemplate || `${config.name}.request.vtl`,
+      );
+      const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
+      Properties.RequestMappingTemplate = this.processTemplateSubstitutions(
+        requestTemplateContent,
+        config.substitutions,
+      );
+    }
+
+    const responseTemplate = has('response')(config)
+      ? config.response
+      : this.config.defaultMappingTemplates?.response;
+    if (responseTemplate !== false) {
+      const respTemplPath = path.join(
+        functionConfigLocation,
+        responseTemplate || `${config.name}.response.vtl`,
+      );
+      const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
+      Properties.ResponseMappingTemplate = this.processTemplateSubstitutions(
+        responseTemplateContent,
+        config.substitutions,
+      );
+    }
+
+    return {
+      [logicalId]: {
+        Type: 'AWS::AppSync::FunctionConfiguration',
         Properties,
       },
     };

@@ -57,7 +57,7 @@ export class Naming {
     return this.getLogicalId(`GraphQlResolver${type}${field}`);
   }
 
-  getPipelineResolverLogicalId(name: string) {
+  getPipelineFunctionLogicalId(name: string) {
     return this.getLogicalId(`GraphQlFunctionConfiguration${name}`);
   }
 }

@@ -290,11 +290,6 @@ class ServerlessAppsyncPlugin {
     });
 
     merge(this.serverless.service, {
-      resources: {
-        Resources: this.getFunctionConfigurationResources(apiConfig),
-      },
-    });
-    merge(this.serverless.service, {
       resources: { Resources: this.getResolverResources(apiConfig) },
     });
     merge(this.serverless.service, {
@@ -791,74 +786,6 @@ class ServerlessAppsyncPlugin {
         },
       },
     };
-  }
-  getFunctionConfigurationResources(
-    config: AppSyncConfig,
-  ): CfnFunctionResolver {
-    const flattenedFunctionConfigurationResources =
-      config.functionConfigurations.reduce(
-        (accumulator, currentValue) => accumulator.concat(currentValue),
-        [] as FunctionConfig[],
-      );
-    const functionConfigLocation = config.functionConfigurationsLocation;
-    return flattenedFunctionConfigurationResources.reduce((acc, tpl) => {
-      const logicalIdFunctionConfiguration = this.getLogicalId(
-        config,
-        `GraphQlFunctionConfiguration${this.getCfnName(tpl.name)}`,
-      );
-      const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);
-      const logicalIdDataSource = this.getLogicalId(
-        config,
-        this.getDataSourceCfnName(tpl.dataSource),
-      );
-
-      const Properties: CfnFunctionResolver['Properties'] = {
-        ApiId: config.apiId || { 'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'] },
-        Name: this.getCfnName(tpl.name),
-        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
-        Description: tpl.description,
-        FunctionVersion: '2018-05-29',
-      };
-
-      const requestTemplate = has('request')(tpl)
-        ? tpl.request
-        : config.defaultMappingTemplates?.request;
-      if (requestTemplate !== false) {
-        const reqTemplPath = path.join(
-          functionConfigLocation,
-          requestTemplate || `${tpl.name}.request.vtl`,
-        );
-        const requestTemplateContent = fs.readFileSync(reqTemplPath, 'utf8');
-        Properties.RequestMappingTemplate = this.processTemplate(
-          requestTemplateContent,
-          config,
-          tpl.substitutions,
-        );
-      }
-
-      const responseTemplate = has('response')(tpl)
-        ? tpl.response
-        : config.defaultMappingTemplates?.response;
-      if (responseTemplate !== false) {
-        const respTemplPath = path.join(
-          functionConfigLocation,
-          responseTemplate || `${tpl.name}.response.vtl`,
-        );
-        const responseTemplateContent = fs.readFileSync(respTemplPath, 'utf8');
-        Properties.ResponseMappingTemplate = this.processTemplate(
-          responseTemplateContent,
-          config,
-          tpl.substitutions,
-        );
-      }
-
-      return Object.assign({}, acc, {
-        [logicalIdFunctionConfiguration]: {
-          Type: 'AWS::AppSync::FunctionConfiguration',
-          Properties,
-        },
-      });
-    }, {} as CfnFunctionResolver);
   }
 
   getResolverResources(config: AppSyncConfig): CfnResolver {

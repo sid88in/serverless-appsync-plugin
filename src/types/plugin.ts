@@ -174,9 +174,8 @@ export type FunctionConfig = {
   name: string;
   dataSource: string;
   description?: string;
-  datasource: string;
-  request: string | false;
-  response: string | false;
+  request?: string | false;
+  response?: string | false;
   substitutions?: Record<string, string | IntrinsictFunction>;
 };
 
