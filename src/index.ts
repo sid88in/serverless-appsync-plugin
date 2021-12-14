@@ -23,9 +23,7 @@ import {
   CognitoAuth,
   OidcAuth,
   LambdaAuth,
-  DsDynamoDBConfig,
-  FunctionConfig,
-  Resolver,
+  ResolverConfig,
   WafAction,
   WafConfig,
   IamStatement,
@@ -38,7 +36,6 @@ import type {
 } from 'aws-sdk/clients/cloudformation';
 import {
   IntrinsictFunction,
-  CfnFunctionResolver,
   CfnResolver,
   CfnWafAction,
   CfnWafRule,
@@ -289,9 +286,6 @@ class ServerlessAppsyncPlugin {
       resources: { Resources: this.getDataSourceIamRolesResouces(apiConfig) },
     });
 
-    merge(this.serverless.service, {
-      resources: { Resources: this.getResolverResources(apiConfig) },
-    });
     merge(this.serverless.service, {
       resources: { Outputs: this.getGraphQlApiOutputs(apiConfig) },
     });
@@ -789,10 +783,10 @@ class ServerlessAppsyncPlugin {
   }
 
   getResolverResources(config: AppSyncConfig): CfnResolver {
-    const flattenedMappingTemplates: Resolver[] =
+    const flattenedMappingTemplates: ResolverConfig[] =
       config.mappingTemplates.reduce(
         (accumulator, currentValue) => accumulator.concat(currentValue),
-        [] as Resolver[],
+        [] as ResolverConfig[],
       );
     return flattenedMappingTemplates.reduce((acc, tpl) => {
       const logicalIdGraphQLApi = this.getLogicalId(config, RESOURCE_API);

@@ -1,5 +1,5 @@
-import { Api } from '../src/resources/Api';
-import { AppSyncConfig } from '../src/types/plugin';
+import { Api } from 'resources/Api';
+import { AppSyncConfig } from 'types/plugin';
 import Serverless from 'serverless/lib/Serverless';
 import { noop, set } from 'lodash';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';

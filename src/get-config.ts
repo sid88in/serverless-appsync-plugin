@@ -9,7 +9,7 @@ import {
   Auth,
   DataSourceConfig,
   FunctionConfig,
-  Resolver,
+  ResolverConfig,
   WafRule,
 } from './types/plugin';
 import { AWS } from '@serverless/typescript';
@@ -42,9 +42,7 @@ const mergeTypes = (types) => {
 
 const buildAppSyncSchema = (schemaFiles: string[]) => {
   // Merge files
-  const mergedSchema = mergeTypes(schemaFiles.map(readSchemaFile))
-    .replace(/ *#+(.*)/g, '"""\n$1\n"""')
-    .replace(/"""\n"""\n/, '');
+  const mergedSchema = mergeTypes(schemaFiles.map(readSchemaFile));
 
   return convertAppSyncSchemas(mergedSchema);
 };
@@ -75,7 +73,7 @@ export type AppSyncConfigInput = {
   };
   mappingTemplatesLocation?: string;
   functionConfigurationsLocation?: string;
-  mappingTemplates?: Resolver[];
+  mappingTemplates?: ResolverConfig[];
   functionConfigurations?: FunctionConfig[];
   dataSources:
     | (DataSourceConfig | Record<string, DataSourceConfig>)[]
@@ -159,9 +157,11 @@ export const getAppSyncConfig = async (
     (accumulator, currentValue) => accumulator.concat(currentValue),
     [] as FunctionConfig[],
   );
-  const mappingTemplates: Resolver[] = (config.mappingTemplates || []).reduce(
+  const mappingTemplates: ResolverConfig[] = (
+    config.mappingTemplates || []
+  ).reduce(
     (accumulator, currentValue) => accumulator.concat(currentValue),
-    [] as Resolver[],
+    [] as ResolverConfig[],
   );
 
   const toAbsolutePosixPath = (filePath: string) =>

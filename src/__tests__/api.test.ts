@@ -1,11 +1,11 @@
 import fs from 'fs';
-import ServerlessAppsyncPlugin from '../src';
-import { Api } from '../src/resources/Api';
-import { AppSyncConfig } from '../src/types/plugin';
+import { Api } from 'resources/Api';
+import { AppSyncConfig } from 'types/plugin';
 import Serverless from 'serverless/lib/Serverless';
 import { noop, set } from 'lodash';
-import { logger } from '../src/utils';
+import { logger } from 'utils';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
+import ServerlessAppsyncPlugin from 'index';
 
 // 2020-12-09T16:24:22+00:00
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
@@ -582,12 +582,7 @@ describe('Api', () => {
                     "ApiId",
                   ],
                 },
-                "DataSourceName": Object {
-                  "Fn::GetAtt": Array [
-                    "GraphQlDsmyTable",
-                    "Name",
-                  ],
-                },
+                "DataSourceName": "myTable",
                 "FieldName": "user",
                 "Kind": "UNIT",
                 "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
@@ -624,12 +619,7 @@ describe('Api', () => {
                     "ApiId",
                   ],
                 },
-                "DataSourceName": Object {
-                  "Fn::GetAtt": Array [
-                    "GraphQlDsmyTable",
-                    "Name",
-                  ],
-                },
+                "DataSourceName": "myTable",
                 "FieldName": "user",
                 "Kind": "UNIT",
                 "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
@@ -666,12 +656,7 @@ describe('Api', () => {
                     "ApiId",
                   ],
                 },
-                "DataSourceName": Object {
-                  "Fn::GetAtt": Array [
-                    "GraphQlDsmyLambdaFunction",
-                    "Name",
-                  ],
-                },
+                "DataSourceName": "myLambdaFunction",
                 "FieldName": "user",
                 "Kind": "UNIT",
                 "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
@@ -921,37 +906,32 @@ describe('Api', () => {
             caching: true,
           }),
         ).toMatchInlineSnapshot(`
-                  Object {
-                    "GraphQlResolverQueryuser": Object {
-                      "DependsOn": Array [
-                        "GraphQlSchema",
-                      ],
-                      "Properties": Object {
-                        "ApiId": Object {
-                          "Fn::GetAtt": Array [
-                            "GraphQlApi",
-                            "ApiId",
-                          ],
-                        },
-                        "CachingConfig": Object {
-                          "Ttl": 3600,
-                        },
-                        "DataSourceName": Object {
-                          "Fn::GetAtt": Array [
-                            "GraphQlDsmyTable",
-                            "Name",
-                          ],
-                        },
-                        "FieldName": "user",
-                        "Kind": "UNIT",
-                        "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
-                        "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
-                        "TypeName": "Query",
-                      },
-                      "Type": "AWS::AppSync::Resolver",
-                    },
-                  }
-              `);
+          Object {
+            "GraphQlResolverQueryuser": Object {
+              "DependsOn": Array [
+                "GraphQlSchema",
+              ],
+              "Properties": Object {
+                "ApiId": Object {
+                  "Fn::GetAtt": Array [
+                    "GraphQlApi",
+                    "ApiId",
+                  ],
+                },
+                "CachingConfig": Object {
+                  "Ttl": 3600,
+                },
+                "DataSourceName": "myTable",
+                "FieldName": "user",
+                "Kind": "UNIT",
+                "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
+                "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
+                "TypeName": "Query",
+              },
+              "Type": "AWS::AppSync::Resolver",
+            },
+          }
+        `);
       });
 
       it('should generate Resources with custom keys', () => {
@@ -995,12 +975,7 @@ describe('Api', () => {
                   ],
                   "Ttl": 200,
                 },
-                "DataSourceName": Object {
-                  "Fn::GetAtt": Array [
-                    "GraphQlDsmyTable",
-                    "Name",
-                  ],
-                },
+                "DataSourceName": "myTable",
                 "FieldName": "user",
                 "Kind": "UNIT",
                 "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",

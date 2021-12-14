@@ -9,8 +9,8 @@
     "/src"
   ],
   "scripts": {
-    "test": "jest __tests__",
-    "test:watch": "jest __tests__ --watch",
+    "test": "jest src/__tests__",
+    "test:watch": "jest src/__tests__ --watch",
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit"
   },

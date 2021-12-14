@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { getConfig } from '../src/get-config';
+import { getConfig } from 'get-config';
 import path from 'path';
 
-const servicePath = path.join(__dirname, '../example');
+const servicePath = path.join(__dirname, '../../example');
 
 test('authenticationType is missing', async () => {
   await expect(getConfig({}, {}, servicePath)).rejects.toMatchSnapshot();

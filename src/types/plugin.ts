@@ -31,7 +31,7 @@ export type AppSyncConfig = {
   };
   mappingTemplatesLocation: string;
   functionConfigurationsLocation: string;
-  mappingTemplates: Resolver[];
+  mappingTemplates: ResolverConfig[];
   functionConfigurations: FunctionConfig[];
   dataSources: DataSourceConfig[];
   substitutions: Record<string, string | IntrinsictFunction>;
@@ -139,7 +139,7 @@ export type ApiKeyAuth = {
 
 export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
 
-export type Resolver = {
+export type ResolverConfig = {
   field: string;
   type: string;
   request?: string | false;
