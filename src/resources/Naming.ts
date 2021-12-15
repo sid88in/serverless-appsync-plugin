@@ -60,4 +60,12 @@ export class Naming {
   getPipelineFunctionLogicalId(name: string) {
     return this.getLogicalId(`GraphQlFunctionConfiguration${name}`);
   }
+
+  getWafLogicalId() {
+    return this.getLogicalId('GraphQlWaf');
+  }
+
+  getWafAssociationLogicalId() {
+    return this.getLogicalId('GraphQlWafAssoc');
+  }
 }

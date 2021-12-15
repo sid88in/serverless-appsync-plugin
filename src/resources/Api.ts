@@ -36,7 +36,6 @@ export class Api {
   }
 
   compile() {
-    // Waf
     // Output variables
 
     const resources: CfnResources = {};

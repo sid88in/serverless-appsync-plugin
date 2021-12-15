@@ -49,6 +49,7 @@ export type IamStatement = {
 export type WafThrottleConfig =
   | number
   | {
+      name?: string;
       action?: WafAction;
       aggregateKeyType?: 'IP' | 'FORWARDED_IP';
       limit?: number;
@@ -57,9 +58,11 @@ export type WafThrottleConfig =
         headerName: string;
         fallbackBehavior: string;
       };
+      scopeDownStatement?: CfnWafRuleStatement;
     };
 
 export type WafDisableIntrospectionConfig = {
+  name?: string;
   priority?: number;
 };
 
@@ -76,7 +79,7 @@ export type WafRuleCustom = {
   action?: WafAction;
   overrideAction?: WafAction;
   statement: CfnWafRuleStatement;
-  visibilityConfig: Record<string, unknown>;
+  visibilityConfig?: VisibilityConfig;
 };
 
 export type WafRuleDisableIntrospection = {
@@ -270,11 +273,17 @@ export type DataSourceConfig = {
   | DsNone
 );
 
+export type VisibilityConfig = {
+  cloudWatchMetricsEnabled?: boolean;
+  name?: string;
+  sampledRequestsEnabled: boolean;
+};
+
 export type WafConfig = {
   enabled: boolean;
   name: string;
   defaultAction?: WafAction;
   description?: string;
-  visibilityConfig?: Record<string, unknown>;
+  visibilityConfig?: VisibilityConfig;
   rules: WafRule[];
 };

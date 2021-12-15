@@ -149,6 +149,7 @@ export type CfnWafRuleStatement = {
   AndStatement?: {
     Statements: CfnWafRuleStatement[];
   };
+  [k: string]: Record<string, unknown> | undefined;
 };
 
 type CfnWafRuleRateBasedStatement = {
