@@ -1,5 +1,5 @@
 import type { AWS } from '@serverless/typescript';
-import { AppSyncConfigInput } from 'get-config';
+import { AppSyncConfigInput } from '../get-config';
 
 export type Hook = () => void | Promise<void>;
 
@@ -33,7 +33,7 @@ export type Serverless = {
     log: (message: string) => void;
   };
   // Serverless v3
-  addServiceOutputSection?: (
+  addServiceOutputSection: (
     section: string,
     content: string | string[],
   ) => void;

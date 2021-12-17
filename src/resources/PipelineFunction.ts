@@ -3,8 +3,8 @@ import {
   CfnFunctionResolver,
   CfnResources,
   IntrinsictFunction,
-} from 'types/cloudFormation';
-import { FunctionConfig } from 'types/plugin';
+} from '../types/cloudFormation';
+import { FunctionConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';

@@ -1,4 +1,4 @@
-import { MappingTemplate } from 'resources/MappingTemplate';
+import { MappingTemplate } from '../resources/MappingTemplate';
 
 describe('Mapping Templates', () => {
   it('should substritute default variables', () => {

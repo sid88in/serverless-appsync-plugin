@@ -5,7 +5,7 @@ import {
   CfnWafAction,
   CfnWafRule,
   CfnWafRuleStatement,
-} from 'types/cloudFormation';
+} from '../types/cloudFormation';
 import {
   ApiKeyConfigObject,
   WafAction,
@@ -13,8 +13,8 @@ import {
   WafRule,
   WafRuleDisableIntrospection,
   WafThrottleConfig,
-} from 'types/plugin';
-import { toCfnKeys } from 'utils';
+} from '../types/plugin';
+import { toCfnKeys } from '../utils';
 import { Api } from './Api';
 
 export class Waf {

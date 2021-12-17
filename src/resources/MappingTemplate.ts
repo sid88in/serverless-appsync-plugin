@@ -1,4 +1,4 @@
-import { IntrinsictFunction } from 'types/cloudFormation';
+import { IntrinsictFunction } from '../types/cloudFormation';
 import fs from 'fs';
 
 type Substitutions = Record<string, string | IntrinsictFunction>;

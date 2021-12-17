@@ -1,11 +1,11 @@
-import { Api } from 'resources/Api';
-import { ApiKeyConfig, AppSyncConfig, WafRule } from 'types/plugin';
+import { Api } from '../resources/Api';
+import { ApiKeyConfig, AppSyncConfig, WafRule } from '../types/plugin';
 import Serverless from 'serverless/lib/Serverless';
 import { each, noop, set } from 'lodash';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
-import ServerlessAppsyncPlugin from 'index';
-import { logger } from 'utils';
-import { Waf } from 'resources/Waf';
+import ServerlessAppsyncPlugin from '..';
+import { logger } from '../utils';
+import { Waf } from '../resources/Waf';
 
 // 2020-12-09T16:24:22+00:00
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);

@@ -1,11 +1,11 @@
-import ServerlessAppsyncPlugin from 'index';
+import ServerlessAppsyncPlugin from '..';
 import { merge, set } from 'lodash';
 import { has } from 'ramda';
 import {
   CfnResource,
   CfnResources,
   IntrinsictFunction,
-} from 'types/cloudFormation';
+} from '../types/cloudFormation';
 import {
   ApiKeyConfigObject,
   AppSyncConfig,
@@ -17,8 +17,8 @@ import {
   LambdaConfig,
   OidcAuth,
   ResolverConfig,
-} from 'types/plugin';
-import { parseDuration } from 'utils';
+} from '../types/plugin';
+import { parseDuration } from '../utils';
 import { DateTime } from 'luxon';
 import { Naming } from './Naming';
 import { DataSource } from './DataSource';
@@ -116,6 +116,7 @@ export class Api {
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
+    const policyLogicalId = this.naming.getLogGroupRoleLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
 
     return {
@@ -133,6 +134,31 @@ export class Api {
             this.plugin.serverless.service.provider.logRetentionInDays,
         },
       },
+      [policyLogicalId]: {
+        Type: 'AWS::IAM::Policy',
+        Properties: {
+          PolicyName: `${policyLogicalId}`,
+          Roles: [{ Ref: roleLogicalId }],
+          PolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ],
+                Resource: [
+                  {
+                    'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
       [roleLogicalId]: {
         Type: 'AWS::IAM::Role',
         Properties: {
@@ -148,29 +174,6 @@ export class Api {
               },
             ],
           },
-          Policies: [
-            {
-              PolicyName: `${this.config.name} LogGroup Policy`,
-              PolicyDocument: {
-                Version: '2012-10-17',
-                Statement: [
-                  {
-                    Effect: 'Allow',
-                    Action: [
-                      'logs:CreateLogGroup',
-                      'logs:CreateLogStream',
-                      'logs:PutLogEvents',
-                    ],
-                    Resource: [
-                      {
-                        'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          ],
         },
       },
     };

@@ -31,6 +31,10 @@ export class Naming {
     return this.getLogicalId(`GraphQlApiLogGroupRole`);
   }
 
+  getLogGroupPolicyLogicalId() {
+    return this.getLogicalId(`GraphQlApiLogGroupPolicy`);
+  }
+
   getCachingLogicalId() {
     return this.getLogicalId(`GraphQlCaching`);
   }

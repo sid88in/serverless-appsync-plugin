@@ -14,7 +14,7 @@ import {
 } from './types/plugin';
 import { AWS } from '@serverless/typescript';
 import { convertAppSyncSchemas } from 'appsync-schema-converter';
-import { IntrinsictFunction } from 'types/cloudFormation';
+import { IntrinsictFunction } from './types/cloudFormation';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(

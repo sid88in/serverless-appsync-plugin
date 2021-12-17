@@ -1,11 +1,11 @@
-import { Api } from 'resources/Api';
-import { AppSyncConfig } from 'types/plugin';
+import { Api } from '../resources/Api';
+import { AppSyncConfig } from '../types/plugin';
 import Serverless from 'serverless/lib/Serverless';
 import { noop, set } from 'lodash';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
-import ServerlessAppsyncPlugin from 'index';
-import { logger } from 'utils';
-import { DataSource } from 'resources/DataSource';
+import ServerlessAppsyncPlugin from '..';
+import { logger } from '../utils';
+import { DataSource } from '../resources/DataSource';
 
 // 2020-12-09T16:24:22+00:00
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);

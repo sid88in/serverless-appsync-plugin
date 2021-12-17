@@ -4,7 +4,7 @@ import {
   CfnDataSource,
   CfnResources,
   IntrinsictFunction,
-} from 'types/cloudFormation';
+} from '../types/cloudFormation';
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
@@ -12,7 +12,7 @@ import {
   DsHttpConfig,
   DsRelationalDbConfig,
   IamStatement,
-} from 'types/plugin';
+} from '../types/plugin';
 import { Api } from './Api';
 
 export class DataSource {
