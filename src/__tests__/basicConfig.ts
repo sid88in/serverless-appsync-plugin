@@ -6,5 +6,5 @@ export const config: AppSyncConfigInput = {
     type: 'API_KEY',
   },
   dataSources: [],
-  mappingTemplates: [],
+  resolvers: [],
 };

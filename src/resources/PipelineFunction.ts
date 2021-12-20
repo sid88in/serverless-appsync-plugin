@@ -55,7 +55,7 @@ export class PipelineFunction {
 
     if (templateName !== false) {
       const templatePath = path.join(
-        this.api.config.functionConfigurationsLocation,
+        this.api.config.mappingTemplatesLocation.pipelineFunctions,
         templateName || `${this.config.name}.${type}.vtl`,
       );
       const template = new MappingTemplate({

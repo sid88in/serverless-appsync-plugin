@@ -17,6 +17,7 @@ import {
 import { AWS } from '@serverless/typescript';
 import { convertAppSyncSchemas } from 'appsync-schema-converter';
 import { IntrinsicFunction } from './types/cloudFormation';
+import { merge } from 'lodash';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
@@ -51,7 +52,7 @@ const buildAppSyncSchema = (schemaFiles: string[]) => {
 
 export type AppSyncConfigInput = {
   apiId?: string;
-  name?: string;
+  name: string;
   schema?: string | string[];
   authentication: Auth;
   apiKeys?: ApiKeyConfig[];
@@ -72,10 +73,12 @@ export type AppSyncConfigInput = {
     request?: string | false;
     response?: string | false;
   };
-  mappingTemplatesLocation?: string;
-  functionConfigurationsLocation?: string;
-  mappingTemplates?: ResolverConfig[];
-  functionConfigurations?: FunctionConfig[];
+  mappingTemplatesLocation?: {
+    resolvers?: string;
+    pipelineFunctions?: string;
+  };
+  resolvers?: (ResolverConfig | ResolverConfig[])[];
+  pipelineFunctions?: (FunctionConfig | FunctionConfig[])[];
   dataSources:
     | (DataSourceConfig | Record<string, DataSourceConfig>)[]
     | Record<string, DataSourceConfig>;
@@ -96,22 +99,25 @@ export const getAppSyncConfig = async (
   provider: AWS['provider'],
   servicePath: string,
 ): Promise<AppSyncConfig> => {
-  const mappingTemplatesLocation =
-    config.mappingTemplatesLocation || 'mapping-templates';
-  const functionConfigurationsLocation =
-    config.functionConfigurationsLocation || mappingTemplatesLocation;
-  const functionConfigurations: FunctionConfig[] = (
-    config.functionConfigurations || []
-  ).reduce(
-    (accumulator, currentValue) => accumulator.concat(currentValue),
-    [] as FunctionConfig[],
+  const mappingTemplatesLocation = merge(
+    {
+      resolvers: 'mapping-templates',
+      pipelineFunctions: 'mapping-templates',
+    },
+    config.mappingTemplatesLocation,
   );
-  const mappingTemplates: ResolverConfig[] = (
-    config.mappingTemplates || []
-  ).reduce(
-    (accumulator, currentValue) => accumulator.concat(currentValue),
-    [] as ResolverConfig[],
-  );
+
+  const pipelineFunctions: FunctionConfig[] =
+    config.pipelineFunctions?.reduce<FunctionConfig[]>(
+      (accumulator, currentValue) => accumulator.concat(currentValue),
+      [],
+    ) || [];
+
+  const resolvers: ResolverConfig[] =
+    config.resolvers?.reduce<ResolverConfig[]>(
+      (accumulator, currentValue) => accumulator.concat(currentValue),
+      [],
+    ) || [];
 
   const toAbsolutePosixPath = (filePath: string) =>
     (path.isAbsolute(filePath)
@@ -153,9 +159,8 @@ export const getAppSyncConfig = async (
     dataSources,
     defaultMappingTemplates: config.defaultMappingTemplates || {},
     mappingTemplatesLocation,
-    mappingTemplates,
-    functionConfigurationsLocation,
-    functionConfigurations,
+    resolvers,
+    pipelineFunctions,
     substitutions: config.substitutions || {},
     xrayEnabled: config.xrayEnabled || false,
   };

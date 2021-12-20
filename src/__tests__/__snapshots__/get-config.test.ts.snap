@@ -9,13 +9,15 @@ Array [
     },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -76,13 +78,15 @@ Array [
     },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -143,13 +147,15 @@ Array [
     },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -210,13 +216,15 @@ Array [
     },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -286,13 +294,15 @@ Array [
       },
     ],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -370,13 +380,15 @@ Array [
       },
     ],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
@@ -446,13 +458,15 @@ Array [
       },
     ],
     "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
     "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
+    "mappingTemplatesLocation": Object {
+      "pipelineFunctions": "mapping-templates",
+      "resolvers": "mapping-templates",
+    },
     "name": "api",
+    "pipelineFunctions": Array [],
     "region": "us-east-1",
+    "resolvers": Array [],
     "schema": "type Mutation  {
   createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
   deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!

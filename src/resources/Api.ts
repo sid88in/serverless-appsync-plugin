@@ -51,11 +51,11 @@ export class Api {
       merge(resources, this.compileDataSource(ds));
     });
 
-    this.config.functionConfigurations.forEach((func) => {
+    this.config.pipelineFunctions.forEach((func) => {
       merge(resources, this.compilePipelineFunctionResource(func));
     });
 
-    this.config.mappingTemplates.forEach((resolver) => {
+    this.config.resolvers.forEach((resolver) => {
       merge(resources, this.compileResolver(resolver));
     });
 
@@ -409,13 +409,13 @@ export class Api {
   }
 
   getLambdaArn(config: LambdaConfig) {
-    if (config && has('lambdaFunctionArn', config)) {
-      return config.lambdaFunctionArn;
+    if (config && has('functionArn', config)) {
+      return config.functionArn;
     } else if (config && has('functionName', config)) {
       return this.generateLambdaArn(config.functionName, config.functionAlias);
     }
     throw new Error(
-      'You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.',
+      'You must specify either `functionArn` or `functionName` for lambda resolvers.',
     );
   }
 

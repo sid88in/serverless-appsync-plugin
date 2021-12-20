@@ -3,7 +3,6 @@ import ajvErrors from 'ajv-errors';
 import { AppSyncConfigInput } from './get-config';
 import { IntrinsicFunction } from './types/cloudFormation';
 import {
-  ApiKeyAuth,
   CognitoAuth,
   DataSourceConfig,
   DsDynamoDBConfig,
@@ -13,7 +12,6 @@ import {
   DsNone,
   DsRelationalDbConfig,
   FunctionConfig,
-  IamAuth,
   IamStatement,
   LambdaAuth,
   LambdaConfig,
@@ -29,11 +27,9 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
   definitions: {
     stringOrIntrinsicFunction: JSONSchemaType<string | IntrinsicFunction>;
     lambdaFunctionConfig: JSONSchemaType<LambdaConfig>;
-    cognitoAuth: JSONSchemaType<CognitoAuth>;
-    lambdaAuth: JSONSchemaType<LambdaAuth>;
-    apiKeyAuth: JSONSchemaType<ApiKeyAuth>;
-    oidcAuth: JSONSchemaType<OidcAuth>;
-    iamAuth: JSONSchemaType<IamAuth>;
+    cognitoAuth: JSONSchemaType<CognitoAuth['config']>;
+    lambdaAuth: JSONSchemaType<LambdaAuth['config']>;
+    oidcAuth: JSONSchemaType<OidcAuth['config']>;
     visibilityConfig: JSONSchemaType<VisibilityConfig>;
     wafRule: JSONSchemaType<WafRule>;
     customWafRule: JSONSchemaType<
@@ -46,7 +42,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     resolverCachingConfig: JSONSchemaType<ResolverConfig['caching']>;
     resolverSyncConfig: JSONSchemaType<ResolverConfig['sync']>;
     iamRoleStatements: JSONSchemaType<IamStatement[]>;
-    dataSource: JSONSchemaType<DataSourceConfig>;
+    dataSourceConfig: JSONSchemaType<DataSourceConfig>;
     dataSourceHttp: JSONSchemaType<DsHttpConfig>;
     dataSourceDynamoDb: JSONSchemaType<DsDynamoDBConfig>;
     datasourceRelationalDbConfig: JSONSchemaType<DsRelationalDbConfig>;
@@ -66,6 +62,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           additionalProperties: true,
         },
       ],
+      errorMessage: 'is not a string or a CloudFormation intrinsic function',
     },
     lambdaFunctionConfig: {
       oneOf: [
@@ -80,96 +77,91 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         {
           type: 'object',
           properties: {
-            lambdaFunctionArn: {
+            functionArn: {
               $ref: '#/definitions/stringOrIntrinsicFunction',
             },
           },
-          required: ['lambdaFunctionArn'],
+          required: ['functionArn'],
         },
       ],
+      errorMessage:
+        'must have a valid functionName or functionArn, but not both',
     },
     auth: {
       type: 'object',
       title: 'Authentication',
       description: 'Authentication type and definition',
-      oneOf: [
-        { $ref: '#/definitions/cognitoAuth' },
-        { $ref: '#/definitions/lambdaAuth' },
-        { $ref: '#/definitions/oidcAuth' },
-        { $ref: '#/definitions/apiKeyAuth' },
-        { $ref: '#/definitions/iamAuth' },
-      ],
-      required: [],
+      properties: {
+        type: {
+          type: 'string',
+          enum: [
+            'AMAZON_COGNITO_USER_POOLS',
+            'AWS_LAMBDA',
+            'OPENID_CONNECT',
+            'AWS_IAM',
+            'API_KEY',
+          ],
+        },
+      },
+      if: { properties: { type: { const: 'AMAZON_COGNITO_USER_POOLS' } } },
+      then: {
+        properties: { config: { $ref: '#/definitions/cognitoAuth' } },
+        required: ['config'],
+      },
+      else: {
+        if: { properties: { type: { const: 'AWS_LAMBDA' } } },
+        then: {
+          properties: { config: { $ref: '#/definitions/lambdaAuth' } },
+          required: ['config'],
+        },
+        else: {
+          if: { properties: { type: { const: 'OPENID_CONNECT' } } },
+          then: {
+            properties: { config: { $ref: '#/definitions/oidcAuth' } },
+            required: ['config'],
+          },
+        },
+      },
+      required: ['type'],
+      // errorMessage: 'is not a valid ${0/type} authentication definition',
     },
     cognitoAuth: {
       type: 'object',
       properties: {
-        type: {
+        userPoolId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        awsRegion: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        defaultAction: {
           type: 'string',
-          const: 'AMAZON_COGNITO_USER_POOLS',
+          enum: ['ALLOW', 'DENY'],
+          nullable: true,
+          errorMessage: 'must be "ALLOW" or "DENY"',
         },
-        config: {
-          type: 'object',
-          properties: {
-            userPoolId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            awsRegion: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            defaultAction: {
-              type: 'string',
-              enum: ['ALLOW', 'DENY'],
-              nullable: true,
-            },
-            appIdClientRegex: { type: 'string', nullable: true },
-          },
-          required: ['userPoolId'],
-        },
+        appIdClientRegex: { type: 'string', nullable: true },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid AMAZON_COGNITO_USER_POOLS config',
+      required: ['userPoolId'],
     },
     lambdaAuth: {
       type: 'object',
+      oneOf: [{ $ref: '#/definitions/lambdaFunctionConfig' }],
       properties: {
-        type: {
-          type: 'string',
-          const: 'AWS_LAMBDA',
-        },
-        config: {
-          type: 'object',
-          oneOf: [{ $ref: '#/definitions/lambdaFunctionConfig' }],
-          properties: {
-            // Note: functionName and lambdaFunctionArn are already defined in #/definitions/lambdaFunctionConfig
-            // But if not also defined here, TypeScript shows an error.
-            functionName: { type: 'string' },
-            lambdaFunctionArn: { type: 'string' },
-            identityValidationExpression: { type: 'string', nullable: true },
-            authorizerResultTtlInSeconds: { type: 'number', nullable: true },
-          },
-          required: [],
-        },
+        // Note: functionName and functionArn are already defined in #/definitions/lambdaFunctionConfig
+        // But if not also defined here, TypeScript shows an error.
+        functionName: { type: 'string' },
+        functionArn: { type: 'string' },
+        identityValidationExpression: { type: 'string', nullable: true },
+        authorizerResultTtlInSeconds: { type: 'number', nullable: true },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid AWS_LAMBDA config',
+      required: [],
     },
     oidcAuth: {
       type: 'object',
       properties: {
-        type: {
-          type: 'string',
-          const: 'OPENID_CONNECT',
-        },
-        config: {
-          type: 'object',
-          properties: {
-            issuer: { type: 'string' },
-            clientId: { type: 'string' },
-            iatTTL: { type: 'number', nullable: true },
-            authTTL: { type: 'number', nullable: true },
-          },
-          required: [],
-        },
+        issuer: { type: 'string' },
+        clientId: { type: 'string' },
+        iatTTL: { type: 'number', nullable: true },
+        authTTL: { type: 'number', nullable: true },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid OPENID_CONNECT config',
+      required: ['issuer', 'clientId'],
     },
     iamAuth: {
       type: 'object',
@@ -260,6 +252,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           required: [],
         },
       ],
+      errorMessage: 'is not a valid WAF rule',
     },
     customWafRule: {
       type: 'object',
@@ -278,12 +271,14 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     },
     mappingTemplate: {
       oneOf: [{ type: 'string' }, { type: 'boolean', const: false }],
+      errorMessage: 'is not a valid mapping template',
     },
     // @ts-ignore
     substitutions: {
       type: 'object',
       additionalProperties: { $ref: '#/definitions/stringOrIntrinsicFunction' },
       required: [],
+      errorMessage: 'is not a valid substitutions definition',
     },
     resolverConfig: {
       type: 'object',
@@ -318,6 +313,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
       required: ['type', 'field'],
+      errorMessage: 'is not a resolver config',
     },
     pipelineFunctionConfig: {
       type: 'object',
@@ -330,6 +326,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         substitutions: { $ref: '#/definitions/substitutions' },
       },
       required: ['name', 'dataSource'],
+      errorMessage: 'is not a valid pipeline function config',
     },
     resolverCachingConfig: {
       oneOf: [
@@ -343,6 +340,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           required: [],
         },
       ],
+      errorMessage: 'is not a valid resolver caching config',
     },
     resolverSyncConfig: {
       oneOf: [
@@ -351,7 +349,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           type: 'object',
           oneOf: [{ $ref: '#/definitions/lambdaFunctionConfig' }],
           properties: {
-            lambdaFunctionArn: { type: 'string' },
+            functionArn: { type: 'string' },
             functionName: { type: 'string' },
             conflictDetection: { type: 'string', const: 'VERSION' },
             conflictHandler: {
@@ -362,6 +360,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           required: [],
         },
       ],
+      errorMessage: 'is not a valid resolver sync config',
     },
     // @ts-ignore
     iamRoleStatements: {
@@ -382,12 +381,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           },
         },
         required: ['Effect', 'Action', 'Resource'],
+        errorMessage: 'is not a valid IAM role statement',
       },
     },
-    dataSource: {
+    dataSourceConfig: {
       type: 'object',
       oneOf: [
-        { $ref: '#/definitions/dataSourceHttp' },
+        { $ref: '#/definitions/dataSourceHttpConfig' },
         { $ref: '#/definitions/dataSourceDynamoDb' },
         { $ref: '#/definitions/datasourceRelationalDbConfig' },
         { $ref: '#/definitions/datasourceLambdaConfig' },
@@ -400,8 +400,9 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         description: { type: 'string', nullable: true },
       },
       required: ['name', 'type'],
+      errorMessage: 'is not a valid data source config',
     },
-    dataSourceHttp: {
+    dataSourceHttpConfig: {
       type: 'object',
       properties: {
         type: { type: 'string', const: 'HTTP' },
@@ -440,6 +441,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type', 'config'],
+      errorMessage: 'is not a valid HTTP data source config',
     },
     dataSourceDynamoDb: {
       type: 'object',
@@ -475,6 +477,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type', 'config'],
+      errorMessage: 'is not a valid AMAZON_DYNAMODB data source config',
     },
     datasourceRelationalDbConfig: {
       type: 'object',
@@ -506,6 +509,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type', 'config'],
+      errorMessage: 'is not a valid RELATIONAL_DATABASE data source config',
     },
     datasourceLambdaConfig: {
       type: 'object',
@@ -520,7 +524,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           type: 'object',
           properties: {
             functionName: { type: 'string' },
-            lambdaFunctionArn: {
+            functionArn: {
               $ref: '#/definitions/stringOrIntrinsicFunction',
             },
             serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
@@ -530,6 +534,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type', 'config'],
+      errorMessage: 'is not a valid AWS_LAMBDA data source config',
     },
     datasourceEsConfig: {
       type: 'object',
@@ -570,6 +575,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type', 'config'],
+      errorMessage: 'is not a valid AMAZON_ELASTICSEARCH data source config',
     },
     datasourceNoneConfig: {
       type: 'object',
@@ -577,21 +583,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         type: { type: 'string', const: 'NONE' },
       },
       required: ['type'],
+      errorMessage: 'is not a valid NONE data source config',
     },
   },
   properties: {
     apiId: { type: 'string' },
     name: { type: 'string' },
-    authentication: {
-      oneOf: [
-        { $ref: '#/definitions/cognitoAuth' },
-        { $ref: '#/definitions/lambdaAuth' },
-        { $ref: '#/definitions/oidcAuth' },
-        { $ref: '#/definitions/apiKeyAuth' },
-        { $ref: '#/definitions/iamAuth' },
-      ],
-      errorMessage: 'is not a valid authentication config',
-    },
+    authentication: { $ref: '#/definitions/auth' },
     schema: {
       anyOf: [
         {
@@ -602,6 +600,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           items: { type: 'string' },
         },
       ],
+      errorMessage: 'is not a valid schema config',
     },
     xrayEnabled: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },
@@ -618,6 +617,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['name', 'defaultAction', 'rules'],
+      errorMessage: 'is not a valid WAF config',
     },
     tags: {
       type: 'object',
@@ -647,6 +647,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         transitEncryption: { type: 'boolean' },
       },
       required: ['behavior'],
+      errorMessage: 'is not a valid caching config',
     },
     additionalAuthenticationProviders: {
       type: 'array',
@@ -677,6 +678,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           },
         },
         required: ['name'],
+        errorMessage: 'is not a valid API key config',
       },
     },
     logConfig: {
@@ -690,34 +692,58 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         logRetentionInDays: { type: 'integer' },
         excludeVerboseContent: { type: 'boolean' },
       },
+      errorMessage: 'is not a valid Cloudwatch log config',
     },
-    // TODO: rename these to more appropriate names
-    // eg: resolversMappingTemplateLocations & fucntionsMappingTempaltesLocation
-    mappingTemplatesLocation: { type: 'string' },
-    functionConfigurationsLocation: { type: 'string' },
+    mappingTemplatesLocation: {
+      type: 'object',
+      properties: {
+        resolvers: { type: 'string' },
+        pipelineFunctions: { type: 'string' },
+      },
+    },
     defaultMappingTemplates: {
       type: 'object',
       properties: {
         request: {
           oneOf: [{ type: 'string' }, { type: 'boolean' }],
         },
+        response: {
+          oneOf: [{ type: 'string' }, { type: 'boolean' }],
+        },
       },
     },
     dataSources: {
       type: 'array',
-      items: { $ref: '#/definitions/dataSource' },
+      items: {
+        anyOf: [
+          { $ref: '#/definitions/dataSourceConfig' },
+          { type: 'array', items: { $ref: '#/definitions/dataSourceConfig' } },
+        ],
+      },
     },
-    // TODO: change this into a key-value map?
-    mappingTemplates: {
+    resolvers: {
       type: 'array',
-      items: { $ref: '#/definitions/resolverConfig' },
+      items: {
+        anyOf: [
+          { $ref: '#/definitions/resolverConfig' },
+          { type: 'array', items: { $ref: '#/definitions/resolverConfig' } },
+        ],
+      },
     },
-    functionConfigurations: {
+    pipelineFunctions: {
       type: 'array',
-      items: { $ref: '#/definitions/lambdaFunctionConfig' },
+      items: {
+        anyOf: [
+          { $ref: '#/definitions/lambdaFunctionConfig' },
+          {
+            type: 'array',
+            items: { $ref: '#/definitions/lambdaFunctionConfig' },
+          },
+        ],
+      },
     },
   },
-  required: ['authentication'],
+  required: ['name', 'authentication'],
 };
 
 const ajv = new Ajv({ allErrors: true });
@@ -727,8 +753,10 @@ const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {
   const isValid = validator(data);
   if (isValid === false && validator.errors) {
+    console.log(validator.errors);
     throw new Error(
       validator.errors
+        .filter((error) => !['if', 'oneOf'].includes(error.keyword))
         .map((error) => {
           return `${error.instancePath}: ${error.message}`;
         })

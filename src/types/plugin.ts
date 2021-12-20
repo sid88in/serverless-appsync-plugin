@@ -30,10 +30,12 @@ export type AppSyncConfig = {
     request?: string | false;
     response?: string | false;
   };
-  mappingTemplatesLocation: string;
-  functionConfigurationsLocation: string;
-  mappingTemplates: ResolverConfig[];
-  functionConfigurations: FunctionConfig[];
+  mappingTemplatesLocation: {
+    resolvers: string;
+    pipelineFunctions: string;
+  };
+  resolvers: ResolverConfig[];
+  pipelineFunctions: FunctionConfig[];
   dataSources: DataSourceConfig[];
   substitutions: Record<string, string | IntrinsicFunction>;
   xrayEnabled: boolean;
@@ -230,7 +232,7 @@ export type LambdaConfig =
       functionAlias?: string;
     }
   | {
-      lambdaFunctionArn: string | IntrinsicFunction;
+      functionArn: string | IntrinsicFunction;
     };
 
 export type DsLambdaConfig = {

@@ -110,7 +110,7 @@ export class Resolver {
 
     if (templateName !== false) {
       const templatePath = path.join(
-        this.api.config.mappingTemplatesLocation,
+        this.api.config.mappingTemplatesLocation.resolvers,
         templateName || `${this.config.type}.${this.config.field}.${type}.vtl`,
       );
       const template = new MappingTemplate({

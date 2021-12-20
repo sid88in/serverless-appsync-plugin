@@ -20,10 +20,12 @@ const config: AppSyncConfig = {
     type: 'API_KEY',
   },
   additionalAuthenticationProviders: [],
-  mappingTemplatesLocation: 'path/to/mappingTemplates',
-  functionConfigurationsLocation: 'path/to/mappingTemplates',
-  mappingTemplates: [],
-  functionConfigurations: [],
+  mappingTemplatesLocation: {
+    resolvers: 'path/to/mappingTemplates',
+    pipelineFunctions: 'path/to/mappingTemplates',
+  },
+  resolvers: [],
+  pipelineFunctions: [],
   dataSources: [],
   substitutions: {},
   tags: {
@@ -612,7 +614,7 @@ describe('Api', () => {
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
-              lambdaFunctionArn: 'arn:',
+              functionArn: 'arn:',
             },
           },
         },
@@ -643,7 +645,7 @@ describe('Api', () => {
             {
               type: 'AWS_LAMBDA',
               config: {
-                lambdaFunctionArn: 'arn:',
+                functionArn: 'arn:',
               },
             },
           ],
