@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Valdiation Invalid should validate: Empty config 1`] = `
+"/dataSources/myDynamoSource1/config: must have required property 'tableName'
+/dataSources: must contain only valid data source definitions"
+`;
+
+exports[`Valdiation Invalid should validate: Invalid config 1`] = `
+"/dataSources/myDynamoSource1/config/tableName: must be a string or a CloudFormation intrinsic function
+/dataSources/myDynamoSource1/config/useCallerCredentials: must be boolean
+/dataSources/myDynamoSource1/config/serviceRoleArn: must be a string or a CloudFormation intrinsic function
+/dataSources/myDynamoSource1/config/region: must be a string or a CloudFormation intrinsic function
+/dataSources/myDynamoSource1/config/iamRoleStatements/0: is not a valid IAM role statement
+/dataSources/myDynamoSource1/config/versioned: must be boolean
+/dataSources/myDynamoSource1/config/deltaSyncConfig: must have required property 'deltaSyncTableName'
+/dataSources/myDynamoSource1/config/deltaSyncConfig/baseTableTTL: must be integer
+/dataSources/myDynamoSource1/config/deltaSyncConfig/deltaSyncTableTTL: must be integer
+/dataSources: must contain only valid data source definitions"
+`;
+
+exports[`Valdiation Invalid should validate: Missing config 1`] = `
+"/dataSources/myDynamoSource1: must have required property 'config'
+/dataSources: must contain only valid data source definitions"
+`;

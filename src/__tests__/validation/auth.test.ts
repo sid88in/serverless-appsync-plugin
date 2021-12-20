@@ -1,18 +1,14 @@
 import { AppSyncConfigInput } from '../../get-config';
 import { validateConfig } from '../../validation';
-import { config } from '../basicConfig';
+import { basicConfig } from '../basicConfig';
 
 describe('Valdiation', () => {
-  it('should validate basic config', async () => {
-    expect(validateConfig(config)).toMatchInlineSnapshot(`true`);
-  });
-
   describe('Valid', () => {
     const assertions = [
       {
         name: 'Api Key',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'API_KEY',
           },
@@ -21,7 +17,7 @@ describe('Valdiation', () => {
       {
         name: 'Cognito',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AMAZON_COGNITO_USER_POOLS',
             config: {
@@ -36,7 +32,7 @@ describe('Valdiation', () => {
       {
         name: 'Cognito with Refs',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AMAZON_COGNITO_USER_POOLS',
             config: {
@@ -50,7 +46,7 @@ describe('Valdiation', () => {
       {
         name: 'OIDC',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'OPENID_CONNECT',
             config: {
@@ -65,7 +61,7 @@ describe('Valdiation', () => {
       {
         name: 'IAM',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_IAM',
           },
@@ -74,7 +70,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with functionName',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
@@ -88,7 +84,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with functionArn',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
@@ -111,7 +107,7 @@ describe('Valdiation', () => {
       {
         name: 'Cognito missing config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AMAZON_COGNITO_USER_POOLS',
           },
@@ -120,7 +116,7 @@ describe('Valdiation', () => {
       {
         name: 'Cognito empty config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AMAZON_COGNITO_USER_POOLS',
             config: {},
@@ -130,7 +126,7 @@ describe('Valdiation', () => {
       {
         name: 'Cognito with invalid userPoolId',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AMAZON_COGNITO_USER_POOLS',
             config: {
@@ -145,7 +141,7 @@ describe('Valdiation', () => {
       {
         name: 'OIDC with missing config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'OPENID_CONNECT',
           },
@@ -154,7 +150,7 @@ describe('Valdiation', () => {
       {
         name: 'OIDC with empty config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'OPENID_CONNECT',
             config: {},
@@ -164,7 +160,7 @@ describe('Valdiation', () => {
       {
         name: 'OIDC with invalid config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'OPENID_CONNECT',
             config: {
@@ -179,7 +175,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with missing config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
           },
@@ -188,7 +184,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with empty config',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {},
@@ -198,7 +194,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with invalid functionName and functionVersion',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
@@ -213,7 +209,7 @@ describe('Valdiation', () => {
       {
         name: 'Lambda with invalid config functionnArn',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
@@ -225,14 +221,14 @@ describe('Valdiation', () => {
         },
       },
       {
-        name: 'Lambda with invalid config functionnArn',
+        name: 'Lambda with invalid config: both functionName and functionnArn are set',
         config: {
-          ...config,
+          ...basicConfig,
           authentication: {
             type: 'AWS_LAMBDA',
             config: {
               functionName: 'myFunction',
-              // functionArn: 'arn:lambda:',
+              functionArn: 'arn:lambda:',
             },
           },
         },

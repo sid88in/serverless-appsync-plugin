@@ -3,13 +3,13 @@ import ajvErrors from 'ajv-errors';
 import { AppSyncConfigInput } from './get-config';
 import { IntrinsicFunction } from './types/cloudFormation';
 import {
+  Auth,
   CognitoAuth,
   DataSourceConfig,
   DsDynamoDBConfig,
   DsElasticSearchConfig,
   DsHttpConfig,
   DsLambdaConfig,
-  DsNone,
   DsRelationalDbConfig,
   FunctionConfig,
   IamStatement,
@@ -27,6 +27,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
   definitions: {
     stringOrIntrinsicFunction: JSONSchemaType<string | IntrinsicFunction>;
     lambdaFunctionConfig: JSONSchemaType<LambdaConfig>;
+    auth: JSONSchemaType<Pick<Auth, 'type'>>;
     cognitoAuth: JSONSchemaType<CognitoAuth['config']>;
     lambdaAuth: JSONSchemaType<LambdaAuth['config']>;
     oidcAuth: JSONSchemaType<OidcAuth['config']>;
@@ -42,13 +43,16 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     resolverCachingConfig: JSONSchemaType<ResolverConfig['caching']>;
     resolverSyncConfig: JSONSchemaType<ResolverConfig['sync']>;
     iamRoleStatements: JSONSchemaType<IamStatement[]>;
-    dataSourceConfig: JSONSchemaType<DataSourceConfig>;
-    dataSourceHttp: JSONSchemaType<DsHttpConfig>;
-    dataSourceDynamoDb: JSONSchemaType<DsDynamoDBConfig>;
-    datasourceRelationalDbConfig: JSONSchemaType<DsRelationalDbConfig>;
-    datasourceLambdaConfig: JSONSchemaType<DsLambdaConfig>;
-    datasourceEsConfig: JSONSchemaType<DsElasticSearchConfig>;
-    datasourceNoneConfig: JSONSchemaType<DsNone>;
+    dataSourceConfig: JSONSchemaType<
+      Pick<DataSourceConfig, 'name' | 'type' | 'description'>
+    >;
+    dataSourceHttp: JSONSchemaType<DsHttpConfig['config']>;
+    dataSourceDynamoDb: JSONSchemaType<DsDynamoDBConfig['config']>;
+    datasourceRelationalDbConfig: JSONSchemaType<
+      DsRelationalDbConfig['config']
+    >;
+    datasourceLambdaConfig: JSONSchemaType<DsLambdaConfig['config']>;
+    datasourceEsConfig: JSONSchemaType<DsElasticSearchConfig['config']>;
   };
 } = {
   type: 'object',
@@ -62,7 +66,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           additionalProperties: true,
         },
       ],
-      errorMessage: 'is not a string or a CloudFormation intrinsic function',
+      errorMessage: 'must be a string or a CloudFormation intrinsic function',
     },
     lambdaFunctionConfig: {
       oneOf: [
@@ -386,130 +390,157 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     },
     dataSourceConfig: {
       type: 'object',
-      oneOf: [
-        { $ref: '#/definitions/dataSourceHttpConfig' },
-        { $ref: '#/definitions/dataSourceDynamoDb' },
-        { $ref: '#/definitions/datasourceRelationalDbConfig' },
-        { $ref: '#/definitions/datasourceLambdaConfig' },
-        { $ref: '#/definitions/datasourceEsConfig' },
-        { $ref: '#/definitions/datasourceNoneConfig' },
-      ],
       properties: {
-        name: { type: 'string' },
-        type: { type: 'string' },
+        name: { type: 'string', nullable: true },
+        type: {
+          type: 'string',
+          enum: [
+            'AMAZON_DYNAMODB',
+            'AMAZON_ELASTICSEARCH',
+            'AMAZON_OPENSEARCH_SERVICE',
+            'AWS_LAMBDA',
+            'HTTP',
+            'NONE',
+            'RELATIONAL_DATABASE',
+          ],
+        },
         description: { type: 'string', nullable: true },
       },
-      required: ['name', 'type'],
-      errorMessage: 'is not a valid data source config',
+      if: { properties: { type: { const: 'AMAZON_DYNAMODB' } } },
+      then: {
+        properties: { config: { $ref: '#/definitions/dataSourceDynamoDb' } },
+        required: ['config'],
+      },
+      else: {
+        if: { properties: { type: { const: 'AWS_LAMBDA' } } },
+        then: {
+          properties: {
+            config: { $ref: '#/definitions/datasourceLambdaConfig' },
+          },
+          required: ['config'],
+        },
+        else: {
+          if: { properties: { type: { const: 'HTTP' } } },
+          then: {
+            properties: {
+              config: { $ref: '#/definitions/dataSourceHttpConfig' },
+            },
+            required: ['config'],
+          },
+          else: {
+            if: {
+              properties: {
+                type: {
+                  enum: ['AMAZON_ELASTICSEARCH', 'AMAZON_OPENSEARCH_SERVICE'],
+                },
+              },
+            },
+            then: {
+              properties: {
+                config: { $ref: '#/definitions/dataSourceHttpConfig' },
+              },
+              required: ['config'],
+            },
+            else: {
+              if: { properties: { type: { const: 'RELATIONAL_DATABASE' } } },
+              then: {
+                properties: {
+                  config: {
+                    $ref: '#/definitions/datasourceRelationalDbConfig',
+                  },
+                },
+                required: ['config'],
+              },
+            },
+          },
+        },
+      },
+      required: ['type'],
     },
     dataSourceHttpConfig: {
       type: 'object',
       properties: {
-        type: { type: 'string', const: 'HTTP' },
-        config: {
+        endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        serviceRoleArn: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
+        },
+        iamRoleStatements: {
+          $ref: '#/definitions/iamRoleStatements',
+        },
+        authorizationConfig: {
           type: 'object',
           properties: {
-            endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            serviceRoleArn: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            iamRoleStatements: {
-              $ref: '#/definitions/iamRoleStatements',
-            },
-            authorizationConfig: {
+            authorizationType: { type: 'string', const: 'AWS_IAM' },
+            awsIamConfig: {
               type: 'object',
               properties: {
-                authorizationType: { type: 'string', const: 'AWS_IAM' },
-                awsIamConfig: {
-                  type: 'object',
-                  properties: {
-                    signingRegion: {
-                      $ref: '#/definitions/stringOrIntrinsicFunction',
-                    },
-                    signingServiceName: {
-                      $ref: '#/definitions/stringOrIntrinsicFunction',
-                    },
-                  },
-                  required: ['signingRegion'],
+                signingRegion: {
+                  $ref: '#/definitions/stringOrIntrinsicFunction',
+                },
+                signingServiceName: {
+                  $ref: '#/definitions/stringOrIntrinsicFunction',
                 },
               },
-              required: ['authorizationType', 'awsIamConfig'],
-              nullable: true,
+              required: ['signingRegion'],
             },
           },
-          required: ['endpoint'],
+          required: ['authorizationType', 'awsIamConfig'],
+          nullable: true,
         },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid HTTP data source config',
+      required: ['endpoint'],
     },
     dataSourceDynamoDb: {
       type: 'object',
       properties: {
-        type: { type: 'string', const: 'AMAZON_DYNAMODB' },
-        config: {
+        tableName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        useCallerCredentials: { type: 'boolean', nullable: true },
+        serviceRoleArn: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
+        },
+        region: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
+        },
+        iamRoleStatements: {
+          $ref: '#/definitions/iamRoleStatements',
+        },
+        versioned: { type: 'boolean', nullable: true },
+        deltaSyncConfig: {
           type: 'object',
           properties: {
-            tableName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            useCallerCredentials: { type: 'boolean', nullable: true },
-            serviceRoleArn: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            region: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            iamRoleStatements: {
-              $ref: '#/definitions/iamRoleStatements',
-            },
-            versioned: { type: 'boolean', nullable: true },
-            deltaSyncConfig: {
-              type: 'object',
-              properties: {
-                deltaSyncTableName: { type: 'string' },
-                baseTableTTL: { type: 'integer', nullable: true },
-                deltaSyncTableTTL: { type: 'integer', nullable: true },
-              },
-              required: ['deltaSyncTableName'],
-              nullable: true,
-            },
+            deltaSyncTableName: { type: 'string' },
+            baseTableTTL: { type: 'integer', nullable: true },
+            deltaSyncTableTTL: { type: 'integer', nullable: true },
           },
-          required: ['tableName'],
+          required: ['deltaSyncTableName'],
+          nullable: true,
         },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid AMAZON_DYNAMODB data source config',
+      required: ['tableName'],
     },
     datasourceRelationalDbConfig: {
       type: 'object',
       properties: {
-        type: { type: 'string', const: 'RELATIONAL_DATABASE' },
-        config: {
-          type: 'object',
-          properties: {
-            region: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            relationalDatabaseSourceType: {
-              type: 'string',
-              enum: ['RDS_HTTP_ENDPOINT'],
-              nullable: true,
-            },
-            serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            dbClusterIdentifier: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            databaseName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            schema: { type: 'string', nullable: true },
-            awsSecretStoreArn: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            iamRoleStatements: {
-              $ref: '#/definitions/iamRoleStatements',
-            },
-          },
-          required: ['awsSecretStoreArn', 'dbClusterIdentifier'],
+        region: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        relationalDatabaseSourceType: {
+          type: 'string',
+          enum: ['RDS_HTTP_ENDPOINT'],
+          nullable: true,
+        },
+        serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        dbClusterIdentifier: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
+        },
+        databaseName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        schema: { type: 'string', nullable: true },
+        awsSecretStoreArn: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
+        },
+        iamRoleStatements: {
+          $ref: '#/definitions/iamRoleStatements',
         },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid RELATIONAL_DATABASE data source config',
+      required: ['awsSecretStoreArn', 'dbClusterIdentifier'],
     },
     datasourceLambdaConfig: {
       type: 'object',
@@ -519,71 +550,44 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       ],
       properties: {
-        type: { type: 'string', const: 'AWS_LAMBDA' },
-        config: {
-          type: 'object',
-          properties: {
-            functionName: { type: 'string' },
-            functionArn: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
-            },
-            serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
-          },
-          required: [],
+        functionName: { type: 'string' },
+        functionArn: {
+          $ref: '#/definitions/stringOrIntrinsicFunction',
         },
+        serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
       },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid AWS_LAMBDA data source config',
+      required: [],
     },
     datasourceEsConfig: {
       type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          enum: ['AMAZON_ELASTICSEARCH', 'AMAZON_OPENSEARCH_SERVICE'],
-        },
-        config: {
+      oneOf: [
+        {
           type: 'object',
-          oneOf: [
-            {
-              type: 'object',
-              properties: {
-                endpoint: {
-                  $ref: '#/definitions/stringOrIntrinsicFunction',
-                },
-              },
-              required: ['endpoint'],
-            },
-            {
-              type: 'object',
-              properties: {
-                domain: {
-                  $ref: '#/definitions/stringOrIntrinsicFunction',
-                },
-              },
-            },
-          ],
           properties: {
-            endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            domain: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            region: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-            iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
+            endpoint: {
+              $ref: '#/definitions/stringOrIntrinsicFunction',
+            },
           },
-          required: [],
+          required: ['endpoint'],
         },
-      },
-      required: ['type', 'config'],
-      errorMessage: 'is not a valid AMAZON_ELASTICSEARCH data source config',
-    },
-    datasourceNoneConfig: {
-      type: 'object',
+        {
+          type: 'object',
+          properties: {
+            domain: {
+              $ref: '#/definitions/stringOrIntrinsicFunction',
+            },
+          },
+        },
+      ],
       properties: {
-        type: { type: 'string', const: 'NONE' },
+        endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        domain: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        region: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
       },
-      required: ['type'],
-      errorMessage: 'is not a valid NONE data source config',
+      required: [],
     },
   },
   properties: {
@@ -713,13 +717,20 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       },
     },
     dataSources: {
-      type: 'array',
-      items: {
-        anyOf: [
-          { $ref: '#/definitions/dataSourceConfig' },
-          { type: 'array', items: { $ref: '#/definitions/dataSourceConfig' } },
-        ],
-      },
+      oneOf: [
+        {
+          type: 'object',
+          additionalProperties: { $ref: '#/definitions/dataSourceConfig' },
+        },
+        {
+          type: 'array',
+          items: {
+            type: 'object',
+            additionalProperties: { $ref: '#/definitions/dataSourceConfig' },
+          },
+        },
+      ],
+      errorMessage: 'must contain only valid data source definitions',
     },
     resolvers: {
       type: 'array',
@@ -753,10 +764,9 @@ const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {
   const isValid = validator(data);
   if (isValid === false && validator.errors) {
-    console.log(validator.errors);
     throw new Error(
       validator.errors
-        .filter((error) => !['if', 'oneOf'].includes(error.keyword))
+        .filter((error) => !['if', 'oneOf', 'anyOf'].includes(error.keyword))
         .map((error) => {
           return `${error.instancePath}: ${error.message}`;
         })
