@@ -8,13 +8,12 @@ import {
 } from '../types/cloudFormation';
 import {
   ApiKeyConfigObject,
-  WafAction,
+  WafActionKeys,
   WafConfig,
   WafRule,
   WafRuleDisableIntrospection,
   WafThrottleConfig,
 } from '../types/plugin';
-import { toCfnKeys } from '../utils';
 import { Api } from './Api';
 
 export class Waf {
@@ -95,19 +94,11 @@ export class Waf {
       );
     }
 
-    // Other specific rules
-    let action: WafAction = rule.action || 'Allow'; // fixme, if group, should not be set
-    if (typeof action === 'string') {
-      action = { [action]: {} };
-    }
-
-    let { overrideAction } = rule;
-    if (typeof overrideAction === 'string') {
-      overrideAction = { [overrideAction]: {} };
-    }
+    const action: WafActionKeys = rule.action || 'Allow';
 
     const result: CfnWafRule = {
       Name: rule.name,
+      Action: { [action]: {} },
       Priority: rule.priority,
       Statement: rule.statement,
       VisibilityConfig: this.getWafVisibilityConfig(
@@ -115,12 +106,7 @@ export class Waf {
         rule.name,
       ),
     };
-    // only one of Action or OverrideAction is allowed
-    if (overrideAction) {
-      result.OverrideAction = toCfnKeys(overrideAction);
-    } else if (action) {
-      result.Action = action;
-    }
+
     return result;
   }
 

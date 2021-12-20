@@ -4,7 +4,9 @@ exports[`Schema as absolute path 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
@@ -69,7 +71,9 @@ exports[`Schema as array 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
@@ -134,7 +138,9 @@ exports[`Schema as glob pattern 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
@@ -199,7 +205,9 @@ exports[`Schema as string 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [],
     "defaultMappingTemplates": Object {},
     "functionConfigurations": Array [],
@@ -259,81 +267,14 @@ type User  {
   },
 ]
 `;
-
-exports[`authenticationType can be missing when apiId is provided 1`] = `
-Array [
-  Object {
-    "additionalAuthenticationProviders": Array [],
-    "apiId": "testApiId",
-    "dataSources": Array [],
-    "defaultMappingTemplates": Object {},
-    "functionConfigurations": Array [],
-    "functionConfigurationsLocation": "mapping-templates",
-    "isSingleConfig": true,
-    "mappingTemplates": Array [],
-    "mappingTemplatesLocation": "mapping-templates",
-    "name": "api",
-    "region": "us-east-1",
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
-  },
-]
-`;
-
-exports[`authenticationType is missing 1`] = `[Error: appSync property \`authenticationType\` is missing or invalid.]`;
-
-exports[`authenticationType is missing 2`] = `[Error: appSync property \`authenticationType\` is missing or invalid.]`;
 
 exports[`datasources as array 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [
       Object {
         "name": "users",
@@ -407,7 +348,9 @@ exports[`datasources as array form different files (array of arrays or objects) 
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [
       Object {
         "name": "users",
@@ -489,7 +432,9 @@ exports[`returns valid config 1`] = `
 Array [
   Object {
     "additionalAuthenticationProviders": Array [],
-    "authenticationType": "AWS_IAM",
+    "authentication": Object {
+      "type": "AWS_IAM",
+    },
     "dataSources": Array [
       Object {
         "name": "users",

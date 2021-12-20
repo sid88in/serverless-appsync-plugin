@@ -4,7 +4,7 @@ import { has } from 'ramda';
 import {
   CfnResource,
   CfnResources,
-  IntrinsictFunction,
+  IntrinsicFunction,
 } from '../types/cloudFormation';
 import {
   ApiKeyConfigObject,
@@ -36,8 +36,6 @@ export class Api {
   }
 
   compile() {
-    // Output variables
-
     const resources: CfnResources = {};
 
     merge(resources, this.compileEndpoint());
@@ -78,7 +76,7 @@ export class Api {
 
     merge(
       endpointResource.Properties,
-      this.compileAuthenticationProvider(this.config),
+      this.compileAuthenticationProvider(this.config.authentication),
     );
 
     if (this.config.additionalAuthenticationProviders.length > 0) {
@@ -196,10 +194,8 @@ export class Api {
   compileLambdaAuthorizerPermission(): CfnResources {
     const lambdaAuth = [
       ...this.config.additionalAuthenticationProviders,
-      this.config,
-    ].find(({ authenticationType }) => authenticationType === 'AWS_LAMBDA') as
-      | LambdaAuth
-      | undefined;
+      this.config.authentication,
+    ].find(({ type }) => type === 'AWS_LAMBDA') as LambdaAuth | undefined;
 
     if (!lambdaAuth) {
       return {};
@@ -213,7 +209,7 @@ export class Api {
         Type: 'AWS::Lambda::Permission',
         Properties: {
           Action: 'lambda:InvokeFunction',
-          FunctionName: this.getLambdaArn(lambdaAuth.lambdaAuthorizerConfig),
+          FunctionName: this.getLambdaArn(lambdaAuth.config),
           Principal: 'appsync.amazonaws.com',
           SourceArn: { Ref: apiLogicalId },
         },
@@ -331,48 +327,49 @@ export class Api {
     );
   }
 
-  getUserPoolConfig(config: CognitoAuth) {
+  getUserPoolConfig(auth: CognitoAuth) {
     const userPoolConfig = {
-      AwsRegion: config.userPoolConfig.awsRegion || this.config.region,
-      UserPoolId: config.userPoolConfig.userPoolId,
-      AppIdClientRegex: config.userPoolConfig.appIdClientRegex,
+      AwsRegion: auth.config.awsRegion || this.config.region,
+      UserPoolId: auth.config.userPoolId,
+      AppIdClientRegex: auth.config.appIdClientRegex,
+      // Default action is the one passed in the config
+      // or 'ALLOW' if the primary auth is Cognito User Pool
+      // else, DENY
+      DefaultAction:
+        auth.config.defaultAction ||
+        (this.config.authentication.type === 'AMAZON_COGNITO_USER_POOLS' &&
+        this.config.additionalAuthenticationProviders.length > 0
+          ? 'ALLOW'
+          : 'DENY'),
     };
-
-    if (config.userPoolConfig.defaultAction) {
-      Object.assign(userPoolConfig, {
-        DefaultAction: config.userPoolConfig.defaultAction,
-      });
-    }
 
     return userPoolConfig;
   }
 
-  getOpenIDConnectConfig(provider: OidcAuth) {
-    if (!provider.openIdConnectConfig) {
+  getOpenIDConnectConfig(auth: OidcAuth) {
+    if (!auth.config) {
       return;
     }
 
     const openIdConnectConfig = {
-      Issuer: provider.openIdConnectConfig.issuer,
-      ClientId: provider.openIdConnectConfig.clientId,
-      IatTTL: provider.openIdConnectConfig.iatTTL,
-      AuthTTL: provider.openIdConnectConfig.authTTL,
+      Issuer: auth.config.issuer,
+      ClientId: auth.config.clientId,
+      IatTTL: auth.config.iatTTL,
+      AuthTTL: auth.config.authTTL,
     };
 
     return openIdConnectConfig;
   }
 
-  getLambdaAuthorizerConfig(provider: LambdaAuth) {
-    if (!provider.lambdaAuthorizerConfig) {
+  getLambdaAuthorizerConfig(auth: LambdaAuth) {
+    if (!auth.config) {
       return;
     }
 
     const lambdaAuthorizerConfig = {
-      AuthorizerUri: this.getLambdaArn(provider.lambdaAuthorizerConfig),
-      IdentityValidationExpression:
-        provider.lambdaAuthorizerConfig.identityValidationExpression,
-      AuthorizerResultTtlInSeconds:
-        provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
+      AuthorizerUri: this.getLambdaArn(auth.config),
+      IdentityValidationExpression: auth.config.identityValidationExpression,
+      AuthorizerResultTtlInSeconds: auth.config.authorizerResultTtlInSeconds,
     };
 
     return lambdaAuthorizerConfig;
@@ -391,18 +388,18 @@ export class Api {
   }
 
   compileAuthenticationProvider(provider: Auth) {
-    const { authenticationType } = provider;
+    const { type } = provider;
     const authPrivider = {
-      AuthenticationType: authenticationType,
+      AuthenticationType: type,
     };
 
-    if (authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
+    if (type === 'AMAZON_COGNITO_USER_POOLS') {
       merge(authPrivider, { UserPoolConfig: this.getUserPoolConfig(provider) });
-    } else if (authenticationType === 'OPENID_CONNECT') {
+    } else if (type === 'OPENID_CONNECT') {
       merge(authPrivider, {
         OpenIDConnectConfig: this.getOpenIDConnectConfig(provider),
       });
-    } else if (authenticationType === 'AWS_LAMBDA') {
+    } else if (type === 'AWS_LAMBDA') {
       merge(authPrivider, {
         LambdaAuthorizerConfig: this.getLambdaAuthorizerConfig(provider),
       });
@@ -425,7 +422,7 @@ export class Api {
   generateLambdaArn(
     functionName: string,
     functionAlias?: string,
-  ): IntrinsictFunction {
+  ): IntrinsicFunction {
     const lambdaLogicalId = this.plugin.serverless
       .getProvider('aws')
       .naming.getLambdaLogicalId(functionName);

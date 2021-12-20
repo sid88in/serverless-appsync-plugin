@@ -64,9 +64,7 @@ class ServerlessAppsyncPlugin {
     }
 
     const config = this.serverless.configurationInput.custom.appSync;
-    this.config = Array.isArray(config)
-      ? config
-      : [{ ...config, isSingleConfig: true }];
+    this.config = Array.isArray(config) ? config : [config];
 
     this.commands = {
       'validate-schema': {
@@ -197,6 +195,9 @@ class ServerlessAppsyncPlugin {
   }
 
   async loadConfig() {
+    const isSingleConfig = !Array.isArray(
+      this.serverless.configurationInput.custom.appSync,
+    );
     for (let i = 0; i < this.config.length; i++) {
       const config = await getAppSyncConfig(
         this.config[i],
@@ -204,7 +205,7 @@ class ServerlessAppsyncPlugin {
         this.serverless.config.servicePath,
       );
 
-      const api = new Api(config, this);
+      const api = new Api({ ...config, isSingleConfig }, this);
       this.apis.push(api);
     }
   }

@@ -17,7 +17,9 @@ const config: AppSyncConfig = {
   region: 'us-east-1',
   xrayEnabled: false,
   schema: 'type Query { }',
-  authenticationType: 'API_KEY',
+  authentication: {
+    type: 'API_KEY',
+  },
   additionalAuthenticationProviders: [],
   mappingTemplatesLocation: 'path/to/mappingTemplates',
   functionConfigurationsLocation: 'path/to/mappingTemplates',
@@ -649,7 +651,7 @@ describe('DataSource', () => {
             {
               Effect: 'Allow',
               Action: ['lambda:invokeFunction'],
-              Resource: { Ref: 'MyFunction' },
+              Resource: [{ Ref: 'MyFunction' }],
             },
           ],
         },
@@ -684,9 +686,11 @@ describe('DataSource', () => {
                           "lambda:invokeFunction",
                         ],
                         "Effect": "Allow",
-                        "Resource": Object {
-                          "Ref": "MyFunction",
-                        },
+                        "Resource": Array [
+                          Object {
+                            "Ref": "MyFunction",
+                          },
+                        ],
                       },
                     ],
                     "Version": "2012-10-17",

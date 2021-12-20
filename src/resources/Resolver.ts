@@ -2,7 +2,7 @@ import { has } from 'ramda';
 import {
   CfnResolver,
   CfnResources,
-  IntrinsictFunction,
+  IntrinsicFunction,
 } from '../types/cloudFormation';
 import { ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
@@ -103,7 +103,7 @@ export class Resolver {
 
   resolveMappingTemplate(
     type: 'request' | 'response',
-  ): string | IntrinsictFunction | undefined {
+  ): string | IntrinsicFunction | undefined {
     const templateName = has(type)(this.config)
       ? this.config[type]
       : this.api.config.defaultMappingTemplates?.[type];

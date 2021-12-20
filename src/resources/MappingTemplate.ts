@@ -1,7 +1,6 @@
-import { IntrinsictFunction } from '../types/cloudFormation';
+import { IntrinsicFunction } from '../types/cloudFormation';
 import fs from 'fs';
-
-type Substitutions = Record<string, string | IntrinsictFunction>;
+import { Substitutions } from '../types/plugin';
 
 type MappingTemplateConfig = {
   path: string;
@@ -11,12 +10,12 @@ type MappingTemplateConfig = {
 export class MappingTemplate {
   constructor(private config: MappingTemplateConfig) {}
 
-  compile(): string | IntrinsictFunction {
+  compile(): string | IntrinsicFunction {
     const requestTemplateContent = fs.readFileSync(this.config.path, 'utf8');
     return this.processTemplateSubstitutions(requestTemplateContent);
   }
 
-  processTemplateSubstitutions(template: string): string | IntrinsictFunction {
+  processTemplateSubstitutions(template: string): string | IntrinsicFunction {
     const availableVariables = Object.keys(this.config.substitutions);
     const templateVariables: string[] = [];
     let searchResult;
@@ -53,13 +52,13 @@ export class MappingTemplate {
   substituteGlobalTemplateVariables(
     template: string,
     substitutions: Substitutions,
-  ): IntrinsictFunction {
+  ): IntrinsicFunction {
     const variables = Object.keys(substitutions).join('|');
     const regex = new RegExp(`\\\${(${variables})}`, 'g');
     const substituteTemplate = template.replace(regex, '|||$1|||');
 
     const templateJoin = substituteTemplate.split('|||');
-    const parts: (string | IntrinsictFunction)[] = [];
+    const parts: (string | IntrinsicFunction)[] = [];
     for (let i = 0; i < templateJoin.length; i += 1) {
       if (variables.includes(templateJoin[i])) {
         const subs = { [templateJoin[i]]: substitutions[templateJoin[i]] };

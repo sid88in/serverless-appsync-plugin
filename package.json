@@ -9,8 +9,8 @@
     "/src"
   ],
   "scripts": {
-    "test": "jest src/__tests__",
-    "test:watch": "jest src/__tests__ --watch",
+    "test": "jest src/__tests__/.*\\.test\\.ts",
+    "test:watch": "jest src/__tests__/.*\\.test\\.ts --watch",
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit"
   },
@@ -38,6 +38,8 @@
   "dependencies": {
     "@graphql-tools/merge": "^8.2.0",
     "@types/ramda": "^0.27.45",
+    "ajv": "^8.8.2",
+    "ajv-errors": "^3.0.0",
     "aws-sdk": "^2.881.0",
     "chalk": "^4.1.2",
     "globby": "^11.0.4",

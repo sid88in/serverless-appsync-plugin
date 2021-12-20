@@ -16,7 +16,9 @@ const config: AppSyncConfig = {
   region: 'us-east-1',
   xrayEnabled: false,
   schema: 'type Query { }',
-  authenticationType: 'API_KEY',
+  authentication: {
+    type: 'API_KEY',
+  },
   additionalAuthenticationProviders: [],
   mappingTemplatesLocation: 'path/to/mappingTemplates',
   functionConfigurationsLocation: 'path/to/mappingTemplates',
@@ -116,20 +118,19 @@ describe('Api', () => {
           ...config,
           additionalAuthenticationProviders: [
             {
-              authenticationType: 'AMAZON_COGNITO_USER_POOLS',
-              userPoolConfig: {
+              type: 'AMAZON_COGNITO_USER_POOLS',
+              config: {
                 userPoolId: 'pool123',
                 awsRegion: 'us-east-1',
-                defaultAction: 'ALLOW',
                 appIdClientRegex: '[a-z]',
               },
             },
             {
-              authenticationType: 'AWS_IAM',
+              type: 'AWS_IAM',
             },
             {
-              authenticationType: 'OPENID_CONNECT',
-              openIdConnectConfig: {
+              type: 'OPENID_CONNECT',
+              config: {
                 issuer: 'https://auth.example.com',
                 clientId: '333746dd-06fc-44df-bce2-5ff108724044',
                 iatTTL: 3600,
@@ -137,8 +138,8 @@ describe('Api', () => {
               },
             },
             {
-              authenticationType: 'AWS_LAMBDA',
-              lambdaAuthorizerConfig: {
+              type: 'AWS_LAMBDA',
+              config: {
                 functionName: 'authFunction',
                 identityValidationExpression: 'customm-*',
                 authorizerResultTtlInSeconds: 300,
@@ -158,7 +159,7 @@ describe('Api', () => {
                   "UserPoolConfig": Object {
                     "AppIdClientRegex": "[a-z]",
                     "AwsRegion": "us-east-1",
-                    "DefaultAction": "ALLOW",
+                    "DefaultAction": "DENY",
                     "UserPoolId": "pool123",
                   },
                 },
@@ -203,6 +204,150 @@ describe('Api', () => {
         }
       `);
     });
+  });
+
+  it('should use defaultAction as ALLOW for Cognito when primary auth and additionalAuth are present', () => {
+    const api = new Api(
+      {
+        ...config,
+        authentication: {
+          type: 'AMAZON_COGNITO_USER_POOLS',
+          config: {
+            userPoolId: 'pool123',
+            awsRegion: 'us-east-1',
+            appIdClientRegex: '[a-z]',
+          },
+        },
+        additionalAuthenticationProviders: [
+          {
+            type: 'AWS_IAM',
+          },
+        ],
+      },
+      plugin,
+    );
+    expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+      Object {
+        "GraphQlApi": Object {
+          "Properties": Object {
+            "AdditionalAuthenticationProviders": Array [
+              Object {
+                "AuthenticationType": "AWS_IAM",
+              },
+            ],
+            "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "Name": "MyApi",
+            "Tags": Array [
+              Object {
+                "Key": "stage",
+                "Value": "Dev",
+              },
+            ],
+            "UserPoolConfig": Object {
+              "AppIdClientRegex": "[a-z]",
+              "AwsRegion": "us-east-1",
+              "DefaultAction": "ALLOW",
+              "UserPoolId": "pool123",
+            },
+            "XrayEnabled": false,
+          },
+          "Type": "AWS::AppSync::GraphQLApi",
+        },
+      }
+    `);
+  });
+
+  it('should use defaultAction as DENY for Cognito when primary auth and additionalAuth are not present', () => {
+    const api = new Api(
+      {
+        ...config,
+        authentication: {
+          type: 'AMAZON_COGNITO_USER_POOLS',
+          config: {
+            userPoolId: 'pool123',
+            awsRegion: 'us-east-1',
+            appIdClientRegex: '[a-z]',
+          },
+        },
+        additionalAuthenticationProviders: [],
+      },
+      plugin,
+    );
+    expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+      Object {
+        "GraphQlApi": Object {
+          "Properties": Object {
+            "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "Name": "MyApi",
+            "Tags": Array [
+              Object {
+                "Key": "stage",
+                "Value": "Dev",
+              },
+            ],
+            "UserPoolConfig": Object {
+              "AppIdClientRegex": "[a-z]",
+              "AwsRegion": "us-east-1",
+              "DefaultAction": "DENY",
+              "UserPoolId": "pool123",
+            },
+            "XrayEnabled": false,
+          },
+          "Type": "AWS::AppSync::GraphQLApi",
+        },
+      }
+    `);
+  });
+
+  it('should use defaultAction as DENY for Cognito when not primary auth', () => {
+    const api = new Api(
+      {
+        ...config,
+        authentication: {
+          type: 'API_KEY',
+        },
+        additionalAuthenticationProviders: [
+          {
+            type: 'AMAZON_COGNITO_USER_POOLS',
+            config: {
+              userPoolId: 'pool123',
+              awsRegion: 'us-east-1',
+              appIdClientRegex: '[a-z]',
+            },
+          },
+        ],
+      },
+      plugin,
+    );
+    expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+      Object {
+        "GraphQlApi": Object {
+          "Properties": Object {
+            "AdditionalAuthenticationProviders": Array [
+              Object {
+                "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+                "UserPoolConfig": Object {
+                  "AppIdClientRegex": "[a-z]",
+                  "AwsRegion": "us-east-1",
+                  "DefaultAction": "DENY",
+                  "UserPoolId": "pool123",
+                },
+              },
+            ],
+            "AuthenticationType": "API_KEY",
+            "Name": "MyApi",
+            "Tags": Array [
+              Object {
+                "Key": "stage",
+                "Value": "Dev",
+              },
+            ],
+            "XrayEnabled": false,
+          },
+          "Type": "AWS::AppSync::GraphQLApi",
+        },
+      }
+    `);
   });
 
   describe('schema', () => {
@@ -286,32 +431,6 @@ describe('Api', () => {
                 ],
                 "Version": "2012-10-17",
               },
-              "Policies": Array [
-                Object {
-                  "PolicyDocument": Object {
-                    "Statement": Array [
-                      Object {
-                        "Action": Array [
-                          "logs:CreateLogGroup",
-                          "logs:CreateLogStream",
-                          "logs:PutLogEvents",
-                        ],
-                        "Effect": "Allow",
-                        "Resource": Array [
-                          Object {
-                            "Fn::GetAtt": Array [
-                              "GraphQlApiLogGroup",
-                              "Arn",
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                    "Version": "2012-10-17",
-                  },
-                  "PolicyName": "MyApi LogGroup Policy",
-                },
-              ],
             },
             "Type": "AWS::IAM::Role",
           },
@@ -475,7 +594,9 @@ describe('Api', () => {
       const api = new Api(
         {
           ...config,
-          authenticationType: 'API_KEY',
+          authentication: {
+            type: 'API_KEY',
+          },
         },
         plugin,
       );
@@ -488,9 +609,11 @@ describe('Api', () => {
       const api = new Api(
         {
           ...config,
-          authenticationType: 'AWS_LAMBDA',
-          lambdaAuthorizerConfig: {
-            lambdaFunctionArn: 'arn:',
+          authentication: {
+            type: 'AWS_LAMBDA',
+            config: {
+              lambdaFunctionArn: 'arn:',
+            },
           },
         },
         plugin,
@@ -518,8 +641,8 @@ describe('Api', () => {
           ...config,
           additionalAuthenticationProviders: [
             {
-              authenticationType: 'AWS_LAMBDA',
-              lambdaAuthorizerConfig: {
+              type: 'AWS_LAMBDA',
+              config: {
                 lambdaFunctionArn: 'arn:',
               },
             },

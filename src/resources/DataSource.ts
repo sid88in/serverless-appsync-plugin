@@ -3,7 +3,7 @@ import { has } from 'ramda';
 import {
   CfnDataSource,
   CfnResources,
-  IntrinsictFunction,
+  IntrinsicFunction,
 } from '../types/cloudFormation';
 import {
   DataSourceConfig,
@@ -259,7 +259,7 @@ export class DataSource {
         return [defaultLambdaStatement];
       }
       case 'AMAZON_DYNAMODB': {
-        const dynamoDbResourceArn: IntrinsictFunction = {
+        const dynamoDbResourceArn: IntrinsicFunction = {
           'Fn::Join': [
             ':',
             [
@@ -296,7 +296,7 @@ export class DataSource {
         return [defaultDynamoDBStatement];
       }
       case 'RELATIONAL_DATABASE': {
-        const dDbResourceArn: IntrinsictFunction = {
+        const dDbResourceArn: IntrinsicFunction = {
           'Fn::Join': [
             ':',
             [

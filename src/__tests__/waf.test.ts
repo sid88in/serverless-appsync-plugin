@@ -17,7 +17,9 @@ const config: AppSyncConfig = {
   region: 'us-east-1',
   xrayEnabled: false,
   schema: 'type Query { }',
-  authenticationType: 'API_KEY',
+  authentication: {
+    type: 'API_KEY',
+  },
   additionalAuthenticationProviders: [],
   mappingTemplatesLocation: 'path/to/mappingTemplates',
   functionConfigurationsLocation: 'path/to/mappingTemplates',

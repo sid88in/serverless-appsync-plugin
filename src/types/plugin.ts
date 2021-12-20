@@ -1,7 +1,7 @@
 import {
   CfnWafAction,
   CfnWafRuleStatement,
-  IntrinsictFunction,
+  IntrinsicFunction,
 } from './cloudFormation';
 
 export type AppSyncConfig = {
@@ -10,6 +10,7 @@ export type AppSyncConfig = {
   name: string;
   region: string;
   schema: string;
+  authentication: Auth;
   apiKeys?: ApiKeyConfig[];
   caching?: {
     behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
@@ -20,7 +21,7 @@ export type AppSyncConfig = {
   };
   additionalAuthenticationProviders: Auth[];
   logConfig?: {
-    loggingRoleArn?: string | IntrinsictFunction;
+    loggingRoleArn?: string | IntrinsicFunction;
     level?: 'ERROR' | 'NONE' | 'ALL';
     logRetentionInDays?: number;
     excludeVerboseContent?: boolean;
@@ -34,23 +35,23 @@ export type AppSyncConfig = {
   mappingTemplates: ResolverConfig[];
   functionConfigurations: FunctionConfig[];
   dataSources: DataSourceConfig[];
-  substitutions: Record<string, string | IntrinsictFunction>;
+  substitutions: Record<string, string | IntrinsicFunction>;
   xrayEnabled: boolean;
   wafConfig?: WafConfig;
   tags?: Record<string, string>;
-} & Auth;
+};
 
 export type IamStatement = {
   Effect: 'Allow' | 'Deny';
   Action: string[];
-  Resource: (string | IntrinsictFunction) | (string | IntrinsictFunction)[];
+  Resource: (string | IntrinsicFunction)[];
 };
 
 export type WafThrottleConfig =
   | number
   | {
       name?: string;
-      action?: WafAction;
+      action?: WafActionKeys;
       aggregateKeyType?: 'IP' | 'FORWARDED_IP';
       limit?: number;
       priority?: number;
@@ -76,8 +77,7 @@ export type WafRuleThrottle = {
 export type WafRuleCustom = {
   name: string;
   priority?: number;
-  action?: WafAction;
-  overrideAction?: WafAction;
+  action?: WafActionKeys;
   statement: CfnWafRuleStatement;
   visibilityConfig?: VisibilityConfig;
 };
@@ -105,30 +105,30 @@ export type ApiKeyConfigObject = {
 export type ApiKeyConfig = ApiKeyConfigObject | string;
 
 export type CognitoAuth = {
-  authenticationType: 'AMAZON_COGNITO_USER_POOLS';
-  userPoolConfig: {
-    userPoolId: string | IntrinsictFunction;
-    awsRegion?: string | IntrinsictFunction;
+  type: 'AMAZON_COGNITO_USER_POOLS';
+  config: {
+    userPoolId: string | IntrinsicFunction;
+    awsRegion?: string | IntrinsicFunction;
     defaultAction?: 'ALLOW' | 'DENY';
     appIdClientRegex?: string;
   };
 };
 
 export type IamAuth = {
-  authenticationType: 'AWS_IAM';
+  type: 'AWS_IAM';
 };
 
 export type LambdaAuth = {
-  authenticationType: 'AWS_LAMBDA';
-  lambdaAuthorizerConfig: LambdaConfig & {
+  type: 'AWS_LAMBDA';
+  config: LambdaConfig & {
     identityValidationExpression?: string;
     authorizerResultTtlInSeconds?: number;
   };
 };
 
 export type OidcAuth = {
-  authenticationType: 'OPENID_CONNECT';
-  openIdConnectConfig: {
+  type: 'OPENID_CONNECT';
+  config: {
     issuer: string;
     clientId: string;
     iatTTL?: number;
@@ -137,7 +137,7 @@ export type OidcAuth = {
 };
 
 export type ApiKeyAuth = {
-  authenticationType: 'API_KEY';
+  type: 'API_KEY';
 };
 
 export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
@@ -154,14 +154,12 @@ export type ResolverConfig = {
       }
     | boolean;
   sync?:
-    | {
+    | ({
         conflictDetection: 'VERSION';
         conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'LAMBDA';
-        functionName?: string;
-        lambdaFunctionArn: string | IntrinsictFunction;
-      }
+      } & LambdaConfig)
     | boolean;
-  substitutions?: Record<string, string | IntrinsictFunction>;
+  substitutions?: Substitutions;
 } & (
   | {
       kind: 'UNIT';
@@ -173,22 +171,24 @@ export type ResolverConfig = {
     }
 );
 
+export type Substitutions = Record<string, string | IntrinsicFunction>;
+
 export type FunctionConfig = {
   name: string;
   dataSource: string;
   description?: string;
   request?: string | false;
   response?: string | false;
-  substitutions?: Record<string, string | IntrinsictFunction>;
+  substitutions?: Substitutions;
 };
 
 export type DsDynamoDBConfig = {
   type: 'AMAZON_DYNAMODB';
   config: {
-    tableName: string | IntrinsictFunction;
+    tableName: string | IntrinsicFunction;
     useCallerCredentials?: boolean;
-    serviceRoleArn?: string | IntrinsictFunction;
-    region?: string | IntrinsictFunction;
+    serviceRoleArn?: string | IntrinsicFunction;
+    region?: string | IntrinsicFunction;
     iamRoleStatements?: IamStatement[];
     versioned?: boolean;
     deltaSyncConfig?: {
@@ -204,11 +204,11 @@ export type DsRelationalDbConfig = {
   config: {
     region?: string;
     relationalDatabaseSourceType?: 'RDS_HTTP_ENDPOINT';
-    serviceRoleArn?: string | IntrinsictFunction;
-    dbClusterIdentifier: string | IntrinsictFunction;
-    databaseName?: string | IntrinsictFunction;
+    serviceRoleArn?: string | IntrinsicFunction;
+    dbClusterIdentifier: string | IntrinsicFunction;
+    databaseName?: string | IntrinsicFunction;
     schema?: string;
-    awsSecretStoreArn: string | IntrinsictFunction;
+    awsSecretStoreArn: string | IntrinsicFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
@@ -217,9 +217,9 @@ export type DsElasticSearchConfig = {
   type: 'AMAZON_ELASTICSEARCH' | 'AMAZON_OPENSEARCH_SERVICE';
   config: {
     domain?: string;
-    endpoint?: string | IntrinsictFunction;
-    region?: string | IntrinsictFunction;
-    serviceRoleArn?: string | IntrinsictFunction;
+    endpoint?: string | IntrinsicFunction;
+    region?: string | IntrinsicFunction;
+    serviceRoleArn?: string | IntrinsicFunction;
     iamRoleStatements?: IamStatement[];
   };
 };
@@ -230,13 +230,13 @@ export type LambdaConfig =
       functionAlias?: string;
     }
   | {
-      lambdaFunctionArn: string | IntrinsictFunction;
+      lambdaFunctionArn: string | IntrinsicFunction;
     };
 
 export type DsLambdaConfig = {
   type: 'AWS_LAMBDA';
   config: {
-    serviceRoleArn?: string | IntrinsictFunction;
+    serviceRoleArn?: string | IntrinsicFunction;
     iamRoleStatements?: IamStatement[];
   } & LambdaConfig;
 };
@@ -244,14 +244,14 @@ export type DsLambdaConfig = {
 export type DsHttpConfig = {
   type: 'HTTP';
   config: {
-    endpoint: string | IntrinsictFunction;
-    serviceRoleArn?: string | IntrinsictFunction;
+    endpoint: string | IntrinsicFunction;
+    serviceRoleArn?: string | IntrinsicFunction;
     iamRoleStatements?: IamStatement[];
     authorizationConfig?: {
       authorizationType: 'AWS_IAM';
       awsIamConfig: {
-        signingRegion: string | IntrinsictFunction;
-        signingServiceName?: string | IntrinsictFunction;
+        signingRegion: string | IntrinsicFunction;
+        signingServiceName?: string | IntrinsicFunction;
       };
     };
   };
@@ -274,15 +274,15 @@ export type DataSourceConfig = {
 );
 
 export type VisibilityConfig = {
-  cloudWatchMetricsEnabled?: boolean;
   name?: string;
-  sampledRequestsEnabled: boolean;
+  cloudWatchMetricsEnabled?: boolean;
+  sampledRequestsEnabled?: boolean;
 };
 
 export type WafConfig = {
-  enabled: boolean;
+  enabled?: boolean;
   name: string;
-  defaultAction?: WafAction;
+  defaultAction?: WafActionKeys;
   description?: string;
   visibilityConfig?: VisibilityConfig;
   rules: WafRule[];

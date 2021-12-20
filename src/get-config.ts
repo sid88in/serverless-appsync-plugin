@@ -10,11 +10,13 @@ import {
   DataSourceConfig,
   FunctionConfig,
   ResolverConfig,
+  Substitutions,
+  WafActionKeys,
   WafRule,
 } from './types/plugin';
 import { AWS } from '@serverless/typescript';
 import { convertAppSyncSchemas } from 'appsync-schema-converter';
-import { IntrinsictFunction } from './types/cloudFormation';
+import { IntrinsicFunction } from './types/cloudFormation';
 
 const objectToArrayWithNameProp = pipe(
   mapObjIndexed(
@@ -49,10 +51,9 @@ const buildAppSyncSchema = (schemaFiles: string[]) => {
 
 export type AppSyncConfigInput = {
   apiId?: string;
-  isSingleConfig?: boolean;
   name?: string;
-  region: string;
-  schema: string | string[];
+  schema?: string | string[];
+  authentication: Auth;
   apiKeys?: ApiKeyConfig[];
   caching?: {
     behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
@@ -63,7 +64,7 @@ export type AppSyncConfigInput = {
   };
   additionalAuthenticationProviders?: Auth[];
   logConfig?: {
-    loggingRoleArn?: string | IntrinsictFunction;
+    loggingRoleArn?: string | IntrinsicFunction;
     level?: 'ERROR' | 'NONE' | 'ALL';
     excludeVerboseContent?: boolean;
   };
@@ -78,75 +79,23 @@ export type AppSyncConfigInput = {
   dataSources:
     | (DataSourceConfig | Record<string, DataSourceConfig>)[]
     | Record<string, DataSourceConfig>;
-  substitutions?: Record<string, string | IntrinsictFunction>;
+  substitutions?: Substitutions;
   xrayEnabled?: boolean;
   wafConfig?: {
-    enabled: boolean;
+    enabled?: boolean;
     name: string;
-    defaultAction: 'Allow' | 'Block';
+    defaultAction: WafActionKeys;
     description?: string;
     rules: WafRule[];
   };
   tags?: Record<string, string>;
-} & Auth;
+};
 
 export const getAppSyncConfig = async (
   config: AppSyncConfigInput,
   provider: AWS['provider'],
   servicePath: string,
 ): Promise<AppSyncConfig> => {
-  if (
-    !(
-      config.apiId ||
-      config.authenticationType === 'API_KEY' ||
-      config.authenticationType === 'AWS_IAM' ||
-      config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' ||
-      config.authenticationType === 'OPENID_CONNECT' ||
-      config.authenticationType === 'AWS_LAMBDA'
-    )
-  ) {
-    throw new Error(
-      'appSync property `authenticationType` is missing or invalid.',
-    );
-  }
-
-  if (
-    config.authenticationType === 'AMAZON_COGNITO_USER_POOLS' &&
-    !has('userPoolConfig', config)
-  ) {
-    throw new Error(
-      'appSync property `userPoolConfig` is required when authenticationType `AMAZON_COGNITO_USER_POOLS` is chosen.',
-    );
-  }
-  if (
-    config.authenticationType === 'AWS_LAMBDA' &&
-    !has('lambdaAuthorizerConfig', config)
-  ) {
-    throw new Error(
-      'appSync property `lambdaAuthorizerConfig` is required when authenticationType `AWS_LAMBDA` is chosen.',
-    );
-  }
-  if (
-    config.authenticationType === 'OPENID_CONNECT' &&
-    !has('openIdConnectConfig', config)
-  ) {
-    throw new Error(
-      'appSync property `openIdConnectConfig` is required when authenticationType `OPENID_CONNECT` is chosenXXX.',
-    );
-  }
-
-  if (config.logConfig && !config.logConfig.level) {
-    throw new Error(
-      'logConfig property `level` must be NONE, ERROR, or ALL when logConfig exists.',
-    );
-  }
-  if (config.substitutions && typeof config.substitutions !== 'object') {
-    throw new Error('substitutions property must be an object');
-  }
-  if (config.xrayEnabled && typeof config.xrayEnabled !== 'boolean') {
-    throw new Error('xrayEnabled must be a boolean');
-  }
-
   const mappingTemplatesLocation =
     config.mappingTemplatesLocation || 'mapping-templates';
   const functionConfigurationsLocation =
