@@ -286,27 +286,9 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     },
     resolverConfig: {
       type: 'object',
-      oneOf: [
-        {
-          type: 'object',
-          properties: {
-            kind: { type: 'string', const: 'UNIT' },
-            dataSource: { type: 'string' },
-          },
-          required: ['kind', 'dataSource'],
-        },
-        {
-          type: 'object',
-          properties: {
-            kind: { type: 'string', const: 'PIPELINE' },
-            functions: { type: 'array', items: { type: 'string' } },
-          },
-          required: ['kind', 'functions'],
-        },
-      ],
       properties: {
-        type: { type: 'string' },
-        kind: { type: 'string' },
+        type: { type: 'string', nullable: true },
+        kind: { type: 'string', nullable: true },
         dataSource: { type: 'string' },
         functions: { type: 'array', items: { type: 'string' } },
         field: { type: 'string' },
@@ -316,20 +298,28 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
+
+      if: { properties: { type: { const: 'PIPELINE' } } },
+      then: {
+        required: ['functions'],
+      },
+      else: {
+        required: ['dataSource'],
+      },
       required: ['type', 'field'],
       errorMessage: 'is not a resolver config',
     },
     pipelineFunctionConfig: {
       type: 'object',
       properties: {
-        name: { type: 'string' },
+        name: { type: 'string', nullable: true },
         dataSource: { type: 'string' },
         description: { type: 'string', nullable: true },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
-      required: ['name', 'dataSource'],
+      required: ['dataSource'],
       errorMessage: 'is not a valid pipeline function config',
     },
     resolverCachingConfig: {

@@ -23,6 +23,7 @@ import {
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
 import { O } from 'ts-toolbelt';
+import { validateConfig } from './validation';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -78,6 +79,7 @@ class ServerlessAppsyncPlugin {
 
     this.hooks = {
       'package:initialize': async () => {
+        this.validateConfig();
         await this.loadConfig();
       },
       'validate-schema:run': () => this.validateSchemas(),
@@ -213,11 +215,24 @@ class ServerlessAppsyncPlugin {
   async validateSchemas() {
     try {
       this.log.info('Validating schema');
-      // todo validate
       this.log.success('GraphQL schema valid');
     } catch (error) {
       this.log.error('GraphQL schema invalid');
       throw error;
+    }
+  }
+
+  validateConfig() {
+    for (const conf of this.config) {
+      try {
+        validateConfig(conf);
+      } catch (error) {
+        if (error instanceof Error) {
+          this.log.error(error.message);
+        } else {
+          throw error;
+        }
+      }
     }
   }
 

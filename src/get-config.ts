@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { mergeTypeDefs } from '@graphql-tools/merge';
-import { has, mapObjIndexed, pipe, values } from 'ramda';
 import globby from 'globby';
 import {
   ApiKeyConfig,
@@ -17,18 +16,18 @@ import {
 import { AWS } from '@serverless/typescript';
 import { convertAppSyncSchemas } from 'appsync-schema-converter';
 import { IntrinsicFunction } from './types/cloudFormation';
-import { merge } from 'lodash';
+import { O } from 'ts-toolbelt';
+import { map, merge } from 'lodash';
 
-const objectToArrayWithNameProp = pipe(
-  mapObjIndexed(
-    (item: DataSourceConfig | Omit<DataSourceConfig, 'name'>, key) =>
-      ({
-        name: key,
-        ...item,
-      } as DataSourceConfig),
-  ),
-  values,
-);
+const flattenAndMerge = <T>(
+  input?: Record<string, T> | Record<string, T>[],
+): Record<string, T> => {
+  if (Array.isArray(input)) {
+    return merge({}, ...input);
+  } else {
+    return merge({}, input);
+  }
+};
 
 const readSchemaFile = (filePath: string) =>
   fs.readFileSync(filePath, { encoding: 'utf8' });
@@ -49,6 +48,10 @@ const buildAppSyncSchema = (schemaFiles: string[]) => {
 
   return convertAppSyncSchemas(mergedSchema);
 };
+
+export type ResolverConfigInput = O.Optional<ResolverConfig, 'type' | 'field'>;
+export type FunctionConfigInput = O.Optional<FunctionConfig, 'name'>;
+export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
 export type AppSyncConfigInput = {
   apiId?: string;
@@ -77,11 +80,15 @@ export type AppSyncConfigInput = {
     resolvers?: string;
     pipelineFunctions?: string;
   };
-  resolvers?: (ResolverConfig | ResolverConfig[])[];
-  pipelineFunctions?: (FunctionConfig | FunctionConfig[])[];
+  resolvers?:
+    | Record<string, ResolverConfigInput>[]
+    | Record<string, ResolverConfigInput>;
+  pipelineFunctions?:
+    | Record<string, FunctionConfigInput>[]
+    | Record<string, FunctionConfigInput>;
   dataSources:
-    | (DataSourceConfig | Record<string, DataSourceConfig>)[]
-    | Record<string, DataSourceConfig>;
+    | Record<string, DataSourceConfigInput>[]
+    | Record<string, DataSourceConfigInput>;
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
   wafConfig?: {
@@ -107,18 +114,6 @@ export const getAppSyncConfig = async (
     config.mappingTemplatesLocation,
   );
 
-  const pipelineFunctions: FunctionConfig[] =
-    config.pipelineFunctions?.reduce<FunctionConfig[]>(
-      (accumulator, currentValue) => accumulator.concat(currentValue),
-      [],
-    ) || [];
-
-  const resolvers: ResolverConfig[] =
-    config.resolvers?.reduce<ResolverConfig[]>(
-      (accumulator, currentValue) => accumulator.concat(currentValue),
-      [],
-    ) || [];
-
   const toAbsolutePosixPath = (filePath: string) =>
     (path.isAbsolute(filePath)
       ? filePath
@@ -134,19 +129,28 @@ export const getAppSyncConfig = async (
 
   const schemaContent = buildAppSyncSchema(schemaFiles);
 
-  let dataSources: DataSourceConfig[] = [];
-  if (Array.isArray(config.dataSources)) {
-    dataSources = config.dataSources.reduce((acc, value) => {
-      // Do not call `objectToArrayWithNameProp` on datasources objects``
-      if (has('name')(value)) {
-        return acc.concat(value);
-      } else {
-        return acc.concat(objectToArrayWithNameProp(value));
-      }
-    }, [] as DataSourceConfig[]);
-  } else if (config.dataSources) {
-    dataSources = objectToArrayWithNameProp(config.dataSources);
-  }
+  const dataSources = map(flattenAndMerge(config.dataSources), (ds, name) => {
+    return { ...ds, name: ds.name || name };
+  });
+
+  const resolvers = map(
+    flattenAndMerge(config.resolvers),
+    (resolver, typeAndField) => {
+      const [type, field] = typeAndField.split('.');
+      return {
+        ...resolver,
+        type: resolver.type || type,
+        field: resolver.field || field,
+      };
+    },
+  );
+
+  const pipelineFunctions = map(
+    flattenAndMerge(config.pipelineFunctions),
+    (ds, name) => {
+      return { ...ds, name: ds.name || name };
+    },
+  );
 
   return {
     ...config,
@@ -164,25 +168,4 @@ export const getAppSyncConfig = async (
     substitutions: config.substitutions || {},
     xrayEnabled: config.xrayEnabled || false,
   };
-};
-
-export const getConfig = async (
-  config: AppSyncConfigInput | AppSyncConfigInput[],
-  provider: AWS['provider'],
-  servicePath: string,
-) => {
-  if (!config) {
-    return [];
-  } else if (Array.isArray(config)) {
-    const conf: AppSyncConfig[] = [];
-    for (const key in config) {
-      conf.push(await getAppSyncConfig(config[key], provider, servicePath));
-    }
-    return conf;
-  }
-
-  const singleConfig = await getAppSyncConfig(config, provider, servicePath);
-  singleConfig.isSingleConfig = true;
-
-  return [singleConfig];
 };
