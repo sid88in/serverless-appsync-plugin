@@ -11,20 +11,20 @@ exports[`Valdiation Invalid should validate a Cognito with invalid userPoolId 1`
 /authentication/config/appIdClientRegex: must be string"
 `;
 
-exports[`Valdiation Invalid should validate a Lambda with empty config 1`] = `"/authentication/config: must have a valid functionName or functionArn, but not both"`;
+exports[`Valdiation Invalid should validate a Lambda with empty config 1`] = `"/authentication/config: must have functionName or functionArn (but not both)"`;
 
 exports[`Valdiation Invalid should validate a Lambda with invalid config functionnArn 1`] = `
 "/authentication/config/functionArn: must be a string or a CloudFormation intrinsic function
-/authentication/config: must have a valid functionName or functionArn, but not both
+/authentication/config: must have functionName or functionArn (but not both)
 /authentication/config/functionArn: must be string
 /authentication/config/identityValidationExpression: must be string
 /authentication/config/authorizerResultTtlInSeconds: must be number"
 `;
 
-exports[`Valdiation Invalid should validate a Lambda with invalid config: both functionName and functionnArn are set 1`] = `"/authentication/config: must have a valid functionName or functionArn, but not both"`;
+exports[`Valdiation Invalid should validate a Lambda with invalid config: both functionName and functionnArn are set 1`] = `"/authentication/config: must have functionName or functionArn (but not both)"`;
 
 exports[`Valdiation Invalid should validate a Lambda with invalid functionName and functionVersion 1`] = `
-"/authentication/config: must have a valid functionName or functionArn, but not both
+"/authentication/config: must have functionName or functionArn (but not both)
 /authentication/config/functionName: must be string
 /authentication/config/identityValidationExpression: must be string
 /authentication/config/authorizerResultTtlInSeconds: must be number"

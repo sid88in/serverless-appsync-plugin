@@ -23,6 +23,24 @@ import {
   WafRuleCustom,
 } from './types/plugin';
 
+const AUTH_TYPES = [
+  'AMAZON_COGNITO_USER_POOLS',
+  'AWS_LAMBDA',
+  'OPENID_CONNECT',
+  'AWS_IAM',
+  'API_KEY',
+] as const;
+
+const DATASOURCE_TYPES = [
+  'AMAZON_DYNAMODB',
+  'AMAZON_ELASTICSEARCH',
+  'AMAZON_OPENSEARCH_SERVICE',
+  'AWS_LAMBDA',
+  'HTTP',
+  'NONE',
+  'RELATIONAL_DATABASE',
+] as const;
+
 export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
   definitions: {
     stringOrIntrinsicFunction: JSONSchemaType<string | IntrinsicFunction>;
@@ -88,8 +106,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           required: ['functionArn'],
         },
       ],
-      errorMessage:
-        'must have a valid functionName or functionArn, but not both',
+      errorMessage: 'must have functionName or functionArn (but not both)',
     },
     auth: {
       type: 'object',
@@ -98,13 +115,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       properties: {
         type: {
           type: 'string',
-          enum: [
-            'AMAZON_COGNITO_USER_POOLS',
-            'AWS_LAMBDA',
-            'OPENID_CONNECT',
-            'AWS_IAM',
-            'API_KEY',
-          ],
+          enum: AUTH_TYPES,
+          errorMessage: `must be one of ${AUTH_TYPES.join(', ')}`,
         },
       },
       if: { properties: { type: { const: 'AMAZON_COGNITO_USER_POOLS' } } },
@@ -384,15 +396,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         name: { type: 'string', nullable: true },
         type: {
           type: 'string',
-          enum: [
-            'AMAZON_DYNAMODB',
-            'AMAZON_ELASTICSEARCH',
-            'AMAZON_OPENSEARCH_SERVICE',
-            'AWS_LAMBDA',
-            'HTTP',
-            'NONE',
-            'RELATIONAL_DATABASE',
-          ],
+          enum: DATASOURCE_TYPES,
+          errorMessage: `must be one of ${DATASOURCE_TYPES.join(', ')}`,
         },
         description: { type: 'string', nullable: true },
       },
@@ -427,7 +432,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
             },
             then: {
               properties: {
-                config: { $ref: '#/definitions/dataSourceHttpConfig' },
+                config: { $ref: '#/definitions/datasourceEsConfig' },
               },
               required: ['config'],
             },
@@ -460,7 +465,11 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         authorizationConfig: {
           type: 'object',
           properties: {
-            authorizationType: { type: 'string', const: 'AWS_IAM' },
+            authorizationType: {
+              type: 'string',
+              enum: ['AWS_IAM'],
+              errorMessage: 'must be AWS_IAM',
+            },
             awsIamConfig: {
               type: 'object',
               properties: {
@@ -553,21 +562,23 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       type: 'object',
       oneOf: [
         {
-          type: 'object',
-          properties: {
-            endpoint: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
+          oneOf: [
+            {
+              type: 'object',
+              properties: {
+                endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+              },
+              required: ['endpoint'],
             },
-          },
-          required: ['endpoint'],
-        },
-        {
-          type: 'object',
-          properties: {
-            domain: {
-              $ref: '#/definitions/stringOrIntrinsicFunction',
+            {
+              type: 'object',
+              properties: {
+                domain: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+              },
+              required: ['domain'],
             },
-          },
+          ],
+          errorMessage: 'must have a endpoint or domain (but not both)',
         },
       ],
       properties: {
@@ -720,7 +731,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           },
         },
       ],
-      errorMessage: 'must contain only valid data source definitions',
+      errorMessage: 'contains invalid data source definitions',
     },
     resolvers: {
       type: 'array',
