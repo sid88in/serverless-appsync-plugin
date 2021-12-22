@@ -5,6 +5,6 @@ export const basicConfig: AppSyncConfigInput = {
   authentication: {
     type: 'API_KEY',
   },
-  dataSources: [],
-  resolvers: [],
+  dataSources: {},
+  resolvers: {},
 };

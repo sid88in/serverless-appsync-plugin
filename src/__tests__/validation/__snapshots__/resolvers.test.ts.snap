@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic Invalid should validate: Invalid 1`] = `
+"/resolvers/myResolver/type: must be string
+/resolvers/myResolver/field: must be string
+/resolvers/myResolver/request: is not a valid mapping template
+/resolvers/myResolver/response: is not a valid mapping template
+/resolvers/myResolver: resolver definitions that do not specify Type.field in the key must specify the type and field attributes
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing datasource 1`] = `
+"/resolvers/Query.user: must have required property 'dataSource'
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing field and type 1`] = `
+"/resolvers/myResolver: resolver definitions that do not specify Type.field in the key must specify the type and field attributes
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing functions 1`] = `
+"/resolvers/Query.user: must have required property 'functions'
+/resolvers: contains invalid resolver definitions"
+`;

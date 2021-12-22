@@ -2,12 +2,14 @@
 
 exports[`Basic Invalid should validate: Invalid Datasource 1`] = `
 "/dataSources/myDynamoSource1/type: must be one of AMAZON_DYNAMODB, AMAZON_ELASTICSEARCH, AMAZON_OPENSEARCH_SERVICE, AWS_LAMBDA, HTTP, NONE, RELATIONAL_DATABASE
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`DynamoDB Invalid should validate: Empty config 1`] = `
 "/dataSources/myDynamoSource1/config: must have required property 'tableName'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`DynamoDB Invalid should validate: Invalid config 1`] = `
@@ -20,17 +22,20 @@ exports[`DynamoDB Invalid should validate: Invalid config 1`] = `
 /dataSources/myDynamoSource1/config/deltaSyncConfig: must have required property 'deltaSyncTableName'
 /dataSources/myDynamoSource1/config/deltaSyncConfig/baseTableTTL: must be integer
 /dataSources/myDynamoSource1/config/deltaSyncConfig/deltaSyncTableTTL: must be integer
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`DynamoDB Invalid should validate: Missing config 1`] = `
 "/dataSources/myDynamoSource1: must have required property 'config'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`HTTP Invalid should validate: Empty config 1`] = `
 "/dataSources/http1/config: must have required property 'endpoint'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`HTTP Invalid should validate: Invalid config 1`] = `
@@ -38,38 +43,45 @@ exports[`HTTP Invalid should validate: Invalid config 1`] = `
 /dataSources/http1/config/authorizationConfig/authorizationType: must be AWS_IAM
 /dataSources/http1/config/authorizationConfig/awsIamConfig/signingRegion: must be a string or a CloudFormation intrinsic function
 /dataSources/http1/config/authorizationConfig/awsIamConfig/signingServiceName: must be a string or a CloudFormation intrinsic function
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`HTTP Invalid should validate: Missing config 1`] = `
 "/dataSources/http1: must have required property 'config'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`Lambda Invalid should validate: Empty config 1`] = `
 "/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`Lambda Invalid should validate: Invalid config 1`] = `
 "/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`Lambda Invalid should validate: Invalid config 2`] = `
 "/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
 /dataSources/myLambda1/config/functionName: must be string
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`Lambda Invalid should validate: Missing config 1`] = `
 "/dataSources/myLambda1: must have required property 'config'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`OpenSearch Invalid should validate: Empty config 1`] = `
 "/dataSources/openSearch1/config: must have a endpoint or domain (but not both)
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`OpenSearch Invalid should validate: Invalid config 1`] = `
@@ -77,17 +89,20 @@ exports[`OpenSearch Invalid should validate: Invalid config 1`] = `
 /dataSources/openSearch1/config: must have a endpoint or domain (but not both)
 /dataSources/openSearch1/config/endpoint: must be a string or a CloudFormation intrinsic function
 /dataSources/openSearch1/config/region: must be a string or a CloudFormation intrinsic function
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`OpenSearch Invalid should validate: Missing config 1`] = `
 "/dataSources/openSearch1: must have required property 'config'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`RelationalDb Invalid should validate: Empty config 1`] = `
 "/dataSources/http1/config: must have required property 'endpoint'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`RelationalDb Invalid should validate: Invalid config 1`] = `
@@ -95,10 +110,12 @@ exports[`RelationalDb Invalid should validate: Invalid config 1`] = `
 /dataSources/http1/config/authorizationConfig/authorizationType: must be AWS_IAM
 /dataSources/http1/config/authorizationConfig/awsIamConfig/signingRegion: must be a string or a CloudFormation intrinsic function
 /dataSources/http1/config/authorizationConfig/awsIamConfig/signingServiceName: must be a string or a CloudFormation intrinsic function
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;
 
 exports[`RelationalDb Invalid should validate: Missing config 1`] = `
 "/dataSources/http1: must have required property 'config'
-/dataSources: contains invalid data source definitions"
+/dataSources: contains invalid data source definitions
+/resolvers: contains invalid resolver definitions"
 `;

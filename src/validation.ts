@@ -1,5 +1,6 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import ajvErrors from 'ajv-errors';
+import ajvMergePatch from 'ajv-merge-patch';
 import { AppSyncConfigInput } from './get-config';
 import { IntrinsicFunction } from './types/cloudFormation';
 import {
@@ -299,8 +300,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     resolverConfig: {
       type: 'object',
       properties: {
-        type: { type: 'string', nullable: true },
-        kind: { type: 'string', nullable: true },
+        type: { type: 'string' },
+        kind: { type: 'string' },
         dataSource: { type: 'string' },
         functions: { type: 'array', items: { type: 'string' } },
         field: { type: 'string' },
@@ -311,15 +312,34 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
 
-      if: { properties: { type: { const: 'PIPELINE' } } },
+      if: { properties: { kind: { const: 'PIPELINE' } } },
       then: {
         required: ['functions'],
       },
       else: {
         required: ['dataSource'],
       },
-      required: ['type', 'field'],
-      errorMessage: 'is not a resolver config',
+      required: [],
+    },
+    // @ts-ignore
+    resolverConfigMap: {
+      type: 'object',
+      patternProperties: {
+        // Type.field keys, type and field are not required
+        '^[_A-Za-z][_0-9A-Za-z]*\\.[_A-Za-z][_0-9A-Za-z]*$': {
+          $ref: '#/definitions/resolverConfig',
+        },
+      },
+      additionalProperties: {
+        // Other keys, type and field are required
+        $merge: {
+          source: { $ref: '#/definitions/resolverConfig' },
+          with: { required: ['type', 'field'] },
+        },
+        errorMessage:
+          'resolver definitions that do not specify Type.field in the key must specify the type and field attributes',
+      },
+      required: [],
     },
     pipelineFunctionConfig: {
       type: 'object',
@@ -734,13 +754,14 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       errorMessage: 'contains invalid data source definitions',
     },
     resolvers: {
-      type: 'array',
-      items: {
-        anyOf: [
-          { $ref: '#/definitions/resolverConfig' },
-          { type: 'array', items: { $ref: '#/definitions/resolverConfig' } },
-        ],
-      },
+      oneOf: [
+        { $ref: '#/definitions/resolverConfigMap' },
+        {
+          type: 'array',
+          items: { $ref: '#/definitions/resolverConfigMap' },
+        },
+      ],
+      errorMessage: 'contains invalid resolver definitions',
     },
     pipelineFunctions: {
       type: 'array',
@@ -759,6 +780,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
 };
 
 const ajv = new Ajv({ allErrors: true });
+ajvMergePatch(ajv);
 ajvErrors(ajv);
 
 const validator = ajv.compile(appSyncSchema);
