@@ -8,8 +8,7 @@ export type AppSyncConfig = {
   apiId?: string;
   isSingleConfig?: boolean;
   name: string;
-  region: string;
-  schema: string;
+  schema: string[];
   authentication: Auth;
   apiKeys?: ApiKeyConfig[];
   caching?: {
@@ -37,8 +36,8 @@ export type AppSyncConfig = {
   resolvers: ResolverConfig[];
   pipelineFunctions: FunctionConfig[];
   dataSources: DataSourceConfig[];
-  substitutions: Record<string, string | IntrinsicFunction>;
-  xrayEnabled: boolean;
+  substitutions?: Record<string, string | IntrinsicFunction>;
+  xrayEnabled?: boolean;
   wafConfig?: WafConfig;
   tags?: Record<string, string>;
 };
@@ -164,7 +163,7 @@ export type ResolverConfig = {
   substitutions?: Substitutions;
 } & (
   | {
-      kind: 'UNIT';
+      kind?: 'UNIT';
       dataSource: string;
     }
   | {

@@ -1,519 +1,166 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Schema as absolute path 1`] = `
+exports[`DataSources should merge dataSource arrays 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "name": "myDataSource",
+    "type": "NONE",
+  },
+  Object {
+    "name": "myOtherDataSource",
+    "type": "NONE",
+  },
+  Object {
+    "name": "otherNamedDs",
+    "type": "NONE",
+  },
+  Object {
+    "name": "anotherNamedSource",
+    "type": "NONE",
   },
 ]
 `;
 
-exports[`Schema as array 1`] = `
+exports[`DataSources should resolve dataSource names 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  meInfo(consumer_key: String, consumer_secret: String): User!
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "name": "myDataSource",
+    "type": "NONE",
+  },
+  Object {
+    "name": "myOtherDataSource",
+    "type": "NONE",
   },
 ]
 `;
 
-exports[`Schema as glob pattern 1`] = `
+exports[`Pipeline Functions should merge function arrays 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  meInfo(consumer_key: String, consumer_secret: String): User!
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "dataSource": "users",
+    "name": "function1",
+  },
+  Object {
+    "dataSource": "users",
+    "name": "myFunction2",
+  },
+  Object {
+    "dataSource": "users",
+    "name": "function3",
+  },
+  Object {
+    "dataSource": "users",
+    "name": "myFunction4",
   },
 ]
 `;
 
-exports[`Schema as string 1`] = `
+exports[`Pipeline Functions should resolve functions names 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "dataSource": "users",
+    "name": "function1",
+  },
+  Object {
+    "dataSource": "users",
+    "name": "myFunction2",
   },
 ]
 `;
 
-exports[`datasources as array 1`] = `
+exports[`Resolvers should merge resolvers arrays 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [
-      Object {
-        "name": "users",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "tweets",
-        "type": "AMAZON_DYNAMODB",
-      },
+    "dataSource": "users",
+    "field": "getUser",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "type": "Query",
+  },
+  Object {
+    "field": "pipeline",
+    "functions": Array [
+      "function1",
+      "function2",
     ],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "kind": "PIPELINE",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "posts",
+    "field": "getPosts",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "posts",
+    "field": "getPosts",
+    "type": "Query",
+  },
+  Object {
+    "field": "getUsers",
+    "functions": Array [
+      "function1",
+      "function2",
+    ],
+    "kind": "PIPELINE",
+    "type": "Query",
   },
 ]
 `;
 
-exports[`datasources as array form different files (array of arrays or objects) 1`] = `
+exports[`Resolvers should resolve resolver type and fields 1`] = `
 Array [
   Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [
-      Object {
-        "name": "users",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "tweets",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "foo",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "bar",
-        "type": "AMAZON_DYNAMODB",
-      },
-    ],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
+    "dataSource": "users",
+    "field": "getUser",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "type": "Query",
   },
 ]
 `;
 
-exports[`returns valid config 1`] = `
+exports[`Schema should return a schema array unchanged 1`] = `
 Array [
-  Object {
-    "additionalAuthenticationProviders": Array [],
-    "authentication": Object {
-      "type": "AWS_IAM",
-    },
-    "dataSources": Array [
-      Object {
-        "name": "users",
-        "type": "AMAZON_DYNAMODB",
-      },
-      Object {
-        "name": "tweets",
-        "type": "AMAZON_DYNAMODB",
-      },
-    ],
-    "defaultMappingTemplates": Object {},
-    "isSingleConfig": true,
-    "mappingTemplatesLocation": Object {
-      "pipelineFunctions": "mapping-templates",
-      "resolvers": "mapping-templates",
-    },
-    "name": "api",
-    "pipelineFunctions": Array [],
-    "region": "us-east-1",
-    "resolvers": Array [],
-    "schema": "type Mutation  {
-  createTweet(tweet: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String, created_at: String!): Tweet!
-  deleteTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  reTweet(tweet_id: String!, consumer_key: String, consumer_secret: String, access_token_key: String, access_token_secret: String): Tweet!
-  updateTweet(tweet_id: String!, tweet: String!): Tweet!
-  updateUserInfo(location: String!, description: String!, name: String!, followers_count: Int!, friends_count: Int!, favourites_count: Int!, followers: [String!]!): User!
-}
-
-type Query  {
-  meInfo(consumer_key: String, consumer_secret: String): User!
-  getUserInfo(handle: String!, consumer_key: String, consumer_secret: String): User!
-  searchAllTweetsByKeyword(keyword: String!): TweetConnection
-}
-
-type Subscription  {
-  addTweet: Tweet @aws_subscribe(mutations: [\\"createTweet\\"])
-}
-
-type Tweet  {
-  tweet_id: String!
-  tweet: String!
-  retweeted: Boolean
-  retweet_count: Int
-  favorited: Boolean
-  created_at: String!
-}
-
-type TweetConnection  {
-  items: [Tweet!]!
-  nextToken: String
-}
-
-type User  {
-  name: String!
-  handle: String!
-  location: String!
-  description: String!
-  followers_count: Int!
-  friends_count: Int!
-  favourites_count: Int!
-  followers: [String!]!
-  topTweet: Tweet
-  tweets(limit: Int!, nextToken: String): TweetConnection
-  searchTweetsByKeyword(keyword: String!): TweetConnection
-}",
-    "substitutions": Object {},
-    "xrayEnabled": false,
-  },
+  "users.graphql",
+  "posts.graphql",
 ]
+`;
+
+exports[`Schema should return a single schema as an array 1`] = `
+Array [
+  "mySchema.graphql",
+]
+`;
+
+exports[`Schema should return the default schema 1`] = `
+Array [
+  "schema.graphql",
+]
+`;
+
+exports[`returns basic config 1`] = `
+Object {
+  "additionalAuthenticationProviders": Array [],
+  "authentication": Object {
+    "type": "API_KEY",
+  },
+  "dataSources": Array [],
+  "mappingTemplatesLocation": Object {
+    "pipelineFunctions": "mapping-templates",
+    "resolvers": "mapping-templates",
+  },
+  "name": "My Api",
+  "pipelineFunctions": Array [],
+  "resolvers": Array [],
+  "schema": Array [
+    "schema.graphql",
+  ],
+}
 `;

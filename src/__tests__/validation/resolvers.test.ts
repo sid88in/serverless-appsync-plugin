@@ -16,6 +16,9 @@ describe('Basic', () => {
               kind: 'PIPELINE',
               functions: ['function1', 'function2'],
             },
+            'Query.getBlog': {
+              dataSource: 'myDs',
+            },
             getUsers: {
               type: 'Query',
               field: 'getUsers',
@@ -27,6 +30,11 @@ describe('Basic', () => {
               field: 'getPosts',
               kind: 'PIPELINE',
               functions: ['function1', 'function2'],
+            },
+            getBlogs: {
+              type: 'Query',
+              field: 'getUsers',
+              dataSource: 'myDs',
             },
           },
         },

@@ -24,6 +24,7 @@ import {
 } from 'aws-sdk/clients/appsync';
 import { O } from 'ts-toolbelt';
 import { validateConfig } from './validation';
+import { Schema } from './resources/Schema';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -200,13 +201,9 @@ class ServerlessAppsyncPlugin {
     const isSingleConfig = !Array.isArray(
       this.serverless.configurationInput.custom.appSync,
     );
-    for (let i = 0; i < this.config.length; i++) {
-      const config = await getAppSyncConfig(
-        this.config[i],
-        this.serverless.service.provider,
-        this.serverless.config.servicePath,
-      );
-
+    for (const inputConfig of this.config) {
+      validateConfig(inputConfig);
+      const config = await getAppSyncConfig(inputConfig);
       const api = new Api({ ...config, isSingleConfig }, this);
       this.apis.push(api);
     }
@@ -215,6 +212,13 @@ class ServerlessAppsyncPlugin {
   async validateSchemas() {
     try {
       this.log.info('Validating schema');
+      for (const inputConfig of this.config) {
+        const config = getAppSyncConfig(inputConfig);
+        const api = new Api(config, this);
+        const schema = new Schema(api, config.schema);
+        // Generating the schema also validates it
+        schema.generateSchema();
+      }
       this.log.success('GraphQL schema valid');
     } catch (error) {
       this.log.error('GraphQL schema invalid');

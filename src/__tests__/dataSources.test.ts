@@ -14,9 +14,8 @@ jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 const config: AppSyncConfig = {
   name: 'MyApi',
   isSingleConfig: true,
-  region: 'us-east-1',
   xrayEnabled: false,
-  schema: 'type Query { }',
+  schema: ['schema.graphql'],
   authentication: {
     type: 'API_KEY',
   },

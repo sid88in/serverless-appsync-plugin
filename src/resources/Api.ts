@@ -24,6 +24,7 @@ import { Naming } from './Naming';
 import { DataSource } from './DataSource';
 import { Resolver } from './Resolver';
 import { PipelineFunction } from './PipelineFunction';
+import { Schema } from './Schema';
 
 export class Api {
   public naming: Naming;
@@ -69,7 +70,7 @@ export class Api {
       Type: 'AWS::AppSync::GraphQLApi',
       Properties: {
         Name: this.config.name,
-        XrayEnabled: this.config.xrayEnabled,
+        XrayEnabled: this.config.xrayEnabled || false,
         Tags: this.getTagsConfig(),
       },
     };
@@ -178,17 +179,8 @@ export class Api {
   }
 
   compileSchema() {
-    const logicalId = this.naming.getSchemaLogicalId();
-
-    return {
-      [logicalId]: {
-        Type: 'AWS::AppSync::GraphQLSchema',
-        Properties: {
-          Definition: this.config.schema,
-          ApiId: this.getApiId(),
-        },
-      },
-    };
+    const schema = new Schema(this, this.config.schema);
+    return schema.compile();
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
@@ -329,7 +321,7 @@ export class Api {
 
   getUserPoolConfig(auth: CognitoAuth) {
     const userPoolConfig = {
-      AwsRegion: auth.config.awsRegion || this.config.region,
+      AwsRegion: auth.config.awsRegion || { 'Fn::Sub': '${AWS::Region}' },
       UserPoolId: auth.config.userPoolId,
       AppIdClientRegex: auth.config.appIdClientRegex,
       // Default action is the one passed in the config

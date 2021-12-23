@@ -1,147 +1,178 @@
-// @ts-nocheck
-import { getConfig } from 'get-config';
-import path from 'path';
+import { getAppSyncConfig, ResolverConfigInput } from '../get-config';
+import { basicConfig } from './basicConfig';
 
-const servicePath = path.join(__dirname, '../../example');
+test('returns basic config', async () => {
+  expect(getAppSyncConfig(basicConfig)).toMatchSnapshot();
+});
 
-test('returns valid config', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
+describe('Schema', () => {
+  it('should return the default schema', () => {
+    expect(
+      getAppSyncConfig({ ...basicConfig, schema: undefined }).schema,
+    ).toMatchSnapshot();
+  });
+
+  it('should return a single schema as an array', () => {
+    expect(
+      getAppSyncConfig({ ...basicConfig, schema: 'mySchema.graphql' }).schema,
+    ).toMatchSnapshot();
+  });
+
+  it('should return a schema array unchanged', () => {
+    expect(
+      getAppSyncConfig({
+        ...basicConfig,
+        schema: ['users.graphql', 'posts.graphql'],
+      }).schema,
+    ).toMatchSnapshot();
+  });
+});
+
+describe('DataSources', () => {
+  it('should resolve dataSource names', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      dataSources: {
+        dataSourceWithName: {
+          name: 'myDataSource',
+          type: 'NONE',
         },
-        dataSources: {
-          users: {
-            type: 'AMAZON_DYNAMODB',
+        myOtherDataSource: {
+          type: 'NONE',
+        },
+      },
+    });
+    expect(config.dataSources).toMatchSnapshot();
+  });
+
+  it('should merge dataSource arrays', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      dataSources: [
+        {
+          dataSourceWithName: {
+            name: 'myDataSource',
+            type: 'NONE',
           },
-          tweets: {
-            type: 'AMAZON_DYNAMODB',
+          myOtherDataSource: {
+            type: 'NONE',
           },
         },
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
-});
-
-test('datasources as array', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
-        },
-        dataSources: [
-          {
-            name: 'users',
-            type: 'AMAZON_DYNAMODB',
+        {
+          otherSource: {
+            name: 'otherNamedDs',
+            type: 'NONE',
           },
-          {
-            name: 'tweets',
-            type: 'AMAZON_DYNAMODB',
+          anotherNamedSource: {
+            type: 'NONE',
           },
-        ],
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
+        },
+      ],
+    });
+    expect(config.dataSources).toMatchSnapshot();
+  });
 });
 
-test('datasources as array form different files (array of arrays or objects)', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
+describe('Resolvers', () => {
+  it('should resolve resolver type and fields', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      resolvers: {
+        'Query.getUser': {
+          dataSource: 'users',
         },
-        dataSources: [
-          // File one: key-based datasources
-          {
-            users: {
-              type: 'AMAZON_DYNAMODB',
-            },
-            tweets: {
-              type: 'AMAZON_DYNAMODB',
-            },
+        getUsersResolver: {
+          type: 'Query',
+          field: 'getUsers',
+          dataSource: 'users',
+        },
+      },
+    });
+    expect(config.resolvers).toMatchSnapshot();
+  });
+
+  it('should merge resolvers arrays', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      resolvers: [
+        {
+          'Query.getUser': {
+            dataSource: 'users',
           },
-          [
-            // file 2: array of datasources
-            {
-              name: 'foo',
-              type: 'AMAZON_DYNAMODB',
-            },
-            {
-              name: 'bar',
-              type: 'AMAZON_DYNAMODB',
-            },
-          ],
-        ],
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
+          getUsersResolver: {
+            type: 'Query',
+            field: 'getUsers',
+            dataSource: 'users',
+          },
+          'Query.pipeline': {
+            kind: 'PIPELINE',
+            functions: ['function1', 'function2'],
+          },
+        },
+        {
+          'Query.getPosts': {
+            dataSource: 'posts',
+          },
+          getPostsResolver: {
+            type: 'Query',
+            field: 'getPosts',
+            dataSource: 'posts',
+          },
+          pipelineResolver2: {
+            kind: 'PIPELINE',
+            functions: ['function1', 'function2'],
+            type: 'Query',
+            field: 'getUsers',
+          },
+        },
+      ] as Record<string, ResolverConfigInput>[],
+    });
+    expect(config.resolvers).toMatchSnapshot();
+  });
 });
 
-test('Schema as string', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
+describe('Pipeline Functions', () => {
+  it('should resolve functions names', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      pipelineFunctions: {
+        function1: {
+          dataSource: 'users',
         },
-        schema: 'schema.graphql',
+        function2: {
+          name: 'myFunction2',
+          dataSource: 'users',
+        },
       },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
-});
+    });
+    expect(config.pipelineFunctions).toMatchSnapshot();
+  });
 
-test('Schema as array', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
-        },
-        schema: ['_type_tweet.graphql', '_type_user.graphql'],
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
-});
+  it('should merge function arrays', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
 
-test('Schema as absolute path', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
+      pipelineFunctions: [
+        {
+          function1: {
+            dataSource: 'users',
+          },
+          function2: {
+            name: 'myFunction2',
+            dataSource: 'users',
+          },
         },
-        schema: path.join(servicePath, 'schema.graphql'),
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
-});
-
-test('Schema as glob pattern', async () => {
-  expect(
-    await getConfig(
-      {
-        authentication: {
-          type: 'AWS_IAM',
+        {
+          function3: {
+            dataSource: 'users',
+          },
+          function4: {
+            name: 'myFunction4',
+            dataSource: 'users',
+          },
         },
-        schema: '_type_*.graphql',
-      },
-      { region: 'us-east-1' },
-      servicePath,
-    ),
-  ).toMatchSnapshot();
+      ],
+    });
+    expect(config.pipelineFunctions).toMatchSnapshot();
+  });
 });

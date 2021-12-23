@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Basic Invalid should validate: Invalid 1`] = `
-"/resolvers/myResolver/type: must be string
+"/resolvers/myResolver/kind: must be \\"UNIT\\" or \\"PIPELINE\\"
+/resolvers/myResolver/type: must be string
 /resolvers/myResolver/field: must be string
 /resolvers/myResolver/request: is not a valid mapping template
 /resolvers/myResolver/response: is not a valid mapping template

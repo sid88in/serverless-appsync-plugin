@@ -1,7 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-import { mergeTypeDefs } from '@graphql-tools/merge';
-import globby from 'globby';
 import {
   ApiKeyConfig,
   AppSyncConfig,
@@ -13,8 +9,6 @@ import {
   WafActionKeys,
   WafRule,
 } from './types/plugin';
-import { AWS } from '@serverless/typescript';
-import { convertAppSyncSchemas } from 'appsync-schema-converter';
 import { IntrinsicFunction } from './types/cloudFormation';
 import { O } from 'ts-toolbelt';
 import { map, merge } from 'lodash';
@@ -27,26 +21,6 @@ const flattenAndMerge = <T>(
   } else {
     return merge({}, input);
   }
-};
-
-const readSchemaFile = (filePath: string) =>
-  fs.readFileSync(filePath, { encoding: 'utf8' });
-
-const mergeTypes = (types) => {
-  return mergeTypeDefs(types, {
-    useSchemaDefinition: true,
-    forceSchemaDefinition: true,
-    throwOnConflict: true,
-    commentDescriptions: true,
-    reverseDirectives: true,
-  });
-};
-
-const buildAppSyncSchema = (schemaFiles: string[]) => {
-  // Merge files
-  const mergedSchema = mergeTypes(schemaFiles.map(readSchemaFile));
-
-  return convertAppSyncSchemas(mergedSchema);
 };
 
 export type ResolverConfigInput = O.Optional<ResolverConfig, 'type' | 'field'>;
@@ -101,11 +75,11 @@ export type AppSyncConfigInput = {
   tags?: Record<string, string>;
 };
 
-export const getAppSyncConfig = async (
-  config: AppSyncConfigInput,
-  provider: AWS['provider'],
-  servicePath: string,
-): Promise<AppSyncConfig> => {
+export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
+  const schema = Array.isArray(config.schema)
+    ? config.schema
+    : [config.schema || 'schema.graphql'];
+
   const mappingTemplatesLocation = merge(
     {
       resolvers: 'mapping-templates',
@@ -113,21 +87,6 @@ export const getAppSyncConfig = async (
     },
     config.mappingTemplatesLocation,
   );
-
-  const toAbsolutePosixPath = (filePath: string) =>
-    (path.isAbsolute(filePath)
-      ? filePath
-      : path.join(servicePath, filePath)
-    ).replace(/\\/g, '/');
-
-  const schema = Array.isArray(config.schema)
-    ? config.schema
-    : [config.schema || 'schema.graphql'];
-  const schemaFiles = ([] as string[]).concat(
-    ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
-  );
-
-  const schemaContent = buildAppSyncSchema(schemaFiles);
 
   const dataSources = map(flattenAndMerge(config.dataSources), (ds, name) => {
     return { ...ds, name: ds.name || name };
@@ -154,18 +113,12 @@ export const getAppSyncConfig = async (
 
   return {
     ...config,
-    name: config.name || 'api',
-    region: provider.region || 'us-east-1',
     additionalAuthenticationProviders:
       config.additionalAuthenticationProviders || [],
-    schema: schemaContent,
-    // TODO verify dataSources structure
+    schema,
     dataSources,
-    defaultMappingTemplates: config.defaultMappingTemplates || {},
     mappingTemplatesLocation,
     resolvers,
     pipelineFunctions,
-    substitutions: config.substitutions || {},
-    xrayEnabled: config.xrayEnabled || false,
   };
 };

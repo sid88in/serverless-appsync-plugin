@@ -2,10 +2,11 @@ import fs from 'fs';
 import { Api } from '../resources/Api';
 import { AppSyncConfig } from '../types/plugin';
 import Serverless from 'serverless/lib/Serverless';
-import { noop, set } from 'lodash';
+import { flatten, noop, set, upperFirst } from 'lodash';
 import { logger } from '../utils';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
 import ServerlessAppsyncPlugin from '..';
+import globby from 'globby';
 
 // 2020-12-09T16:24:22+00:00
 jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
@@ -13,9 +14,8 @@ jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
 const config: AppSyncConfig = {
   name: 'MyApi',
   isSingleConfig: true,
-  region: 'us-east-1',
   xrayEnabled: false,
-  schema: 'type Query { }',
+  schema: ['schema.graphql'],
   authentication: {
     type: 'API_KEY',
   },
@@ -353,8 +353,49 @@ describe('Api', () => {
   });
 
   describe('schema', () => {
-    it('should compile the schema resource', () => {
-      const api = new Api(config, plugin);
+    let mock: jest.SpyInstance;
+    let globbyMock: jest.SpyInstance;
+    beforeAll(() => {
+      mock = jest.spyOn(fs, 'readFileSync').mockImplementation((path) => {
+        const matches = `${path}`.match(/([a-z]+)\.graphql$/);
+        const type = upperFirst(matches?.[1] || 'Unknown');
+        return `
+            """
+            ${path}
+            """
+            type Query {
+              get${type}: ${type}!
+            }
+
+            type ${type} {
+              id: ID!
+            }
+          `;
+      });
+
+      globbyMock = jest.spyOn(globby, 'sync').mockImplementation((globPath) => {
+        const genGlob = (glob: string) => [
+          glob.replace('*', 'users'),
+          glob.replace('*', 'posts'),
+        ];
+        if (typeof globPath === 'string') {
+          return genGlob(globPath);
+        } else {
+          return flatten(globPath.map(genGlob));
+        }
+      });
+    });
+
+    afterAll(() => {
+      mock.mockRestore();
+      globbyMock.mockRestore();
+    });
+
+    it('should merge the schemas', () => {
+      const api = new Api(
+        { ...config, schema: ['users.graphql', 'posts.graphql'] },
+        plugin,
+      );
       expect(api.compileSchema()).toMatchInlineSnapshot(`
         Object {
           "GraphQlSchema": Object {
@@ -365,7 +406,51 @@ describe('Api', () => {
                   "ApiId",
                 ],
               },
-              "Definition": "type Query { }",
+              "Definition": "# posts.graphql
+        type Query  {
+          getUsers: Users!
+          getPosts: Posts!
+        }
+
+        type Users  {
+          id: ID!
+        }
+
+        type Posts  {
+          id: ID!
+        }",
+            },
+            "Type": "AWS::AppSync::GraphQLSchema",
+          },
+        }
+      `);
+    });
+
+    it('should merge glob schemas', () => {
+      const api = new Api({ ...config, schema: ['*.graphql'] }, plugin);
+      expect(api.compileSchema()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlSchema": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Definition": "# posts.graphql
+        type Query  {
+          getUsers: Users!
+          getPosts: Posts!
+        }
+
+        type Users  {
+          id: ID!
+        }
+
+        type Posts  {
+          id: ID!
+        }",
             },
             "Type": "AWS::AppSync::GraphQLSchema",
           },

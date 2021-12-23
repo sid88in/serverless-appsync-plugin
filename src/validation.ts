@@ -297,14 +297,19 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       required: [],
       errorMessage: 'is not a valid substitutions definition',
     },
+    // @ts-ignore
     resolverConfig: {
       type: 'object',
       properties: {
+        kind: {
+          type: 'string',
+          enum: ['UNIT', 'PIPELINE'],
+          errorMessage: 'must be "UNIT" or "PIPELINE"',
+        },
         type: { type: 'string' },
-        kind: { type: 'string' },
+        field: { type: 'string' },
         dataSource: { type: 'string' },
         functions: { type: 'array', items: { type: 'string' } },
-        field: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
         sync: { $ref: '#/definitions/resolverSyncConfig' },
@@ -312,7 +317,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
 
-      if: { properties: { kind: { const: 'PIPELINE' } } },
+      if: { properties: { kind: { const: 'PIPELINE' } }, required: ['kind'] },
       then: {
         required: ['functions'],
       },
