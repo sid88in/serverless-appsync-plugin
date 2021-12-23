@@ -1,5 +1,6 @@
 import globby from 'globby';
 import fs from 'fs';
+import path from 'path';
 import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { mergeTypeDefs } from '@graphql-tools/merge';
@@ -26,7 +27,10 @@ export class Schema {
   generateSchema() {
     const schemaFiles = flatten(globby.sync(this.schemas));
     const schemas = schemaFiles.map((file) => {
-      return fs.readFileSync(file, 'utf8');
+      return fs.readFileSync(
+        path.join(this.api.plugin.serverless.config.servicePath, file),
+        'utf8',
+      );
     });
     const mergedSchema = mergeTypeDefs(schemas, {
       useSchemaDefinition: true,

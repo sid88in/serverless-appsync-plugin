@@ -55,6 +55,7 @@ export class PipelineFunction {
 
     if (templateName !== false) {
       const templatePath = path.join(
+        this.api.plugin.serverless.config.servicePath,
         this.api.config.mappingTemplatesLocation.pipelineFunctions,
         templateName || `${this.config.name}.${type}.vtl`,
       );
