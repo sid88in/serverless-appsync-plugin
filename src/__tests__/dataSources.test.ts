@@ -1,57 +1,13 @@
 import { Api } from '../resources/Api';
-import { AppSyncConfig } from '../types/plugin';
-import Serverless from 'serverless/lib/Serverless';
-import { noop, set } from 'lodash';
-import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
-import ServerlessAppsyncPlugin from '..';
-import { logger } from '../utils';
 import { DataSource } from '../resources/DataSource';
+import * as given from './given';
 
-// 2020-12-09T16:24:22+00:00
-jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
-
-// FIXME: put this in a helper
-const config: AppSyncConfig = {
-  name: 'MyApi',
-  isSingleConfig: true,
-  xrayEnabled: false,
-  schema: ['schema.graphql'],
-  authentication: {
-    type: 'API_KEY',
-  },
-  additionalAuthenticationProviders: [],
-  mappingTemplatesLocation: {
-    resolvers: 'path/to/mappingTemplates',
-    pipelineFunctions: 'path/to/mappingTemplates',
-  },
-  resolvers: [],
-  pipelineFunctions: [],
-  dataSources: [],
-  substitutions: {},
-  tags: {
-    stage: 'Dev',
-  },
-};
-
-const serverless = new Serverless();
-serverless.setProvider('aws', new AwsProvider(serverless));
-serverless.serviceOutputs = new Map();
-serverless.servicePluginOutputs = new Map();
-set(serverless, 'configurationInput.custom.appSync', []);
-
-const options = {
-  stage: 'dev',
-  region: 'us-east-1',
-};
-const plugin = new ServerlessAppsyncPlugin(serverless, options, {
-  log: logger(noop),
-  writeText: noop,
-});
+const plugin = given.plugin();
 
 describe('DataSource', () => {
   describe('DynamoDB', () => {
     it('should generate Resource with default role', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',
@@ -184,7 +140,7 @@ describe('DataSource', () => {
     });
 
     it('should generate Resource with default deltaSync', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',
@@ -328,7 +284,7 @@ describe('DataSource', () => {
     });
 
     it('should generate default role with custom region', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',
@@ -456,7 +412,7 @@ describe('DataSource', () => {
     });
 
     it('should generate default role with custom statement', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',
@@ -520,7 +476,7 @@ describe('DataSource', () => {
     });
 
     it('should not generate default role when arn is passed', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',
@@ -537,7 +493,7 @@ describe('DataSource', () => {
 
   describe('AWS Lambda', () => {
     it('should generate Resource with default role', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AWS_LAMBDA',
         name: 'myFunction',
@@ -641,7 +597,7 @@ describe('DataSource', () => {
     });
 
     it('should generate default role with custom statements', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AWS_LAMBDA',
         name: 'myFunction',
@@ -707,7 +663,7 @@ describe('DataSource', () => {
     });
 
     it('should not generate default role when arn is passed', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AWS_LAMBDA',
         name: 'myFunction',
@@ -724,7 +680,7 @@ describe('DataSource', () => {
 
   describe('HTTP', () => {
     it('should generate Resource without roles', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'HTTP',
         name: 'myEndpoint',
@@ -758,7 +714,7 @@ describe('DataSource', () => {
     });
 
     it('should generate Resource with IAM authorization config', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'HTTP',
         name: 'myEndpoint',
@@ -861,7 +817,7 @@ describe('DataSource', () => {
     });
 
     it('should generate default role with custom statements', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'HTTP',
         name: 'myEndpoint',
@@ -932,7 +888,7 @@ describe('DataSource', () => {
     });
 
     it('should not generate default role when arn is passed', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'HTTP',
         name: 'myEndpoint',
@@ -956,7 +912,7 @@ describe('DataSource', () => {
 
   describe('OpenSearch', () => {
     it('should generate Resource without roles', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_OPENSEARCH_SERVICE',
         name: 'opensearch',
@@ -1070,7 +1026,7 @@ describe('DataSource', () => {
     });
 
     it('should generate Resource with endpoint', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_OPENSEARCH_SERVICE',
         name: 'opensearch',
@@ -1172,7 +1128,7 @@ describe('DataSource', () => {
     });
 
     it('should generate default role with custom statements', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_OPENSEARCH_SERVICE',
         name: 'opensearch',
@@ -1236,7 +1192,7 @@ describe('DataSource', () => {
     });
 
     it('should not generate default role when arn is passed', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_OPENSEARCH_SERVICE',
         name: 'opensearch',
@@ -1253,7 +1209,7 @@ describe('DataSource', () => {
 
   describe('Relational Databases', () => {
     it('should generate Resource with default role', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'RELATIONAL_DATABASE',
         name: 'myDatabase',
@@ -1433,7 +1389,7 @@ describe('DataSource', () => {
     });
 
     it('should generate DynamoDB default role with custom statement', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'RELATIONAL_DATABASE',
         name: 'myDatabase',
@@ -1499,7 +1455,7 @@ describe('DataSource', () => {
     });
 
     it('should not generate default role when arn is passed', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_DYNAMODB',
         name: 'dynamo',

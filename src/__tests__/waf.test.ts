@@ -1,57 +1,15 @@
 import { Api } from '../resources/Api';
-import { ApiKeyConfig, AppSyncConfig, WafRule } from '../types/plugin';
-import Serverless from 'serverless/lib/Serverless';
-import { each, noop, set } from 'lodash';
-import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
-import ServerlessAppsyncPlugin from '..';
-import { logger } from '../utils';
+import { ApiKeyConfig, WafRule } from '../types/plugin';
+import { each } from 'lodash';
 import { Waf } from '../resources/Waf';
+import * as given from './given';
 
-// 2020-12-09T16:24:22+00:00
-jest.spyOn(Date, 'now').mockImplementation(() => 1607531062000);
-
-// FIXME: put this in a helper
-const config: AppSyncConfig = {
-  name: 'MyApi',
-  isSingleConfig: true,
-  xrayEnabled: false,
-  schema: ['schema.graphql'],
-  authentication: {
-    type: 'API_KEY',
-  },
-  additionalAuthenticationProviders: [],
-  mappingTemplatesLocation: {
-    resolvers: 'path/to/mappingTemplates',
-    pipelineFunctions: 'path/to/mappingTemplates',
-  },
-  resolvers: [],
-  pipelineFunctions: [],
-  dataSources: [],
-  substitutions: {},
-  tags: {
-    stage: 'Dev',
-  },
-};
-
-const serverless = new Serverless();
-serverless.setProvider('aws', new AwsProvider(serverless));
-serverless.serviceOutputs = new Map();
-serverless.servicePluginOutputs = new Map();
-set(serverless, 'configurationInput.custom.appSync', []);
-
-const options = {
-  stage: 'dev',
-  region: 'us-east-1',
-};
-const plugin = new ServerlessAppsyncPlugin(serverless, options, {
-  log: logger(noop),
-  writeText: noop,
-});
+const plugin = given.plugin();
 
 describe('Waf', () => {
   describe('Base Resources', () => {
     it('should generate waf Resources', () => {
-      const api = new Api(config, plugin);
+      const api = new Api(given.appSyncConfig(), plugin);
       const waf = new Waf(api, {
         enabled: true,
         name: 'Waf',
@@ -112,7 +70,7 @@ describe('Waf', () => {
   });
 
   it('should not generate waf Resources if disabled', () => {
-    const api = new Api(config, plugin);
+    const api = new Api(given.appSyncConfig(), plugin);
     const waf = new Waf(api, {
       enabled: false,
       name: 'Waf',
@@ -129,7 +87,7 @@ describe('Waf', () => {
   });
 
   describe('Throttle rules', () => {
-    const api = new Api(config, plugin);
+    const api = new Api(given.appSyncConfig(), plugin);
     const waf = new Waf(api, {
       enabled: false,
       name: 'Waf',
@@ -240,7 +198,7 @@ describe('Waf', () => {
   });
 
   describe('Disable introspection', () => {
-    const api = new Api(config, plugin);
+    const api = new Api(given.appSyncConfig(), plugin);
     const waf = new Waf(api, {
       enabled: false,
       name: 'Waf',
@@ -360,7 +318,7 @@ describe('Waf', () => {
         statement: {},
       },
     };
-    const api = new Api(config, plugin);
+    const api = new Api(given.appSyncConfig(), plugin);
     const waf = new Waf(api, {
       enabled: false,
       name: 'Waf',
