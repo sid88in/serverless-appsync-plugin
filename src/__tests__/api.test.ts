@@ -480,72 +480,7 @@ describe('Api', () => {
   });
 
   describe('apiKeys', () => {
-    const api = new Api(
-      given.appSyncConfig({
-        apiKeys: [
-          {
-            name: 'Default',
-            description: 'Default Key',
-            expiresAfter: '30d',
-          },
-          {
-            name: 'Key1',
-            description: 'Key1',
-            expiresAfter: '1d',
-          },
-          {
-            name: 'Key2',
-            description: 'Key2',
-            apiKeyId: 'da2-7hfy4mjkdmh64lp0une7yht765',
-          },
-          {
-            name: 'John',
-            description: "John's key",
-            expiresAt: '2021-03-09T16:00:00+00:00',
-          },
-          {
-            name: 'Jane',
-            expiresAfter: '1y',
-          },
-          'InlineKey',
-        ],
-      }),
-      plugin,
-    );
-    it('should generate api keys', () => {
-      const apiKeys = api.getApiKeys();
-      expect(apiKeys).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "description": "Default Key",
-            "expiresAfter": "30d",
-            "name": "Default",
-          },
-          Object {
-            "description": "Key1",
-            "expiresAfter": "1d",
-            "name": "Key1",
-          },
-          Object {
-            "apiKeyId": "da2-7hfy4mjkdmh64lp0une7yht765",
-            "description": "Key2",
-            "name": "Key2",
-          },
-          Object {
-            "description": "John's key",
-            "expiresAt": "2021-03-09T16:00:00+00:00",
-            "name": "John",
-          },
-          Object {
-            "expiresAfter": "1y",
-            "name": "Jane",
-          },
-          Object {
-            "name": "InlineKey",
-          },
-        ]
-      `);
-    });
+    const api = new Api(given.appSyncConfig(), plugin);
 
     it('should generate an api key with sliding window expiration', () => {
       expect(

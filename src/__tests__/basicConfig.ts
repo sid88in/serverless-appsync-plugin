@@ -1,4 +1,4 @@
-import { AppSyncConfigInput } from '../get-config';
+import { AppSyncConfigInput } from '../getAppSyncConfig';
 
 export const basicConfig: AppSyncConfigInput = {
   name: 'My Api',

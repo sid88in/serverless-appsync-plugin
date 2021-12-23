@@ -1,4 +1,4 @@
-import { AppSyncConfigInput, getAppSyncConfig } from './get-config';
+import { AppSyncConfigInput, getAppSyncConfig } from './getAppSyncConfig';
 import chalk from 'chalk';
 import { forEach, last, merge, get } from 'lodash';
 import { logger } from './utils';

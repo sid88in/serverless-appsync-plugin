@@ -94,7 +94,7 @@ export type WafRule =
   | 'disableIntrospection'
   | 'throttle';
 
-export type ApiKeyConfigObject = {
+export type ApiKeyConfig = {
   apiKeyId?: string;
   name: string;
   description?: string;
@@ -102,8 +102,6 @@ export type ApiKeyConfigObject = {
   expiresAt?: string;
   wafRules?: WafRule[];
 };
-
-export type ApiKeyConfig = ApiKeyConfigObject | string;
 
 export type CognitoAuth = {
   type: 'AMAZON_COGNITO_USER_POOLS';

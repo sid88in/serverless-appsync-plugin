@@ -32,7 +32,7 @@ export type AppSyncConfigInput = {
   name: string;
   schema?: string | string[];
   authentication: Auth;
-  apiKeys?: ApiKeyConfig[];
+  apiKeys?: (ApiKeyConfig | string)[];
   caching?: {
     behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
     type?: string;
@@ -111,10 +111,34 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     },
   );
 
+  const additionalAuthenticationProviders =
+    config.additionalAuthenticationProviders || [];
+
+  let apiKeys: ApiKeyConfig[] | undefined;
+  if (
+    config.authentication.type === 'API_KEY' ||
+    additionalAuthenticationProviders.some((auth) => auth.type === 'API_KEY')
+  ) {
+    const inputKeys = config.apiKeys || [
+      {
+        name: 'Default',
+        description: 'Auto-generated api key',
+      },
+    ];
+
+    apiKeys = inputKeys.map((key) => {
+      if (typeof key === 'string') {
+        return { name: key };
+      }
+
+      return key;
+    });
+  }
+
   return {
     ...config,
-    additionalAuthenticationProviders:
-      config.additionalAuthenticationProviders || [],
+    additionalAuthenticationProviders,
+    apiKeys,
     schema,
     dataSources,
     mappingTemplatesLocation,

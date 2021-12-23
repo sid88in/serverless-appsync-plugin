@@ -1,4 +1,4 @@
-import { AppSyncConfigInput } from '../../get-config';
+import { AppSyncConfigInput } from '../../getAppSyncConfig';
 import { validateConfig } from '../../validation';
 import { basicConfig } from '../basicConfig';
 

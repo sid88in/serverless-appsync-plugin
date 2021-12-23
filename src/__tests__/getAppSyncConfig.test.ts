@@ -1,4 +1,4 @@
-import { getAppSyncConfig, ResolverConfigInput } from '../get-config';
+import { getAppSyncConfig, ResolverConfigInput } from '../getAppSyncConfig';
 import { basicConfig } from './basicConfig';
 
 test('returns basic config', async () => {
@@ -25,6 +25,86 @@ describe('Schema', () => {
         schema: ['users.graphql', 'posts.graphql'],
       }).schema,
     ).toMatchSnapshot();
+  });
+});
+
+describe('Api Keys', () => {
+  it('should generate a default Api Key when default auth is API_KEY', () => {
+    expect(
+      getAppSyncConfig({ ...basicConfig, authentication: { type: 'API_KEY' } })
+        .apiKeys,
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "description": "Auto-generated api key",
+          "name": "Default",
+        },
+      ]
+    `);
+  });
+
+  it('should generate a default Api Key when additional auth is API_KEY', () => {
+    expect(
+      getAppSyncConfig({
+        ...basicConfig,
+        authentication: { type: 'AWS_IAM' },
+        additionalAuthenticationProviders: [
+          {
+            type: 'API_KEY',
+          },
+        ],
+      }).apiKeys,
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "description": "Auto-generated api key",
+          "name": "Default",
+        },
+      ]
+    `);
+  });
+
+  it('should not generate a default Api Key when auth is not API_KEY', () => {
+    expect(
+      getAppSyncConfig({ ...basicConfig, authentication: { type: 'AWS_IAM' } })
+        .apiKeys,
+    ).toBeUndefined();
+  });
+
+  it('should generate api keys', () => {
+    expect(
+      getAppSyncConfig({
+        ...basicConfig,
+        apiKeys: [
+          {
+            name: 'John',
+            description: "John's key",
+            expiresAt: '2021-03-09T16:00:00+00:00',
+          },
+          {
+            name: 'Jane',
+            expiresAfter: '1y',
+          },
+
+          'InlineKey',
+        ],
+      }).apiKeys,
+    ).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "description": "John's key",
+          "expiresAt": "2021-03-09T16:00:00+00:00",
+          "name": "John",
+        },
+        Object {
+          "expiresAfter": "1y",
+          "name": "Jane",
+        },
+        Object {
+          "name": "InlineKey",
+        },
+      ]
+    `);
   });
 });
 

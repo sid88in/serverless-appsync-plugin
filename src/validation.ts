@@ -1,7 +1,7 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import ajvErrors from 'ajv-errors';
 import ajvMergePatch from 'ajv-merge-patch';
-import { AppSyncConfigInput } from './get-config';
+import { AppSyncConfigInput } from './getAppSyncConfig';
 import { IntrinsicFunction } from './types/cloudFormation';
 import {
   Auth,

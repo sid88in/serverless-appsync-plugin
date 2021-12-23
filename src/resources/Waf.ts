@@ -7,7 +7,7 @@ import {
   CfnWafRuleStatement,
 } from '../types/cloudFormation';
 import {
-  ApiKeyConfigObject,
+  ApiKeyConfig,
   WafActionKeys,
   WafConfig,
   WafRule,
@@ -111,15 +111,15 @@ export class Waf {
   }
 
   buildApiKeysWafRules(): CfnWafRule[] {
-    return this.api
-      .getApiKeys()
-      .reduce(
+    return (
+      this.api.config.apiKeys?.reduce(
         (rules, key) => rules.concat(this.buildApiKeyRules(key)),
         [] as CfnWafRule[],
-      );
+      ) || []
+    );
   }
 
-  buildApiKeyRules(key: ApiKeyConfigObject) {
+  buildApiKeyRules(key: ApiKeyConfig) {
     const rules = key.wafRules;
     // Build the rule and add a matching rule for the X-Api-Key header
     // for the given api key

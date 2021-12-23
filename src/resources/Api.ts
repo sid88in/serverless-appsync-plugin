@@ -7,7 +7,7 @@ import {
   IntrinsicFunction,
 } from '../types/cloudFormation';
 import {
-  ApiKeyConfigObject,
+  ApiKeyConfig,
   AppSyncConfig,
   Auth,
   CognitoAuth,
@@ -44,7 +44,7 @@ export class Api {
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
 
-    this.getApiKeys().forEach((key) => {
+    this.config.apiKeys?.forEach((key) => {
       merge(resources, this.compileApiKey(key));
     });
 
@@ -209,32 +209,7 @@ export class Api {
     };
   }
 
-  // FIXME: probably shoud be done before injecting the config. ie: config should be normalized
-  getApiKeys(): ApiKeyConfigObject[] {
-    if (!this.config.apiKeys) {
-      return [
-        {
-          name: 'Default',
-          description: 'Auto-generated api key',
-        },
-      ];
-    }
-
-    // FIXME: validate this before injecting config in class
-    if (!Array.isArray(this.config.apiKeys)) {
-      throw Error('apiKeys must be an array.');
-    }
-
-    return this.config.apiKeys.map((key) => {
-      if (typeof key === 'string') {
-        return { name: key };
-      }
-
-      return key;
-    });
-  }
-
-  compileApiKey(config: ApiKeyConfigObject) {
+  compileApiKey(config: ApiKeyConfig) {
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
