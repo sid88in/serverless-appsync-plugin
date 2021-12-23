@@ -198,7 +198,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           type: 'string',
           const: 'API_KEY',
         },
-        // TODO: move apiKeys here?
       },
       required: ['type'],
       errorMessage: 'is not a valid API_KEY config',
@@ -288,7 +287,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     },
     mappingTemplate: {
       oneOf: [{ type: 'string' }, { type: 'boolean', const: false }],
-      errorMessage: 'is not a valid mapping template',
+      errorMessage: 'must be a string or false',
     },
     // @ts-ignore
     substitutions: {
@@ -332,7 +331,12 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       patternProperties: {
         // Type.field keys, type and field are not required
         '^[_A-Za-z][_0-9A-Za-z]*\\.[_A-Za-z][_0-9A-Za-z]*$': {
-          $ref: '#/definitions/resolverConfig',
+          if: { type: 'object' },
+          then: { $ref: '#/definitions/resolverConfig' },
+          else: {
+            type: 'string',
+            errorMessage: 'must be a string or an object',
+          },
         },
       },
       additionalProperties: {
@@ -341,8 +345,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           source: { $ref: '#/definitions/resolverConfig' },
           with: { required: ['type', 'field'] },
         },
-        errorMessage:
-          'resolver definitions that do not specify Type.field in the key must specify the type and field attributes',
+        errorMessage: {
+          required: {
+            type: 'resolver definitions that do not specify Type.field in the key must specify the type and field as properties',
+            field:
+              'resolver definitions that do not specify Type.field in the key must specify the type and field as properties',
+          },
+        },
       },
       required: [],
     },
@@ -794,7 +803,10 @@ export const validateConfig = (data: Record<string, unknown>) => {
   if (isValid === false && validator.errors) {
     throw new Error(
       validator.errors
-        .filter((error) => !['if', 'oneOf', 'anyOf'].includes(error.keyword))
+        .filter(
+          (error) =>
+            !['if', 'oneOf', 'anyOf', '$merge'].includes(error.keyword),
+        )
         .map((error) => {
           return `${error.instancePath}: ${error.message}`;
         })

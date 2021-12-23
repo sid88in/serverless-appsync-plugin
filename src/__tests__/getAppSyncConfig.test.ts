@@ -166,6 +166,7 @@ describe('Resolvers', () => {
           field: 'getUsers',
           dataSource: 'users',
         },
+        'Query.getPosts': 'posts',
       },
     });
     expect(config.resolvers).toMatchSnapshot();
@@ -190,9 +191,10 @@ describe('Resolvers', () => {
           },
         },
         {
-          'Query.getPosts': {
+          'Query.getPost': {
             dataSource: 'posts',
           },
+          'Query.getComments': 'comments',
           getPostsResolver: {
             type: 'Query',
             field: 'getPosts',

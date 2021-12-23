@@ -19,6 +19,7 @@ describe('Basic', () => {
             'Query.getBlog': {
               dataSource: 'myDs',
             },
+            'Query.getComment': 'myDs',
             getUsers: {
               type: 'Query',
               field: 'getUsers',
@@ -52,6 +53,10 @@ describe('Basic', () => {
                 kind: 'PIPELINE',
                 functions: ['function1', 'function2'],
               },
+              'Query.getBlog': {
+                dataSource: 'myDs',
+              },
+              'Query.getComment': 'myDs',
             },
             {
               getUsers: {
@@ -87,6 +92,7 @@ describe('Basic', () => {
           resolvers: {
             myResolver: {
               kind: 'FOO',
+              dataSource: 999,
               type: 123,
               field: 456,
               request: 123,
@@ -116,12 +122,29 @@ describe('Basic', () => {
         },
       },
       {
-        name: 'Missing field and type',
+        name: 'Missing type and field',
         config: {
           resolvers: {
             myResolver: {
               kind: 'UNIT',
+              dataSource: 'myDs',
             },
+          },
+        },
+      },
+      {
+        name: 'Missing type and field inline',
+        config: {
+          resolvers: {
+            myResolver: 'dataSource',
+          },
+        },
+      },
+      {
+        name: 'Invalid inline datasource',
+        config: {
+          resolvers: {
+            'Query.getUser': 1234,
           },
         },
       },

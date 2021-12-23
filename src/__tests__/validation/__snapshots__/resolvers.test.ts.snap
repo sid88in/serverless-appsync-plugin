@@ -4,9 +4,14 @@ exports[`Basic Invalid should validate: Invalid 1`] = `
 "/resolvers/myResolver/kind: must be \\"UNIT\\" or \\"PIPELINE\\"
 /resolvers/myResolver/type: must be string
 /resolvers/myResolver/field: must be string
-/resolvers/myResolver/request: is not a valid mapping template
-/resolvers/myResolver/response: is not a valid mapping template
-/resolvers/myResolver: resolver definitions that do not specify Type.field in the key must specify the type and field attributes
+/resolvers/myResolver/dataSource: must be string
+/resolvers/myResolver/request: must be a string or false
+/resolvers/myResolver/response: must be a string or false
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Invalid inline datasource 1`] = `
+"/resolvers/Query.getUser: must be a string or an object
 /resolvers: contains invalid resolver definitions"
 `;
 
@@ -15,12 +20,18 @@ exports[`Basic Invalid should validate: Missing datasource 1`] = `
 /resolvers: contains invalid resolver definitions"
 `;
 
-exports[`Basic Invalid should validate: Missing field and type 1`] = `
-"/resolvers/myResolver: resolver definitions that do not specify Type.field in the key must specify the type and field attributes
+exports[`Basic Invalid should validate: Missing functions 1`] = `
+"/resolvers/Query.user: must have required property 'functions'
 /resolvers: contains invalid resolver definitions"
 `;
 
-exports[`Basic Invalid should validate: Missing functions 1`] = `
-"/resolvers/Query.user: must have required property 'functions'
+exports[`Basic Invalid should validate: Missing type and field 1`] = `
+"/resolvers/myResolver: must have required property 'type'
+/resolvers/myResolver: must have required property 'field'
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing type and field inline 1`] = `
+"/resolvers/myResolver: must be object
 /resolvers: contains invalid resolver definitions"
 `;

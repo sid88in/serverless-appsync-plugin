@@ -23,7 +23,9 @@ const flattenAndMerge = <T>(
   }
 };
 
-export type ResolverConfigInput = O.Optional<ResolverConfig, 'type' | 'field'>;
+export type ResolverConfigInput =
+  | O.Optional<ResolverConfig, 'type' | 'field'>
+  | string;
 export type FunctionConfigInput = O.Optional<FunctionConfig, 'name'>;
 export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
@@ -92,10 +94,20 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     return { ...ds, name: ds.name || name };
   });
 
-  const resolvers = map(
+  const resolvers: ResolverConfig[] = map(
     flattenAndMerge(config.resolvers),
     (resolver, typeAndField) => {
       const [type, field] = typeAndField.split('.');
+
+      if (typeof resolver === 'string') {
+        return {
+          dataSource: resolver,
+          kind: 'UNIT',
+          type,
+          field,
+        };
+      }
+
       return {
         ...resolver,
         type: resolver.type || type,

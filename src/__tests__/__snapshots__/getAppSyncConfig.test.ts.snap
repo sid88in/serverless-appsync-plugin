@@ -91,7 +91,13 @@ Array [
   },
   Object {
     "dataSource": "posts",
-    "field": "getPosts",
+    "field": "getPost",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "comments",
+    "field": "getComments",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
@@ -121,6 +127,12 @@ Array [
   Object {
     "dataSource": "users",
     "field": "getUsers",
+    "type": "Query",
+  },
+  Object {
+    "dataSource": "posts",
+    "field": "getPosts",
+    "kind": "UNIT",
     "type": "Query",
   },
 ]
