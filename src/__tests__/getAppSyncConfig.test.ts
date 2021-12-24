@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import { getAppSyncConfig, ResolverConfigInput } from '../getAppSyncConfig';
 import { basicConfig } from './basicConfig';
 
@@ -151,6 +152,45 @@ describe('DataSources', () => {
     });
     expect(config.dataSources).toMatchSnapshot();
   });
+
+  it('should merge embedded dataSource into resolvers', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      dataSources: {
+        dataSourceWithName: {
+          name: 'myDataSource',
+          type: 'NONE',
+        },
+        myOtherDataSource: {
+          type: 'NONE',
+        },
+      },
+
+      resolvers: {
+        'Query.getUser': {
+          kind: 'UNIT',
+          dataSource: {
+            type: 'AWS_LAMBDA',
+            config: {
+              functionName: 'getUser',
+            },
+          },
+        },
+        getUsers: {
+          type: 'Query',
+          field: 'getUsers',
+          dataSource: {
+            type: 'AWS_LAMBDA',
+            name: 'getUsers',
+            config: {
+              functionName: 'getUsers',
+            },
+          },
+        },
+      },
+    });
+    expect(pick(config, ['dataSources', 'resolvers'])).toMatchSnapshot();
+  });
 });
 
 describe('Resolvers', () => {
@@ -225,6 +265,7 @@ describe('Pipeline Functions', () => {
           name: 'myFunction2',
           dataSource: 'users',
         },
+        function3: 'users',
       },
     });
     expect(config.pipelineFunctions).toMatchSnapshot();
@@ -252,6 +293,7 @@ describe('Pipeline Functions', () => {
             name: 'myFunction4',
             dataSource: 'users',
           },
+          function5: 'users',
         },
       ],
     });

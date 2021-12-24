@@ -307,7 +307,11 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
         type: { type: 'string' },
         field: { type: 'string' },
-        dataSource: { type: 'string' },
+        dataSource: {
+          if: { type: 'object' },
+          then: { $ref: '#/definitions/dataSourceConfig' },
+          else: { type: 'string' },
+        },
         functions: { type: 'array', items: { type: 'string' } },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
@@ -367,6 +371,19 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       },
       required: ['dataSource'],
       errorMessage: 'is not a valid pipeline function config',
+    },
+    // @ts-ignore
+    pipelineFunctionConfigMap: {
+      type: 'object',
+      additionalProperties: {
+        if: { type: 'object' },
+        then: { $ref: '#/definitions/pipelineFunctionConfig' },
+        else: {
+          type: 'string',
+          errorMessage: 'must be a string or an object',
+        },
+      },
+      required: [],
     },
     resolverCachingConfig: {
       oneOf: [
@@ -778,16 +795,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       errorMessage: 'contains invalid resolver definitions',
     },
     pipelineFunctions: {
-      type: 'array',
-      items: {
-        anyOf: [
-          { $ref: '#/definitions/lambdaFunctionConfig' },
-          {
-            type: 'array',
-            items: { $ref: '#/definitions/lambdaFunctionConfig' },
-          },
-        ],
-      },
+      oneOf: [
+        { $ref: '#/definitions/pipelineFunctionConfig' },
+        {
+          type: 'array',
+          items: { $ref: '#/definitions/pipelineFunctionConfig' },
+        },
+      ],
     },
   },
   required: ['name', 'authentication'],

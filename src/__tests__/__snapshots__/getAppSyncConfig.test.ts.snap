@@ -21,6 +21,49 @@ Array [
 ]
 `;
 
+exports[`DataSources should merge embedded dataSource into resolvers 1`] = `
+Object {
+  "dataSources": Array [
+    Object {
+      "name": "myDataSource",
+      "type": "NONE",
+    },
+    Object {
+      "name": "myOtherDataSource",
+      "type": "NONE",
+    },
+    Object {
+      "config": Object {
+        "functionName": "getUser",
+      },
+      "name": "Query_getUser",
+      "type": "AWS_LAMBDA",
+    },
+    Object {
+      "config": Object {
+        "functionName": "getUsers",
+      },
+      "name": "getUsers",
+      "type": "AWS_LAMBDA",
+    },
+  ],
+  "resolvers": Array [
+    Object {
+      "dataSource": "Query_getUser",
+      "field": "getUser",
+      "kind": "UNIT",
+      "type": "Query",
+    },
+    Object {
+      "dataSource": "getUsers",
+      "field": "getUsers",
+      "kind": "UNIT",
+      "type": "Query",
+    },
+  ],
+}
+`;
+
 exports[`DataSources should resolve dataSource names 1`] = `
 Array [
   Object {
@@ -52,6 +95,10 @@ Array [
     "dataSource": "users",
     "name": "myFunction4",
   },
+  Object {
+    "dataSource": "users",
+    "name": "function5",
+  },
 ]
 `;
 
@@ -65,6 +112,10 @@ Array [
     "dataSource": "users",
     "name": "myFunction2",
   },
+  Object {
+    "dataSource": "users",
+    "name": "function3",
+  },
 ]
 `;
 
@@ -73,11 +124,13 @@ Array [
   Object {
     "dataSource": "users",
     "field": "getUser",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
     "dataSource": "users",
     "field": "getUsers",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
@@ -92,6 +145,7 @@ Array [
   Object {
     "dataSource": "posts",
     "field": "getPost",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
@@ -103,6 +157,7 @@ Array [
   Object {
     "dataSource": "posts",
     "field": "getPosts",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
@@ -122,11 +177,13 @@ Array [
   Object {
     "dataSource": "users",
     "field": "getUser",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {
     "dataSource": "users",
     "field": "getUsers",
+    "kind": "UNIT",
     "type": "Query",
   },
   Object {

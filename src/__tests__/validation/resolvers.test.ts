@@ -37,6 +37,17 @@ describe('Basic', () => {
               field: 'getUsers',
               dataSource: 'myDs',
             },
+            getComments: {
+              type: 'Query',
+              field: 'getComments',
+              dataSource: {
+                type: 'AWS_LAMBDA',
+                name: 'getComments',
+                config: {
+                  functionName: 'getComments',
+                },
+              },
+            },
           },
         },
       },
@@ -70,6 +81,15 @@ describe('Basic', () => {
                 field: 'getPosts',
                 kind: 'PIPELINE',
                 functions: ['function1', 'function2'],
+              },
+              'Query.getComment': {
+                dataSource: {
+                  type: 'AWS_LAMBDA',
+                  name: 'getComment',
+                  config: {
+                    functionName: 'getComment',
+                  },
+                },
               },
             },
           ],
@@ -145,6 +165,19 @@ describe('Basic', () => {
         config: {
           resolvers: {
             'Query.getUser': 1234,
+          },
+        },
+      },
+      {
+        name: 'Invalid embedded datasource',
+        config: {
+          resolvers: {
+            'Query.getUser': {
+              dataSource: {
+                type: 'AWS_LAMBDA',
+                config: {},
+              },
+            },
           },
         },
       },

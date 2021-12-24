@@ -11,7 +11,7 @@ import {
 } from './types/plugin';
 import { IntrinsicFunction } from './types/cloudFormation';
 import { O } from 'ts-toolbelt';
-import { map, merge } from 'lodash';
+import { map, merge, omit, reduce } from 'lodash';
 
 const flattenAndMerge = <T>(
   input?: Record<string, T> | Record<string, T>[],
@@ -24,9 +24,14 @@ const flattenAndMerge = <T>(
 };
 
 export type ResolverConfigInput =
-  | O.Optional<ResolverConfig, 'type' | 'field'>
+  | O.Update<
+      O.Optional<ResolverConfig, 'type' | 'field'>,
+      'dataSource',
+      string | DataSourceConfigInput
+    >
   | string;
-export type FunctionConfigInput = O.Optional<FunctionConfig, 'name'>;
+
+export type FunctionConfigInput = O.Optional<FunctionConfig, 'name'> | string;
 export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
 export type AppSyncConfigInput = {
@@ -77,6 +82,12 @@ export type AppSyncConfigInput = {
   tags?: Record<string, string>;
 };
 
+const isUnitResolver = (resolver: {
+  kind?: 'UNIT' | 'PIPELINE';
+}): resolver is { kind?: 'UNIT' } => {
+  return resolver.kind === undefined || resolver.kind === 'UNIT';
+};
+
 export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
   const schema = Array.isArray(config.schema)
     ? config.schema
@@ -94,6 +105,26 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     return { ...ds, name: ds.name || name };
   });
 
+  // DataSources embedded into resolvers
+  const embeddedDataSources = reduce(
+    flattenAndMerge(config.resolvers),
+    (ds, resolver, name) => {
+      if (
+        typeof resolver === 'object' &&
+        isUnitResolver(resolver) &&
+        typeof resolver.dataSource === 'object'
+      ) {
+        ds.push({
+          ...resolver.dataSource,
+          name: name.replace(/[^a-z_]/i, '_'),
+        });
+      }
+
+      return ds;
+    },
+    [] as DataSourceConfig[],
+  );
+
   const resolvers: ResolverConfig[] = map(
     flattenAndMerge(config.resolvers),
     (resolver, typeAndField) => {
@@ -109,17 +140,40 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
       }
 
       return {
-        ...resolver,
+        ...resolvers,
         type: resolver.type || type,
         field: resolver.field || field,
+        ...(isUnitResolver(resolver)
+          ? {
+              kind: 'UNIT',
+              dataSource:
+                typeof resolver.dataSource === 'object'
+                  ? resolver.dataSource.name ||
+                    typeAndField.replace(/[^a-z_]/i, '_')
+                  : resolver.dataSource,
+            }
+          : {
+              kind: 'PIPELINE',
+              functions: resolver.functions,
+            }),
       };
     },
   );
 
-  const pipelineFunctions = map(
+  const pipelineFunctions: FunctionConfig[] = map(
     flattenAndMerge(config.pipelineFunctions),
-    (ds, name) => {
-      return { ...ds, name: ds.name || name };
+    (func, name) => {
+      if (typeof func === 'string') {
+        return {
+          name,
+          dataSource: func,
+        };
+      }
+
+      return {
+        ...func,
+        name: func.name || name,
+      };
     },
   );
 
@@ -152,7 +206,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     additionalAuthenticationProviders,
     apiKeys,
     schema,
-    dataSources,
+    dataSources: [...dataSources, ...embeddedDataSources],
     mappingTemplatesLocation,
     resolvers,
     pipelineFunctions,

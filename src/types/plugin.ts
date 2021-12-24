@@ -141,7 +141,7 @@ export type ApiKeyAuth = {
 
 export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
 
-export type ResolverConfig = {
+export type BaseResolverConfig = {
   field: string;
   type: string;
   request?: string | false;
@@ -159,16 +159,19 @@ export type ResolverConfig = {
       } & LambdaConfig)
     | boolean;
   substitutions?: Substitutions;
-} & (
-  | {
-      kind?: 'UNIT';
-      dataSource: string;
-    }
-  | {
-      kind: 'PIPELINE';
-      functions: string[];
-    }
-);
+};
+
+export type ResolverConfig = UnitResolverConfig | PipelineResolverConfig;
+
+export type UnitResolverConfig = BaseResolverConfig & {
+  kind?: 'UNIT';
+  dataSource: string;
+};
+
+export type PipelineResolverConfig = BaseResolverConfig & {
+  kind: 'PIPELINE';
+  functions: string[];
+};
 
 export type Substitutions = Record<string, string | IntrinsicFunction>;
 
