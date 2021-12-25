@@ -451,7 +451,7 @@ describe('Api', () => {
     });
   });
 
-  describe('CloudWatch', () => {
+  describe('Logs', () => {
     it('should not compile CloudWatch Resources when disabled', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(

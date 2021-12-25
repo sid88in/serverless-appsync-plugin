@@ -25,6 +25,7 @@ import { DataSource } from './DataSource';
 import { Resolver } from './Resolver';
 import { PipelineFunction } from './PipelineFunction';
 import { Schema } from './Schema';
+import { Waf } from './Waf';
 
 export class Api {
   public naming: Naming;
@@ -44,6 +45,7 @@ export class Api {
     merge(resources, this.compileSchema());
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
+    merge(resources, this.compileWafRules());
 
     this.config.apiKeys?.forEach((key) => {
       merge(resources, this.compileApiKey(key));
@@ -287,6 +289,15 @@ export class Api {
   compilePipelineFunctionResource(config: FunctionConfig): CfnResources {
     const func = new PipelineFunction(this, config);
     return func.compile();
+  }
+
+  compileWafRules() {
+    if (!this.config.wafConfig || !this.config.wafConfig.enabled) {
+      return {};
+    }
+
+    const waf = new Waf(this, this.config.wafConfig);
+    return waf.compile();
   }
 
   getApiId() {

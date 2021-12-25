@@ -1,9 +1,5 @@
 import { upperFirst } from 'lodash';
-import {
-  AppSyncConfig,
-  DataSourceConfig,
-  ResolverConfig,
-} from '../types/plugin';
+import { DataSourceConfig, ResolverConfig } from '../types/plugin';
 
 export class Naming {
   constructor(private apiName: string, private isSingleApi: boolean) {}

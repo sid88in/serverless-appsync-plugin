@@ -159,45 +159,7 @@ describe('Resolvers', () => {
           field: 'user',
           functions: ['function1', 'function2'],
         }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlResolverQueryuser": Object {
-            "DependsOn": Array [
-              "GraphQlSchema",
-            ],
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "FieldName": "user",
-              "Kind": "PIPELINE",
-              "PipelineConfig": Object {
-                "Functions": Array [
-                  Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlFunctionConfigurationfunction1",
-                      "FunctionId",
-                    ],
-                  },
-                  Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlFunctionConfigurationfunction2",
-                      "FunctionId",
-                    ],
-                  },
-                ],
-              },
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
-              "TypeName": "Query",
-            },
-            "Type": "AWS::AppSync::Resolver",
-          },
-        }
-      `);
+      ).toMatchSnapshot();
     });
 
     it('should generate Resources with specific mapping templates', () => {
@@ -211,45 +173,7 @@ describe('Resolvers', () => {
           request: 'specific.request.tpl',
           response: 'specific.response.tpl',
         }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlResolverQueryuser": Object {
-            "DependsOn": Array [
-              "GraphQlSchema",
-            ],
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "FieldName": "user",
-              "Kind": "PIPELINE",
-              "PipelineConfig": Object {
-                "Functions": Array [
-                  Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlFunctionConfigurationfunction1",
-                      "FunctionId",
-                    ],
-                  },
-                  Object {
-                    "Fn::GetAtt": Array [
-                      "GraphQlFunctionConfigurationfunction2",
-                      "FunctionId",
-                    ],
-                  },
-                ],
-              },
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
-              "TypeName": "Query",
-            },
-            "Type": "AWS::AppSync::Resolver",
-          },
-        }
-      `);
+      ).toMatchSnapshot();
     });
   });
 

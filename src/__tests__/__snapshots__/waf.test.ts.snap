@@ -265,3 +265,180 @@ Array [
   },
 ]
 `;
+
+exports[`Waf Base Resources should generate waf Resources 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "My Waf ACL",
+      "Name": "Waf",
+      "Rules": Array [],
+      "Scope": "REGIONAL",
+      "Tags": Array [
+        Object {
+          "Key": "stage",
+          "Value": "Dev",
+        },
+      ],
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "MyVisibilityConfig",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
+exports[`Waf Disable introspection should generate a preset rule 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseDisableIntrospection",
+  "Priority": undefined,
+  "Statement": Object {
+    "ByteMatchStatement": Object {
+      "FieldToMatch": Object {
+        "Body": Object {},
+      },
+      "PositionalConstraint": "CONTAINS",
+      "SearchString": "__schema",
+      "TextTransformations": Array [
+        Object {
+          "Priority": 0,
+          "Type": "COMPRESS_WHITE_SPACE",
+        },
+      ],
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "BaseDisableIntrospection",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
+exports[`Waf Disable introspection should generate a preset rule with custon config 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseDisableIntrospection",
+  "Priority": 200,
+  "Statement": Object {
+    "ByteMatchStatement": Object {
+      "FieldToMatch": Object {
+        "Body": Object {},
+      },
+      "PositionalConstraint": "CONTAINS",
+      "SearchString": "__schema",
+      "TextTransformations": Array [
+        Object {
+          "Priority": 0,
+          "Type": "COMPRESS_WHITE_SPACE",
+        },
+      ],
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "BaseDisableIntrospection",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
+exports[`Waf Throttle rules should generate a preset rule 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseThrottle",
+  "Priority": undefined,
+  "Statement": Object {
+    "RateBasedStatement": Object {
+      "AggregateKeyType": "IP",
+      "ForwardedIPConfig": undefined,
+      "Limit": 100,
+      "ScopeDownStatement": undefined,
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "BaseThrottle",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
+exports[`Waf Throttle rules should generate a preset rule with config 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseThrottle",
+  "Priority": 300,
+  "Statement": Object {
+    "RateBasedStatement": Object {
+      "AggregateKeyType": "FORWARDED_IP",
+      "ForwardedIPConfig": Object {
+        "FallbackBehavior": "FOO",
+        "HeaderName": "X-Forwarded-To",
+      },
+      "Limit": 200,
+      "ScopeDownStatement": undefined,
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "BaseThrottle",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
+exports[`Waf Throttle rules should generate a preset rule with limit 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseThrottle",
+  "Priority": undefined,
+  "Statement": Object {
+    "RateBasedStatement": Object {
+      "AggregateKeyType": "IP",
+      "ForwardedIPConfig": undefined,
+      "Limit": 500,
+      "ScopeDownStatement": undefined,
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "BaseThrottle",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;

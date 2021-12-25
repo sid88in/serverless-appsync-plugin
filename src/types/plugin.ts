@@ -36,7 +36,7 @@ export type AppSyncConfig = {
   resolvers: ResolverConfig[];
   pipelineFunctions: FunctionConfig[];
   dataSources: DataSourceConfig[];
-  substitutions?: Record<string, string | IntrinsicFunction>;
+  substitutions?: Substitutions;
   xrayEnabled?: boolean;
   wafConfig?: WafConfig;
   tags?: Record<string, string>;
@@ -45,7 +45,7 @@ export type AppSyncConfig = {
 export type IamStatement = {
   Effect: 'Allow' | 'Deny';
   Action: string[];
-  Resource: (string | IntrinsicFunction)[];
+  Resource: string | IntrinsicFunction | (string | IntrinsicFunction)[];
 };
 
 export type WafThrottleConfig =
@@ -286,7 +286,7 @@ export type VisibilityConfig = {
 
 export type WafConfig = {
   enabled?: boolean;
-  name: string;
+  name?: string;
   defaultAction?: WafActionKeys;
   description?: string;
   visibilityConfig?: VisibilityConfig;

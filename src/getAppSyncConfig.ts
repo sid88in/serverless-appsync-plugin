@@ -1,27 +1,14 @@
 import {
   ApiKeyConfig,
   AppSyncConfig,
-  Auth,
   DataSourceConfig,
   FunctionConfig,
   ResolverConfig,
-  Substitutions,
-  WafActionKeys,
-  WafRule,
 } from './types/plugin';
-import { IntrinsicFunction } from './types/cloudFormation';
 import { O } from 'ts-toolbelt';
 import { forEach, merge } from 'lodash';
 
-const flattenAndMerge = <T>(
-  input?: Record<string, T> | Record<string, T>[],
-): Record<string, T> => {
-  if (Array.isArray(input)) {
-    return merge({}, ...input);
-  } else {
-    return merge({}, input);
-  }
-};
+export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
 export type ResolverConfigInput =
   | O.Update<
@@ -32,60 +19,42 @@ export type ResolverConfigInput =
   | string;
 
 export type FunctionConfigInput =
-  | O.Update<
-      O.Optional<FunctionConfig, 'name'>,
-      'dataSource',
-      string | DataSourceConfigInput
+  | O.Merge<
+      { dataSource: string | DataSourceConfigInput },
+      O.Optional<FunctionConfig, 'name'>
     >
   | string;
-export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
-export type AppSyncConfigInput = {
-  apiId?: string;
-  name: string;
-  schema?: string | string[];
-  authentication: Auth;
-  apiKeys?: (ApiKeyConfig | string)[];
-  caching?: {
-    behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
-    type?: string;
-    ttl?: number;
-    atRestEncryption?: boolean;
-    transitEncryption?: boolean;
-  };
-  additionalAuthenticationProviders?: Auth[];
-  logConfig?: {
-    loggingRoleArn?: string | IntrinsicFunction;
-    level?: 'ERROR' | 'NONE' | 'ALL';
-    excludeVerboseContent?: boolean;
-  };
-  defaultMappingTemplates?: {
-    request?: string | false;
-    response?: string | false;
-  };
-  mappingTemplatesLocation?: {
-    resolvers?: string;
-    pipelineFunctions?: string;
-  };
-  resolvers?:
-    | Record<string, ResolverConfigInput>[]
-    | Record<string, ResolverConfigInput>;
-  pipelineFunctions?:
-    | Record<string, FunctionConfigInput>[]
-    | Record<string, FunctionConfigInput>;
-  dataSources:
-    | Record<string, DataSourceConfigInput>[]
-    | Record<string, DataSourceConfigInput>;
-  substitutions?: Substitutions;
-  xrayEnabled?: boolean;
-  wafConfig?: {
-    enabled?: boolean;
-    name: string;
-    defaultAction: WafActionKeys;
-    description?: string;
-    rules: WafRule[];
-  };
-  tags?: Record<string, string>;
+export type AppSyncConfigInput = O.Merge<
+  {
+    schema?: string | string[];
+    apiKeys?: (ApiKeyConfig | string)[];
+    resolvers?:
+      | Record<string, ResolverConfigInput>[]
+      | Record<string, ResolverConfigInput>;
+    pipelineFunctions?:
+      | Record<string, FunctionConfigInput>[]
+      | Record<string, FunctionConfigInput>;
+    dataSources:
+      | Record<string, DataSourceConfigInput>[]
+      | Record<string, DataSourceConfigInput>;
+  },
+  O.Optional<
+    AppSyncConfig,
+    | 'defaultMappingTemplates'
+    | 'mappingTemplatesLocation'
+    | 'additionalAuthenticationProviders'
+  >
+>;
+
+const flattenMaps = <T>(
+  input?: Record<string, T> | Record<string, T>[],
+): Record<string, T> => {
+  if (Array.isArray(input)) {
+    return merge({}, ...input);
+  } else {
+    return merge({}, input);
+  }
 };
 
 export const isUnitResolver = (resolver: {
@@ -98,7 +67,6 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
   const schema = Array.isArray(config.schema)
     ? config.schema
     : [config.schema || 'schema.graphql'];
-
   const mappingTemplatesLocation = merge(
     {
       resolvers: 'mapping-templates',
@@ -111,14 +79,14 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
   const resolvers: ResolverConfig[] = [];
   const pipelineFunctions: FunctionConfig[] = [];
 
-  forEach(flattenAndMerge(config.dataSources), (ds, name) => {
+  forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources.push({
       ...ds,
       name: ds.name || name,
     });
   });
 
-  forEach(flattenAndMerge(config.resolvers), (resolver, typeAndField) => {
+  forEach(flattenMaps(config.resolvers), (resolver, typeAndField) => {
     const [type, field] = typeAndField.split('.');
 
     if (typeof resolver === 'string') {
@@ -158,7 +126,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     });
   });
 
-  forEach(flattenAndMerge(config.pipelineFunctions), (func, name) => {
+  forEach(flattenMaps(config.pipelineFunctions), (func, name) => {
     if (typeof func === 'string') {
       pipelineFunctions.push({
         name,

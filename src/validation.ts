@@ -1,28 +1,6 @@
-import Ajv, { JSONSchemaType } from 'ajv';
+import Ajv from 'ajv';
 import ajvErrors from 'ajv-errors';
 import ajvMergePatch from 'ajv-merge-patch';
-import { AppSyncConfigInput } from './getAppSyncConfig';
-import { IntrinsicFunction } from './types/cloudFormation';
-import {
-  Auth,
-  CognitoAuth,
-  DataSourceConfig,
-  DsDynamoDBConfig,
-  DsElasticSearchConfig,
-  DsHttpConfig,
-  DsLambdaConfig,
-  DsRelationalDbConfig,
-  FunctionConfig,
-  IamStatement,
-  LambdaAuth,
-  LambdaConfig,
-  OidcAuth,
-  ResolverConfig,
-  Substitutions,
-  VisibilityConfig,
-  WafRule,
-  WafRuleCustom,
-} from './types/plugin';
 
 const AUTH_TYPES = [
   'AMAZON_COGNITO_USER_POOLS',
@@ -42,38 +20,7 @@ const DATASOURCE_TYPES = [
   'RELATIONAL_DATABASE',
 ] as const;
 
-export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
-  definitions: {
-    stringOrIntrinsicFunction: JSONSchemaType<string | IntrinsicFunction>;
-    lambdaFunctionConfig: JSONSchemaType<LambdaConfig>;
-    auth: JSONSchemaType<Pick<Auth, 'type'>>;
-    cognitoAuth: JSONSchemaType<CognitoAuth['config']>;
-    lambdaAuth: JSONSchemaType<LambdaAuth['config']>;
-    oidcAuth: JSONSchemaType<OidcAuth['config']>;
-    visibilityConfig: JSONSchemaType<VisibilityConfig>;
-    wafRule: JSONSchemaType<WafRule>;
-    customWafRule: JSONSchemaType<
-      Omit<WafRuleCustom, 'statement'> & { statement: Record<string, unknown> }
-    >;
-    mappingTemplate: JSONSchemaType<string | false>;
-    substitutions: JSONSchemaType<Substitutions>;
-    resolverConfig: JSONSchemaType<ResolverConfig>;
-    pipelineFunctionConfig: JSONSchemaType<FunctionConfig>;
-    resolverCachingConfig: JSONSchemaType<ResolverConfig['caching']>;
-    resolverSyncConfig: JSONSchemaType<ResolverConfig['sync']>;
-    iamRoleStatements: JSONSchemaType<IamStatement[]>;
-    dataSourceConfig: JSONSchemaType<
-      Pick<DataSourceConfig, 'name' | 'type' | 'description'>
-    >;
-    dataSourceHttp: JSONSchemaType<DsHttpConfig['config']>;
-    dataSourceDynamoDb: JSONSchemaType<DsDynamoDBConfig['config']>;
-    datasourceRelationalDbConfig: JSONSchemaType<
-      DsRelationalDbConfig['config']
-    >;
-    datasourceLambdaConfig: JSONSchemaType<DsLambdaConfig['config']>;
-    datasourceEsConfig: JSONSchemaType<DsElasticSearchConfig['config']>;
-  };
-} = {
+export const appSyncSchema = {
   type: 'object',
   definitions: {
     stringOrIntrinsicFunction: {
@@ -93,7 +40,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           type: 'object',
           properties: {
             functionName: { type: 'string' },
-            functionAlias: { type: 'string', nullable: true },
+            functionAlias: { type: 'string' },
           },
           required: ['functionName'],
         },
@@ -148,7 +95,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
       },
       required: ['type'],
-      // errorMessage: 'is not a valid ${0/type} authentication definition',
     },
     cognitoAuth: {
       type: 'object',
@@ -158,10 +104,10 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         defaultAction: {
           type: 'string',
           enum: ['ALLOW', 'DENY'],
-          nullable: true,
+
           errorMessage: 'must be "ALLOW" or "DENY"',
         },
-        appIdClientRegex: { type: 'string', nullable: true },
+        appIdClientRegex: { type: 'string' },
       },
       required: ['userPoolId'],
     },
@@ -173,8 +119,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         // But if not also defined here, TypeScript shows an error.
         functionName: { type: 'string' },
         functionArn: { type: 'string' },
-        identityValidationExpression: { type: 'string', nullable: true },
-        authorizerResultTtlInSeconds: { type: 'number', nullable: true },
+        identityValidationExpression: { type: 'string' },
+        authorizerResultTtlInSeconds: { type: 'number' },
       },
       required: [],
     },
@@ -183,8 +129,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       properties: {
         issuer: { type: 'string' },
         clientId: { type: 'string' },
-        iatTTL: { type: 'number', nullable: true },
-        authTTL: { type: 'number', nullable: true },
+        iatTTL: { type: 'number' },
+        authTTL: { type: 'number' },
       },
       required: ['issuer', 'clientId'],
     },
@@ -213,9 +159,9 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     visibilityConfig: {
       type: 'object',
       properties: {
-        cloudWatchMetricsEnabled: { type: 'boolean', nullable: true },
-        name: { type: 'string', nullable: true },
-        sampledRequestsEnabled: { type: 'boolean', nullable: true },
+        cloudWatchMetricsEnabled: { type: 'boolean' },
+        name: { type: 'string' },
+        sampledRequestsEnabled: { type: 'boolean' },
       },
       required: [],
     },
@@ -228,8 +174,8 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
             disableIntrospection: {
               type: 'object',
               properties: {
-                name: { type: 'string', nullable: true },
-                priority: { type: 'integer', nullable: true },
+                name: { type: 'string' },
+                priority: { type: 'integer' },
               },
             },
           },
@@ -244,20 +190,18 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
                 {
                   type: 'object',
                   properties: {
-                    name: { type: 'string', nullable: true },
+                    name: { type: 'string' },
                     action: {
                       type: 'string',
                       enum: ['Allow', 'Block'],
-                      nullable: true,
                     },
                     aggregateKeyType: {
                       type: 'string',
                       enum: ['IP', 'FORWARDED_IP'],
-                      nullable: true,
                     },
-                    limit: { type: 'integer', nullable: true },
-                    priority: { type: 'integer', nullable: true },
-                    scopeDownStatement: { type: 'object', nullable: true },
+                    limit: { type: 'integer' },
+                    priority: { type: 'integer' },
+                    scopeDownStatement: { type: 'object' },
                     forwardedIPConfig: {
                       type: 'object',
                       properties: {
@@ -265,7 +209,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
                         fallbackBehavior: { type: 'string' },
                       },
                       required: ['headerName', 'fallbackBehavior'],
-                      nullable: true,
                     },
                   },
                   required: [],
@@ -282,11 +225,10 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       type: 'object',
       properties: {
         name: { type: 'string' },
-        priority: { type: 'number', nullable: true },
+        priority: { type: 'number' },
         action: {
           type: 'string',
           enum: ['Allow', 'Block'],
-          nullable: true,
         },
         statement: { type: 'object', required: [] },
         visibilityConfig: { $ref: '#/definitions/visibilityConfig' },
@@ -297,14 +239,14 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       oneOf: [{ type: 'string' }, { type: 'boolean', const: false }],
       errorMessage: 'must be a string or false',
     },
-    // @ts-ignore
     substitutions: {
       type: 'object',
-      additionalProperties: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+      additionalProperties: {
+        $ref: '#/definitions/stringOrIntrinsicFunction',
+      },
       required: [],
       errorMessage: 'is not a valid substitutions definition',
     },
-    // @ts-ignore
     dataSource: {
       if: { type: 'object' },
       then: { $ref: '#/definitions/dataSourceConfig' },
@@ -313,7 +255,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         errorMessage: 'must be a string or data source definition',
       },
     },
-    // @ts-ignore
     resolverConfig: {
       type: 'object',
       properties: {
@@ -341,7 +282,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       },
       required: [],
     },
-    // @ts-ignore
     resolverConfigMap: {
       type: 'object',
       patternProperties: {
@@ -374,16 +314,15 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     pipelineFunctionConfig: {
       type: 'object',
       properties: {
-        name: { type: 'string', nullable: true },
+        name: { type: 'string' },
         dataSource: { $ref: '#/definitions/dataSource' },
-        description: { type: 'string', nullable: true },
+        description: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
       required: ['dataSource'],
     },
-    // @ts-ignore
     pipelineFunctionConfigMap: {
       type: 'object',
       additionalProperties: {
@@ -402,8 +341,11 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         {
           type: 'object',
           properties: {
-            ttl: { type: 'integer', nullable: true },
-            keys: { type: 'array', items: { type: 'string' }, nullable: true },
+            ttl: { type: 'integer' },
+            keys: {
+              type: 'array',
+              items: { type: 'string' },
+            },
           },
           required: [],
         },
@@ -431,7 +373,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       ],
       errorMessage: 'is not a valid resolver sync config',
     },
-    // @ts-ignore
     iamRoleStatements: {
       type: 'array',
       items: {
@@ -447,6 +388,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
                 items: { $ref: '#/definitions/stringOrIntrinsicFunction' },
               },
             ],
+            errorMessage: 'contains invalid resolver definitions',
           },
         },
         required: ['Effect', 'Action', 'Resource'],
@@ -456,13 +398,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     dataSourceConfig: {
       type: 'object',
       properties: {
-        name: { type: 'string', nullable: true },
+        name: { type: 'string' },
         type: {
           type: 'string',
           enum: DATASOURCE_TYPES,
           errorMessage: `must be one of ${DATASOURCE_TYPES.join(', ')}`,
         },
-        description: { type: 'string', nullable: true },
+        description: { type: 'string' },
       },
       if: { properties: { type: { const: 'AMAZON_DYNAMODB' } } },
       then: {
@@ -516,7 +458,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       required: ['type'],
     },
     dataSourceHttpConfig: {
-      type: 'object',
       properties: {
         endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         serviceRoleArn: {
@@ -547,7 +488,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
             },
           },
           required: ['authorizationType', 'awsIamConfig'],
-          nullable: true,
         },
       },
       required: ['endpoint'],
@@ -556,7 +496,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       type: 'object',
       properties: {
         tableName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-        useCallerCredentials: { type: 'boolean', nullable: true },
+        useCallerCredentials: { type: 'boolean' },
         serviceRoleArn: {
           $ref: '#/definitions/stringOrIntrinsicFunction',
         },
@@ -566,16 +506,15 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         iamRoleStatements: {
           $ref: '#/definitions/iamRoleStatements',
         },
-        versioned: { type: 'boolean', nullable: true },
+        versioned: { type: 'boolean' },
         deltaSyncConfig: {
           type: 'object',
           properties: {
             deltaSyncTableName: { type: 'string' },
-            baseTableTTL: { type: 'integer', nullable: true },
-            deltaSyncTableTTL: { type: 'integer', nullable: true },
+            baseTableTTL: { type: 'integer' },
+            deltaSyncTableTTL: { type: 'integer' },
           },
           required: ['deltaSyncTableName'],
-          nullable: true,
         },
       },
       required: ['tableName'],
@@ -587,14 +526,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         relationalDatabaseSourceType: {
           type: 'string',
           enum: ['RDS_HTTP_ENDPOINT'],
-          nullable: true,
         },
         serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         dbClusterIdentifier: {
           $ref: '#/definitions/stringOrIntrinsicFunction',
         },
         databaseName: { $ref: '#/definitions/stringOrIntrinsicFunction' },
-        schema: { type: 'string', nullable: true },
+        schema: { type: 'string' },
         awsSecretStoreArn: {
           $ref: '#/definitions/stringOrIntrinsicFunction',
         },
@@ -684,7 +622,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           items: { $ref: '#/definitions/wafRule' },
         },
       },
-      required: ['name', 'defaultAction', 'rules'],
+      required: ['rules'],
       errorMessage: 'is not a valid WAF config',
     },
     tags: {
