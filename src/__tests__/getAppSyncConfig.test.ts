@@ -153,7 +153,7 @@ describe('DataSources', () => {
     expect(config.dataSources).toMatchSnapshot();
   });
 
-  it('should merge embedded dataSource into resolvers', async () => {
+  it('should merge dataSources embedded into resolvers and pipelineFunctions', async () => {
     const config = getAppSyncConfig({
       ...basicConfig,
       dataSources: {
@@ -165,7 +165,6 @@ describe('DataSources', () => {
           type: 'NONE',
         },
       },
-
       resolvers: {
         'Query.getUser': {
           kind: 'UNIT',
@@ -184,6 +183,25 @@ describe('DataSources', () => {
             name: 'getUsers',
             config: {
               functionName: 'getUsers',
+            },
+          },
+        },
+      },
+      pipelineFunctions: {
+        function1: {
+          dataSource: {
+            type: 'AWS_LAMBDA',
+            config: {
+              functionName: 'funcion1',
+            },
+          },
+        },
+        fucntion2: {
+          dataSource: {
+            type: 'AWS_LAMBDA',
+            name: 'getUsers',
+            config: {
+              functionName: 'funcion2',
             },
           },
         },

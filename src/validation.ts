@@ -305,6 +305,15 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       errorMessage: 'is not a valid substitutions definition',
     },
     // @ts-ignore
+    dataSource: {
+      if: { type: 'object' },
+      then: { $ref: '#/definitions/dataSourceConfig' },
+      else: {
+        type: 'string',
+        errorMessage: 'must be a string or data source definition',
+      },
+    },
+    // @ts-ignore
     resolverConfig: {
       type: 'object',
       properties: {
@@ -315,11 +324,7 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         },
         type: { type: 'string' },
         field: { type: 'string' },
-        dataSource: {
-          if: { type: 'object' },
-          then: { $ref: '#/definitions/dataSourceConfig' },
-          else: { type: 'string' },
-        },
+        dataSource: { $ref: '#/definitions/dataSource' },
         functions: { type: 'array', items: { type: 'string' } },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
@@ -370,14 +375,13 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
       type: 'object',
       properties: {
         name: { type: 'string', nullable: true },
-        dataSource: { type: 'string' },
+        dataSource: { $ref: '#/definitions/dataSource' },
         description: { type: 'string', nullable: true },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
       required: ['dataSource'],
-      errorMessage: 'is not a valid pipeline function config',
     },
     // @ts-ignore
     pipelineFunctionConfigMap: {
@@ -804,12 +808,23 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
     },
     pipelineFunctions: {
       oneOf: [
-        { $ref: '#/definitions/pipelineFunctionConfig' },
+        {
+          type: 'object',
+          additionalProperties: {
+            $ref: '#/definitions/pipelineFunctionConfig',
+          },
+        },
         {
           type: 'array',
-          items: { $ref: '#/definitions/pipelineFunctionConfig' },
+          items: {
+            type: 'object',
+            additionalProperties: {
+              $ref: '#/definitions/pipelineFunctionConfig',
+            },
+          },
         },
       ],
+      errorMessage: 'contains invalid pipeline function definitions',
     },
   },
   required: ['name', 'authentication'],

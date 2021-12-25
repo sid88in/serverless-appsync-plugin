@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic Invalid should validate: Invalid 1`] = `
+"/pipelineFunctions/function1/name: must be string
+/pipelineFunctions/function1/dataSource: must be a string or data source definition
+/pipelineFunctions/function1/description: must be string
+/pipelineFunctions/function1/request: must be a string or false
+/pipelineFunctions/function1/response: must be a string or false
+/pipelineFunctions: contains invalid pipeline function definitions"
+`;
+
+exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
+"/pipelineFunctions/function1/dataSource/config: must specify functionName, functionArn or function (all exclusives)
+/pipelineFunctions: contains invalid pipeline function definitions"
+`;
+
+exports[`Basic Invalid should validate: Invalid inline datasource 1`] = `
+"/pipelineFunctions/function1: must be object
+/pipelineFunctions: contains invalid pipeline function definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing datasource 1`] = `
+"/pipelineFunctions/function1: must have required property 'dataSource'
+/pipelineFunctions: contains invalid pipeline function definitions"
+`;

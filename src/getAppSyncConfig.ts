@@ -11,7 +11,7 @@ import {
 } from './types/plugin';
 import { IntrinsicFunction } from './types/cloudFormation';
 import { O } from 'ts-toolbelt';
-import { forEach, map, merge } from 'lodash';
+import { forEach, merge } from 'lodash';
 
 const flattenAndMerge = <T>(
   input?: Record<string, T> | Record<string, T>[],
@@ -31,7 +31,13 @@ export type ResolverConfigInput =
     >
   | string;
 
-export type FunctionConfigInput = O.Optional<FunctionConfig, 'name'> | string;
+export type FunctionConfigInput =
+  | O.Update<
+      O.Optional<FunctionConfig, 'name'>,
+      'dataSource',
+      string | DataSourceConfigInput
+    >
+  | string;
 export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
 export type AppSyncConfigInput = {
@@ -103,6 +109,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
 
   const dataSources: DataSourceConfig[] = [];
   const resolvers: ResolverConfig[] = [];
+  const pipelineFunctions: FunctionConfig[] = [];
 
   forEach(flattenAndMerge(config.dataSources), (ds, name) => {
     dataSources.push({
@@ -151,22 +158,31 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     });
   });
 
-  const pipelineFunctions: FunctionConfig[] = map(
-    flattenAndMerge(config.pipelineFunctions),
-    (func, name) => {
-      if (typeof func === 'string') {
-        return {
-          name,
-          dataSource: func,
-        };
-      }
+  forEach(flattenAndMerge(config.pipelineFunctions), (func, name) => {
+    if (typeof func === 'string') {
+      pipelineFunctions.push({
+        name,
+        dataSource: func,
+      });
+      return;
+    }
 
-      return {
-        ...func,
-        name: func.name || name,
-      };
-    },
-  );
+    if (typeof func.dataSource === 'object') {
+      dataSources.push({
+        ...func.dataSource,
+        name: func.dataSource.name || name,
+      });
+    }
+
+    pipelineFunctions.push({
+      ...func,
+      dataSource:
+        typeof func.dataSource === 'string'
+          ? func.dataSource
+          : func.dataSource.name || name,
+      name: func.name || name,
+    });
+  });
 
   const additionalAuthenticationProviders =
     config.additionalAuthenticationProviders || [];

@@ -4,7 +4,7 @@ exports[`Basic Invalid should validate: Invalid 1`] = `
 "/resolvers/myResolver/kind: must be \\"UNIT\\" or \\"PIPELINE\\"
 /resolvers/myResolver/type: must be string
 /resolvers/myResolver/field: must be string
-/resolvers/myResolver/dataSource: must be string
+/resolvers/myResolver/dataSource: must be a string or data source definition
 /resolvers/myResolver/request: must be a string or false
 /resolvers/myResolver/response: must be a string or false
 /resolvers: contains invalid resolver definitions"

@@ -21,7 +21,7 @@ Array [
 ]
 `;
 
-exports[`DataSources should merge embedded dataSource into resolvers 1`] = `
+exports[`DataSources should merge dataSources embedded into resolvers and pipelineFunctions 1`] = `
 Object {
   "dataSources": Array [
     Object {
@@ -42,6 +42,20 @@ Object {
     Object {
       "config": Object {
         "functionName": "getUsers",
+      },
+      "name": "getUsers",
+      "type": "AWS_LAMBDA",
+    },
+    Object {
+      "config": Object {
+        "functionName": "funcion1",
+      },
+      "name": "function1",
+      "type": "AWS_LAMBDA",
+    },
+    Object {
+      "config": Object {
+        "functionName": "funcion2",
       },
       "name": "getUsers",
       "type": "AWS_LAMBDA",
