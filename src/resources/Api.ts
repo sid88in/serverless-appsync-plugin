@@ -28,6 +28,7 @@ import { Schema } from './Schema';
 
 export class Api {
   public naming: Naming;
+  public functions: Record<string, Record<string, unknown>> = {};
 
   constructor(
     public config: AppSyncConfig,
@@ -201,7 +202,10 @@ export class Api {
         Type: 'AWS::Lambda::Permission',
         Properties: {
           Action: 'lambda:InvokeFunction',
-          FunctionName: this.getLambdaArn(lambdaAuth.config),
+          FunctionName: this.getLambdaArn(
+            lambdaAuth.config,
+            this.naming.getAuthenticationEmbeddedLamdbaName(),
+          ),
           Principal: 'appsync.amazonaws.com',
           SourceArn: { Ref: apiLogicalId },
         },
@@ -334,7 +338,10 @@ export class Api {
     }
 
     const lambdaAuthorizerConfig = {
-      AuthorizerUri: this.getLambdaArn(auth.config),
+      AuthorizerUri: this.getLambdaArn(
+        auth.config,
+        this.naming.getAuthenticationEmbeddedLamdbaName(),
+      ),
       IdentityValidationExpression: auth.config.identityValidationExpression,
       AuthorizerResultTtlInSeconds: auth.config.authorizerResultTtlInSeconds,
     };
@@ -375,14 +382,18 @@ export class Api {
     return authPrivider;
   }
 
-  getLambdaArn(config: LambdaConfig) {
+  getLambdaArn(config: LambdaConfig, embededFunctionName: string) {
     if (config && has('functionArn', config)) {
       return config.functionArn;
     } else if (config && has('functionName', config)) {
       return this.generateLambdaArn(config.functionName, config.functionAlias);
+    } else if (config && has('function', config)) {
+      this.functions[embededFunctionName] = config.function;
+      return this.generateLambdaArn(embededFunctionName);
     }
+
     throw new Error(
-      'You must specify either `functionArn` or `functionName` for lambda resolvers.',
+      'You must specify either `functionArn`, `functionName` or `function` for lambda definitions.',
     );
   }
 

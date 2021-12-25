@@ -57,6 +57,9 @@ export class Resolver {
               LambdaConflictHandlerConfig: {
                 LambdaConflictHandlerArn: this.api.getLambdaArn(
                   this.config.sync,
+                  this.api.naming.getResolverEmbeddedSyncLambdaName(
+                    this.config,
+                  ),
                 ),
               },
             }

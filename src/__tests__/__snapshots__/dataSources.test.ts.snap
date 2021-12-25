@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DataSource AWS Lambda should generate Resource with embedded function 1`] = `
+Object {
+  "GraphQlDsmyDataSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "Description": "My lambda resolver",
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::GetAtt": Array [
+            "MyDataSourceLambdaFunction",
+            "Arn",
+          ],
+        },
+      },
+      "Name": "myDataSource",
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsmyDataSourceRole",
+          "Arn",
+        ],
+      },
+      "Type": "AWS_LAMBDA",
+    },
+    "Type": "AWS::AppSync::DataSource",
+  },
+  "GraphQlDsmyDataSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "lambda:invokeFunction",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "MyDataSourceLambdaFunction",
+                      "Arn",
+                    ],
+                  },
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            "MyDataSourceLambdaFunction",
+                            "Arn",
+                          ],
+                        },
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "AppSync-Datasource-myDataSource",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+}
+`;
+
+exports[`DataSource AWS Lambda should generate Resource with embedded function 2`] = `
+Object {
+  "myDataSource": Object {
+    "handler": "index.handler",
+  },
+}
+`;

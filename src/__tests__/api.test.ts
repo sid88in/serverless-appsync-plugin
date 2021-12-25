@@ -11,7 +11,7 @@ const plugin = given.plugin();
 
 describe('Api', () => {
   describe('compileEndpoint', () => {
-    it('should compile the Api Resoruce', () => {
+    it('should compile the Api Resource', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       expect(api.compileEndpoint()).toMatchInlineSnapshot(`
         Object {
@@ -33,7 +33,7 @@ describe('Api', () => {
       `);
     });
 
-    it('should compile the Api Resoruce with logs enabled', () => {
+    it('should compile the Api Resource with logs enabled', () => {
       const api = new Api(
         given.appSyncConfig({
           logConfig: {
@@ -74,7 +74,7 @@ describe('Api', () => {
       `);
     });
 
-    it('should compile the Api Resoruce with additional auths', () => {
+    it('should compile the Api Resource with additional auths', () => {
       const api = new Api(
         given.appSyncConfig({
           additionalAuthenticationProviders: [
@@ -164,6 +164,44 @@ describe('Api', () => {
           },
         }
       `);
+    });
+
+    it('should compile the Api Resource with embedded authorizer Lambda function', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          authentication: {
+            type: 'AWS_LAMBDA',
+            config: {
+              function: {
+                handler: 'index.handler',
+              },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchSnapshot();
+      expect(api.functions).toMatchSnapshot();
+    });
+
+    it('should compile the Api Resource with embedded additional authorizer Lambda function', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          additionalAuthenticationProviders: [
+            {
+              type: 'AWS_LAMBDA',
+              config: {
+                function: {
+                  handler: 'index.handler',
+                },
+              },
+            },
+          ],
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchSnapshot();
+      expect(api.functions).toMatchSnapshot();
     });
   });
 
@@ -564,7 +602,7 @@ describe('Api', () => {
   });
 
   describe('LambdaAuthorizer', () => {
-    it('should not generate the Lambda Authorizer Resoruces', () => {
+    it('should not generate the Lambda Authorizer Resources', () => {
       const api = new Api(
         given.appSyncConfig({
           authentication: {
@@ -578,7 +616,7 @@ describe('Api', () => {
       );
     });
 
-    it('should generate the Lambda Authorizer Resoruces from basic auth', () => {
+    it('should generate the Lambda Authorizer Resources from basic auth', () => {
       const api = new Api(
         given.appSyncConfig({
           authentication: {

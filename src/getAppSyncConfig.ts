@@ -11,7 +11,7 @@ import {
 } from './types/plugin';
 import { IntrinsicFunction } from './types/cloudFormation';
 import { O } from 'ts-toolbelt';
-import { map, merge, omit, reduce } from 'lodash';
+import { forEach, map, merge } from 'lodash';
 
 const flattenAndMerge = <T>(
   input?: Record<string, T> | Record<string, T>[],
@@ -82,7 +82,7 @@ export type AppSyncConfigInput = {
   tags?: Record<string, string>;
 };
 
-const isUnitResolver = (resolver: {
+export const isUnitResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
 }): resolver is { kind?: 'UNIT' } => {
   return resolver.kind === undefined || resolver.kind === 'UNIT';
@@ -101,64 +101,55 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     config.mappingTemplatesLocation,
   );
 
-  const dataSources = map(flattenAndMerge(config.dataSources), (ds, name) => {
-    return { ...ds, name: ds.name || name };
+  const dataSources: DataSourceConfig[] = [];
+  const resolvers: ResolverConfig[] = [];
+
+  forEach(flattenAndMerge(config.dataSources), (ds, name) => {
+    dataSources.push({
+      ...ds,
+      name: ds.name || name,
+    });
   });
 
-  // DataSources embedded into resolvers
-  const embeddedDataSources = reduce(
-    flattenAndMerge(config.resolvers),
-    (ds, resolver, name) => {
-      if (
-        typeof resolver === 'object' &&
-        isUnitResolver(resolver) &&
-        typeof resolver.dataSource === 'object'
-      ) {
-        ds.push({
-          ...resolver.dataSource,
-          name: name.replace(/[^a-z_]/i, '_'),
-        });
-      }
+  forEach(flattenAndMerge(config.resolvers), (resolver, typeAndField) => {
+    const [type, field] = typeAndField.split('.');
 
-      return ds;
-    },
-    [] as DataSourceConfig[],
-  );
+    if (typeof resolver === 'string') {
+      resolvers.push({
+        dataSource: resolver,
+        kind: 'UNIT',
+        type,
+        field,
+      });
+      return;
+    }
 
-  const resolvers: ResolverConfig[] = map(
-    flattenAndMerge(config.resolvers),
-    (resolver, typeAndField) => {
-      const [type, field] = typeAndField.split('.');
+    if (isUnitResolver(resolver) && typeof resolver.dataSource === 'object') {
+      dataSources.push({
+        ...resolver.dataSource,
+        name: resolver.dataSource.name || typeAndField.replace(/[^a-z_]/i, '_'),
+      });
+    }
 
-      if (typeof resolver === 'string') {
-        return {
-          dataSource: resolver,
-          kind: 'UNIT',
-          type,
-          field,
-        };
-      }
-
-      return {
-        ...resolvers,
-        type: resolver.type || type,
-        field: resolver.field || field,
-        ...(isUnitResolver(resolver)
-          ? {
-              kind: 'UNIT',
-              dataSource:
-                typeof resolver.dataSource === 'object'
-                  ? resolver.dataSource.name ||
-                    typeAndField.replace(/[^a-z_]/i, '_')
-                  : resolver.dataSource,
-            }
-          : {
-              kind: 'PIPELINE',
-              functions: resolver.functions,
-            }),
-      };
-    },
-  );
+    resolvers.push({
+      ...resolver,
+      type: resolver.type || type,
+      field: resolver.field || field,
+      ...(isUnitResolver(resolver)
+        ? {
+            kind: 'UNIT',
+            dataSource:
+              typeof resolver.dataSource === 'object'
+                ? resolver.dataSource.name ||
+                  typeAndField.replace(/[^a-z_]/i, '_')
+                : resolver.dataSource,
+          }
+        : {
+            kind: 'PIPELINE',
+            functions: resolver.functions,
+          }),
+    });
+  });
 
   const pipelineFunctions: FunctionConfig[] = map(
     flattenAndMerge(config.pipelineFunctions),
@@ -206,7 +197,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     additionalAuthenticationProviders,
     apiKeys,
     schema,
-    dataSources: [...dataSources, ...embeddedDataSources],
+    dataSources,
     mappingTemplatesLocation,
     resolvers,
     pipelineFunctions,

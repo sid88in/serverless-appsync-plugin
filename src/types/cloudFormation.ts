@@ -101,7 +101,7 @@ export type CfnResolver = {
     };
     SyncConfig?: {
       ConflictDetection: 'VERSION';
-      ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'LAMBDA';
+      ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
       LambdaConflictHandlerConfig?: {
         LambdaConflictHandlerArn: string | IntrinsicFunction;
       };

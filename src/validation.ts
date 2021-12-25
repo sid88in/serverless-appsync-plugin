@@ -106,8 +106,16 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
           },
           required: ['functionArn'],
         },
+        {
+          type: 'object',
+          properties: {
+            function: { type: 'object' },
+          },
+          required: ['function'],
+        },
       ],
-      errorMessage: 'must have functionName or functionArn (but not both)',
+      errorMessage:
+        'must specify functionName, functionArn or function (all exclusives)',
     },
     auth: {
       type: 'object',
@@ -319,7 +327,6 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
-
       if: { properties: { kind: { const: 'PIPELINE' } }, required: ['kind'] },
       then: {
         required: ['functions'],
@@ -404,14 +411,15 @@ export const appSyncSchema: JSONSchemaType<AppSyncConfigInput> & {
         { type: 'boolean' },
         {
           type: 'object',
-          oneOf: [{ $ref: '#/definitions/lambdaFunctionConfig' }],
+          if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
+          then: { $ref: '#/definitions/lambdaFunctionConfig' },
           properties: {
             functionArn: { type: 'string' },
             functionName: { type: 'string' },
             conflictDetection: { type: 'string', const: 'VERSION' },
             conflictHandler: {
               type: 'string',
-              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY'],
+              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
             },
           },
           required: [],

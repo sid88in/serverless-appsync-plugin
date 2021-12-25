@@ -47,17 +47,29 @@ exports[`HTTP Invalid should validate: Missing config 1`] = `
 `;
 
 exports[`Lambda Invalid should validate: Empty config 1`] = `
-"/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
+"/dataSources/myLambda1/config: must specify functionName, functionArn or function (all exclusives)
 /dataSources: contains invalid data source definitions"
 `;
 
 exports[`Lambda Invalid should validate: Invalid config 1`] = `
-"/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
+"/dataSources/myLambda1/config: must specify functionName, functionArn or function (all exclusives)
 /dataSources: contains invalid data source definitions"
 `;
 
-exports[`Lambda Invalid should validate: Invalid config 2`] = `
-"/dataSources/myLambda1/config: must have functionName or functionArn (but not both)
+exports[`Lambda Invalid should validate: Invalid embedded function 1`] = `
+"/dataSources/myLambda1/config: must specify functionName, functionArn or function (all exclusives)
+/dataSources: contains invalid data source definitions"
+`;
+
+exports[`Lambda Invalid should validate: Invalid functionArn 1`] = `
+"/dataSources/myLambda1/config/functionArn: must be a string or a CloudFormation intrinsic function
+/dataSources/myLambda1/config: must specify functionName, functionArn or function (all exclusives)
+/dataSources/myLambda1/config/functionArn: must be a string or a CloudFormation intrinsic function
+/dataSources: contains invalid data source definitions"
+`;
+
+exports[`Lambda Invalid should validate: Invalid functionName 1`] = `
+"/dataSources/myLambda1/config: must specify functionName, functionArn or function (all exclusives)
 /dataSources/myLambda1/config/functionName: must be string
 /dataSources: contains invalid data source definitions"
 `;

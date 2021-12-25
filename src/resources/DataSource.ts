@@ -31,7 +31,10 @@ export class DataSource {
 
     if (this.config.type === 'AWS_LAMBDA') {
       resource.Properties.LambdaConfig = {
-        LambdaFunctionArn: this.api.getLambdaArn(this.config.config),
+        LambdaFunctionArn: this.api.getLambdaArn(
+          this.config.config,
+          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+        ),
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
       resource.Properties.DynamoDBConfig = this.getDynamoDbConfig(this.config);
@@ -247,7 +250,10 @@ export class DataSource {
   getDefaultDataSourcePolicyStatements(): IamStatement[] | undefined {
     switch (this.config.type) {
       case 'AWS_LAMBDA': {
-        const lambdaArn = this.api.getLambdaArn(this.config.config);
+        const lambdaArn = this.api.getLambdaArn(
+          this.config.config,
+          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+        );
 
         // Allow "invoke" for the Datasource's function and its aliases/versions
         const defaultLambdaStatement: IamStatement = {

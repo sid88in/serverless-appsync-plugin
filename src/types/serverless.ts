@@ -20,6 +20,10 @@ export type Serverless = {
   config: {
     servicePath: string;
   };
+  processedInput: {
+    functions?: Record<string, unknown>;
+    options: Record<string, unknown>;
+  };
   configurationInput: AWS & {
     custom: {
       appSync?: AppSyncConfigInput | AppSyncConfigInput[];

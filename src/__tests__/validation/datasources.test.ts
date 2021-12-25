@@ -240,6 +240,15 @@ describe('Lambda', () => {
                 ],
               },
             },
+            myLambda5: {
+              type: 'AWS_LAMBDA',
+              config: {
+                function: {
+                  handler: 'index.handler',
+                  timeout: 30,
+                },
+              },
+            },
           },
         },
       },
@@ -303,13 +312,39 @@ describe('Lambda', () => {
         },
       },
       {
-        name: 'Invalid config',
+        name: 'Invalid functionName',
         config: {
           dataSources: {
             myLambda1: {
               type: 'AWS_LAMBDA',
               config: {
                 functionName: 123,
+              },
+            },
+          },
+        },
+      },
+      {
+        name: 'Invalid functionArn',
+        config: {
+          dataSources: {
+            myLambda1: {
+              type: 'AWS_LAMBDA',
+              config: {
+                functionArn: 123,
+              },
+            },
+          },
+        },
+      },
+      {
+        name: 'Invalid embedded function',
+        config: {
+          dataSources: {
+            myLambda1: {
+              type: 'AWS_LAMBDA',
+              config: {
+                function: 'myFunction',
               },
             },
           },

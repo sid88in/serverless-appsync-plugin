@@ -25,6 +25,11 @@ describe('Basic', () => {
               field: 'getUsers',
               kind: 'UNIT',
               dataSource: 'myDs',
+              sync: {
+                conflictDetection: 'VERSION',
+                conflictHandler: 'LAMBDA',
+                function: { handler: 'index.handler' },
+              },
             },
             getPosts: {
               type: 'Query',
@@ -75,6 +80,10 @@ describe('Basic', () => {
                 field: 'getUsers',
                 kind: 'UNIT',
                 dataSource: 'myDs',
+                sync: {
+                  conflictDetection: 'VERSION',
+                  conflictHandler: 'OPTIMISTIC_CONCURRENCY',
+                },
               },
               getPosts: {
                 type: 'Query',

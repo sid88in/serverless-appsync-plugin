@@ -1,6 +1,6 @@
 import { AppSyncConfigInput, getAppSyncConfig } from './getAppSyncConfig';
 import chalk from 'chalk';
-import { forEach, last, merge, get } from 'lodash';
+import { forEach, last, merge } from 'lodash';
 import { logger } from './utils';
 import {
   CommandsDefinition,
@@ -242,15 +242,13 @@ class ServerlessAppsyncPlugin {
 
   addResources() {
     this.apis?.forEach((api) => {
-      merge(
-        get(
-          this.serverless.service.provider,
-          'compiledCloudFormationTemplate',
-          {},
-        ).Resources,
-        api.compile(),
-      );
+      const resources = api.compile();
+      merge(this.serverless.service, { resources });
+      merge(this.serverless.configurationInput, { function: api.functions });
     });
+    this.serverless.service.setFunctionNames(
+      this.serverless.processedInput.options,
+    );
   }
 }
 

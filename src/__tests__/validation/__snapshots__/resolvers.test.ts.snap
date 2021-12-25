@@ -11,7 +11,7 @@ exports[`Basic Invalid should validate: Invalid 1`] = `
 `;
 
 exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
-"/resolvers/Query.getUser/dataSource/config: must have functionName or functionArn (but not both)
+"/resolvers/Query.getUser/dataSource/config: must specify functionName, functionArn or function (all exclusives)
 /resolvers: contains invalid resolver definitions"
 `;
 

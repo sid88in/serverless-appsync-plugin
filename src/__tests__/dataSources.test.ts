@@ -596,6 +596,23 @@ describe('DataSource', () => {
       `);
     });
 
+    it('should generate Resource with embedded function', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AWS_LAMBDA',
+        name: 'myDataSource',
+        description: 'My lambda resolver',
+        config: {
+          function: {
+            handler: 'index.handler',
+          },
+        },
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+      expect(api.functions).toMatchSnapshot();
+    });
+
     it('should generate default role with custom statements', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {

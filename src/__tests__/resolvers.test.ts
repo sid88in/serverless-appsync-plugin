@@ -127,6 +127,26 @@ describe('Resolvers', () => {
         }
       `);
     });
+
+    it('should generate Resources with sync configuration', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      expect(
+        api.compileResolver({
+          dataSource: 'myLambdaFunction',
+          kind: 'UNIT',
+          type: 'Query',
+          field: 'user',
+          sync: {
+            conflictDetection: 'VERSION',
+            conflictHandler: 'LAMBDA',
+            function: {
+              handler: 'index.handler',
+            },
+          },
+        }),
+      ).toMatchSnapshot();
+      expect(api.functions).toMatchSnapshot();
+    });
   });
 
   describe('Pipeline Resovlers', () => {

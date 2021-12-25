@@ -1,4 +1,9 @@
 import { upperFirst } from 'lodash';
+import {
+  AppSyncConfig,
+  DataSourceConfig,
+  ResolverConfig,
+} from '../types/plugin';
 
 export class Naming {
   constructor(private apiName: string, private isSingleApi: boolean) {}
@@ -71,5 +76,17 @@ export class Naming {
 
   getWafAssociationLogicalId() {
     return this.getLogicalId('GraphQlWafAssoc');
+  }
+
+  getDataSourceEmbeddedLambdaResolverName(config: DataSourceConfig) {
+    return config.name;
+  }
+
+  getResolverEmbeddedSyncLambdaName(config: ResolverConfig) {
+    return `${config.type}_${config.field}_Sync`;
+  }
+
+  getAuthenticationEmbeddedLamdbaName() {
+    return `${this.apiName}Authorizer`;
   }
 }

@@ -155,7 +155,7 @@ export type BaseResolverConfig = {
   sync?:
     | ({
         conflictDetection: 'VERSION';
-        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'LAMBDA';
+        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
       } & LambdaConfig)
     | boolean;
   substitutions?: Substitutions;
@@ -233,6 +233,9 @@ export type LambdaConfig =
     }
   | {
       functionArn: string | IntrinsicFunction;
+    }
+  | {
+      function: Record<string, unknown>;
     };
 
 export type DsLambdaConfig = {

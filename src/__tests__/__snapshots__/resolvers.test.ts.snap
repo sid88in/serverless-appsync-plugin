@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Resolvers Unit Resolvers should generate Resources with sync configuration 1`] = `
+Object {
+  "GraphQlResolverQueryuser": Object {
+    "DependsOn": Array [
+      "GraphQlSchema",
+    ],
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DataSourceName": "myLambdaFunction",
+      "FieldName": "user",
+      "Kind": "UNIT",
+      "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
+      "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
+      "SyncConfig": Object {
+        "ConflictDetection": "VERSION",
+        "ConflictHandler": "LAMBDA",
+        "LambdaConflictHandlerConfig": Object {
+          "LambdaConflictHandlerArn": Object {
+            "Fn::GetAtt": Array [
+              "QueryUnderscoreuserUnderscoreSyncLambdaFunction",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "TypeName": "Query",
+    },
+    "Type": "AWS::AppSync::Resolver",
+  },
+}
+`;
+
+exports[`Resolvers Unit Resolvers should generate Resources with sync configuration 2`] = `
+Object {
+  "Query_user_Sync": Object {
+    "handler": "index.handler",
+  },
+}
+`;
