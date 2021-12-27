@@ -3,9 +3,7 @@
 exports[`Resolvers Pipeline Resovlers should generate Resources with default mapping templates 1`] = `
 Object {
   "GraphQlResolverQueryuser": Object {
-    "DependsOn": Array [
-      "GraphQlSchema",
-    ],
+    "DependsOn": Array [],
     "Properties": Object {
       "ApiId": Object {
         "Fn::GetAtt": Array [
@@ -43,9 +41,7 @@ Object {
 exports[`Resolvers Pipeline Resovlers should generate Resources with specific mapping templates 1`] = `
 Object {
   "GraphQlResolverQueryuser": Object {
-    "DependsOn": Array [
-      "GraphQlSchema",
-    ],
+    "DependsOn": Array [],
     "Properties": Object {
       "ApiId": Object {
         "Fn::GetAtt": Array [
@@ -84,7 +80,7 @@ exports[`Resolvers Unit Resolvers should generate Resources with sync configurat
 Object {
   "GraphQlResolverQueryuser": Object {
     "DependsOn": Array [
-      "GraphQlSchema",
+      "GraphQlDsmyLambdaFunction",
     ],
     "Properties": Object {
       "ApiId": Object {

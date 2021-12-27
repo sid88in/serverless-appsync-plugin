@@ -32,7 +32,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlSchema",
+              "GraphQlDsmyTable",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -69,7 +69,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlSchema",
+              "GraphQlDsmyTable",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -106,7 +106,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlSchema",
+              "GraphQlDsmyLambdaFunction",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -311,7 +311,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlSchema",
+              "GraphQlDsmyTable",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -360,7 +360,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlSchema",
+              "GraphQlDsmyTable",
             ],
             "Properties": Object {
               "ApiId": Object {
