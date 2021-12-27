@@ -3,7 +3,9 @@
 exports[`Resolvers Pipeline Resovlers should generate Resources with default mapping templates 1`] = `
 Object {
   "GraphQlResolverQueryuser": Object {
-    "DependsOn": Array [],
+    "DependsOn": Array [
+      "GraphQlSchema",
+    ],
     "Properties": Object {
       "ApiId": Object {
         "Fn::GetAtt": Array [
@@ -41,7 +43,9 @@ Object {
 exports[`Resolvers Pipeline Resovlers should generate Resources with specific mapping templates 1`] = `
 Object {
   "GraphQlResolverQueryuser": Object {
-    "DependsOn": Array [],
+    "DependsOn": Array [
+      "GraphQlSchema",
+    ],
     "Properties": Object {
       "ApiId": Object {
         "Fn::GetAtt": Array [
@@ -80,7 +84,7 @@ exports[`Resolvers Unit Resolvers should generate Resources with sync configurat
 Object {
   "GraphQlResolverQueryuser": Object {
     "DependsOn": Array [
-      "GraphQlDsmyLambdaFunction",
+      "GraphQlSchema",
     ],
     "Properties": Object {
       "ApiId": Object {
@@ -89,7 +93,12 @@ Object {
           "ApiId",
         ],
       },
-      "DataSourceName": "myLambdaFunction",
+      "DataSourceName": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlDsmyLambdaFunction",
+          "Name",
+        ],
+      },
       "FieldName": "user",
       "Kind": "UNIT",
       "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",

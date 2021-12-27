@@ -32,7 +32,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlDsmyTable",
+              "GraphQlSchema",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -41,7 +41,12 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "DataSourceName": "myTable",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
               "FieldName": "user",
               "Kind": "UNIT",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
@@ -69,7 +74,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlDsmyTable",
+              "GraphQlSchema",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -78,7 +83,12 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "DataSourceName": "myTable",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
               "FieldName": "user",
               "Kind": "UNIT",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
@@ -106,7 +116,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlDsmyLambdaFunction",
+              "GraphQlSchema",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -115,7 +125,12 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "DataSourceName": "myLambdaFunction",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyLambdaFunction",
+                  "Name",
+                ],
+              },
               "FieldName": "user",
               "Kind": "UNIT",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
@@ -311,7 +326,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlDsmyTable",
+              "GraphQlSchema",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -323,7 +338,12 @@ describe('Resolvers', () => {
               "CachingConfig": Object {
                 "Ttl": 3600,
               },
-              "DataSourceName": "myTable",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
               "FieldName": "user",
               "Kind": "UNIT",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
@@ -360,7 +380,7 @@ describe('Resolvers', () => {
         Object {
           "GraphQlResolverQueryuser": Object {
             "DependsOn": Array [
-              "GraphQlDsmyTable",
+              "GraphQlSchema",
             ],
             "Properties": Object {
               "ApiId": Object {
@@ -376,7 +396,12 @@ describe('Resolvers', () => {
                 ],
                 "Ttl": 200,
               },
-              "DataSourceName": "myTable",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
               "FieldName": "user",
               "Kind": "UNIT",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",

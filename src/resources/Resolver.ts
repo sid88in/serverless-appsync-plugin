@@ -66,7 +66,6 @@ export class Resolver {
       };
     }
 
-    const DependsOn: string[] = [];
     if (this.config.kind === 'PIPELINE') {
       Properties = {
         ...Properties,
@@ -82,25 +81,26 @@ export class Resolver {
         },
       };
     } else {
+      const logicalIdDataSource = this.api.naming.getDataSourceLogicalId(
+        this.config.dataSource,
+      );
       Properties = {
         ...Properties,
         Kind: 'UNIT',
-        DataSourceName: this.config.dataSource,
+        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
       };
-      DependsOn.push(
-        this.api.naming.getDataSourceLogicalId(this.config.dataSource),
-      );
     }
 
     const logicalIdResolver = this.api.naming.getResolverLogicalId(
       this.config.type,
       this.config.field,
     );
+    const logicalIdGraphQLSchema = this.api.naming.getSchemaLogicalId();
 
     return {
       [logicalIdResolver]: {
         Type: 'AWS::AppSync::Resolver',
-        DependsOn,
+        DependsOn: [logicalIdGraphQLSchema],
         Properties,
       },
     };
