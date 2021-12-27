@@ -5,8 +5,14 @@ import {
   FunctionConfig,
   ResolverConfig,
 } from './types/plugin';
-import { O } from 'ts-toolbelt';
+import { A, O } from 'ts-toolbelt';
 import { forEach, merge } from 'lodash';
+
+/* Completely replaces keys of O1 with those of O */
+type Replace<O extends object, O1 extends object> = O.Merge<
+  O,
+  O.Omit<O1, A.Keys<O>>
+>;
 
 export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
 
@@ -19,13 +25,13 @@ export type ResolverConfigInput =
   | string;
 
 export type FunctionConfigInput =
-  | O.Merge<
+  | Replace<
       { dataSource: string | DataSourceConfigInput },
       O.Optional<FunctionConfig, 'name'>
     >
   | string;
 
-export type AppSyncConfigInput = O.Merge<
+export type AppSyncConfigInput = Replace<
   {
     schema?: string | string[];
     apiKeys?: (ApiKeyConfig | string)[];

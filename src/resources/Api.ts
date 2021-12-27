@@ -1,6 +1,5 @@
 import ServerlessAppsyncPlugin from '..';
 import { merge, set } from 'lodash';
-import { has } from 'ramda';
 import {
   CfnResource,
   CfnResources,
@@ -394,11 +393,11 @@ export class Api {
   }
 
   getLambdaArn(config: LambdaConfig, embededFunctionName: string) {
-    if (config && has('functionArn', config)) {
+    if ('functionArn' in config) {
       return config.functionArn;
-    } else if (config && has('functionName', config)) {
+    } else if ('functionName' in config) {
       return this.generateLambdaArn(config.functionName, config.functionAlias);
-    } else if (config && has('function', config)) {
+    } else if ('function' in config) {
       this.functions[embededFunctionName] = config.function;
       return this.generateLambdaArn(embededFunctionName);
     }

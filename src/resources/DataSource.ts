@@ -1,5 +1,4 @@
 import { merge } from 'lodash';
-import { has } from 'ramda';
 import {
   CfnDataSource,
   CfnResources,
@@ -62,7 +61,7 @@ export class DataSource {
       [logicalId]: resource,
     };
 
-    if (has('config', this.config) && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config.serviceRoleArn) {
       resource.Properties.ServiceRoleArn = this.config.config.serviceRoleArn;
     } else {
       const role = this.compileDataSourceIamRole();
@@ -184,7 +183,7 @@ export class DataSource {
   }
 
   compileDataSourceIamRole(): CfnResources | undefined {
-    if (has('config', this.config) && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config.serviceRoleArn) {
       return;
     }
 
@@ -202,7 +201,7 @@ export class DataSource {
       );
     }
 
-    if (has('config', this.config) && this.config.config.iamRoleStatements) {
+    if ('config' in this.config && this.config.config.iamRoleStatements) {
       statements = this.config.config.iamRoleStatements;
     } else {
       // Try to generate default statements for the given this.config.

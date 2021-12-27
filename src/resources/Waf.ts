@@ -1,5 +1,4 @@
 import { isEmpty } from 'lodash';
-import { has } from 'ramda';
 import {
   CfnResources,
   CfnWafAction,
@@ -80,14 +79,14 @@ export class Waf {
     // Throttle pre-set rule
     if (rule === 'throttle') {
       return this.buildThrottleRule({}, defaultNamePrefix);
-    } else if (has('throttle')(rule)) {
+    } else if (typeof rule === 'object' && 'throttle' in rule) {
       return this.buildThrottleRule(rule.throttle, defaultNamePrefix);
     }
 
     // Disable Introspection pre-set rule
     if (rule === 'disableIntrospection') {
       return this.buildDisableIntrospecRule({}, defaultNamePrefix);
-    } else if (has('disableIntrospection')(rule)) {
+    } else if ('disableIntrospection' in rule) {
       return this.buildDisableIntrospecRule(
         rule.disableIntrospection,
         defaultNamePrefix,

@@ -1,4 +1,3 @@
-import { has } from 'ramda';
 import {
   CfnFunctionResolver,
   CfnResources,
@@ -49,9 +48,10 @@ export class PipelineFunction {
   resolveMappingTemplate(
     type: 'request' | 'response',
   ): string | IntrinsicFunction | undefined {
-    const templateName = has(type)(this.config)
-      ? this.config[type]
-      : this.api.config.defaultMappingTemplates?.[type];
+    const templateName =
+      type in this.config
+        ? this.config[type]
+        : this.api.config.defaultMappingTemplates?.[type];
 
     if (templateName !== false) {
       const templatePath = path.join(
