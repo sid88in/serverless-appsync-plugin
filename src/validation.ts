@@ -458,6 +458,7 @@ export const appSyncSchema = {
       required: ['type'],
     },
     dataSourceHttpConfig: {
+      type: 'object',
       properties: {
         endpoint: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         serviceRoleArn: {

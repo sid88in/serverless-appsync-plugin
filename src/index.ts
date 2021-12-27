@@ -84,7 +84,7 @@ class ServerlessAppsyncPlugin {
         await this.loadConfig();
       },
       'validate-schema:run': () => this.validateSchemas(),
-      'after:package:compileEvents': () => this.addResources(),
+      'after:package:initialize': () => this.addResources(),
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayServiceInfo': () => {
         this.displayEndpoints();
@@ -243,8 +243,8 @@ class ServerlessAppsyncPlugin {
   addResources() {
     this.apis?.forEach((api) => {
       const resources = api.compile();
-      merge(this.serverless.service, { resources });
-      merge(this.serverless.configurationInput, { function: api.functions });
+      merge(this.serverless.service, { resources: { Resources: resources } });
+      merge(this.serverless.configurationInput, { functions: api.functions });
     });
     this.serverless.service.setFunctionNames(
       this.serverless.processedInput.options,
