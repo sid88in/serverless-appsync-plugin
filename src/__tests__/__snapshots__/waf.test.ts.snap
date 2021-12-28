@@ -64,16 +64,37 @@ Array [
       "AndStatement": Object {
         "Statements": Array [
           Object {
-            "ByteMatchStatement": Object {
-              "FieldToMatch": Object {
-                "Body": Object {},
-              },
-              "PositionalConstraint": "CONTAINS",
-              "SearchString": "__schema",
-              "TextTransformations": Array [
+            "OrStatement": Object {
+              "Statements": Array [
                 Object {
-                  "Priority": 0,
-                  "Type": "COMPRESS_WHITE_SPACE",
+                  "SizeConstraintStatement": Object {
+                    "ComparisonOperator": "GT",
+                    "FieldToMatch": Object {
+                      "Body": Object {},
+                    },
+                    "Size": 8192,
+                    "TextTransformations": Array [
+                      Object {
+                        "Priority": 0,
+                        "Type": "NONE",
+                      },
+                    ],
+                  },
+                },
+                Object {
+                  "ByteMatchStatement": Object {
+                    "FieldToMatch": Object {
+                      "Body": Object {},
+                    },
+                    "PositionalConstraint": "CONTAINS",
+                    "SearchString": "__schema",
+                    "TextTransformations": Array [
+                      Object {
+                        "Priority": 0,
+                        "Type": "COMPRESS_WHITE_SPACE",
+                      },
+                    ],
+                  },
                 },
               ],
             },
@@ -341,16 +362,37 @@ Object {
   "Name": "BaseDisableIntrospection",
   "Priority": undefined,
   "Statement": Object {
-    "ByteMatchStatement": Object {
-      "FieldToMatch": Object {
-        "Body": Object {},
-      },
-      "PositionalConstraint": "CONTAINS",
-      "SearchString": "__schema",
-      "TextTransformations": Array [
+    "OrStatement": Object {
+      "Statements": Array [
         Object {
-          "Priority": 0,
-          "Type": "COMPRESS_WHITE_SPACE",
+          "SizeConstraintStatement": Object {
+            "ComparisonOperator": "GT",
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "Size": 8192,
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "NONE",
+              },
+            ],
+          },
+        },
+        Object {
+          "ByteMatchStatement": Object {
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "PositionalConstraint": "CONTAINS",
+            "SearchString": "__schema",
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "COMPRESS_WHITE_SPACE",
+              },
+            ],
+          },
         },
       ],
     },
@@ -371,16 +413,37 @@ Object {
   "Name": "BaseDisableIntrospection",
   "Priority": 200,
   "Statement": Object {
-    "ByteMatchStatement": Object {
-      "FieldToMatch": Object {
-        "Body": Object {},
-      },
-      "PositionalConstraint": "CONTAINS",
-      "SearchString": "__schema",
-      "TextTransformations": Array [
+    "OrStatement": Object {
+      "Statements": Array [
         Object {
-          "Priority": 0,
-          "Type": "COMPRESS_WHITE_SPACE",
+          "SizeConstraintStatement": Object {
+            "ComparisonOperator": "GT",
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "Size": 8192,
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "NONE",
+              },
+            ],
+          },
+        },
+        Object {
+          "ByteMatchStatement": Object {
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "PositionalConstraint": "CONTAINS",
+            "SearchString": "__schema",
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "COMPRESS_WHITE_SPACE",
+              },
+            ],
+          },
         },
       ],
     },

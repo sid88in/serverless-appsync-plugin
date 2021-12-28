@@ -86,9 +86,9 @@ export class Waf {
 
     // Disable Introspection pre-set rule
     if (rule === 'disableIntrospection') {
-      return this.buildDisableIntrospecRule({}, defaultNamePrefix);
+      return this.buildDisableIntrospectionRule({}, defaultNamePrefix);
     } else if ('disableIntrospection' in rule) {
-      return this.buildDisableIntrospecRule(
+      return this.buildDisableIntrospectionRule(
         rule.disableIntrospection,
         defaultNamePrefix,
       );
@@ -211,7 +211,7 @@ export class Waf {
     };
   }
 
-  buildDisableIntrospecRule(
+  buildDisableIntrospectionRule(
     config: WafRuleDisableIntrospection['disableIntrospection'],
     defaultNamePrefix?: string,
   ): CfnWafRule {
@@ -225,16 +225,39 @@ export class Waf {
       Name,
       Priority: config.priority,
       Statement: {
-        ByteMatchStatement: {
-          FieldToMatch: {
-            Body: {},
-          },
-          PositionalConstraint: 'CONTAINS',
-          SearchString: '__schema',
-          TextTransformations: [
+        OrStatement: {
+          Statements: [
             {
-              Type: 'COMPRESS_WHITE_SPACE',
-              Priority: 0,
+              // Block all requests > 8kb
+              // https://docs.aws.amazon.com/waf/latest/developerguide/web-request-body-inspection.html
+              SizeConstraintStatement: {
+                ComparisonOperator: 'GT',
+                FieldToMatch: {
+                  Body: {},
+                },
+                Size: 8 * 1024,
+                TextTransformations: [
+                  {
+                    Type: 'NONE',
+                    Priority: 0,
+                  },
+                ],
+              },
+            },
+            {
+              ByteMatchStatement: {
+                FieldToMatch: {
+                  Body: {},
+                },
+                PositionalConstraint: 'CONTAINS',
+                SearchString: '__schema',
+                TextTransformations: [
+                  {
+                    Type: 'COMPRESS_WHITE_SPACE',
+                    Priority: 0,
+                  },
+                ],
+              },
             },
           ],
         },
