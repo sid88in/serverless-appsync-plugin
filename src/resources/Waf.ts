@@ -7,9 +7,10 @@ import {
 } from '../types/cloudFormation';
 import {
   ApiKeyConfig,
-  WafActionKeys,
+  WafAction,
   WafConfig,
   WafRule,
+  WafRuleAction,
   WafRuleDisableIntrospection,
   WafThrottleConfig,
 } from '../types/plugin';
@@ -67,7 +68,7 @@ export class Waf {
 
     let defaultPriority = 100;
     return rules
-      .map((rule) => this.buildWafRule(rule, 'Base'))
+      .map((rule) => this.buildWafRule(rule))
       .concat(this.buildApiKeysWafRules())
       .map((rule) => ({
         ...rule,
@@ -93,7 +94,7 @@ export class Waf {
       );
     }
 
-    const action: WafActionKeys = rule.action || 'Allow';
+    const action: WafRuleAction = rule.action || 'Allow';
 
     const result: CfnWafRule = {
       Name: rule.name,
@@ -199,9 +200,14 @@ export class Waf {
   ) {
     return {
       CloudWatchMetricsEnabled:
-        visibilityConfig.cloudWatchMetricsEnabled || true,
+        visibilityConfig.cloudWatchMetricsEnabled ??
+        this.config.visibilityConfig?.cloudWatchMetricsEnabled ??
+        true,
       MetricName: visibilityConfig.name || defaultName,
-      SampledRequestsEnabled: visibilityConfig.sampledRequestsEnabled || true,
+      SampledRequestsEnabled:
+        visibilityConfig.sampledRequestsEnabled ??
+        this.config.visibilityConfig?.sampledRequestsEnabled ??
+        true,
     };
   }
 
@@ -209,7 +215,8 @@ export class Waf {
     config: WafRuleDisableIntrospection['disableIntrospection'],
     defaultNamePrefix?: string,
   ): CfnWafRule {
-    const Name = config.name || `${defaultNamePrefix}DisableIntrospection`;
+    const Name =
+      config.name || `${defaultNamePrefix || ''}DisableIntrospection`;
 
     return {
       Action: {
@@ -232,11 +239,10 @@ export class Waf {
           ],
         },
       },
-      VisibilityConfig: {
-        SampledRequestsEnabled: true,
-        MetricName: Name,
-        CloudWatchMetricsEnabled: true,
-      },
+      VisibilityConfig: this.getWafVisibilityConfig(
+        typeof config === 'object' ? config.visibilityConfig : undefined,
+        Name,
+      ),
     };
   }
 
@@ -244,7 +250,7 @@ export class Waf {
     config: WafThrottleConfig,
     defaultNamePrefix?: string,
   ): CfnWafRule {
-    let Name = `${defaultNamePrefix}Throttle`;
+    let Name = `${defaultNamePrefix || ''}Throttle`;
     let Limit = 100;
     let AggregateKeyType = 'IP';
     let ForwardedIPConfig;
@@ -282,11 +288,10 @@ export class Waf {
           ScopeDownStatement,
         },
       },
-      VisibilityConfig: {
-        CloudWatchMetricsEnabled: true,
-        MetricName: Name,
-        SampledRequestsEnabled: true,
-      },
+      VisibilityConfig: this.getWafVisibilityConfig(
+        typeof config === 'object' ? config.visibilityConfig : undefined,
+        Name,
+      ),
     };
   }
 }

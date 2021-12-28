@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Valdiation LogConfig Invalid should validate a Invalid 1`] = `
+"/logConfig/loggingRoleArn: must be a string or a CloudFormation intrinsic function
+/logConfig/level: must be \\"ALL\\", \\"ERROR\\" or \\"NONE\\"
+/logConfig/logRetentionInDays: must be integer
+/logConfig/excludeVerboseContent: must be boolean"
+`;
+
+exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `
+"/wafConfig/rules/0: is not a valid WAF rule
+/wafConfig: is not a valid WAF config"
+`;

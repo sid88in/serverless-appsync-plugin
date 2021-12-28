@@ -311,6 +311,28 @@ Object {
 }
 `;
 
+exports[`Waf Custom rules should generate a custom rule 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "disable US",
+  "Priority": 200,
+  "Statement": Object {
+    "GeoMatchStatement": Object {
+      "CountryCodes": Array [
+        "US",
+      ],
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "disable US",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
 exports[`Waf Disable introspection should generate a preset rule 1`] = `
 Object {
   "Action": Object {
@@ -364,9 +386,9 @@ Object {
     },
   },
   "VisibilityConfig": Object {
-    "CloudWatchMetricsEnabled": true,
-    "MetricName": "BaseDisableIntrospection",
-    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": false,
+    "MetricName": "DisableIntrospection",
+    "SampledRequestsEnabled": false,
   },
 }
 `;
@@ -405,7 +427,7 @@ Object {
     "RateBasedStatement": Object {
       "AggregateKeyType": "FORWARDED_IP",
       "ForwardedIPConfig": Object {
-        "FallbackBehavior": "FOO",
+        "FallbackBehavior": "MATCH",
         "HeaderName": "X-Forwarded-To",
       },
       "Limit": 200,
@@ -413,9 +435,9 @@ Object {
     },
   },
   "VisibilityConfig": Object {
-    "CloudWatchMetricsEnabled": true,
-    "MetricName": "BaseThrottle",
-    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": false,
+    "MetricName": "ThrottleRule",
+    "SampledRequestsEnabled": false,
   },
 }
 `;

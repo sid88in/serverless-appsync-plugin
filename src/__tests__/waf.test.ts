@@ -24,20 +24,20 @@ describe('Waf', () => {
       });
       expect(waf.compile()).toMatchSnapshot();
     });
-  });
 
-  it('should not generate waf Resources if disabled', () => {
-    const api = new Api(
-      given.appSyncConfig({
-        wafConfig: {
-          enabled: false,
-          name: 'Waf',
-          rules: [],
-        },
-      }),
-      plugin,
-    );
-    expect(api.compileWafRules()).toEqual({});
+    it('should not generate waf Resources if disabled', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          wafConfig: {
+            enabled: false,
+            name: 'Waf',
+            rules: [],
+          },
+        }),
+        plugin,
+      );
+      expect(api.compileWafRules()).toEqual({});
+    });
   });
 
   describe('Throttle rules', () => {
@@ -65,7 +65,12 @@ describe('Waf', () => {
               aggregateKeyType: 'FORWARDED_IP',
               forwardedIPConfig: {
                 headerName: 'X-Forwarded-To',
-                fallbackBehavior: 'FOO',
+                fallbackBehavior: 'MATCH',
+              },
+              visibilityConfig: {
+                name: 'ThrottleRule',
+                cloudWatchMetricsEnabled: false,
+                sampledRequestsEnabled: false,
               },
             },
           },
@@ -91,7 +96,45 @@ describe('Waf', () => {
 
     it('should generate a preset rule with custon config', () => {
       expect(
-        waf.buildWafRule({ disableIntrospection: { priority: 200 } }, 'Base'),
+        waf.buildWafRule(
+          {
+            disableIntrospection: {
+              priority: 200,
+              visibilityConfig: {
+                name: 'DisableIntrospection',
+                sampledRequestsEnabled: false,
+                cloudWatchMetricsEnabled: false,
+              },
+            },
+          },
+          'Base',
+        ),
+      ).toMatchSnapshot();
+    });
+  });
+
+  describe('Custom rules', () => {
+    const api = new Api(given.appSyncConfig(), plugin);
+    const waf = new Waf(api, {
+      name: 'Waf',
+      rules: [],
+    });
+
+    it('should generate a custom rule', () => {
+      expect(
+        waf.buildWafRule(
+          {
+            name: 'disable US',
+            priority: 200,
+            action: 'Block',
+            statement: {
+              GeoMatchStatement: {
+                CountryCodes: ['US'],
+              },
+            },
+          },
+          'Base',
+        ),
       ).toMatchSnapshot();
     });
   });

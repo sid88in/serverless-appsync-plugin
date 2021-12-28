@@ -21,7 +21,7 @@ export type AppSyncConfig = {
   additionalAuthenticationProviders: Auth[];
   logConfig?: {
     loggingRoleArn?: string | IntrinsicFunction;
-    level?: 'ERROR' | 'NONE' | 'ALL';
+    level: 'ERROR' | 'NONE' | 'ALL';
     logRetentionInDays?: number;
     excludeVerboseContent?: boolean;
   };
@@ -52,24 +52,26 @@ export type WafThrottleConfig =
   | number
   | {
       name?: string;
-      action?: WafActionKeys;
+      action?: WafAction;
       aggregateKeyType?: 'IP' | 'FORWARDED_IP';
       limit?: number;
       priority?: number;
       forwardedIPConfig?: {
         headerName: string;
-        fallbackBehavior: string;
+        fallbackBehavior: 'MATCH' | 'NO_MATCH';
       };
       scopeDownStatement?: CfnWafRuleStatement;
+      visibilityConfig?: VisibilityConfig;
     };
 
 export type WafDisableIntrospectionConfig = {
   name?: string;
   priority?: number;
+  visibilityConfig?: VisibilityConfig;
 };
 
-export type WafActionKeys = 'Allow' | 'Block';
-export type WafAction = WafActionKeys | CfnWafAction;
+export type WafAction = 'Allow' | 'Block';
+export type WafRuleAction = 'Allow' | 'Block' | 'Count' | 'Captcha';
 
 export type WafRuleThrottle = {
   throttle: WafThrottleConfig;
@@ -78,7 +80,7 @@ export type WafRuleThrottle = {
 export type WafRuleCustom = {
   name: string;
   priority?: number;
-  action?: WafActionKeys;
+  action?: WafRuleAction;
   statement: CfnWafRuleStatement;
   visibilityConfig?: VisibilityConfig;
 };
@@ -287,7 +289,7 @@ export type VisibilityConfig = {
 export type WafConfig = {
   enabled?: boolean;
   name?: string;
-  defaultAction?: WafActionKeys;
+  defaultAction?: WafAction;
   description?: string;
   visibilityConfig?: VisibilityConfig;
   rules: WafRule[];

@@ -166,7 +166,7 @@ export const appSyncSchema = {
       required: [],
     },
     wafRule: {
-      oneOf: [
+      anyOf: [
         { type: 'string', enum: ['throttle', 'disableIntrospection'] },
         {
           type: 'object',
@@ -176,6 +176,7 @@ export const appSyncSchema = {
               properties: {
                 name: { type: 'string' },
                 priority: { type: 'integer' },
+                visibilityConfig: { $ref: '#/definitions/visibilityConfig' },
               },
             },
           },
@@ -205,10 +206,19 @@ export const appSyncSchema = {
                     forwardedIPConfig: {
                       type: 'object',
                       properties: {
-                        headerName: { type: 'string' },
-                        fallbackBehavior: { type: 'string' },
+                        headerName: {
+                          type: 'string',
+                          pattern: '^[a-zA-Z0-9-]+$',
+                        },
+                        fallbackBehavior: {
+                          type: 'string',
+                          enum: ['MATCH', 'NO_MATCH'],
+                        },
                       },
                       required: ['headerName', 'fallbackBehavior'],
+                    },
+                    visibilityConfig: {
+                      $ref: '#/definitions/visibilityConfig',
                     },
                   },
                   required: [],
@@ -218,6 +228,7 @@ export const appSyncSchema = {
           },
           required: [],
         },
+        { $ref: '#/definitions/customWafRule' },
       ],
       errorMessage: 'is not a valid WAF rule',
     },
@@ -228,7 +239,7 @@ export const appSyncSchema = {
         priority: { type: 'number' },
         action: {
           type: 'string',
-          enum: ['Allow', 'Block'],
+          enum: ['Allow', 'Block', 'Count', 'Captcha'],
         },
         statement: { type: 'object', required: [] },
         visibilityConfig: { $ref: '#/definitions/visibilityConfig' },
@@ -695,11 +706,12 @@ export const appSyncSchema = {
         level: {
           type: 'string',
           enum: ['ALL', 'ERROR', 'NONE'],
+          errorMessage: 'must be "ALL", "ERROR" or "NONE"',
         },
         logRetentionInDays: { type: 'integer' },
         excludeVerboseContent: { type: 'boolean' },
       },
-      errorMessage: 'is not a valid Cloudwatch log config',
+      required: ['level'],
     },
     mappingTemplatesLocation: {
       type: 'object',

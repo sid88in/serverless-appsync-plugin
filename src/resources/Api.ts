@@ -291,7 +291,7 @@ export class Api {
   }
 
   compileWafRules() {
-    if (!this.config.wafConfig || !this.config.wafConfig.enabled) {
+    if (!this.config.wafConfig || this.config.wafConfig.enabled === false) {
       return {};
     }
 
