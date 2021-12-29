@@ -16,9 +16,9 @@ export type AppSyncConfig = {
     resolvers: string;
     pipelineFunctions: string;
   };
-  dataSources: DataSourceConfig[];
-  resolvers: ResolverConfig[];
-  pipelineFunctions: PipelineFunctionConfig[];
+  dataSources: Record<string, DataSourceConfig>;
+  resolvers: Record<string, ResolverConfig>;
+  pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
   log?: LogConfig;

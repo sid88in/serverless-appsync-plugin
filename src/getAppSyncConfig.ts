@@ -14,7 +14,7 @@ type Replace<O extends object, O1 extends object> = O.Merge<
   O.Omit<O1, A.Keys<O>>
 >;
 
-export type DataSourceConfigInput = O.Optional<DataSourceConfig, 'name'>;
+export type DataSourceConfigInput = O.Omit<DataSourceConfig, 'name'>;
 
 export type ResolverConfigInput =
   | O.Update<
@@ -27,7 +27,7 @@ export type ResolverConfigInput =
 export type FunctionConfigInput =
   | Replace<
       { dataSource: string | DataSourceConfigInput },
-      O.Optional<PipelineFunctionConfig, 'name'>
+      O.Omit<PipelineFunctionConfig, 'name'>
     >
   | string;
 
@@ -81,38 +81,39 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     config.mappingTemplatesLocation,
   );
 
-  const dataSources: DataSourceConfig[] = [];
-  const resolvers: ResolverConfig[] = [];
-  const pipelineFunctions: PipelineFunctionConfig[] = [];
+  const dataSources: Record<string, DataSourceConfig> = {};
+  const resolvers: Record<string, ResolverConfig> = {};
+  const pipelineFunctions: Record<string, PipelineFunctionConfig> = {};
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
-    dataSources.push({
+    dataSources[name] = {
       ...ds,
-      name: ds.name || name,
-    });
+      name,
+    };
   });
 
   forEach(flattenMaps(config.resolvers), (resolver, typeAndField) => {
     const [type, field] = typeAndField.split('.');
 
     if (typeof resolver === 'string') {
-      resolvers.push({
+      resolvers[typeAndField] = {
         dataSource: resolver,
         kind: 'UNIT',
         type,
         field,
-      });
+      };
       return;
     }
 
     if (isUnitResolver(resolver) && typeof resolver.dataSource === 'object') {
-      dataSources.push({
+      const name = typeAndField.replace(/[^a-z_]/i, '_');
+      dataSources[name] = {
         ...resolver.dataSource,
-        name: resolver.dataSource.name || typeAndField.replace(/[^a-z_]/i, '_'),
-      });
+        name,
+      };
     }
 
-    resolvers.push({
+    resolvers[typeAndField] = {
       ...resolver,
       type: resolver.type || type,
       field: resolver.field || field,
@@ -121,41 +122,37 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
             kind: 'UNIT',
             dataSource:
               typeof resolver.dataSource === 'object'
-                ? resolver.dataSource.name ||
-                  typeAndField.replace(/[^a-z_]/i, '_')
+                ? typeAndField.replace(/[^a-z_]/i, '_')
                 : resolver.dataSource,
           }
         : {
             kind: 'PIPELINE',
             functions: resolver.functions,
           }),
-    });
+    };
   });
 
   forEach(flattenMaps(config.pipelineFunctions), (func, name) => {
     if (typeof func === 'string') {
-      pipelineFunctions.push({
+      pipelineFunctions[name] = {
         name,
         dataSource: func,
-      });
+      };
       return;
     }
 
     if (typeof func.dataSource === 'object') {
-      dataSources.push({
+      dataSources[name] = {
         ...func.dataSource,
-        name: func.dataSource.name || name,
-      });
+        name,
+      };
     }
 
-    pipelineFunctions.push({
+    pipelineFunctions[name] = {
       ...func,
-      dataSource:
-        typeof func.dataSource === 'string'
-          ? func.dataSource
-          : func.dataSource.name || name,
-      name: func.name || name,
-    });
+      dataSource: typeof func.dataSource === 'string' ? func.dataSource : name,
+      name,
+    };
   });
 
   const additionalAuthenticationProviders =
@@ -166,12 +163,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     config.authentication.type === 'API_KEY' ||
     additionalAuthenticationProviders.some((auth) => auth.type === 'API_KEY')
   ) {
-    const inputKeys = config.apiKeys || [
-      {
-        name: 'Default',
-        description: 'Auto-generated api key',
-      },
-    ];
+    const inputKeys = config.apiKeys || [];
 
     apiKeys = inputKeys.map((key) => {
       if (typeof key === 'string') {

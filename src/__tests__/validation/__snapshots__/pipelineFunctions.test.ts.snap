@@ -1,8 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Basic Invalid should validate: Invalid 1`] = `
-"/pipelineFunctions/function1/name: must be string
-/pipelineFunctions/function1/dataSource: must be a string or data source definition
+"/pipelineFunctions/function1/dataSource: must be a string or data source definition
 /pipelineFunctions/function1/description: must be string
 /pipelineFunctions/function1/request: must be a string or false
 /pipelineFunctions/function1/response: must be a string or false

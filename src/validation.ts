@@ -325,7 +325,6 @@ export const appSyncSchema = {
     pipelineFunctionConfig: {
       type: 'object',
       properties: {
-        name: { type: 'string' },
         dataSource: { $ref: '#/definitions/dataSource' },
         description: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
@@ -409,7 +408,6 @@ export const appSyncSchema = {
     dataSourceConfig: {
       type: 'object',
       properties: {
-        name: { type: 'string' },
         type: {
           type: 'string',
           enum: DATASOURCE_TYPES,

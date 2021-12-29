@@ -1,153 +1,129 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DataSources should merge dataSource arrays 1`] = `
-Array [
-  Object {
-    "name": "myDataSource",
-    "type": "NONE",
-  },
-  Object {
-    "name": "myOtherDataSource",
-    "type": "NONE",
-  },
-  Object {
-    "name": "otherNamedDs",
-    "type": "NONE",
-  },
-  Object {
+Object {
+  "anotherNamedSource": Object {
     "name": "anotherNamedSource",
     "type": "NONE",
   },
-]
+  "myDataSource": Object {
+    "name": "myDataSource",
+    "type": "NONE",
+  },
+  "myOtherDataSource": Object {
+    "name": "myOtherDataSource",
+    "type": "NONE",
+  },
+  "otherSource": Object {
+    "name": "otherSource",
+    "type": "NONE",
+  },
+}
 `;
 
 exports[`DataSources should merge dataSources embedded into resolvers and pipelineFunctions 1`] = `
 Object {
-  "dataSources": Array [
-    Object {
-      "name": "myDataSource",
-      "type": "NONE",
-    },
-    Object {
-      "name": "myOtherDataSource",
-      "type": "NONE",
-    },
-    Object {
+  "dataSources": Object {
+    "Query_getUser": Object {
       "config": Object {
         "functionName": "getUser",
       },
       "name": "Query_getUser",
       "type": "AWS_LAMBDA",
     },
-    Object {
+    "function1": Object {
+      "config": Object {
+        "functionName": "function1",
+      },
+      "name": "function1",
+      "type": "AWS_LAMBDA",
+    },
+    "function2": Object {
+      "config": Object {
+        "functionName": "function2",
+      },
+      "name": "function2",
+      "type": "AWS_LAMBDA",
+    },
+    "getUsers": Object {
       "config": Object {
         "functionName": "getUsers",
       },
       "name": "getUsers",
       "type": "AWS_LAMBDA",
     },
-    Object {
-      "config": Object {
-        "functionName": "funcion1",
-      },
-      "name": "function1",
-      "type": "AWS_LAMBDA",
+    "myDataSource": Object {
+      "name": "myDataSource",
+      "type": "NONE",
     },
-    Object {
-      "config": Object {
-        "functionName": "funcion2",
-      },
-      "name": "getUsers",
-      "type": "AWS_LAMBDA",
+    "myOtherDataSource": Object {
+      "name": "myOtherDataSource",
+      "type": "NONE",
     },
-  ],
-  "resolvers": Array [
-    Object {
+  },
+  "resolvers": Object {
+    "Query.getUser": Object {
       "dataSource": "Query_getUser",
       "field": "getUser",
       "kind": "UNIT",
       "type": "Query",
     },
-    Object {
+    "getUsers": Object {
       "dataSource": "getUsers",
       "field": "getUsers",
       "kind": "UNIT",
       "type": "Query",
     },
-  ],
+  },
 }
 `;
 
-exports[`DataSources should resolve dataSource names 1`] = `
-Array [
-  Object {
-    "name": "myDataSource",
-    "type": "NONE",
-  },
-  Object {
-    "name": "myOtherDataSource",
-    "type": "NONE",
-  },
-]
-`;
-
 exports[`Pipeline Functions should merge function arrays 1`] = `
-Array [
-  Object {
+Object {
+  "function1": Object {
     "dataSource": "users",
     "name": "function1",
   },
-  Object {
+  "function2": Object {
     "dataSource": "users",
-    "name": "myFunction2",
+    "name": "function2",
   },
-  Object {
+  "function3": Object {
     "dataSource": "users",
     "name": "function3",
   },
-  Object {
+  "function4": Object {
     "dataSource": "users",
-    "name": "myFunction4",
+    "name": "function4",
   },
-  Object {
+  "function5": Object {
     "dataSource": "users",
     "name": "function5",
   },
-]
-`;
-
-exports[`Pipeline Functions should resolve functions names 1`] = `
-Array [
-  Object {
-    "dataSource": "users",
-    "name": "function1",
-  },
-  Object {
-    "dataSource": "users",
-    "name": "myFunction2",
-  },
-  Object {
-    "dataSource": "users",
-    "name": "function3",
-  },
-]
+}
 `;
 
 exports[`Resolvers should merge resolvers arrays 1`] = `
-Array [
-  Object {
+Object {
+  "Query.getComments": Object {
+    "dataSource": "comments",
+    "field": "getComments",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.getPost": Object {
+    "dataSource": "posts",
+    "field": "getPost",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.getUser": Object {
     "dataSource": "users",
     "field": "getUser",
     "kind": "UNIT",
     "type": "Query",
   },
-  Object {
-    "dataSource": "users",
-    "field": "getUsers",
-    "kind": "UNIT",
-    "type": "Query",
-  },
-  Object {
+  "Query.pipeline": Object {
     "field": "pipeline",
     "functions": Array [
       "function1",
@@ -156,25 +132,19 @@ Array [
     "kind": "PIPELINE",
     "type": "Query",
   },
-  Object {
-    "dataSource": "posts",
-    "field": "getPost",
-    "kind": "UNIT",
-    "type": "Query",
-  },
-  Object {
-    "dataSource": "comments",
-    "field": "getComments",
-    "kind": "UNIT",
-    "type": "Query",
-  },
-  Object {
+  "getPostsResolver": Object {
     "dataSource": "posts",
     "field": "getPosts",
     "kind": "UNIT",
     "type": "Query",
   },
-  Object {
+  "getUsersResolver": Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "pipelineResolver2": Object {
     "field": "getUsers",
     "functions": Array [
       "function1",
@@ -183,30 +153,30 @@ Array [
     "kind": "PIPELINE",
     "type": "Query",
   },
-]
+}
 `;
 
 exports[`Resolvers should resolve resolver type and fields 1`] = `
-Array [
-  Object {
-    "dataSource": "users",
-    "field": "getUser",
-    "kind": "UNIT",
-    "type": "Query",
-  },
-  Object {
-    "dataSource": "users",
-    "field": "getUsers",
-    "kind": "UNIT",
-    "type": "Query",
-  },
-  Object {
+Object {
+  "Query.getPosts": Object {
     "dataSource": "posts",
     "field": "getPosts",
     "kind": "UNIT",
     "type": "Query",
   },
-]
+  "Query.getUser": Object {
+    "dataSource": "users",
+    "field": "getUser",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "getUsersResolver": Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+}
 `;
 
 exports[`Schema should return a schema array unchanged 1`] = `
@@ -231,23 +201,18 @@ Array [
 exports[`returns basic config 1`] = `
 Object {
   "additionalAuthenticationProviders": Array [],
-  "apiKeys": Array [
-    Object {
-      "description": "Auto-generated api key",
-      "name": "Default",
-    },
-  ],
+  "apiKeys": Array [],
   "authentication": Object {
     "type": "API_KEY",
   },
-  "dataSources": Array [],
+  "dataSources": Object {},
   "mappingTemplatesLocation": Object {
     "pipelineFunctions": "mapping-templates",
     "resolvers": "mapping-templates",
   },
   "name": "My Api",
-  "pipelineFunctions": Array [],
-  "resolvers": Array [],
+  "pipelineFunctions": Object {},
+  "resolvers": Object {},
   "schema": Array [
     "schema.graphql",
   ],

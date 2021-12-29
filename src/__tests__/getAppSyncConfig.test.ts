@@ -30,41 +30,6 @@ describe('Schema', () => {
 });
 
 describe('Api Keys', () => {
-  it('should generate a default Api Key when default auth is API_KEY', () => {
-    expect(
-      getAppSyncConfig({ ...basicConfig, authentication: { type: 'API_KEY' } })
-        .apiKeys,
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "description": "Auto-generated api key",
-          "name": "Default",
-        },
-      ]
-    `);
-  });
-
-  it('should generate a default Api Key when additional auth is API_KEY', () => {
-    expect(
-      getAppSyncConfig({
-        ...basicConfig,
-        authentication: { type: 'AWS_IAM' },
-        additionalAuthenticationProviders: [
-          {
-            type: 'API_KEY',
-          },
-        ],
-      }).apiKeys,
-    ).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "description": "Auto-generated api key",
-          "name": "Default",
-        },
-      ]
-    `);
-  });
-
   it('should not generate a default Api Key when auth is not API_KEY', () => {
     expect(
       getAppSyncConfig({ ...basicConfig, authentication: { type: 'AWS_IAM' } })
@@ -110,29 +75,12 @@ describe('Api Keys', () => {
 });
 
 describe('DataSources', () => {
-  it('should resolve dataSource names', async () => {
-    const config = getAppSyncConfig({
-      ...basicConfig,
-      dataSources: {
-        dataSourceWithName: {
-          name: 'myDataSource',
-          type: 'NONE',
-        },
-        myOtherDataSource: {
-          type: 'NONE',
-        },
-      },
-    });
-    expect(config.dataSources).toMatchSnapshot();
-  });
-
   it('should merge dataSource arrays', async () => {
     const config = getAppSyncConfig({
       ...basicConfig,
       dataSources: [
         {
-          dataSourceWithName: {
-            name: 'myDataSource',
+          myDataSource: {
             type: 'NONE',
           },
           myOtherDataSource: {
@@ -141,7 +89,6 @@ describe('DataSources', () => {
         },
         {
           otherSource: {
-            name: 'otherNamedDs',
             type: 'NONE',
           },
           anotherNamedSource: {
@@ -157,8 +104,7 @@ describe('DataSources', () => {
     const config = getAppSyncConfig({
       ...basicConfig,
       dataSources: {
-        dataSourceWithName: {
-          name: 'myDataSource',
+        myDataSource: {
           type: 'NONE',
         },
         myOtherDataSource: {
@@ -180,7 +126,6 @@ describe('DataSources', () => {
           field: 'getUsers',
           dataSource: {
             type: 'AWS_LAMBDA',
-            name: 'getUsers',
             config: {
               functionName: 'getUsers',
             },
@@ -192,16 +137,15 @@ describe('DataSources', () => {
           dataSource: {
             type: 'AWS_LAMBDA',
             config: {
-              functionName: 'funcion1',
+              functionName: 'function1',
             },
           },
         },
-        fucntion2: {
+        function2: {
           dataSource: {
             type: 'AWS_LAMBDA',
-            name: 'getUsers',
             config: {
-              functionName: 'funcion2',
+              functionName: 'function2',
             },
           },
         },
@@ -272,23 +216,6 @@ describe('Resolvers', () => {
 });
 
 describe('Pipeline Functions', () => {
-  it('should resolve functions names', async () => {
-    const config = getAppSyncConfig({
-      ...basicConfig,
-      pipelineFunctions: {
-        function1: {
-          dataSource: 'users',
-        },
-        function2: {
-          name: 'myFunction2',
-          dataSource: 'users',
-        },
-        function3: 'users',
-      },
-    });
-    expect(config.pipelineFunctions).toMatchSnapshot();
-  });
-
   it('should merge function arrays', async () => {
     const config = getAppSyncConfig({
       ...basicConfig,
@@ -299,7 +226,6 @@ describe('Pipeline Functions', () => {
             dataSource: 'users',
           },
           function2: {
-            name: 'myFunction2',
             dataSource: 'users',
           },
         },
@@ -308,7 +234,6 @@ describe('Pipeline Functions', () => {
             dataSource: 'users',
           },
           function4: {
-            name: 'myFunction4',
             dataSource: 'users',
           },
           function5: 'users',

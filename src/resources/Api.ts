@@ -1,5 +1,5 @@
 import ServerlessAppsyncPlugin from '..';
-import { merge, set } from 'lodash';
+import { forEach, merge, set } from 'lodash';
 import {
   CfnResource,
   CfnResources,
@@ -50,15 +50,15 @@ export class Api {
       merge(resources, this.compileApiKey(key));
     });
 
-    this.config.dataSources.forEach((ds) => {
+    forEach(this.config.dataSources, (ds) => {
       merge(resources, this.compileDataSource(ds));
     });
 
-    this.config.pipelineFunctions.forEach((func) => {
+    forEach(this.config.pipelineFunctions, (func) => {
       merge(resources, this.compilePipelineFunctionResource(func));
     });
 
-    this.config.resolvers.forEach((resolver) => {
+    forEach(this.config.resolvers, (resolver) => {
       merge(resources, this.compileResolver(resolver));
     });
 
@@ -424,10 +424,10 @@ export class Api {
   }
 
   hasDataSource(name: string) {
-    return this.config.dataSources.some((ds) => ds.name === name);
+    return name in this.config.dataSources;
   }
 
   hasPipelineFunction(name: string) {
-    return this.config.pipelineFunctions.some((ds) => ds.name === name);
+    return name in this.config.pipelineFunctions;
   }
 }

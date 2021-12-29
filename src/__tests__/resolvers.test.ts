@@ -25,13 +25,13 @@ describe('Resolvers', () => {
     it('should generate Resources with default mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -76,13 +76,13 @@ describe('Resolvers', () => {
     it('should generate Resources with default specific templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -129,13 +129,13 @@ describe('Resolvers', () => {
     it('should generate Resources with direct Lambda templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myLambdaFunction: {
               name: 'myLambdaFunction',
               type: 'AWS_LAMBDA',
               config: { functionArn: 'arn:lambda:' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -180,13 +180,13 @@ describe('Resolvers', () => {
     it('should generate Resources with sync configuration', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myLambdaFunction: {
               name: 'myLambdaFunction',
               type: 'AWS_LAMBDA',
               config: { functionArn: 'arn:lambda:' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -211,7 +211,7 @@ describe('Resolvers', () => {
     it('should fail when referencing unknown data source', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [],
+          dataSources: {},
         }),
         plugin,
       );
@@ -232,23 +232,23 @@ describe('Resolvers', () => {
     it('should generate Resources with default mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
-          pipelineFunctions: [
-            {
+          },
+          pipelineFunctions: {
+            function1: {
               name: 'function1',
               dataSource: 'myTable',
             },
-            {
+            function2: {
               name: 'function2',
               dataSource: 'myTable',
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -265,23 +265,23 @@ describe('Resolvers', () => {
     it('should generate Resources with specific mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
-          pipelineFunctions: [
-            {
+          },
+          pipelineFunctions: {
+            function1: {
               name: 'function1',
               dataSource: 'myTable',
             },
-            {
+            function2: {
               name: 'function2',
               dataSource: 'myTable',
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -300,19 +300,19 @@ describe('Resolvers', () => {
     it('should fail when referencing unknown pipeline function', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
-          pipelineFunctions: [
-            {
+          },
+          pipelineFunctions: {
+            function1: {
               name: 'function1',
               dataSource: 'myTable',
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -333,13 +333,13 @@ describe('Resolvers', () => {
     it('should generate Pipeline Function Resources with default mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -380,13 +380,13 @@ describe('Resolvers', () => {
     it('should generate Pipeline Function Resources with specific mapping tempaltes', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -429,13 +429,13 @@ describe('Resolvers', () => {
     it('should generate Pipeline Function Resources with direct Lambda mapping tempaltes', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [
-            {
+          dataSources: {
+            myLambdaFunction: {
               name: 'myLambdaFunction',
               type: 'AWS_LAMBDA',
               config: { functionArn: 'arn:lambda:' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -476,7 +476,7 @@ describe('Resolvers', () => {
     it('should fail if Pipeline Function references unexisting data source', () => {
       const api = new Api(
         given.appSyncConfig({
-          dataSources: [],
+          dataSources: {},
         }),
         plugin,
       );
@@ -501,13 +501,13 @@ describe('Resolvers', () => {
           caching: {
             behavior: 'PER_RESOLVER_CACHING',
           },
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );
@@ -559,13 +559,13 @@ describe('Resolvers', () => {
           caching: {
             behavior: 'PER_RESOLVER_CACHING',
           },
-          dataSources: [
-            {
+          dataSources: {
+            myTable: {
               name: 'myTable',
               type: 'AMAZON_DYNAMODB',
               config: { tableName: 'data' },
             },
-          ],
+          },
         }),
         plugin,
       );

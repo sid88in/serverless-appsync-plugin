@@ -7,7 +7,6 @@ import {
 } from '../types/cloudFormation';
 import {
   ApiKeyConfig,
-  WafAction,
   WafConfig,
   WafRule,
   WafRuleAction,

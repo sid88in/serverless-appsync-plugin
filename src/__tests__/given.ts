@@ -41,9 +41,9 @@ export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {
       resolvers: 'path/to/mappingTemplates',
       pipelineFunctions: 'path/to/mappingTemplates',
     },
-    resolvers: [],
-    pipelineFunctions: [],
-    dataSources: [],
+    resolvers: {},
+    pipelineFunctions: {},
+    dataSources: {},
     substitutions: {},
     tags: {
       stage: 'Dev',

@@ -13,7 +13,6 @@ describe('Basic', () => {
               dataSource: 'ds1',
             },
             function2: {
-              name: 'myFunction1',
               description: 'My Function',
               dataSource: 'ds1',
               request: 'request.vtl',
@@ -69,7 +68,6 @@ describe('Basic', () => {
         config: {
           pipelineFunctions: {
             function1: {
-              name: 123,
               description: 456,
               dataSource: 789,
               request: 123,
