@@ -11,7 +11,7 @@ import {
   Auth,
   CognitoAuth,
   DataSourceConfig,
-  FunctionConfig,
+  PipelineFunctionConfig,
   LambdaAuth,
   LambdaConfig,
   OidcAuth,
@@ -91,15 +91,15 @@ export class Api {
       });
     }
 
-    if (this.config.logConfig) {
+    if (this.config.log) {
       const logicalIdCloudWatchLogsRole =
         this.naming.getLogGroupRoleLogicalId();
       set(endpointResource, 'Properties.LogConfig', {
-        CloudWatchLogsRoleArn: this.config.logConfig.loggingRoleArn || {
+        CloudWatchLogsRoleArn: this.config.log.roleArn || {
           'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
         },
-        FieldLogLevel: this.config.logConfig.level,
-        ExcludeVerboseContent: this.config.logConfig.excludeVerboseContent,
+        FieldLogLevel: this.config.log.level,
+        ExcludeVerboseContent: this.config.log.excludeVerboseContent,
       });
     }
 
@@ -111,7 +111,7 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.logConfig) {
+    if (!this.config.log) {
       return {};
     }
 
@@ -131,7 +131,7 @@ export class Api {
             ],
           },
           RetentionInDays:
-            this.config.logConfig.logRetentionInDays ||
+            this.config.log.logRetentionInDays ||
             this.plugin.serverless.service.provider.logRetentionInDays,
         },
       },
@@ -285,17 +285,19 @@ export class Api {
     return resolver.compile();
   }
 
-  compilePipelineFunctionResource(config: FunctionConfig): CfnResources {
+  compilePipelineFunctionResource(
+    config: PipelineFunctionConfig,
+  ): CfnResources {
     const func = new PipelineFunction(this, config);
     return func.compile();
   }
 
   compileWafRules() {
-    if (!this.config.wafConfig || this.config.wafConfig.enabled === false) {
+    if (!this.config.waf || this.config.waf.enabled === false) {
       return {};
     }
 
-    const waf = new Waf(this, this.config.wafConfig);
+    const waf = new Waf(this, this.config.waf);
     return waf.compile();
   }
 

@@ -2,7 +2,7 @@ import {
   ApiKeyConfig,
   AppSyncConfig,
   DataSourceConfig,
-  FunctionConfig,
+  PipelineFunctionConfig,
   ResolverConfig,
 } from './types/plugin';
 import { A, O } from 'ts-toolbelt';
@@ -27,7 +27,7 @@ export type ResolverConfigInput =
 export type FunctionConfigInput =
   | Replace<
       { dataSource: string | DataSourceConfigInput },
-      O.Optional<FunctionConfig, 'name'>
+      O.Optional<PipelineFunctionConfig, 'name'>
     >
   | string;
 
@@ -83,7 +83,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
 
   const dataSources: DataSourceConfig[] = [];
   const resolvers: ResolverConfig[] = [];
-  const pipelineFunctions: FunctionConfig[] = [];
+  const pipelineFunctions: PipelineFunctionConfig[] = [];
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources.push({

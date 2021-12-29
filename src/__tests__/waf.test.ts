@@ -28,7 +28,7 @@ describe('Waf', () => {
     it('should not generate waf Resources if disabled', () => {
       const api = new Api(
         given.appSyncConfig({
-          wafConfig: {
+          waf: {
             enabled: false,
             name: 'Waf',
             rules: [],

@@ -1,8 +1,4 @@
-import {
-  CfnWafAction,
-  CfnWafRuleStatement,
-  IntrinsicFunction,
-} from './cloudFormation';
+import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
 
 export type AppSyncConfig = {
   apiId?: string;
@@ -10,21 +6,8 @@ export type AppSyncConfig = {
   name: string;
   schema: string[];
   authentication: Auth;
-  apiKeys?: ApiKeyConfig[];
-  caching?: {
-    behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
-    type?: string;
-    ttl?: number;
-    atRestEncryption?: boolean;
-    transitEncryption?: boolean;
-  };
   additionalAuthenticationProviders: Auth[];
-  logConfig?: {
-    loggingRoleArn?: string | IntrinsicFunction;
-    level: 'ERROR' | 'NONE' | 'ALL';
-    logRetentionInDays?: number;
-    excludeVerboseContent?: boolean;
-  };
+  apiKeys?: ApiKeyConfig[];
   defaultMappingTemplates?: {
     request?: string | false;
     response?: string | false;
@@ -33,12 +16,14 @@ export type AppSyncConfig = {
     resolvers: string;
     pipelineFunctions: string;
   };
-  resolvers: ResolverConfig[];
-  pipelineFunctions: FunctionConfig[];
   dataSources: DataSourceConfig[];
+  resolvers: ResolverConfig[];
+  pipelineFunctions: PipelineFunctionConfig[];
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
-  wafConfig?: WafConfig;
+  log?: LogConfig;
+  caching?: CachingConfig;
+  waf?: WafConfig;
   tags?: Record<string, string>;
 };
 
@@ -46,6 +31,15 @@ export type IamStatement = {
   Effect: 'Allow' | 'Deny';
   Action: string[];
   Resource: string | IntrinsicFunction | (string | IntrinsicFunction)[];
+};
+
+export type WafConfig = {
+  enabled?: boolean;
+  name?: string;
+  defaultAction?: WafAction;
+  description?: string;
+  visibilityConfig?: VisibilityConfig;
+  rules: WafRule[];
 };
 
 export type WafThrottleConfig =
@@ -177,7 +171,7 @@ export type PipelineResolverConfig = BaseResolverConfig & {
 
 export type Substitutions = Record<string, string | IntrinsicFunction>;
 
-export type FunctionConfig = {
+export type PipelineFunctionConfig = {
   name: string;
   dataSource: string;
   description?: string;
@@ -286,11 +280,17 @@ export type VisibilityConfig = {
   sampledRequestsEnabled?: boolean;
 };
 
-export type WafConfig = {
-  enabled?: boolean;
-  name?: string;
-  defaultAction?: WafAction;
-  description?: string;
-  visibilityConfig?: VisibilityConfig;
-  rules: WafRule[];
+export type LogConfig = {
+  level: 'ERROR' | 'NONE' | 'ALL';
+  excludeVerboseContent?: boolean;
+  logRetentionInDays?: number;
+  roleArn?: string | IntrinsicFunction;
+};
+
+export type CachingConfig = {
+  behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
+  type?: string;
+  ttl?: number;
+  atRestEncryption?: boolean;
+  transitEncryption?: boolean;
 };

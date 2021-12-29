@@ -3,13 +3,13 @@ import {
   CfnResources,
   IntrinsicFunction,
 } from '../types/cloudFormation';
-import { FunctionConfig } from '../types/plugin';
+import { PipelineFunctionConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
 
 export class PipelineFunction {
-  constructor(private api: Api, private config: FunctionConfig) {}
+  constructor(private api: Api, private config: PipelineFunctionConfig) {}
 
   compile(): CfnResources {
     const logicalId = this.api.naming.getPipelineFunctionLogicalId(

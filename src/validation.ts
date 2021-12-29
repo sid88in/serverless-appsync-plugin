@@ -622,7 +622,7 @@ export const appSyncSchema = {
     },
     xrayEnabled: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },
-    wafConfig: {
+    waf: {
       type: 'object',
       properties: {
         enabled: { type: 'boolean' },
@@ -699,10 +699,10 @@ export const appSyncSchema = {
         errorMessage: 'is not a valid API key config',
       },
     },
-    logConfig: {
+    log: {
       type: 'object',
       properties: {
-        loggingRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        roleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         level: {
           type: 'string',
           enum: ['ALL', 'ERROR', 'NONE'],
@@ -779,6 +779,10 @@ export const appSyncSchema = {
     },
   },
   required: ['name', 'authentication'],
+  additionalProperties: {
+    not: true,
+    errorMessage: 'invalid (unknown) property',
+  },
 };
 
 const ajv = new Ajv({ allErrors: true });
@@ -789,6 +793,7 @@ const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {
   const isValid = validator(data);
   if (isValid === false && validator.errors) {
+    console.log(validator.errors);
     throw new Error(
       validator.errors
         .filter(

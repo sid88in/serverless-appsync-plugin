@@ -36,7 +36,7 @@ describe('Api', () => {
     it('should compile the Api Resource with logs enabled', () => {
       const api = new Api(
         given.appSyncConfig({
-          logConfig: {
+          log: {
             level: 'ERROR',
             excludeVerboseContent: false,
             logRetentionInDays: 14,
@@ -462,7 +462,7 @@ describe('Api', () => {
     it('should compile CloudWatch Resources when enaabled', () => {
       const api = new Api(
         given.appSyncConfig({
-          logConfig: {
+          log: {
             level: 'ERROR',
             logRetentionInDays: 14,
           },

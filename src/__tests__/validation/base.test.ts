@@ -1,17 +1,24 @@
-import { throttle } from 'lodash';
 import { AppSyncConfigInput } from '../../getAppSyncConfig';
 import { validateConfig } from '../../validation';
 import { basicConfig } from '../basicConfig';
 
 describe('Valdiation', () => {
-  describe('LogConfig', () => {
+  it('should validate ', () => {
+    expect(function () {
+      validateConfig({
+        unknownPorp: 'foo',
+      });
+    }).toThrowErrorMatchingSnapshot();
+  });
+
+  describe('Log', () => {
     describe('Valid', () => {
       const assertions = [
         {
           name: 'Minimum',
           config: {
             ...basicConfig,
-            logConfig: {
+            log: {
               level: 'ALL',
             },
           } as AppSyncConfigInput,
@@ -20,7 +27,7 @@ describe('Valdiation', () => {
           name: 'Full',
           config: {
             ...basicConfig,
-            logConfig: {
+            log: {
               level: 'ALL',
               logRetentionInDays: 14,
               excludeVerboseContent: true,
@@ -43,7 +50,7 @@ describe('Valdiation', () => {
           name: 'Invalid',
           config: {
             ...basicConfig,
-            logConfig: {
+            log: {
               level: 'FOO',
               logRetentionInDays: 'bar',
               excludeVerboseContent: 'buzz',
@@ -70,7 +77,7 @@ describe('Valdiation', () => {
           name: 'Minimum',
           config: {
             ...basicConfig,
-            wafConfig: {
+            waf: {
               rules: [],
             },
           } as AppSyncConfigInput,
@@ -79,7 +86,7 @@ describe('Valdiation', () => {
           name: 'Full',
           config: {
             ...basicConfig,
-            wafConfig: {
+            waf: {
               enabled: true,
               name: 'MyWaf',
               defaultAction: 'Allow',
@@ -160,7 +167,7 @@ describe('Valdiation', () => {
           name: 'Invalid',
           config: {
             ...basicConfig,
-            wafConfig: {
+            waf: {
               enabled: 'foo',
               name: 123,
               defaultAction: 'Buzz',
