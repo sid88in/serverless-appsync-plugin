@@ -23,7 +23,7 @@ import {
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
 import { O } from 'ts-toolbelt';
-import { validateConfig } from './validation';
+import { AppSyncValidationError, validateConfig } from './validation';
 import { Schema } from './resources/Schema';
 
 class ServerlessAppsyncPlugin {
@@ -75,7 +75,11 @@ class ServerlessAppsyncPlugin {
       },
     };
 
-    this.log = helpers?.log || logger(serverless.cli.log);
+    this.log =
+      helpers?.log ||
+      logger((message: string) => {
+        return serverless.cli.log(message, 'AppSync');
+      });
     this.slsVersion = helpers ? 'v3' : 'v2';
 
     this.hooks = {
@@ -202,7 +206,6 @@ class ServerlessAppsyncPlugin {
       this.serverless.configurationInput.custom.appSync,
     );
     for (const inputConfig of this.config) {
-      validateConfig(inputConfig);
       const config = await getAppSyncConfig(inputConfig);
       const api = new Api({ ...config, isSingleConfig }, this);
       this.apis.push(api);
@@ -231,8 +234,10 @@ class ServerlessAppsyncPlugin {
       try {
         validateConfig(conf);
       } catch (error) {
-        if (error instanceof Error) {
-          this.log.error(error.message);
+        if (error instanceof AppSyncValidationError) {
+          throw new this.serverless.classes.Error(
+            `AppSync Configuration Error:\n\n${error.message}`,
+          );
         } else {
           throw error;
         }

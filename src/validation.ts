@@ -793,8 +793,7 @@ const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {
   const isValid = validator(data);
   if (isValid === false && validator.errors) {
-    console.log(validator.errors);
-    throw new Error(
+    throw new AppSyncValidationError(
       validator.errors
         .filter(
           (error) =>
@@ -802,10 +801,16 @@ export const validateConfig = (data: Record<string, unknown>) => {
         )
         .map((error) => {
           return `${error.instancePath}: ${error.message}`;
-        })
-        .join('\n'),
+        }),
     );
   }
 
   return isValid;
 };
+
+export class AppSyncValidationError extends Error {
+  constructor(public validationErrors: string[]) {
+    super(validationErrors.join('\n'));
+    Object.setPrototypeOf(this, AppSyncValidationError.prototype);
+  }
+}

@@ -34,7 +34,11 @@ export type Serverless = {
   };
   getProvider: (provider: 'aws') => Provider;
   cli: {
-    log: (message: string) => void;
+    log: (
+      message: string,
+      entity?: string,
+      opts?: Record<string, unknown>,
+    ) => void;
   };
   // Serverless v3
   addServiceOutputSection: (
