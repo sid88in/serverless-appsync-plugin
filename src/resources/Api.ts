@@ -422,4 +422,12 @@ export class Api {
       ? { 'Fn::Join': [':', [lambdaArn, functionAlias]] }
       : lambdaArn;
   }
+
+  hasDataSource(name: string) {
+    return this.config.dataSources.some((ds) => ds.name === name);
+  }
+
+  hasPipelineFunction(name: string) {
+    return this.config.pipelineFunctions.some((ds) => ds.name === name);
+  }
 }

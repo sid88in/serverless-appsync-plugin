@@ -6,21 +6,35 @@ const plugin = given.plugin();
 
 describe('Resolvers', () => {
   let mock: jest.SpyInstance;
-  beforeAll(() => {
+  let mockEists: jest.SpyInstance;
+  beforeEach(() => {
     mock = jest
       .spyOn(fs, 'readFileSync')
       .mockImplementation(
         (path) => `Content of ${`${path}`.replace(/\\/g, '/')}`,
       );
+    mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     mock.mockRestore();
+    mockEists.mockRestore();
   });
 
   describe('Unit Resolvers', () => {
     it('should generate Resources with default mapping templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           dataSource: 'myTable',
@@ -60,7 +74,18 @@ describe('Resolvers', () => {
     });
 
     it('should generate Resources with default specific templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           dataSource: 'myTable',
@@ -102,15 +127,26 @@ describe('Resolvers', () => {
     });
 
     it('should generate Resources with direct Lambda templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           dataSource: 'myLambdaFunction',
           kind: 'UNIT',
           type: 'Query',
           field: 'user',
-          request: 'specific.request.tpl',
-          response: 'specific.response.tpl',
+          request: false,
+          response: false,
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -133,8 +169,6 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -144,7 +178,18 @@ describe('Resolvers', () => {
     });
 
     it('should generate Resources with sync configuration', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           dataSource: 'myLambdaFunction',
@@ -162,11 +207,51 @@ describe('Resolvers', () => {
       ).toMatchSnapshot();
       expect(api.functions).toMatchSnapshot();
     });
+
+    it('should fail when referencing unknown data source', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [],
+        }),
+        plugin,
+      );
+      expect(function () {
+        api.compileResolver({
+          dataSource: 'myLambdaFunction',
+          kind: 'UNIT',
+          type: 'Query',
+          field: 'user',
+        });
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"Resolver 'Query.user' references unknown DataSource 'myLambdaFunction'"`,
+      );
+    });
   });
 
   describe('Pipeline Resovlers', () => {
     it('should generate Resources with default mapping templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+          pipelineFunctions: [
+            {
+              name: 'function1',
+              dataSource: 'myTable',
+            },
+            {
+              name: 'function2',
+              dataSource: 'myTable',
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           kind: 'PIPELINE',
@@ -178,7 +263,28 @@ describe('Resolvers', () => {
     });
 
     it('should generate Resources with specific mapping templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+          pipelineFunctions: [
+            {
+              name: 'function1',
+              dataSource: 'myTable',
+            },
+            {
+              name: 'function2',
+              dataSource: 'myTable',
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compileResolver({
           kind: 'PIPELINE',
@@ -190,11 +296,53 @@ describe('Resolvers', () => {
         }),
       ).toMatchSnapshot();
     });
+
+    it('should fail when referencing unknown pipeline function', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+          pipelineFunctions: [
+            {
+              name: 'function1',
+              dataSource: 'myTable',
+            },
+          ],
+        }),
+        plugin,
+      );
+      expect(function () {
+        api.compileResolver({
+          kind: 'PIPELINE',
+          type: 'Query',
+          field: 'user',
+          functions: ['function1', 'function2'],
+        });
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"Resolver 'Query.user' references unknown Pipeline function 'function2'"`,
+      );
+    });
   });
 
   describe('Pipeline Function', () => {
     it('should generate Pipeline Function Resources with default mapping templates', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compilePipelineFunctionResource({
           name: 'function1',
@@ -230,7 +378,18 @@ describe('Resolvers', () => {
     });
 
     it('should generate Pipeline Function Resources with specific mapping tempaltes', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compilePipelineFunctionResource({
           name: 'function1',
@@ -268,7 +427,18 @@ describe('Resolvers', () => {
     });
 
     it('should generate Pipeline Function Resources with direct Lambda mapping tempaltes', () => {
-      const api = new Api(given.appSyncConfig(), plugin);
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [
+            {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          ],
+        }),
+        plugin,
+      );
       expect(
         api.compilePipelineFunctionResource({
           name: 'function1',
@@ -302,6 +472,26 @@ describe('Resolvers', () => {
         }
       `);
     });
+
+    it('should fail if Pipeline Function references unexisting data source', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: [],
+        }),
+        plugin,
+      );
+      expect(function () {
+        api.compilePipelineFunctionResource({
+          name: 'function1',
+          dataSource: 'myLambdaFunction',
+          description: 'Function1 Pipeline Resolver',
+          request: false,
+          response: false,
+        });
+      }).toThrowErrorMatchingInlineSnapshot(
+        `"Pipeline Function 'function1' references unknown DataSource 'myLambdaFunction'"`,
+      );
+    });
   });
 
   describe('Caching', () => {
@@ -311,6 +501,13 @@ describe('Resolvers', () => {
           caching: {
             behavior: 'PER_RESOLVER_CACHING',
           },
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
         }),
         plugin,
       );
@@ -362,6 +559,13 @@ describe('Resolvers', () => {
           caching: {
             behavior: 'PER_RESOLVER_CACHING',
           },
+          dataSources: [
+            {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          ],
         }),
         plugin,
       );

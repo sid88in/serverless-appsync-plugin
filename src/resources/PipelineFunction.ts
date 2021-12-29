@@ -12,6 +12,13 @@ export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
 
   compile(): CfnResources {
+    const { dataSource } = this.config;
+    if (!this.api.hasDataSource(dataSource)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `Pipeline Function '${this.config.name}' references unknown DataSource '${dataSource}'`,
+      );
+    }
+
     const logicalId = this.api.naming.getPipelineFunctionLogicalId(
       this.config.name,
     );
@@ -59,12 +66,9 @@ export class PipelineFunction {
         this.api.config.mappingTemplatesLocation.pipelineFunctions,
         templateName || `${this.config.name}.${type}.vtl`,
       );
-      const template = new MappingTemplate({
+      const template = new MappingTemplate(this.api, {
         path: templatePath,
-        substitutions: {
-          ...this.api.config.substitutions,
-          ...this.api.config.substitutions,
-        },
+        substitutions: this.config.substitutions,
       });
 
       return template.compile();

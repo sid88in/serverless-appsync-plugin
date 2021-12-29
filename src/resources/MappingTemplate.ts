@@ -1,22 +1,33 @@
 import { IntrinsicFunction } from '../types/cloudFormation';
 import fs from 'fs';
 import { Substitutions } from '../types/plugin';
+import { Api } from './Api';
 
 type MappingTemplateConfig = {
   path: string;
-  substitutions: Substitutions;
+  substitutions?: Substitutions;
 };
 
 export class MappingTemplate {
-  constructor(private config: MappingTemplateConfig) {}
+  constructor(private api: Api, private config: MappingTemplateConfig) {}
 
   compile(): string | IntrinsicFunction {
+    if (!fs.existsSync(this.config.path)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `Mapping tempalte file '${this.config.path}' does not exist`,
+      );
+    }
+
     const requestTemplateContent = fs.readFileSync(this.config.path, 'utf8');
     return this.processTemplateSubstitutions(requestTemplateContent);
   }
 
   processTemplateSubstitutions(template: string): string | IntrinsicFunction {
-    const availableVariables = Object.keys(this.config.substitutions);
+    const substitutions = {
+      ...this.api.config.substitutions,
+      ...this.config.substitutions,
+    };
+    const availableVariables = Object.keys(substitutions);
     const templateVariables: string[] = [];
     let searchResult;
     const variableSyntax = RegExp(/\${([\w\d-_]+)}/g);
@@ -29,7 +40,7 @@ export class MappingTemplate {
       .filter((value, index, array) => array.indexOf(value) === index)
       .reduce(
         (accum, value) =>
-          Object.assign(accum, { [value]: this.config.substitutions[value] }),
+          Object.assign(accum, { [value]: substitutions[value] }),
         {},
       );
 
@@ -57,10 +68,12 @@ export class MappingTemplate {
     const regex = new RegExp(`\\\${(${variables})}`, 'g');
     const substituteTemplate = template.replace(regex, '|||$1|||');
 
-    const templateJoin = substituteTemplate.split('|||');
+    const templateJoin = substituteTemplate
+      .split('|||')
+      .filter((part) => part !== '');
     const parts: (string | IntrinsicFunction)[] = [];
     for (let i = 0; i < templateJoin.length; i += 1) {
-      if (variables.includes(templateJoin[i])) {
+      if (templateJoin[i] in substitutions) {
         const subs = { [templateJoin[i]]: substitutions[templateJoin[i]] };
         parts[i] = { 'Fn::Sub': [`\${${templateJoin[i]}}`, subs] };
       } else {
