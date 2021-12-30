@@ -102,6 +102,10 @@ class ServerlessAppsyncPlugin {
               },
             },
           },
+          'flush-cache': {
+            usage: 'Flushes the Cache',
+            lifecycleEvents: ['run'],
+          },
         },
       },
     };
@@ -118,6 +122,7 @@ class ServerlessAppsyncPlugin {
         this.buildAndAppendResources();
       },
       'appsync:get-introspection:run': () => this.getIntrospection(),
+      'appsync:flush-cache:run': () => this.flushCache(),
       'before:aws:info:gatherData': () => {
         // load embedded functions
         this.buildAndAppendResources();
@@ -215,6 +220,12 @@ class ServerlessAppsyncPlugin {
     } else {
       console.log(schema.toString());
     }
+  }
+
+  async flushCache() {
+    const apiId = await this.getApiId();
+    await this.provider.request('AppSync', 'flushApiCache', { apiId });
+    this.log.success('Cache flushed successfully');
   }
 
   displayEndpoints() {
