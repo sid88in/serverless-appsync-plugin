@@ -1,5 +1,4 @@
 import type { AWS } from '@serverless/typescript';
-import { SomeJSONSchema } from 'ajv/dist/types/json-schema';
 import { AppSyncConfigInput } from '../getAppSyncConfig';
 
 export type Hook = () => void | Promise<void>;
