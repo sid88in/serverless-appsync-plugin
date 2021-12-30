@@ -1,19 +1,14 @@
-import { upperFirst } from 'lodash';
 import { DataSourceConfig, ResolverConfig } from '../types/plugin';
 
 export class Naming {
-  constructor(private apiName: string, private isSingleApi: boolean) {}
+  constructor(private apiName: string) {}
 
   getCfnName(name: string) {
     return name.replace(/[^a-zA-Z0-9]/g, '');
   }
 
   getLogicalId(name: string): string {
-    if (this.isSingleApi) {
-      return this.getCfnName(name);
-    }
-
-    return this.getCfnName(`${upperFirst(this.apiName)}${name}`);
+    return this.getCfnName(name);
   }
 
   getApiLogicalId() {

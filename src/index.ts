@@ -1,4 +1,4 @@
-import { AppSyncConfigInput, getAppSyncConfig } from './getAppSyncConfig';
+import { getAppSyncConfig } from './getAppSyncConfig';
 import chalk from 'chalk';
 import { forEach, last, merge } from 'lodash';
 import { logger } from './utils';
@@ -44,7 +44,7 @@ class ServerlessAppsyncPlugin {
   public readonly hooks: Record<string, Hook>;
   public readonly commands?: CommandsDefinition;
   private log: ServerlessLogger;
-  private apis: Api[] = [];
+  private api?: Api;
   private slsVersion: 'v2' | 'v3';
 
   constructor(
@@ -67,7 +67,7 @@ class ServerlessAppsyncPlugin {
     // field (ie: `appSync`). Actual valiation will be handled by this plugin
     // later in `validateConfig()`
     this.serverless.configSchemaHandler.defineTopLevelProperty('appSync', {
-      oneOf: [{ type: 'object' }, { type: 'array', items: { type: 'object' } }],
+      type: 'object',
     });
 
     this.log =
@@ -78,7 +78,6 @@ class ServerlessAppsyncPlugin {
 
     this.commands = {
       appsync: {
-        usage: 'AppSync commands',
         commands: {
           'validate-schema': {
             usage: 'Validates your graphql schemas',
@@ -167,7 +166,7 @@ class ServerlessAppsyncPlugin {
 
   displayEndpoints() {
     const endpoints = this.gatheredData.apis.map(
-      ({ name, type, uri }) => `${name} (${type}): ${uri}`,
+      ({ type, uri }) => `${type}: ${uri}`,
     );
 
     if (this.slsVersion === 'v3') {
@@ -189,8 +188,7 @@ class ServerlessAppsyncPlugin {
   displayApiKeys() {
     const { conceal } = this.options;
     const apiKeys = this.gatheredData.apiKeys.map(
-      ({ apiName, description, value }) =>
-        `${apiName}: ${value} (${description})`,
+      ({ description, value }) => `${value} (${description})`,
     );
 
     if (this.slsVersion === 'v3') {
@@ -219,25 +217,16 @@ class ServerlessAppsyncPlugin {
     this.log.info('Loading AppSync config');
 
     const { appSync } = this.serverless.configurationInput;
-    const config = Array.isArray(appSync) ? appSync : [appSync];
 
-    const isSingleConfig = !Array.isArray(
-      this.serverless.configurationInput.appSync,
-    );
-
-    for (const conf of config) {
-      try {
-        // TODO: allow config to be nested
-        validateConfig(conf);
-        const config = getAppSyncConfig(conf);
-        const api = new Api({ ...config, isSingleConfig }, this);
-        this.apis.push(api);
-      } catch (error) {
-        if (error instanceof AppSyncValidationError) {
-          this.handleConfigValidationError(error);
-        } else {
-          throw error;
-        }
+    try {
+      validateConfig(appSync);
+      const config = getAppSyncConfig(appSync);
+      this.api = new Api(config, this);
+    } catch (error) {
+      if (error instanceof AppSyncValidationError) {
+        this.handleConfigValidationError(error);
+      } else {
+        throw error;
       }
     }
   }
@@ -245,10 +234,12 @@ class ServerlessAppsyncPlugin {
   validateSchemas() {
     try {
       this.log.info('Validating AppSync schema');
-      for (const api of this.apis) {
-        // Generating the schema also validates it
-        api.compileSchema();
+      if (!this.api) {
+        throw new this.serverless.classes.Error(
+          'Could not load hte API. This should not happen.',
+        );
       }
+      this.api.compileSchema();
     } catch (error) {
       this.log.info('Error');
       if (error instanceof GraphQLError) {
@@ -260,11 +251,18 @@ class ServerlessAppsyncPlugin {
   }
 
   buildAndAppendResources() {
-    this.apis?.forEach((api) => {
-      const resources = api.compile();
-      merge(this.serverless.service, { resources: { Resources: resources } });
-      merge(this.serverless.configurationInput, { functions: api.functions });
+    if (!this.api) {
+      throw new this.serverless.classes.Error(
+        'Could not load hte API. This should not happen.',
+      );
+    }
+
+    const resources = this.api.compile();
+    merge(this.serverless.service, { resources: { Resources: resources } });
+    merge(this.serverless.configurationInput, {
+      functions: this.api.functions,
     });
+
     this.serverless.service.setFunctionNames(
       this.serverless.processedInput.options,
     );

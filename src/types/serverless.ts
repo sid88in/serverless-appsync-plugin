@@ -26,7 +26,7 @@ export type Serverless = {
     options: Record<string, unknown>;
   };
   configurationInput: AWS & {
-    appSync: AppSyncConfigInput | AppSyncConfigInput[];
+    appSync: AppSyncConfigInput;
   };
   service: AWS & {
     setFunctionNames(rawOptions: Record<string, unknown>): void;

@@ -30,7 +30,6 @@ export const plugin = () => {
 export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {
   const config: AppSyncConfig = {
     name: 'MyApi',
-    isSingleConfig: true,
     xrayEnabled: false,
     schema: ['schema.graphql'],
     authentication: {

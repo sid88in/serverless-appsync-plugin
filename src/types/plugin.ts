@@ -2,7 +2,6 @@ import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
 
 export type AppSyncConfig = {
   apiId?: string;
-  isSingleConfig?: boolean;
   name: string;
   schema: string[];
   authentication: Auth;
