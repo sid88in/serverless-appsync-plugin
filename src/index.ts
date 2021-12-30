@@ -28,6 +28,7 @@ import { AppSyncValidationError, validateConfig } from './validation';
 import { GraphQLError } from 'graphql';
 import fs from 'fs';
 import path from 'path';
+import open from 'open';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -103,7 +104,15 @@ class ServerlessAppsyncPlugin {
             },
           },
           'flush-cache': {
-            usage: 'Flushes the Cache',
+            usage: 'Flushes the Cache of the API.',
+            lifecycleEvents: ['run'],
+          },
+          console: {
+            usage: 'Opens the AppSync AWS Console',
+            lifecycleEvents: ['run'],
+          },
+          cloudwatch: {
+            usage: 'Opens the CloudWatch AWS Console',
             lifecycleEvents: ['run'],
           },
         },
@@ -123,6 +132,8 @@ class ServerlessAppsyncPlugin {
       },
       'appsync:get-introspection:run': () => this.getIntrospection(),
       'appsync:flush-cache:run': () => this.flushCache(),
+      'appsync:console:run': () => this.openConsole(),
+      'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'before:aws:info:gatherData': () => {
         // load embedded functions
         this.buildAndAppendResources();
@@ -150,7 +161,9 @@ class ServerlessAppsyncPlugin {
     );
 
     if (!apiId) {
-      throw new this.serverless.classes.Error('Api not found in stack');
+      throw new this.serverless.classes.Error(
+        'Api not found in stack. Did you forget to deploy?',
+      );
     }
 
     return apiId;
@@ -201,7 +214,7 @@ class ServerlessAppsyncPlugin {
       GetIntrospectionSchemaResponse
     >('AppSync', 'getIntrospectionSchema', {
       apiId,
-      format: this.options.format.toUpperCase() || 'JSON',
+      format: (this.options.format || 'JSON').toUpperCase(),
     });
 
     if (!schema) {
@@ -226,6 +239,20 @@ class ServerlessAppsyncPlugin {
     const apiId = await this.getApiId();
     await this.provider.request('AppSync', 'flushApiCache', { apiId });
     this.log.success('Cache flushed successfully');
+  }
+
+  async openConsole() {
+    const apiId = await this.getApiId();
+    const { region } = this.serverless.service.provider;
+    const url = `https://console.aws.amazon.com/appsync/home?region=${region}#/${apiId}/v1/home`;
+    open(url);
+  }
+
+  async openCloudWatch() {
+    const apiId = await this.getApiId();
+    const { region } = this.serverless.service.provider;
+    const url = `https://console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Fappsync$252Fapis$252F${apiId}`;
+    open(url);
   }
 
   displayEndpoints() {
