@@ -1,4 +1,4 @@
-import { parseDuration } from 'utils';
+import { parseDuration } from '../utils';
 
 describe('parseDuration', () => {
   it('should parse valid duration', () => {

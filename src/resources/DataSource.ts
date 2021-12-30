@@ -1,10 +1,9 @@
 import { merge } from 'lodash';
-import { has } from 'ramda';
 import {
   CfnDataSource,
   CfnResources,
-  IntrinsictFunction,
-} from 'types/cloudFormation';
+  IntrinsicFunction,
+} from '../types/cloudFormation';
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
@@ -12,7 +11,7 @@ import {
   DsHttpConfig,
   DsRelationalDbConfig,
   IamStatement,
-} from 'types/plugin';
+} from '../types/plugin';
 import { Api } from './Api';
 
 export class DataSource {
@@ -31,7 +30,10 @@ export class DataSource {
 
     if (this.config.type === 'AWS_LAMBDA') {
       resource.Properties.LambdaConfig = {
-        LambdaFunctionArn: this.api.getLambdaArn(this.config.config),
+        LambdaFunctionArn: this.api.getLambdaArn(
+          this.config.config,
+          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+        ),
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
       resource.Properties.DynamoDBConfig = this.getDynamoDbConfig(this.config);
@@ -59,7 +61,7 @@ export class DataSource {
       [logicalId]: resource,
     };
 
-    if (has('config', this.config) && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config.serviceRoleArn) {
       resource.Properties.ServiceRoleArn = this.config.config.serviceRoleArn;
     } else {
       const role = this.compileDataSourceIamRole();
@@ -181,7 +183,7 @@ export class DataSource {
   }
 
   compileDataSourceIamRole(): CfnResources | undefined {
-    if (has('config', this.config) && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config.serviceRoleArn) {
       return;
     }
 
@@ -199,7 +201,7 @@ export class DataSource {
       );
     }
 
-    if (has('config', this.config) && this.config.config.iamRoleStatements) {
+    if ('config' in this.config && this.config.config.iamRoleStatements) {
       statements = this.config.config.iamRoleStatements;
     } else {
       // Try to generate default statements for the given this.config.
@@ -247,7 +249,10 @@ export class DataSource {
   getDefaultDataSourcePolicyStatements(): IamStatement[] | undefined {
     switch (this.config.type) {
       case 'AWS_LAMBDA': {
-        const lambdaArn = this.api.getLambdaArn(this.config.config);
+        const lambdaArn = this.api.getLambdaArn(
+          this.config.config,
+          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+        );
 
         // Allow "invoke" for the Datasource's function and its aliases/versions
         const defaultLambdaStatement: IamStatement = {
@@ -259,7 +264,7 @@ export class DataSource {
         return [defaultLambdaStatement];
       }
       case 'AMAZON_DYNAMODB': {
-        const dynamoDbResourceArn: IntrinsictFunction = {
+        const dynamoDbResourceArn: IntrinsicFunction = {
           'Fn::Join': [
             ':',
             [
@@ -296,7 +301,7 @@ export class DataSource {
         return [defaultDynamoDBStatement];
       }
       case 'RELATIONAL_DATABASE': {
-        const dDbResourceArn: IntrinsictFunction = {
+        const dDbResourceArn: IntrinsicFunction = {
           'Fn::Join': [
             ':',
             [

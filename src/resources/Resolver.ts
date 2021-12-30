@@ -1,10 +1,9 @@
-import { has } from 'ramda';
 import {
   CfnResolver,
   CfnResources,
-  IntrinsictFunction,
-} from 'types/cloudFormation';
-import { ResolverConfig } from 'types/plugin';
+  IntrinsicFunction,
+} from '../types/cloudFormation';
+import { ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
@@ -57,6 +56,9 @@ export class Resolver {
               LambdaConflictHandlerConfig: {
                 LambdaConflictHandlerArn: this.api.getLambdaArn(
                   this.config.sync,
+                  this.api.naming.getResolverEmbeddedSyncLambdaName(
+                    this.config,
+                  ),
                 ),
               },
             }
@@ -69,20 +71,33 @@ export class Resolver {
         ...Properties,
         Kind: 'PIPELINE',
         PipelineConfig: {
-          Functions: this.config.functions.map((functionAttributeName) => {
-            const logicalIdDataSource =
-              this.api.naming.getPipelineFunctionLogicalId(
-                functionAttributeName,
+          Functions: this.config.functions.map((name) => {
+            if (!this.api.hasPipelineFunction(name)) {
+              throw new this.api.plugin.serverless.classes.Error(
+                `Resolver '${this.config.type}.${this.config.field}' references unknown Pipeline function '${name}'`,
               );
+            }
+
+            const logicalIdDataSource =
+              this.api.naming.getPipelineFunctionLogicalId(name);
             return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
           }),
         },
       };
     } else {
+      const { dataSource } = this.config;
+      if (!this.api.hasDataSource(dataSource)) {
+        throw new this.api.plugin.serverless.classes.Error(
+          `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
+        );
+      }
+
+      const logicalIdDataSource =
+        this.api.naming.getDataSourceLogicalId(dataSource);
       Properties = {
         ...Properties,
         Kind: 'UNIT',
-        DataSourceName: this.config.dataSource,
+        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
       };
     }
 
@@ -103,22 +118,21 @@ export class Resolver {
 
   resolveMappingTemplate(
     type: 'request' | 'response',
-  ): string | IntrinsictFunction | undefined {
-    const templateName = has(type)(this.config)
-      ? this.config[type]
-      : this.api.config.defaultMappingTemplates?.[type];
+  ): string | IntrinsicFunction | undefined {
+    const templateName =
+      type in this.config
+        ? this.config[type]
+        : this.api.config.defaultMappingTemplates?.[type];
 
     if (templateName !== false) {
       const templatePath = path.join(
-        this.api.config.mappingTemplatesLocation,
+        this.api.plugin.serverless.config.servicePath,
+        this.api.config.mappingTemplatesLocation.resolvers,
         templateName || `${this.config.type}.${this.config.field}.${type}.vtl`,
       );
-      const template = new MappingTemplate({
+      const template = new MappingTemplate(this.api, {
         path: templatePath,
-        substitutions: {
-          ...this.api.config.substitutions,
-          ...this.config.substitutions,
-        },
+        substitutions: this.config.substitutions,
       });
 
       return template.compile();

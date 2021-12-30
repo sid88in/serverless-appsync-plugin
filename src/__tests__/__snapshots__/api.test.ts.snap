@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Api compileEndpoint should compile the Api Resource with embedded additional authorizer Lambda function 1`] = `
+Object {
+  "GraphQlApi": Object {
+    "Properties": Object {
+      "AdditionalAuthenticationProviders": Array [
+        Object {
+          "AuthenticationType": "AWS_LAMBDA",
+          "LambdaAuthorizerConfig": Object {
+            "AuthorizerResultTtlInSeconds": undefined,
+            "AuthorizerUri": Object {
+              "Fn::GetAtt": Array [
+                "MyApiAuthorizerLambdaFunction",
+                "Arn",
+              ],
+            },
+            "IdentityValidationExpression": undefined,
+          },
+        },
+      ],
+      "AuthenticationType": "API_KEY",
+      "Name": "MyApi",
+      "Tags": Array [
+        Object {
+          "Key": "stage",
+          "Value": "Dev",
+        },
+      ],
+      "XrayEnabled": false,
+    },
+    "Type": "AWS::AppSync::GraphQLApi",
+  },
+}
+`;
+
+exports[`Api compileEndpoint should compile the Api Resource with embedded additional authorizer Lambda function 2`] = `
+Object {
+  "MyApiAuthorizer": Object {
+    "handler": "index.handler",
+  },
+}
+`;
+
+exports[`Api compileEndpoint should compile the Api Resource with embedded authorizer Lambda function 1`] = `
+Object {
+  "GraphQlApi": Object {
+    "Properties": Object {
+      "AuthenticationType": "AWS_LAMBDA",
+      "LambdaAuthorizerConfig": Object {
+        "AuthorizerResultTtlInSeconds": undefined,
+        "AuthorizerUri": Object {
+          "Fn::GetAtt": Array [
+            "MyApiAuthorizerLambdaFunction",
+            "Arn",
+          ],
+        },
+        "IdentityValidationExpression": undefined,
+      },
+      "Name": "MyApi",
+      "Tags": Array [
+        Object {
+          "Key": "stage",
+          "Value": "Dev",
+        },
+      ],
+      "XrayEnabled": false,
+    },
+    "Type": "AWS::AppSync::GraphQLApi",
+  },
+}
+`;
+
+exports[`Api compileEndpoint should compile the Api Resource with embedded authorizer Lambda function 2`] = `
+Object {
+  "MyApiAuthorizer": Object {
+    "handler": "index.handler",
+  },
+}
+`;

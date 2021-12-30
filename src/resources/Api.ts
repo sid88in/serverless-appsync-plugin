@@ -1,64 +1,64 @@
-import ServerlessAppsyncPlugin from 'index';
-import { merge, set } from 'lodash';
-import { has } from 'ramda';
+import ServerlessAppsyncPlugin from '..';
+import { forEach, merge, set } from 'lodash';
 import {
   CfnResource,
   CfnResources,
-  IntrinsictFunction,
-} from 'types/cloudFormation';
+  IntrinsicFunction,
+} from '../types/cloudFormation';
 import {
-  ApiKeyConfigObject,
+  ApiKeyConfig,
   AppSyncConfig,
   Auth,
   CognitoAuth,
   DataSourceConfig,
-  FunctionConfig,
+  PipelineFunctionConfig,
   LambdaAuth,
   LambdaConfig,
   OidcAuth,
   ResolverConfig,
-} from 'types/plugin';
-import { parseDuration } from 'utils';
+} from '../types/plugin';
+import { parseDuration } from '../utils';
 import { DateTime } from 'luxon';
 import { Naming } from './Naming';
 import { DataSource } from './DataSource';
 import { Resolver } from './Resolver';
 import { PipelineFunction } from './PipelineFunction';
+import { Schema } from './Schema';
+import { Waf } from './Waf';
 
 export class Api {
   public naming: Naming;
+  public functions: Record<string, Record<string, unknown>> = {};
 
   constructor(
     public config: AppSyncConfig,
-    private plugin: ServerlessAppsyncPlugin,
+    public plugin: ServerlessAppsyncPlugin,
   ) {
-    this.naming = new Naming(this.config.name, !!this.config.isSingleConfig);
+    this.naming = new Naming(this.config.name);
   }
 
   compile() {
-    // Waf
-    // Output variables
-
     const resources: CfnResources = {};
 
     merge(resources, this.compileEndpoint());
     merge(resources, this.compileSchema());
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
+    merge(resources, this.compileWafRules());
 
-    this.getApiKeys().forEach((key) => {
+    this.config.apiKeys?.forEach((key) => {
       merge(resources, this.compileApiKey(key));
     });
 
-    this.config.dataSources.forEach((ds) => {
+    forEach(this.config.dataSources, (ds) => {
       merge(resources, this.compileDataSource(ds));
     });
 
-    this.config.functionConfigurations.forEach((func) => {
+    forEach(this.config.pipelineFunctions, (func) => {
       merge(resources, this.compilePipelineFunctionResource(func));
     });
 
-    this.config.mappingTemplates.forEach((resolver) => {
+    forEach(this.config.resolvers, (resolver) => {
       merge(resources, this.compileResolver(resolver));
     });
 
@@ -72,14 +72,14 @@ export class Api {
       Type: 'AWS::AppSync::GraphQLApi',
       Properties: {
         Name: this.config.name,
-        XrayEnabled: this.config.xrayEnabled,
+        XrayEnabled: this.config.xrayEnabled || false,
         Tags: this.getTagsConfig(),
       },
     };
 
     merge(
       endpointResource.Properties,
-      this.compileAuthenticationProvider(this.config),
+      this.compileAuthenticationProvider(this.config.authentication),
     );
 
     if (this.config.additionalAuthenticationProviders.length > 0) {
@@ -91,15 +91,15 @@ export class Api {
       });
     }
 
-    if (this.config.logConfig) {
+    if (this.config.log) {
       const logicalIdCloudWatchLogsRole =
         this.naming.getLogGroupRoleLogicalId();
       set(endpointResource, 'Properties.LogConfig', {
-        CloudWatchLogsRoleArn: this.config.logConfig.loggingRoleArn || {
+        CloudWatchLogsRoleArn: this.config.log.roleArn || {
           'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
         },
-        FieldLogLevel: this.config.logConfig.level,
-        ExcludeVerboseContent: this.config.logConfig.excludeVerboseContent,
+        FieldLogLevel: this.config.log.level,
+        ExcludeVerboseContent: this.config.log.excludeVerboseContent,
       });
     }
 
@@ -111,12 +111,13 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.logConfig) {
+    if (!this.config.log) {
       return {};
     }
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
+    const policyLogicalId = this.naming.getLogGroupRoleLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
 
     return {
@@ -130,8 +131,33 @@ export class Api {
             ],
           },
           RetentionInDays:
-            this.config.logConfig.logRetentionInDays ||
+            this.config.log.logRetentionInDays ||
             this.plugin.serverless.service.provider.logRetentionInDays,
+        },
+      },
+      [policyLogicalId]: {
+        Type: 'AWS::IAM::Policy',
+        Properties: {
+          PolicyName: `${policyLogicalId}`,
+          Roles: [{ Ref: roleLogicalId }],
+          PolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ],
+                Resource: [
+                  {
+                    'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
+                  },
+                ],
+              },
+            ],
+          },
         },
       },
       [roleLogicalId]: {
@@ -149,55 +175,21 @@ export class Api {
               },
             ],
           },
-          Policies: [
-            {
-              PolicyName: `${this.config.name} LogGroup Policy`,
-              PolicyDocument: {
-                Version: '2012-10-17',
-                Statement: [
-                  {
-                    Effect: 'Allow',
-                    Action: [
-                      'logs:CreateLogGroup',
-                      'logs:CreateLogStream',
-                      'logs:PutLogEvents',
-                    ],
-                    Resource: [
-                      {
-                        'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          ],
         },
       },
     };
   }
 
   compileSchema() {
-    const logicalId = this.naming.getSchemaLogicalId();
-
-    return {
-      [logicalId]: {
-        Type: 'AWS::AppSync::GraphQLSchema',
-        Properties: {
-          Definition: this.config.schema,
-          ApiId: this.getApiId(),
-        },
-      },
-    };
+    const schema = new Schema(this, this.config.schema);
+    return schema.compile();
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
     const lambdaAuth = [
       ...this.config.additionalAuthenticationProviders,
-      this.config,
-    ].find(({ authenticationType }) => authenticationType === 'AWS_LAMBDA') as
-      | LambdaAuth
-      | undefined;
+      this.config.authentication,
+    ].find(({ type }) => type === 'AWS_LAMBDA') as LambdaAuth | undefined;
 
     if (!lambdaAuth) {
       return {};
@@ -211,7 +203,10 @@ export class Api {
         Type: 'AWS::Lambda::Permission',
         Properties: {
           Action: 'lambda:InvokeFunction',
-          FunctionName: this.getLambdaArn(lambdaAuth.lambdaAuthorizerConfig),
+          FunctionName: this.getLambdaArn(
+            lambdaAuth.config,
+            this.naming.getAuthenticationEmbeddedLamdbaName(),
+          ),
           Principal: 'appsync.amazonaws.com',
           SourceArn: { Ref: apiLogicalId },
         },
@@ -219,32 +214,7 @@ export class Api {
     };
   }
 
-  // FIXME: probably shoud be done before injecting the config. ie: config should be normalized
-  getApiKeys(): ApiKeyConfigObject[] {
-    if (!this.config.apiKeys) {
-      return [
-        {
-          name: 'Default',
-          description: 'Auto-generated api key',
-        },
-      ];
-    }
-
-    // FIXME: validate this before injecting config in class
-    if (!Array.isArray(this.config.apiKeys)) {
-      throw Error('apiKeys must be an array.');
-    }
-
-    return this.config.apiKeys.map((key) => {
-      if (typeof key === 'string') {
-        return { name: key };
-      }
-
-      return key;
-    });
-  }
-
-  compileApiKey(config: ApiKeyConfigObject) {
+  compileApiKey(config: ApiKeyConfig) {
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
@@ -315,9 +285,20 @@ export class Api {
     return resolver.compile();
   }
 
-  compilePipelineFunctionResource(config: FunctionConfig): CfnResources {
+  compilePipelineFunctionResource(
+    config: PipelineFunctionConfig,
+  ): CfnResources {
     const func = new PipelineFunction(this, config);
     return func.compile();
+  }
+
+  compileWafRules() {
+    if (!this.config.waf || this.config.waf.enabled === false) {
+      return {};
+    }
+
+    const waf = new Waf(this, this.config.waf);
+    return waf.compile();
   }
 
   getApiId() {
@@ -329,48 +310,52 @@ export class Api {
     );
   }
 
-  getUserPoolConfig(config: CognitoAuth) {
+  getUserPoolConfig(auth: CognitoAuth) {
     const userPoolConfig = {
-      AwsRegion: config.userPoolConfig.awsRegion || this.config.region,
-      UserPoolId: config.userPoolConfig.userPoolId,
-      AppIdClientRegex: config.userPoolConfig.appIdClientRegex,
+      AwsRegion: auth.config.awsRegion || { 'Fn::Sub': '${AWS::Region}' },
+      UserPoolId: auth.config.userPoolId,
+      AppIdClientRegex: auth.config.appIdClientRegex,
+      // Default action is the one passed in the config
+      // or 'ALLOW' if the primary auth is Cognito User Pool
+      // else, DENY
+      DefaultAction:
+        auth.config.defaultAction ||
+        (this.config.authentication.type === 'AMAZON_COGNITO_USER_POOLS' &&
+        this.config.additionalAuthenticationProviders.length > 0
+          ? 'ALLOW'
+          : 'DENY'),
     };
-
-    if (config.userPoolConfig.defaultAction) {
-      Object.assign(userPoolConfig, {
-        DefaultAction: config.userPoolConfig.defaultAction,
-      });
-    }
 
     return userPoolConfig;
   }
 
-  getOpenIDConnectConfig(provider: OidcAuth) {
-    if (!provider.openIdConnectConfig) {
+  getOpenIDConnectConfig(auth: OidcAuth) {
+    if (!auth.config) {
       return;
     }
 
     const openIdConnectConfig = {
-      Issuer: provider.openIdConnectConfig.issuer,
-      ClientId: provider.openIdConnectConfig.clientId,
-      IatTTL: provider.openIdConnectConfig.iatTTL,
-      AuthTTL: provider.openIdConnectConfig.authTTL,
+      Issuer: auth.config.issuer,
+      ClientId: auth.config.clientId,
+      IatTTL: auth.config.iatTTL,
+      AuthTTL: auth.config.authTTL,
     };
 
     return openIdConnectConfig;
   }
 
-  getLambdaAuthorizerConfig(provider: LambdaAuth) {
-    if (!provider.lambdaAuthorizerConfig) {
+  getLambdaAuthorizerConfig(auth: LambdaAuth) {
+    if (!auth.config) {
       return;
     }
 
     const lambdaAuthorizerConfig = {
-      AuthorizerUri: this.getLambdaArn(provider.lambdaAuthorizerConfig),
-      IdentityValidationExpression:
-        provider.lambdaAuthorizerConfig.identityValidationExpression,
-      AuthorizerResultTtlInSeconds:
-        provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
+      AuthorizerUri: this.getLambdaArn(
+        auth.config,
+        this.naming.getAuthenticationEmbeddedLamdbaName(),
+      ),
+      IdentityValidationExpression: auth.config.identityValidationExpression,
+      AuthorizerResultTtlInSeconds: auth.config.authorizerResultTtlInSeconds,
     };
 
     return lambdaAuthorizerConfig;
@@ -389,18 +374,18 @@ export class Api {
   }
 
   compileAuthenticationProvider(provider: Auth) {
-    const { authenticationType } = provider;
+    const { type } = provider;
     const authPrivider = {
-      AuthenticationType: authenticationType,
+      AuthenticationType: type,
     };
 
-    if (authenticationType === 'AMAZON_COGNITO_USER_POOLS') {
+    if (type === 'AMAZON_COGNITO_USER_POOLS') {
       merge(authPrivider, { UserPoolConfig: this.getUserPoolConfig(provider) });
-    } else if (authenticationType === 'OPENID_CONNECT') {
+    } else if (type === 'OPENID_CONNECT') {
       merge(authPrivider, {
         OpenIDConnectConfig: this.getOpenIDConnectConfig(provider),
       });
-    } else if (authenticationType === 'AWS_LAMBDA') {
+    } else if (type === 'AWS_LAMBDA') {
       merge(authPrivider, {
         LambdaAuthorizerConfig: this.getLambdaAuthorizerConfig(provider),
       });
@@ -409,21 +394,25 @@ export class Api {
     return authPrivider;
   }
 
-  getLambdaArn(config: LambdaConfig) {
-    if (config && has('lambdaFunctionArn', config)) {
-      return config.lambdaFunctionArn;
-    } else if (config && has('functionName', config)) {
+  getLambdaArn(config: LambdaConfig, embededFunctionName: string) {
+    if ('functionArn' in config) {
+      return config.functionArn;
+    } else if ('functionName' in config) {
       return this.generateLambdaArn(config.functionName, config.functionAlias);
+    } else if ('function' in config) {
+      this.functions[embededFunctionName] = config.function;
+      return this.generateLambdaArn(embededFunctionName);
     }
+
     throw new Error(
-      'You must specify either `lambdaFunctionArn` or `functionName` for lambda resolvers.',
+      'You must specify either `functionArn`, `functionName` or `function` for lambda definitions.',
     );
   }
 
   generateLambdaArn(
     functionName: string,
     functionAlias?: string,
-  ): IntrinsictFunction {
+  ): IntrinsicFunction {
     const lambdaLogicalId = this.plugin.serverless
       .getProvider('aws')
       .naming.getLambdaLogicalId(functionName);
@@ -432,5 +421,13 @@ export class Api {
     return functionAlias
       ? { 'Fn::Join': [':', [lambdaArn, functionAlias]] }
       : lambdaArn;
+  }
+
+  hasDataSource(name: string) {
+    return name in this.config.dataSources;
+  }
+
+  hasPipelineFunction(name: string) {
+    return name in this.config.pipelineFunctions;
   }
 }

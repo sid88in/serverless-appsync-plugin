@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic Invalid should validate: Invalid 1`] = `
+"/resolvers/myResolver/kind: must be \\"UNIT\\" or \\"PIPELINE\\"
+/resolvers/myResolver/type: must be string
+/resolvers/myResolver/field: must be string
+/resolvers/myResolver/dataSource: must be a string or data source definition
+/resolvers/myResolver/request: must be a string or false
+/resolvers/myResolver/response: must be a string or false
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
+"/resolvers/Query.getUser/dataSource/config: must specify functionName, functionArn or function (all exclusives)
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Invalid inline datasource 1`] = `
+"/resolvers/Query.getUser: must be a string or an object
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing datasource 1`] = `
+"/resolvers/Query.user: must have required property 'dataSource'
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing functions 1`] = `
+"/resolvers/Query.user: must have required property 'functions'
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing type and field 1`] = `
+"/resolvers/myResolver: must have required property 'type'
+/resolvers/myResolver: must have required property 'field'
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Missing type and field inline 1`] = `
+"/resolvers/myResolver: must be object
+/resolvers: contains invalid resolver definitions"
+`;

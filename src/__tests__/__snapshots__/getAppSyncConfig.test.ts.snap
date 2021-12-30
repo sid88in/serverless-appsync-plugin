@@ -1,0 +1,220 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DataSources should merge dataSource arrays 1`] = `
+Object {
+  "anotherNamedSource": Object {
+    "name": "anotherNamedSource",
+    "type": "NONE",
+  },
+  "myDataSource": Object {
+    "name": "myDataSource",
+    "type": "NONE",
+  },
+  "myOtherDataSource": Object {
+    "name": "myOtherDataSource",
+    "type": "NONE",
+  },
+  "otherSource": Object {
+    "name": "otherSource",
+    "type": "NONE",
+  },
+}
+`;
+
+exports[`DataSources should merge dataSources embedded into resolvers and pipelineFunctions 1`] = `
+Object {
+  "dataSources": Object {
+    "Query_getUser": Object {
+      "config": Object {
+        "functionName": "getUser",
+      },
+      "name": "Query_getUser",
+      "type": "AWS_LAMBDA",
+    },
+    "function1": Object {
+      "config": Object {
+        "functionName": "function1",
+      },
+      "name": "function1",
+      "type": "AWS_LAMBDA",
+    },
+    "function2": Object {
+      "config": Object {
+        "functionName": "function2",
+      },
+      "name": "function2",
+      "type": "AWS_LAMBDA",
+    },
+    "getUsers": Object {
+      "config": Object {
+        "functionName": "getUsers",
+      },
+      "name": "getUsers",
+      "type": "AWS_LAMBDA",
+    },
+    "myDataSource": Object {
+      "name": "myDataSource",
+      "type": "NONE",
+    },
+    "myOtherDataSource": Object {
+      "name": "myOtherDataSource",
+      "type": "NONE",
+    },
+  },
+  "resolvers": Object {
+    "Query.getUser": Object {
+      "dataSource": "Query_getUser",
+      "field": "getUser",
+      "kind": "UNIT",
+      "type": "Query",
+    },
+    "getUsers": Object {
+      "dataSource": "getUsers",
+      "field": "getUsers",
+      "kind": "UNIT",
+      "type": "Query",
+    },
+  },
+}
+`;
+
+exports[`Pipeline Functions should merge function arrays 1`] = `
+Object {
+  "function1": Object {
+    "dataSource": "users",
+    "name": "function1",
+  },
+  "function2": Object {
+    "dataSource": "users",
+    "name": "function2",
+  },
+  "function3": Object {
+    "dataSource": "users",
+    "name": "function3",
+  },
+  "function4": Object {
+    "dataSource": "users",
+    "name": "function4",
+  },
+  "function5": Object {
+    "dataSource": "users",
+    "name": "function5",
+  },
+}
+`;
+
+exports[`Resolvers should merge resolvers arrays 1`] = `
+Object {
+  "Query.getComments": Object {
+    "dataSource": "comments",
+    "field": "getComments",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.getPost": Object {
+    "dataSource": "posts",
+    "field": "getPost",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.getUser": Object {
+    "dataSource": "users",
+    "field": "getUser",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.pipeline": Object {
+    "field": "pipeline",
+    "functions": Array [
+      "function1",
+      "function2",
+    ],
+    "kind": "PIPELINE",
+    "type": "Query",
+  },
+  "getPostsResolver": Object {
+    "dataSource": "posts",
+    "field": "getPosts",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "getUsersResolver": Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "pipelineResolver2": Object {
+    "field": "getUsers",
+    "functions": Array [
+      "function1",
+      "function2",
+    ],
+    "kind": "PIPELINE",
+    "type": "Query",
+  },
+}
+`;
+
+exports[`Resolvers should resolve resolver type and fields 1`] = `
+Object {
+  "Query.getPosts": Object {
+    "dataSource": "posts",
+    "field": "getPosts",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "Query.getUser": Object {
+    "dataSource": "users",
+    "field": "getUser",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+  "getUsersResolver": Object {
+    "dataSource": "users",
+    "field": "getUsers",
+    "kind": "UNIT",
+    "type": "Query",
+  },
+}
+`;
+
+exports[`Schema should return a schema array unchanged 1`] = `
+Array [
+  "users.graphql",
+  "posts.graphql",
+]
+`;
+
+exports[`Schema should return a single schema as an array 1`] = `
+Array [
+  "mySchema.graphql",
+]
+`;
+
+exports[`Schema should return the default schema 1`] = `
+Array [
+  "schema.graphql",
+]
+`;
+
+exports[`returns basic config 1`] = `
+Object {
+  "additionalAuthenticationProviders": Array [],
+  "apiKeys": Array [],
+  "authentication": Object {
+    "type": "API_KEY",
+  },
+  "dataSources": Object {},
+  "mappingTemplatesLocation": Object {
+    "pipelineFunctions": "mapping-templates",
+    "resolvers": "mapping-templates",
+  },
+  "name": "My Api",
+  "pipelineFunctions": Object {},
+  "resolvers": Object {},
+  "schema": Array [
+    "schema.graphql",
+  ],
+}
+`;

@@ -5,7 +5,7 @@ export type FnGetAtt = {
 };
 
 export type FnJoin = {
-  'Fn::Join': [string, (string | IntrinsictFunction)[]];
+  'Fn::Join': [string, (string | IntrinsicFunction)[]];
 };
 
 export type FnRef = {
@@ -13,14 +13,14 @@ export type FnRef = {
 };
 
 export type FnSub = {
-  'Fn::Sub': [string, Record<string, string | IntrinsictFunction>];
+  'Fn::Sub': [string, Record<string, string | IntrinsicFunction>];
 };
 
-export type IntrinsictFunction = FnGetAtt | FnJoin | FnRef | FnSub;
+export type IntrinsicFunction = FnGetAtt | FnJoin | FnRef | FnSub;
 
 export type CfnDeltaSyncConfig = {
   BaseTableTTL: number;
-  DeltaSyncTableName: string | IntrinsictFunction;
+  DeltaSyncTableName: string | IntrinsicFunction;
   DeltaSyncTableTTL: number;
 };
 
@@ -30,8 +30,8 @@ export type CfnResource = CfnResources[string];
 export type CfnDataSource = {
   Type: 'AWS::AppSync::DataSource';
   Properties: {
-    ApiId: string | IntrinsictFunction;
-    Name: string | IntrinsictFunction;
+    ApiId: string | IntrinsicFunction;
+    Name: string | IntrinsicFunction;
     Description?: string;
     Type?:
       | 'AWS_LAMBDA'
@@ -41,38 +41,38 @@ export type CfnDataSource = {
       | 'NONE'
       | 'HTTP'
       | 'RELATIONAL_DATABASE';
-    ServiceRoleArn?: string | IntrinsictFunction;
+    ServiceRoleArn?: string | IntrinsicFunction;
     LambdaConfig?: {
-      LambdaFunctionArn: string | IntrinsictFunction;
+      LambdaFunctionArn: string | IntrinsicFunction;
     };
     DynamoDBConfig?: {
-      TableName: string | IntrinsictFunction;
-      AwsRegion: string | IntrinsictFunction;
+      TableName: string | IntrinsicFunction;
+      AwsRegion: string | IntrinsicFunction;
       UseCallerCredentials: boolean;
       Versioned?: boolean;
       DeltaSyncConfig?: CfnDeltaSyncConfig;
     };
     ElasticsearchConfig?: {
-      AwsRegion: string | IntrinsictFunction;
-      Endpoint: string | IntrinsictFunction;
+      AwsRegion: string | IntrinsicFunction;
+      Endpoint: string | IntrinsicFunction;
     };
     RelationalDatabaseConfig?: {
-      RelationalDatabaseSourceType: 'RDS_HTTP_ENDPOINT' | IntrinsictFunction;
+      RelationalDatabaseSourceType: 'RDS_HTTP_ENDPOINT' | IntrinsicFunction;
       RdsHttpEndpointConfig?: {
-        AwsRegion: string | IntrinsictFunction;
-        DbClusterIdentifier: string | IntrinsictFunction;
-        DatabaseName?: string | IntrinsictFunction;
-        Schema?: string | IntrinsictFunction;
-        AwsSecretStoreArn: string | IntrinsictFunction;
+        AwsRegion: string | IntrinsicFunction;
+        DbClusterIdentifier: string | IntrinsicFunction;
+        DatabaseName?: string | IntrinsicFunction;
+        Schema?: string | IntrinsicFunction;
+        AwsSecretStoreArn: string | IntrinsicFunction;
       };
     };
     HttpConfig?: {
-      Endpoint: string | IntrinsictFunction;
+      Endpoint: string | IntrinsicFunction;
       AuthorizationConfig?: {
         AuthorizationType?: string;
         AwsIamConfig?: {
-          SigningRegion: string | IntrinsictFunction;
-          SigningServiceName?: string | IntrinsictFunction;
+          SigningRegion: string | IntrinsicFunction;
+          SigningServiceName?: string | IntrinsicFunction;
         };
       };
     };
@@ -83,17 +83,17 @@ export type CfnResolver = {
   RequestMappingTemplate?: string;
   ResponseMappingTemplate?: string;
   Properties: {
-    ApiId: string | IntrinsictFunction;
+    ApiId: string | IntrinsicFunction;
     TypeName: string;
     FieldName: string;
     Kind?: 'PIPELINE' | 'UNIT';
-    DataSourceName?: string | IntrinsictFunction;
+    DataSourceName?: string | IntrinsicFunction;
     Description?: string;
     FunctionVersion?: string;
-    RequestMappingTemplate?: string | IntrinsictFunction;
-    ResponseMappingTemplate?: string | IntrinsictFunction;
+    RequestMappingTemplate?: string | IntrinsicFunction;
+    ResponseMappingTemplate?: string | IntrinsicFunction;
     PipelineConfig?: {
-      Functions: (string | IntrinsictFunction)[];
+      Functions: (string | IntrinsicFunction)[];
     };
     CachingConfig?: {
       Ttl: number;
@@ -101,9 +101,9 @@ export type CfnResolver = {
     };
     SyncConfig?: {
       ConflictDetection: 'VERSION';
-      ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'LAMBDA';
+      ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
       LambdaConflictHandlerConfig?: {
-        LambdaConflictHandlerArn: string | IntrinsictFunction;
+        LambdaConflictHandlerArn: string | IntrinsicFunction;
       };
     };
   };
@@ -112,20 +112,20 @@ export type CfnResolver = {
 export type CfnFunctionResolver = {
   Type: 'AWS::AppSync::FunctionConfiguration';
   Properties: {
-    ApiId: string | IntrinsictFunction;
-    Name: string | IntrinsictFunction;
-    DataSourceName: string | IntrinsictFunction;
+    ApiId: string | IntrinsicFunction;
+    Name: string | IntrinsicFunction;
+    DataSourceName: string | IntrinsicFunction;
     Description?: string;
     FunctionVersion?: string;
-    RequestMappingTemplate?: string | IntrinsictFunction;
-    ResponseMappingTemplate?: string | IntrinsictFunction;
+    RequestMappingTemplate?: string | IntrinsicFunction;
+    ResponseMappingTemplate?: string | IntrinsicFunction;
   };
 };
 
 export type CfnApiKey = {
   Type: 'AWS::AppSync::ApiKey';
   Properties: {
-    ApiId: string | IntrinsictFunction;
+    ApiId: string | IntrinsicFunction;
     Description?: string;
     Expires: number;
     ApiKeyId?: string;
@@ -149,6 +149,7 @@ export type CfnWafRuleStatement = {
   AndStatement?: {
     Statements: CfnWafRuleStatement[];
   };
+  [k: string]: Record<string, unknown> | undefined;
 };
 
 type CfnWafRuleRateBasedStatement = {
@@ -164,7 +165,7 @@ type CfnWafRuleRateBasedStatement = {
 type CfnWafRuleRateByteMatchStatement = {
   FieldToMatch: unknown;
   PositionalConstraint: string;
-  SearchString?: string | IntrinsictFunction;
+  SearchString?: string | IntrinsicFunction;
   SearchStringBase64?: string;
   TextTransformations: {
     Priority: number;

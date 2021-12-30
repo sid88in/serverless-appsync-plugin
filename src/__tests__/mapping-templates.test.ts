@@ -1,8 +1,31 @@
-import { MappingTemplate } from 'resources/MappingTemplate';
+import { Api } from '../resources/Api';
+import { MappingTemplate } from '../resources/MappingTemplate';
+import * as given from './given';
+import fs from 'fs';
+
+const plugin = given.plugin();
 
 describe('Mapping Templates', () => {
-  it('should substritute default variables', () => {
-    const mapping = new MappingTemplate({
+  let mock: jest.SpyInstance;
+  let mockEists: jest.SpyInstance;
+
+  beforeEach(() => {
+    mock = jest
+      .spyOn(fs, 'readFileSync')
+      .mockImplementation(
+        (path) => `Content of ${`${path}`.replace(/\\/g, '/')}`,
+      );
+    mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    mock.mockRestore();
+    mockEists.mockRestore();
+  });
+
+  it('should substritute variables', () => {
+    const api = new Api(given.appSyncConfig(), plugin);
+    const mapping = new MappingTemplate(api, {
       path: 'foo.vtl',
       substitutions: {
         foo: 'bar',
@@ -42,5 +65,70 @@ describe('Mapping Templates', () => {
         ],
       }
     `);
+  });
+
+  it('should substritute variables and use defaults', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        substitutions: {
+          foo: 'bar',
+          var: 'bizz',
+        },
+      }),
+      plugin,
+    );
+    const mapping = new MappingTemplate(api, {
+      path: 'foo.vtl',
+      substitutions: {
+        foo: 'fuzz',
+      },
+    });
+    const template = 'Foo: ${foo}, Var: ${var}';
+    expect(mapping.processTemplateSubstitutions(template))
+      .toMatchInlineSnapshot(`
+      Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "Foo: ",
+            Object {
+              "Fn::Sub": Array [
+                "\${foo}",
+                Object {
+                  "foo": "fuzz",
+                },
+              ],
+            },
+            ", Var: ",
+            Object {
+              "Fn::Sub": Array [
+                "\${var}",
+                Object {
+                  "var": "bizz",
+                },
+              ],
+            },
+          ],
+        ],
+      }
+    `);
+  });
+
+  it('should fail if template is missing', () => {
+    mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    const api = new Api(given.appSyncConfig(), plugin);
+    const mapping = new MappingTemplate(api, {
+      path: 'foo.vtl',
+      substitutions: {
+        foo: 'bar',
+        var: { Ref: 'MyReference' },
+      },
+    });
+
+    expect(function () {
+      mapping.compile();
+    }).toThrowErrorMatchingInlineSnapshot(
+      `"Mapping tempalte file 'foo.vtl' does not exist"`,
+    );
   });
 });

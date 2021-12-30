@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
+"/log/level: must be \\"ALL\\", \\"ERROR\\" or \\"NONE\\"
+/log/logRetentionInDays: must be integer
+/log/excludeVerboseContent: must be boolean"
+`;
+
+exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `
+"/waf/rules/0: is not a valid WAF rule
+/waf: is not a valid WAF config"
+`;
+
+exports[`Valdiation should validate  1`] = `
+": must have required property 'name'
+: must have required property 'authentication'
+/unknownPorp: invalid (unknown) property"
+`;

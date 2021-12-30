@@ -1,6 +1,6 @@
 import { upperFirst, transform, values } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
-import { ServerlessLogger } from 'types/serverless';
+import { ServerlessLogger } from './types/serverless';
 import chalk from 'chalk';
 import { Duration } from 'luxon';
 
