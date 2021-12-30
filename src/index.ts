@@ -10,7 +10,6 @@ import {
   ServerlessHelpers,
   ServerlessLogger,
 } from './types/serverless';
-
 import { Api } from './resources/Api';
 import {
   DescribeStackResourcesInput,
@@ -19,24 +18,26 @@ import {
 import {
   GetGraphqlApiRequest,
   GetGraphqlApiResponse,
+  GetIntrospectionSchemaRequest,
+  GetIntrospectionSchemaResponse,
   ListApiKeysRequest,
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
 import { O } from 'ts-toolbelt';
 import { AppSyncValidationError, validateConfig } from './validation';
 import { GraphQLError } from 'graphql';
+import fs from 'fs';
+import path from 'path';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
   private gatheredData: {
     apis: {
       id: string;
-      name: string;
       type: string;
       uri: string;
     }[];
     apiKeys: {
-      apiName: string;
       value: string;
       description: string;
     }[];
@@ -50,7 +51,7 @@ class ServerlessAppsyncPlugin {
   constructor(
     public serverless: Serverless,
     private options: Record<string, string>,
-    helpers?: ServerlessHelpers,
+    private helpers?: ServerlessHelpers,
   ) {
     this.gatheredData = {
       apis: [],
@@ -80,8 +81,26 @@ class ServerlessAppsyncPlugin {
       appsync: {
         commands: {
           'validate-schema': {
-            usage: 'Validates your graphql schemas',
+            usage: 'Validates your graphql schema',
             lifecycleEvents: ['run'],
+          },
+          'get-introspection': {
+            usage: "Get the API's introspection schema",
+            lifecycleEvents: ['run'],
+            options: {
+              format: {
+                usage: 'Specify the output format (JSON or SDL)',
+                shortcut: 'f',
+                required: false,
+                type: 'string',
+              },
+              output: {
+                usage: 'Output to a file',
+                shortcut: 'o',
+                required: false,
+                type: 'string',
+              },
+            },
           },
         },
       },
@@ -98,6 +117,7 @@ class ServerlessAppsyncPlugin {
       'before:package:initialize': () => {
         this.buildAndAppendResources();
       },
+      'appsync:get-introspection:run': () => this.getIntrospection(),
       'before:aws:info:gatherData': () => {
         // load embedded functions
         this.buildAndAppendResources();
@@ -110,7 +130,7 @@ class ServerlessAppsyncPlugin {
     };
   }
 
-  async gatherData() {
+  async getApiId() {
     const { StackResources } = await this.provider.request<
       DescribeStackResourcesInput,
       DescribeStackResourcesOutput
@@ -118,49 +138,82 @@ class ServerlessAppsyncPlugin {
       StackName: this.provider.naming.getStackName(),
     });
 
-    const apis =
-      StackResources?.filter(
+    const apiId = last(
+      StackResources?.find(
         (resource) => resource.ResourceType === 'AWS::AppSync::GraphQLApi',
-      ).map((resource) => last(resource.PhysicalResourceId?.split('/'))) || [];
+      )?.PhysicalResourceId?.split('/'),
+    );
 
-    for (const apiId of apis) {
-      if (!apiId) {
-        continue;
-      }
-      const { graphqlApi } = await this.provider.request<
-        GetGraphqlApiRequest,
-        O.Required<GetGraphqlApiResponse, string, 'deep'>
-      >('AppSync', 'getGraphqlApi', {
-        apiId,
+    if (!apiId) {
+      throw new this.serverless.classes.Error('Api not found in stack');
+    }
+
+    return apiId;
+  }
+
+  async gatherData() {
+    const apiId = await this.getApiId();
+
+    const { graphqlApi } = await this.provider.request<
+      GetGraphqlApiRequest,
+      O.Required<GetGraphqlApiResponse, string, 'deep'>
+    >('AppSync', 'getGraphqlApi', {
+      apiId,
+    });
+
+    if (!graphqlApi) {
+      throw new this.serverless.classes.Error('Api not found');
+    }
+
+    forEach(graphqlApi.uris, (value, type) => {
+      this.gatheredData.apis.push({
+        id: graphqlApi.apiId,
+        type: type.toLocaleLowerCase(),
+        uri: value,
       });
+    });
 
-      if (!graphqlApi) {
-        continue;
-      }
+    const { apiKeys } = await this.provider.request<
+      ListApiKeysRequest,
+      O.Required<ListApiKeysResponse, string, 'deep'>
+    >('AppSync', 'listApiKeys', {
+      apiId: graphqlApi.apiId,
+    });
 
-      forEach(graphqlApi?.uris, (value, type) => {
-        this.gatheredData.apis.push({
-          id: apiId,
-          name: graphqlApi?.name || apiId,
-          type: type.toLocaleLowerCase(),
-          uri: value,
-        });
+    apiKeys?.forEach((apiKey) => {
+      this.gatheredData.apiKeys.push({
+        value: apiKey.id,
+        description: apiKey.description || graphqlApi.name,
       });
+    });
+  }
 
-      const { apiKeys } = await this.provider.request<
-        ListApiKeysRequest,
-        O.Required<ListApiKeysResponse, string, 'deep'>
-      >('AppSync', 'listApiKeys', {
-        apiId,
-      });
+  async getIntrospection() {
+    const apiId = await this.getApiId();
 
-      apiKeys?.forEach((apiKey) => {
-        this.gatheredData.apiKeys.push({
-          apiName: graphqlApi.name,
-          value: apiKey.id,
-          description: apiKey.description || graphqlApi.name,
-        });
-      });
+    const { schema } = await this.provider.request<
+      GetIntrospectionSchemaRequest,
+      GetIntrospectionSchemaResponse
+    >('AppSync', 'getIntrospectionSchema', {
+      apiId,
+      format: this.options.format.toUpperCase() || 'JSON',
+    });
+
+    if (!schema) {
+      throw new this.serverless.classes.Error('Schema not found');
+    }
+
+    if (this.options.output) {
+      const filePath = path.resolve(this.options.output);
+      fs.writeFileSync(filePath, schema.toString());
+      this.log.success(`Introspection schema exported to ${filePath}`);
+      return;
+    }
+
+    if (this.helpers?.writeText) {
+      this.helpers?.writeText(schema.toString());
+    } else {
+      console.log(schema.toString());
     }
   }
 

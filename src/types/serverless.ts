@@ -67,6 +67,7 @@ export type CommandsDefinition = Record<
         usage: string;
         required?: boolean;
         shortcut?: string;
+        type?: 'string' | 'boolean' | 'multiple';
       };
     };
   }
