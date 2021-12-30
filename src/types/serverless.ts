@@ -1,4 +1,5 @@
 import type { AWS } from '@serverless/typescript';
+import { SomeJSONSchema } from 'ajv/dist/types/json-schema';
 import { AppSyncConfigInput } from '../getAppSyncConfig';
 
 export type Hook = () => void | Promise<void>;
@@ -25,12 +26,16 @@ export type Serverless = {
     options: Record<string, unknown>;
   };
   configurationInput: AWS & {
-    custom: {
-      appSync?: AppSyncConfigInput | AppSyncConfigInput[];
-    };
+    appSync: AppSyncConfigInput | AppSyncConfigInput[];
   };
   service: AWS & {
     setFunctionNames(rawOptions: Record<string, unknown>): void;
+  };
+  configSchemaHandler: {
+    defineTopLevelProperty: (
+      name: string,
+      schema: Record<string, unknown>,
+    ) => void;
   };
   getProvider: (provider: 'aws') => Provider;
   cli: {

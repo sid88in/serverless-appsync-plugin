@@ -798,7 +798,10 @@ export const validateConfig = (data: Record<string, unknown>) => {
             !['if', 'oneOf', 'anyOf', '$merge'].includes(error.keyword),
         )
         .map((error) => {
-          return `${error.instancePath}: ${error.message}`;
+          return {
+            path: error.instancePath,
+            message: error.message || 'unknown error',
+          };
         }),
     );
   }
@@ -807,8 +810,12 @@ export const validateConfig = (data: Record<string, unknown>) => {
 };
 
 export class AppSyncValidationError extends Error {
-  constructor(public validationErrors: string[]) {
-    super(validationErrors.join('\n'));
+  constructor(public validationErrors: { path: string; message: string }[]) {
+    super(
+      validationErrors
+        .map((error) => `${error.path}: ${error.message}`)
+        .join('\n'),
+    );
     Object.setPrototypeOf(this, AppSyncValidationError.prototype);
   }
 }

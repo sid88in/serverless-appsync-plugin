@@ -24,7 +24,7 @@ import {
 } from 'aws-sdk/clients/appsync';
 import { O } from 'ts-toolbelt';
 import { AppSyncValidationError, validateConfig } from './validation';
-import { Schema } from './resources/Schema';
+import { GraphQLError } from 'graphql';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -43,7 +43,6 @@ class ServerlessAppsyncPlugin {
   };
   public readonly hooks: Record<string, Hook>;
   public readonly commands?: CommandsDefinition;
-  private config: AppSyncConfigInput[];
   private log: ServerlessLogger;
   private apis: Api[] = [];
   private slsVersion: 'v2' | 'v3';
@@ -60,35 +59,50 @@ class ServerlessAppsyncPlugin {
     this.serverless = serverless;
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
+    this.slsVersion = helpers ? 'v3' : 'v2';
 
-    if (!this.serverless.configurationInput.custom.appSync) {
-      throw new Error('AppSync config is not defined');
-    }
-
-    const config = this.serverless.configurationInput.custom.appSync;
-    this.config = Array.isArray(config) ? config : [config];
-
-    this.commands = {
-      'validate-schema': {
-        usage: 'Validates your graphql schema',
-        lifecycleEvents: ['run'],
-      },
-    };
+    // We are using a newer version of AJV than Serverless Frameowrk
+    // and some customizations (eg: custom errors, $merge, filter irrelevant errors )
+    // For SF, just validate the type of input to allow us to use a custom
+    // field (ie: `appSync`). Actual valiation will be handled by this plugin
+    // later in `validateConfig()`
+    this.serverless.configSchemaHandler.defineTopLevelProperty('appSync', {
+      oneOf: [{ type: 'object' }, { type: 'array', items: { type: 'object' } }],
+    });
 
     this.log =
       helpers?.log ||
       logger((message: string) => {
         return serverless.cli.log(message, 'AppSync');
       });
-    this.slsVersion = helpers ? 'v3' : 'v2';
+
+    this.commands = {
+      appsync: {
+        usage: 'AppSync commands',
+        commands: {
+          'validate-schema': {
+            usage: 'Validates your graphql schemas',
+            lifecycleEvents: ['run'],
+          },
+        },
+      },
+    };
 
     this.hooks = {
-      'package:initialize': async () => {
-        this.validateConfig();
-        await this.loadConfig();
+      initialize: () => {
+        this.loadConfig();
       },
-      'validate-schema:run': () => this.validateSchemas(),
-      'after:package:initialize': () => this.addResources(),
+      'appsync:validate-schema:run': () => {
+        this.validateSchemas();
+        this.log.success('AppSync schema valid');
+      },
+      'before:package:initialize': () => {
+        this.buildAndAppendResources();
+      },
+      'before:aws:info:gatherData': () => {
+        // load embedded functions
+        this.buildAndAppendResources();
+      },
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayServiceInfo': () => {
         this.displayEndpoints();
@@ -201,43 +215,26 @@ class ServerlessAppsyncPlugin {
     }
   }
 
-  async loadConfig() {
+  loadConfig() {
+    this.log.info('Loading AppSync config');
+
+    const { appSync } = this.serverless.configurationInput;
+    const config = Array.isArray(appSync) ? appSync : [appSync];
+
     const isSingleConfig = !Array.isArray(
-      this.serverless.configurationInput.custom.appSync,
+      this.serverless.configurationInput.appSync,
     );
-    for (const inputConfig of this.config) {
-      const config = await getAppSyncConfig(inputConfig);
-      const api = new Api({ ...config, isSingleConfig }, this);
-      this.apis.push(api);
-    }
-  }
 
-  async validateSchemas() {
-    try {
-      this.log.info('Validating schema');
-      for (const inputConfig of this.config) {
-        const config = getAppSyncConfig(inputConfig);
-        const api = new Api(config, this);
-        const schema = new Schema(api, config.schema);
-        // Generating the schema also validates it
-        schema.generateSchema();
-      }
-      this.log.success('GraphQL schema valid');
-    } catch (error) {
-      this.log.error('GraphQL schema invalid');
-      throw error;
-    }
-  }
-
-  validateConfig() {
-    for (const conf of this.config) {
+    for (const conf of config) {
       try {
+        // TODO: allow config to be nested
         validateConfig(conf);
+        const config = getAppSyncConfig(conf);
+        const api = new Api({ ...config, isSingleConfig }, this);
+        this.apis.push(api);
       } catch (error) {
         if (error instanceof AppSyncValidationError) {
-          throw new this.serverless.classes.Error(
-            `AppSync Configuration Error:\n\n${error.message}`,
-          );
+          this.handleConfigValidationError(error);
         } else {
           throw error;
         }
@@ -245,7 +242,24 @@ class ServerlessAppsyncPlugin {
     }
   }
 
-  addResources() {
+  validateSchemas() {
+    try {
+      this.log.info('Validating AppSync schema');
+      for (const api of this.apis) {
+        // Generating the schema also validates it
+        api.compileSchema();
+      }
+    } catch (error) {
+      this.log.info('Error');
+      if (error instanceof GraphQLError) {
+        this.handleError(error.message);
+      }
+
+      throw error;
+    }
+  }
+
+  buildAndAppendResources() {
     this.apis?.forEach((api) => {
       const resources = api.compile();
       merge(this.serverless.service, { resources: { Resources: resources } });
@@ -254,6 +268,25 @@ class ServerlessAppsyncPlugin {
     this.serverless.service.setFunctionNames(
       this.serverless.processedInput.options,
     );
+  }
+
+  handleConfigValidationError(error: AppSyncValidationError) {
+    const errors = error.validationErrors.map(
+      (error) => `     at appSync${error.path}: ${error.message}`,
+    );
+    const message = `Invalid AppSync Configuration:\n${errors.join('\n')}`;
+    this.handleError(message);
+  }
+
+  handleError(message: string) {
+    const { configValidationMode } = this.serverless.service;
+    if (configValidationMode === 'error') {
+      throw new this.serverless.classes.Error(
+        `Invalid AppSync Schema: ${message}`,
+      );
+    } else if (configValidationMode === 'warn') {
+      this.log.warning(message);
+    }
   }
 }
 
