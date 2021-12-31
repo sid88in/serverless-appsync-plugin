@@ -2,7 +2,7 @@ import { upperFirst, transform, values } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
 import { ServerlessLogger } from './types/serverless';
 import chalk from 'chalk';
-import { Duration } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 
 const timeUnits = {
   y: 'years',
@@ -34,6 +34,25 @@ export const toCfnKeys = <T extends Record<string, unknown>>(
     return acc;
   });
 
+export const wait = async (time: number) => {
+  await new Promise((resolve) => setTimeout(resolve, time));
+};
+
+export const parseDateTimeOrDuration = (input: string) => {
+  try {
+    // Try to parse a date
+    let date = DateTime.fromISO(input);
+    if (!date.isValid) {
+      // try to parse duration
+      date = DateTime.now().minus(parseDuration(input));
+    }
+
+    return date;
+  } catch (error) {
+    throw new Error('Invalid date or duration');
+  }
+};
+
 export const parseDuration = (input: string | number) => {
   let duration: Duration;
   if (typeof input === 'number') {
@@ -58,16 +77,6 @@ export const parseDuration = (input: string | number) => {
     }
   } else {
     throw new Error(`Could not parse ${input} as a valid duration`);
-  }
-
-  // Minimum duration is 1 day from 'now'
-  // However, api key expiry is rounded down to the hour.
-  // meaning the minimum expiry date is in fact 25 hours
-  // We accept 24h durations for simplicity of use
-  // but fix them to be 25
-  // Anything < 24h will be kept to make sure the validation fails later
-  if (duration.as('hours') >= 24 && duration.as('hours') < 25) {
-    duration = Duration.fromDurationLike({ hours: 25 });
   }
 
   return duration;

@@ -491,6 +491,38 @@ describe('Api', () => {
             },
             "Type": "AWS::Logs::LogGroup",
           },
+          "GraphQlApiLogGroupPolicy": Object {
+            "Properties": Object {
+              "PolicyDocument": Object {
+                "Statement": Array [
+                  Object {
+                    "Action": Array [
+                      "logs:CreateLogGroup",
+                      "logs:CreateLogStream",
+                      "logs:PutLogEvents",
+                    ],
+                    "Effect": "Allow",
+                    "Resource": Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "GraphQlApiLogGroup",
+                          "Arn",
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                "Version": "2012-10-17",
+              },
+              "PolicyName": "GraphQlApiLogGroupPolicy",
+              "Roles": Array [
+                Object {
+                  "Ref": "GraphQlApiLogGroupRole",
+                },
+              ],
+            },
+            "Type": "AWS::IAM::Policy",
+          },
           "GraphQlApiLogGroupRole": Object {
             "Properties": Object {
               "AssumeRolePolicyDocument": Object {

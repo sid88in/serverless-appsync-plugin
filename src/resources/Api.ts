@@ -18,7 +18,7 @@ import {
   ResolverConfig,
 } from '../types/plugin';
 import { parseDuration } from '../utils';
-import { DateTime } from 'luxon';
+import { DateTime, Duration } from 'luxon';
 import { Naming } from './Naming';
 import { DataSource } from './DataSource';
 import { Resolver } from './Resolver';
@@ -117,7 +117,7 @@ export class Api {
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
-    const policyLogicalId = this.naming.getLogGroupRoleLogicalId();
+    const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
 
     return {
@@ -220,7 +220,17 @@ export class Api {
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
     let expires: DateTime;
     if (expiresAfter) {
-      expires = startOfHour.plus(parseDuration(expiresAfter));
+      let duration = parseDuration(expiresAfter);
+      // Minimum duration is 1 day from 'now'
+      // However, api key expiry is rounded down to the hour.
+      // meaning the minimum expiry date is in fact 25 hours
+      // We accept 24h durations for simplicity of use
+      // but fix them to be 25
+      // Anything < 24h will be kept to make sure the validation fails later
+      if (duration.as('hours') >= 24 && duration.as('hours') < 25) {
+        duration = Duration.fromDurationLike({ hours: 25 });
+      }
+      expires = startOfHour.plus(duration);
     } else if (expiresAt) {
       expires = DateTime.fromISO(expiresAt);
     } else {

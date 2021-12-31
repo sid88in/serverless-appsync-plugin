@@ -1,7 +1,7 @@
 import { getAppSyncConfig } from './getAppSyncConfig';
 import chalk from 'chalk';
 import { forEach, last, merge } from 'lodash';
-import { logger } from './utils';
+import { logger, parseDateTimeOrDuration, wait } from './utils';
 import {
   CommandsDefinition,
   Hook,
@@ -29,6 +29,11 @@ import { GraphQLError } from 'graphql';
 import fs from 'fs';
 import path from 'path';
 import open from 'open';
+import {
+  FilterLogEventsRequest,
+  FilterLogEventsResponse,
+} from 'aws-sdk/clients/cloudwatchlogs';
+import { DateTime } from 'luxon';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -46,6 +51,7 @@ class ServerlessAppsyncPlugin {
   public readonly hooks: Record<string, Hook>;
   public readonly commands?: CommandsDefinition;
   private log: ServerlessLogger;
+  private writeText: (text: string) => void;
   private api?: Api;
   private slsVersion: 'v2' | 'v3';
 
@@ -77,6 +83,7 @@ class ServerlessAppsyncPlugin {
       logger((message: string) => {
         return serverless.cli.log(message, 'AppSync');
       });
+    this.writeText = this.helpers?.writeText || console.log;
 
     this.commands = {
       appsync: {
@@ -115,27 +122,51 @@ class ServerlessAppsyncPlugin {
             usage: 'Opens the CloudWatch AWS Console',
             lifecycleEvents: ['run'],
           },
+          logs: {
+            usage: 'Output the logs of the AppSync API',
+            lifecycleEvents: ['run'],
+            options: {
+              startTime: {
+                usage: 'Starting time. Default: -10m',
+                required: false,
+                type: 'string',
+              },
+              tail: {
+                usage: 'Tail the log output',
+                shortcut: 't',
+                required: false,
+                type: 'boolean',
+              },
+              interval: {
+                usage: 'Tail polling interval in milliseconds. Default: `1000`',
+                shortcut: 'i',
+                required: false,
+                type: 'string',
+              },
+              filter: {
+                usage: 'A filter pattern to apply',
+                shortcut: 'f',
+                required: false,
+                type: 'string',
+              },
+            },
+          },
         },
       },
     };
 
     this.hooks = {
-      initialize: () => {
+      'before:logs:logs': () => {
+        // makes sure that embedded functions are present
         this.loadConfig();
-      },
-      'appsync:validate-schema:run': () => {
-        this.validateSchemas();
-        this.log.success('AppSync schema valid');
-      },
-      'before:package:initialize': () => {
         this.buildAndAppendResources();
       },
-      'appsync:get-introspection:run': () => this.getIntrospection(),
-      'appsync:flush-cache:run': () => this.flushCache(),
-      'appsync:console:run': () => this.openConsole(),
-      'appsync:cloudwatch:run': () => this.openCloudWatch(),
+      'before:package:initialize': () => {
+        this.loadConfig();
+        this.buildAndAppendResources();
+      },
       'before:aws:info:gatherData': () => {
-        // load embedded functions
+        this.loadConfig();
         this.buildAndAppendResources();
       },
       'after:aws:info:gatherData': () => this.gatherData(),
@@ -143,6 +174,16 @@ class ServerlessAppsyncPlugin {
         this.displayEndpoints();
         this.displayApiKeys();
       },
+      // Commands
+      'appsync:validate-schema:run': () => {
+        this.validateSchemas();
+        this.log.success('AppSync schema valid');
+      },
+      'appsync:get-introspection:run': () => this.getIntrospection(),
+      'appsync:flush-cache:run': () => this.flushCache(),
+      'appsync:console:run': () => this.openConsole(),
+      'appsync:cloudwatch:run': () => this.openCloudWatch(),
+      'appsync:logs:run': async () => this.initShowLogs(),
     };
   }
 
@@ -228,11 +269,7 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    if (this.helpers?.writeText) {
-      this.helpers?.writeText(schema.toString());
-    } else {
-      console.log(schema.toString());
-    }
+    this.writeText(schema.toString());
   }
 
   async flushCache() {
@@ -253,6 +290,50 @@ class ServerlessAppsyncPlugin {
     const { region } = this.serverless.service.provider;
     const url = `https://console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Fappsync$252Fapis$252F${apiId}`;
     open(url);
+  }
+
+  async initShowLogs() {
+    const apiId = await this.getApiId();
+    await this.showLogs(`/aws/appsync/apis/${apiId}`);
+  }
+
+  async showLogs(logGroupName: string, nextToken?: string) {
+    let startTime = DateTime.now().minus({ minutes: 10 });
+    if (this.options.startTime) {
+      startTime = parseDateTimeOrDuration(this.options.startTime);
+    }
+
+    const { events, nextToken: newNextToken } = await this.provider.request<
+      FilterLogEventsRequest,
+      FilterLogEventsResponse
+    >('CloudWatchLogs', 'filterLogEvents', {
+      logGroupName,
+      startTime: startTime.toMillis(),
+      nextToken,
+      filterPattern: this.options.filter,
+    });
+
+    events?.forEach((event) => {
+      const { timestamp, message } = event;
+      this.writeText(
+        `${chalk.gray(
+          DateTime.fromMillis(timestamp || 0).toISO(),
+        )}\t${message}`,
+      );
+    });
+
+    const lastTs = last(events)?.timestamp;
+    this.options.startTime = lastTs
+      ? DateTime.fromMillis(lastTs + 1).toISO()
+      : this.options.startTime;
+
+    if (this.options.tail) {
+      const interval = this.options.interval
+        ? parseInt(this.options.interval, 10)
+        : 1000;
+      await wait(interval);
+      await this.showLogs(logGroupName, newNextToken);
+    }
   }
 
   displayEndpoints() {
