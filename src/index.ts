@@ -23,7 +23,6 @@ import {
   ListApiKeysRequest,
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
-import { O } from 'ts-toolbelt';
 import { AppSyncValidationError, validateConfig } from './validation';
 import { GraphQLError } from 'graphql';
 import fs from 'fs';
@@ -45,7 +44,7 @@ class ServerlessAppsyncPlugin {
     }[];
     apiKeys: {
       value: string;
-      description: string;
+      description?: string;
     }[];
   };
   public readonly hooks: Record<string, Hook>;
@@ -89,7 +88,7 @@ class ServerlessAppsyncPlugin {
       appsync: {
         commands: {
           'validate-schema': {
-            usage: 'Validates your graphql schema',
+            usage: 'Validate the graphql schema',
             lifecycleEvents: ['run'],
           },
           'get-introspection': {
@@ -97,13 +96,14 @@ class ServerlessAppsyncPlugin {
             lifecycleEvents: ['run'],
             options: {
               format: {
-                usage: 'Specify the output format (JSON or SDL)',
+                usage:
+                  'Specify the output format (JSON or SDL). Default: `JSON`',
                 shortcut: 'f',
                 required: false,
                 type: 'string',
               },
               output: {
-                usage: 'Output to a file',
+                usage: 'Output to a file. If not specified, writes to stdout',
                 shortcut: 'o',
                 required: false,
                 type: 'string',
@@ -111,15 +111,15 @@ class ServerlessAppsyncPlugin {
             },
           },
           'flush-cache': {
-            usage: 'Flushes the Cache of the API.',
+            usage: 'Flushes the cache of the API.',
             lifecycleEvents: ['run'],
           },
           console: {
-            usage: 'Opens the AppSync AWS Console',
+            usage: 'Open the AppSync AWS console',
             lifecycleEvents: ['run'],
           },
           cloudwatch: {
-            usage: 'Opens the CloudWatch AWS Console',
+            usage: 'Open the CloudWatch AWS console',
             lifecycleEvents: ['run'],
           },
           logs: {
@@ -156,19 +156,6 @@ class ServerlessAppsyncPlugin {
     };
 
     this.hooks = {
-      'before:logs:logs': () => {
-        // makes sure that embedded functions are present
-        this.loadConfig();
-        this.buildAndAppendResources();
-      },
-      'before:package:initialize': () => {
-        this.loadConfig();
-        this.buildAndAppendResources();
-      },
-      'before:aws:info:gatherData': () => {
-        this.loadConfig();
-        this.buildAndAppendResources();
-      },
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayServiceInfo': () => {
         this.displayEndpoints();
@@ -185,6 +172,21 @@ class ServerlessAppsyncPlugin {
       'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'appsync:logs:run': async () => this.initShowLogs(),
     };
+
+    // Thesenhooks need the config to be loaded and
+    // processed in order to add embedded functions
+    // to the service. (eg: function defined in resolvers)
+    [
+      'before:logs:logs',
+      'before:deploy:function:initialize',
+      'before:package:initialize',
+      'before:aws:info:gatherData',
+    ].forEach((hook) => {
+      this.hooks[hook] = () => {
+        this.loadConfig();
+        this.buildAndAppendResources();
+      };
+    });
   }
 
   async getApiId() {
@@ -215,34 +217,30 @@ class ServerlessAppsyncPlugin {
 
     const { graphqlApi } = await this.provider.request<
       GetGraphqlApiRequest,
-      O.Required<GetGraphqlApiResponse, string, 'deep'>
+      GetGraphqlApiResponse
     >('AppSync', 'getGraphqlApi', {
       apiId,
     });
 
-    if (!graphqlApi) {
-      throw new this.serverless.classes.Error('Api not found');
-    }
-
-    forEach(graphqlApi.uris, (value, type) => {
+    forEach(graphqlApi?.uris, (value, type) => {
       this.gatheredData.apis.push({
-        id: graphqlApi.apiId,
-        type: type.toLocaleLowerCase(),
+        id: apiId,
+        type: type.toLowerCase(),
         uri: value,
       });
     });
 
     const { apiKeys } = await this.provider.request<
       ListApiKeysRequest,
-      O.Required<ListApiKeysResponse, string, 'deep'>
+      ListApiKeysResponse
     >('AppSync', 'listApiKeys', {
-      apiId: graphqlApi.apiId,
+      apiId: apiId,
     });
 
     apiKeys?.forEach((apiKey) => {
       this.gatheredData.apiKeys.push({
-        value: apiKey.id,
-        description: apiKey.description || graphqlApi.name,
+        value: apiKey.id || 'unknown key',
+        description: apiKey.description,
       });
     });
   }
@@ -298,9 +296,11 @@ class ServerlessAppsyncPlugin {
   }
 
   async showLogs(logGroupName: string, nextToken?: string) {
-    let startTime = DateTime.now().minus({ minutes: 10 });
+    let startTime: DateTime;
     if (this.options.startTime) {
       startTime = parseDateTimeOrDuration(this.options.startTime);
+    } else {
+      startTime = DateTime.now().minus({ minutes: 10 });
     }
 
     const { events, nextToken: newNextToken } = await this.provider.request<
