@@ -1,16 +1,11 @@
-import { getAppSyncConfig } from './getAppSyncConfig';
-import chalk from 'chalk';
 import { forEach, last, merge } from 'lodash';
-import { logger, parseDateTimeOrDuration, wait } from './utils';
-import {
-  CommandsDefinition,
-  Hook,
-  Provider,
-  Serverless,
-  ServerlessHelpers,
-  ServerlessLogger,
-} from './types/serverless';
-import { Api } from './resources/Api';
+import { getAppSyncConfig } from './getAppSyncConfig';
+import { GraphQLError } from 'graphql';
+import { DateTime } from 'luxon';
+import chalk from 'chalk';
+import path from 'path';
+import open from 'open';
+import fs from 'fs';
 import {
   DescribeStackResourcesInput,
   DescribeStackResourcesOutput,
@@ -23,16 +18,23 @@ import {
   ListApiKeysRequest,
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
-import { AppSyncValidationError, validateConfig } from './validation';
-import { GraphQLError } from 'graphql';
-import fs from 'fs';
-import path from 'path';
-import open from 'open';
 import {
-  FilterLogEventsRequest,
+  CommandsDefinition,
+  ServerlessHelpers,
+  ServerlessLogger,
+  Serverless,
+  Provider,
+  Hook,
+} from './types/serverless';
+import {
   FilterLogEventsResponse,
+  FilterLogEventsRequest,
 } from 'aws-sdk/clients/cloudwatchlogs';
-import { DateTime } from 'luxon';
+import { AppSyncValidationError, validateConfig } from './validation';
+import { logger, parseDateTimeOrDuration, wait } from './utils';
+import { Api } from './resources/Api';
+
+const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
@@ -127,7 +129,7 @@ class ServerlessAppsyncPlugin {
             lifecycleEvents: ['run'],
             options: {
               startTime: {
-                usage: 'Starting time. Default: -10m',
+                usage: 'Starting time. Default: 10m (10 minutes ago)',
                 required: false,
                 type: 'string',
               },
@@ -173,7 +175,7 @@ class ServerlessAppsyncPlugin {
       'appsync:logs:run': async () => this.initShowLogs(),
     };
 
-    // Thesenhooks need the config to be loaded and
+    // These hooks need the config to be loaded and
     // processed in order to add embedded functions
     // to the service. (eg: function defined in resolvers)
     [
@@ -205,7 +207,7 @@ class ServerlessAppsyncPlugin {
 
     if (!apiId) {
       throw new this.serverless.classes.Error(
-        'Api not found in stack. Did you forget to deploy?',
+        'AppSync Api not found in stack. Did you forget to deploy?',
       );
     }
 
@@ -261,9 +263,13 @@ class ServerlessAppsyncPlugin {
     }
 
     if (this.options.output) {
-      const filePath = path.resolve(this.options.output);
-      fs.writeFileSync(filePath, schema.toString());
-      this.log.success(`Introspection schema exported to ${filePath}`);
+      try {
+        const filePath = path.resolve(this.options.output);
+        fs.writeFileSync(filePath, schema.toString());
+        this.log.success(`Introspection schema exported to ${filePath}`);
+      } catch (error) {
+        this.log.error(`Could not save to file: ${(error as Error).message}`);
+      }
       return;
     }
 
@@ -279,14 +285,14 @@ class ServerlessAppsyncPlugin {
   async openConsole() {
     const apiId = await this.getApiId();
     const { region } = this.serverless.service.provider;
-    const url = `https://console.aws.amazon.com/appsync/home?region=${region}#/${apiId}/v1/home`;
+    const url = `${CONSOLE_BASE_URL}/appsync/home?region=${region}#/${apiId}/v1/home`;
     open(url);
   }
 
   async openCloudWatch() {
     const apiId = await this.getApiId();
     const { region } = this.serverless.service.provider;
-    const url = `https://console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Fappsync$252Fapis$252F${apiId}`;
+    const url = `${CONSOLE_BASE_URL}/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Fappsync$252Fapis$252F${apiId}`;
     open(url);
   }
 
