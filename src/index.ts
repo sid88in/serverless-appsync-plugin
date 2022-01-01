@@ -26,6 +26,7 @@ import {
   Provider,
   Hook,
   VariablesSourcesDefinition,
+  VariableSourceResolver,
 } from './types/serverless';
 import {
   FilterLogEventsResponse,
@@ -91,42 +92,7 @@ class ServerlessAppsyncPlugin {
 
     this.configurationVariablesSources = {
       appsync: {
-        resolve: ({ address }) => {
-          const naming = new Naming(
-            this.serverless.configurationInput.appSync.name,
-          );
-
-          if (address === 'id') {
-            return {
-              value: {
-                'Fn::GetAtt': [naming.getApiLogicalId(), 'ApiId'],
-              },
-            };
-          } else if (address === 'arn') {
-            return {
-              value: {
-                'Fn::GetAtt': [naming.getApiLogicalId(), 'Arn'],
-              },
-            };
-          } else if (address === 'url') {
-            return {
-              value: {
-                'Fn::GetAtt': [naming.getApiLogicalId(), 'GraphQLUrl'],
-              },
-            };
-          } else if (address.startsWith('apiKey.')) {
-            const [, name] = address.split('.');
-            return {
-              value: {
-                'Fn::GetAtt': [naming.getApiKeyLogicalId(name), 'ApiKey'],
-              },
-            };
-          } else {
-            throw new this.serverless.classes.Error(
-              `Unknown address '${address}'`,
-            );
-          }
-        },
+        resolve: this.resolveVariable,
       },
     };
 
@@ -489,6 +455,39 @@ class ServerlessAppsyncPlugin {
       this.serverless.processedInput.options,
     );
   }
+
+  public resolveVariable: VariableSourceResolver = ({ address }) => {
+    const naming = new Naming(this.serverless.configurationInput.appSync.name);
+
+    if (address === 'id') {
+      return {
+        value: {
+          'Fn::GetAtt': [naming.getApiLogicalId(), 'ApiId'],
+        },
+      };
+    } else if (address === 'arn') {
+      return {
+        value: {
+          'Fn::GetAtt': [naming.getApiLogicalId(), 'Arn'],
+        },
+      };
+    } else if (address === 'url') {
+      return {
+        value: {
+          'Fn::GetAtt': [naming.getApiLogicalId(), 'GraphQLUrl'],
+        },
+      };
+    } else if (address.startsWith('apiKey.')) {
+      const [, name] = address.split('.');
+      return {
+        value: {
+          'Fn::GetAtt': [naming.getApiKeyLogicalId(name), 'ApiKey'],
+        },
+      };
+    } else {
+      throw new this.serverless.classes.Error(`Unknown address '${address}'`);
+    }
+  };
 
   handleConfigValidationError(error: AppSyncValidationError) {
     const errors = error.validationErrors.map(

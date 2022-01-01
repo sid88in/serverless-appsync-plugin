@@ -11,7 +11,7 @@ export const createServerless = () => {
   serverless.config.servicePath = '';
   serverless.serviceOutputs = new Map();
   serverless.servicePluginOutputs = new Map();
-  set(serverless, 'configurationInput.custom.appSync', []);
+  set(serverless, 'configurationInput.appSync', appSyncConfig());
 
   return serverless;
 };
