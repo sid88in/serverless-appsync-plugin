@@ -73,6 +73,20 @@ export type CommandsDefinition = Record<
   }
 >;
 
+export type VariablesSourcesDefinition = Record<
+  string,
+  {
+    resolve: VariableSourceResolver;
+  }
+>;
+
+export type VariableSourceResolver = (param: {
+  address: string;
+  params?: string[];
+  options: Record<string, unknown>;
+  resolveVariable: (address: string) => string;
+}) => void;
+
 export type CliOptions = Record<string, string | boolean | string[]>;
 
 /**
