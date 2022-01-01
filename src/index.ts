@@ -25,6 +25,7 @@ import {
   Serverless,
   Provider,
   Hook,
+  VariablesSourcesDefinition,
 } from './types/serverless';
 import {
   FilterLogEventsResponse,
@@ -33,6 +34,7 @@ import {
 import { AppSyncValidationError, validateConfig } from './validation';
 import { logger, parseDateTimeOrDuration, wait } from './utils';
 import { Api } from './resources/Api';
+import { Naming } from './resources/Naming';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -51,6 +53,7 @@ class ServerlessAppsyncPlugin {
   };
   public readonly hooks: Record<string, Hook>;
   public readonly commands?: CommandsDefinition;
+  public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private log: ServerlessLogger;
   private writeText: (text: string) => void;
   private api?: Api;
@@ -85,6 +88,47 @@ class ServerlessAppsyncPlugin {
         return serverless.cli.log(message, 'AppSync');
       });
     this.writeText = this.helpers?.writeText || console.log;
+
+    this.configurationVariablesSources = {
+      appsync: {
+        resolve: ({ address }) => {
+          const naming = new Naming(
+            this.serverless.configurationInput.appSync.name,
+          );
+
+          if (address === 'id') {
+            return {
+              value: {
+                'Fn::GetAtt': [naming.getApiLogicalId(), 'ApiId'],
+              },
+            };
+          } else if (address === 'arn') {
+            return {
+              value: {
+                'Fn::GetAtt': [naming.getApiLogicalId(), 'Arn'],
+              },
+            };
+          } else if (address === 'url') {
+            return {
+              value: {
+                'Fn::GetAtt': [naming.getApiLogicalId(), 'GraphQLUrl'],
+              },
+            };
+          } else if (address.startsWith('apiKey.')) {
+            const [, name] = address.split('.');
+            return {
+              value: {
+                'Fn::GetAtt': [naming.getApiKeyLogicalId(name), 'ApiKey'],
+              },
+            };
+          } else {
+            throw new this.serverless.classes.Error(
+              `Unknown address '${address}'`,
+            );
+          }
+        },
+      },
+    };
 
     this.commands = {
       appsync: {
