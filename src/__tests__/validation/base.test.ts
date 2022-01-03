@@ -198,4 +198,91 @@ describe('Valdiation', () => {
       });
     });
   });
+
+  describe('Domain', () => {
+    describe('Valid', () => {
+      const assertions = [
+        {
+          name: 'Minimum',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+            },
+          } as AppSyncConfigInput,
+        },
+        {
+          name: 'Full',
+          config: {
+            ...basicConfig,
+            domain: {
+              enabled: true,
+              certificateArn: 'arn:aws:',
+              name: 'api.example.com',
+              route53: true,
+            },
+          } as AppSyncConfigInput,
+        },
+        {
+          name: 'Rotue53 object',
+          config: {
+            ...basicConfig,
+            domain: {
+              enabled: true,
+              certificateArn: 'arn:aws:',
+              name: 'api.example.com',
+              route53: {
+                hostedZoneId: '12345',
+                hostedZoneName: 'example.com',
+              },
+            },
+          } as AppSyncConfigInput,
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(validateConfig(config.config)).toBe(true);
+        });
+      });
+    });
+
+    describe('Invalid', () => {
+      const assertions = [
+        {
+          name: 'Invalid',
+          config: {
+            ...basicConfig,
+            domain: {
+              enabled: 'foo',
+              name: 'bar',
+              certificateArn: 123,
+              route53: 123,
+            },
+          },
+        },
+        {
+          name: 'Invalid Route 53',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'bar',
+              route53: {
+                hostedZoneId: 456,
+                hostedZoneName: 789,
+              },
+            },
+          },
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(function () {
+            validateConfig(config.config);
+          }).toThrowErrorMatchingSnapshot();
+        });
+      });
+    });
+  });
 });

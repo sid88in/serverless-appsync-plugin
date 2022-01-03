@@ -782,3 +782,90 @@ describe('Caching', () => {
       `);
   });
 });
+
+describe('Domains', () => {
+  it('should not generate domain resources when not configured', () => {
+    const api = new Api(given.appSyncConfig({ domain: undefined }), plugin);
+    expect(api.compileCustomDomain()).toMatchInlineSnapshot(`Object {}`);
+  });
+
+  it('should not generate domain resources when disabled', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          enabled: false,
+          name: 'api.example.com',
+          certificateArn:
+            'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
+        },
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchInlineSnapshot(`Object {}`);
+  });
+
+  it('should generate domain resources', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          name: 'api.example.com',
+          certificateArn:
+            'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
+        },
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchSnapshot();
+  });
+
+  it('should not generate Route53 Record when disabled', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          name: 'api.example.com',
+          certificateArn:
+            'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
+          route53: false,
+        },
+      }),
+      plugin,
+    );
+    expect(
+      api.compileCustomDomain().GraphQlDomainRoute53Record,
+    ).toBeUndefined();
+  });
+
+  it('should generate domain resources with custom hostedZoneId', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          name: 'api.example.com',
+          certificateArn:
+            'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
+          route53: {
+            hostedZoneId: 'ABCDEFGHI',
+          },
+        },
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchSnapshot();
+  });
+
+  it('should generate domain resources with custom hostedZoneName', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          name: 'foo.api.example.com',
+          certificateArn:
+            'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
+          route53: {
+            hostedZoneName: 'example.com',
+          },
+        },
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchSnapshot();
+  });
+});

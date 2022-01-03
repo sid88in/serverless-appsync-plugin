@@ -603,7 +603,6 @@ export const appSyncSchema = {
     },
   },
   properties: {
-    apiId: { type: 'string' },
     name: { type: 'string' },
     authentication: { $ref: '#/definitions/auth' },
     schema: {
@@ -617,6 +616,35 @@ export const appSyncSchema = {
         },
       ],
       errorMessage: 'is not a valid schema config',
+    },
+    domain: {
+      type: 'object',
+      properties: {
+        enabled: { type: 'boolean' },
+        name: {
+          type: 'string',
+          pattern: '^([a-z][a-z0-9+-]*\\.){2,}[a-z][a-z0-9]*$',
+          errorMessage: 'must be a valid domain name',
+        },
+        certificateArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        route53: {
+          if: { type: 'object' },
+          then: {
+            properties: {
+              hostedZoneId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+              hostedZoneName: {
+                type: 'string',
+                pattern: '^([a-z][a-z0-9+-]*\\.)+[a-z][a-z0-9]*$',
+                errorMessage: 'must be a valid domain name',
+              },
+            },
+          },
+          else: {
+            type: 'boolean',
+            errorMessage: 'must be a boolean or a route53 configuration object',
+          },
+        },
+      },
     },
     xrayEnabled: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },

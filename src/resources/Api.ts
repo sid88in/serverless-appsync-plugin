@@ -42,6 +42,7 @@ export class Api {
 
     merge(resources, this.compileEndpoint());
     merge(resources, this.compileSchema());
+    merge(resources, this.compileCustomDomain());
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
     merge(resources, this.compileWafRules());
@@ -185,6 +186,66 @@ export class Api {
     return schema.compile();
   }
 
+  compileCustomDomain(): CfnResources {
+    const { domain } = this.config;
+
+    if (!domain || domain.enabled === false) {
+      return {};
+    }
+
+    const domainNameLogicalId = this.naming.getDomainNameLogicalId();
+    const domainAssocLogicalId = this.naming.getDomainAssociationLogicalId();
+    const domainRoute53Record = this.naming.getDomainReoute53RecordLogicalId();
+
+    const resources = {
+      [domainNameLogicalId]: {
+        Type: 'AWS::AppSync::DomainName',
+        Properties: {
+          CertificateArn: domain.certificateArn,
+          DomainName: domain.name,
+        },
+      },
+      [domainAssocLogicalId]: {
+        Type: 'AWS::AppSync::DomainNameApiAssociation',
+        Properties: {
+          ApiId: this.getApiId(),
+          DomainName: domain.name,
+        },
+        DependsOn: [domainNameLogicalId],
+      },
+    };
+
+    if (domain.route53 !== false) {
+      const hostedZoneName =
+        typeof domain.route53 === 'object' && domain.route53.hostedZoneName
+          ? domain.route53.hostedZoneName
+          : domain.name.split('.').slice(1).join('.');
+      const hostedZoneId =
+        typeof domain.route53 === 'object' && domain.route53.hostedZoneId
+          ? domain.route53.hostedZoneId
+          : undefined;
+
+      merge(resources, {
+        [domainRoute53Record]: {
+          Type: 'AWS::Route53::RecordSet',
+          Properties: {
+            ...(hostedZoneId
+              ? { HostedZoneId: hostedZoneId }
+              : { HostedZoneName: hostedZoneName }),
+            Name: domain.name,
+            Type: 'CNAME',
+            ResourceRecords: [
+              { 'Fn::GetAtt': [domainNameLogicalId, 'AppSyncDomainName'] },
+            ],
+            TTL: 300,
+          },
+        },
+      });
+    }
+
+    return resources;
+  }
+
   compileLambdaAuthorizerPermission(): CfnResources {
     const lambdaAuth = [
       ...this.config.additionalAuthenticationProviders,
@@ -313,11 +374,9 @@ export class Api {
 
   getApiId() {
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
-    return (
-      this.config.apiId || {
-        'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
-      }
-    );
+    return {
+      'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
+    };
   }
 
   getUserPoolConfig(auth: CognitoAuth) {

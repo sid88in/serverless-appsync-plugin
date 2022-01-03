@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Valdiation Domain Invalid should validate a Invalid 1`] = `
+"/domain/enabled: must be boolean
+/domain/name: must be a valid domain name
+/domain/certificateArn: must be a string or a CloudFormation intrinsic function
+/domain/route53: must be a boolean or a route53 configuration object"
+`;
+
+exports[`Valdiation Domain Invalid should validate a Invalid Route 53 1`] = `
+"/domain/name: must be a valid domain name
+/domain/route53/hostedZoneId: must be a string or a CloudFormation intrinsic function
+/domain/route53/hostedZoneName: must be a valid domain name"
+`;
+
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
 "/log/level: must be \\"ALL\\", \\"ERROR\\" or \\"NONE\\"
 /log/logRetentionInDays: must be integer
