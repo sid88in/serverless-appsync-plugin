@@ -10,7 +10,7 @@ exports[`Valdiation Domain Invalid should validate a Invalid 1`] = `
 exports[`Valdiation Domain Invalid should validate a Invalid Route 53 1`] = `
 "/domain/name: must be a valid domain name
 /domain/route53/hostedZoneId: must be a string or a CloudFormation intrinsic function
-/domain/route53/hostedZoneName: must be a valid domain name"
+/domain/route53/hostedZoneName: must be a valid zone name. Note: you must include a trailing dot (eg: \`example.com.\`)"
 `;
 
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `

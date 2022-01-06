@@ -621,6 +621,8 @@ export const appSyncSchema = {
       type: 'object',
       properties: {
         enabled: { type: 'boolean' },
+        useCloudFormation: { type: 'boolean' },
+        retain: { type: 'boolean' },
         name: {
           type: 'string',
           pattern: '^([a-z][a-z0-9+-]*\\.){2,}[a-z][a-z0-9]*$',
@@ -630,12 +632,14 @@ export const appSyncSchema = {
         route53: {
           if: { type: 'object' },
           then: {
+            type: 'object',
             properties: {
               hostedZoneId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
               hostedZoneName: {
                 type: 'string',
-                pattern: '^([a-z][a-z0-9+-]*\\.)+[a-z][a-z0-9]*$',
-                errorMessage: 'must be a valid domain name',
+                pattern: '^([a-z][a-z0-9+-]*\\.){2,}$',
+                errorMessage:
+                  'must be a valid zone name. Note: you must include a trailing dot (eg: `example.com.`)',
               },
             },
           },

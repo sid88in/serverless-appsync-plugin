@@ -11,6 +11,15 @@ import {
   DescribeStackResourcesOutput,
 } from 'aws-sdk/clients/cloudformation';
 import {
+  AssociateApiRequest,
+  AssociateApiResponse,
+  CreateDomainNameRequest,
+  DeleteDomainNameRequest,
+  DeleteDomainNameResponse,
+  DisassociateApiRequest,
+  DisassociateApiResponse,
+  GetApiAssociationRequest,
+  GetApiAssociationResponse,
   GetGraphqlApiRequest,
   GetGraphqlApiResponse,
   GetIntrospectionSchemaRequest,
@@ -27,13 +36,20 @@ import {
   Hook,
   VariablesSourcesDefinition,
   VariableSourceResolver,
+  ServerlessProgress,
 } from './types/serverless';
 import {
   FilterLogEventsResponse,
   FilterLogEventsRequest,
 } from 'aws-sdk/clients/cloudwatchlogs';
 import { AppSyncValidationError, validateConfig } from './validation';
-import { logger, parseDateTimeOrDuration, wait } from './utils';
+import {
+  confirmAction,
+  logger,
+  parseDateTimeOrDuration,
+  question,
+  wait,
+} from './utils';
 import { Api } from './resources/Api';
 import { Naming } from './resources/Naming';
 
@@ -98,6 +114,7 @@ class ServerlessAppsyncPlugin {
 
     this.commands = {
       appsync: {
+        usage: 'Manage the AppSync API',
         commands: {
           'validate-schema': {
             usage: 'Validate the graphql schema',
@@ -163,6 +180,54 @@ class ServerlessAppsyncPlugin {
               },
             },
           },
+          domain: {
+            usage: 'Manage the domain for this AppSync API',
+            commands: {
+              create: {
+                usage: 'Create the domain in AppSync',
+                lifecycleEvents: ['run'],
+              },
+              delete: {
+                usage: 'Delete the domain from AppSync',
+                lifecycleEvents: ['run'],
+              },
+              'create-record': {
+                usage: 'Create the CNAME record for this domain in Route53',
+                lifecycleEvents: ['run'],
+              },
+              assoc: {
+                usage: 'Associate this AppSync API with the domain',
+                lifecycleEvents: ['run'],
+                options: {
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
+                },
+              },
+              disassoc: {
+                usage: 'Disassociate the AppSync API associated to the domain',
+                lifecycleEvents: ['run'],
+                options: {
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
+                  force: {
+                    usage:
+                      'Force the disassociation of *any* API from this domain',
+                    shortcut: 'f',
+                    required: false,
+                    type: 'boolean',
+                  },
+                },
+              },
+            },
+          },
         },
       },
     };
@@ -183,6 +248,14 @@ class ServerlessAppsyncPlugin {
       'appsync:console:run': () => this.openConsole(),
       'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'appsync:logs:run': async () => this.initShowLogs(),
+      'before:appsync:domain:create:run': async () => this.loadConfig(),
+      'appsync:domain:create:run': async () => this.createDomain(),
+      'before:appsync:domain:delete:run': async () => this.loadConfig(),
+      'appsync:domain:delete:run': async () => this.deleteDomain(),
+      'before:appsync:domain:assoc:run': async () => this.loadConfig(),
+      'appsync:domain:assoc:run': async () => this.assocDomain(),
+      'before:appsync:domain:disassoc:run': async () => this.loadConfig(),
+      'appsync:domain:disassoc:run': async () => this.disassocDomain(),
     };
 
     // These hooks need the config to be loaded and
@@ -350,6 +423,183 @@ class ServerlessAppsyncPlugin {
       await wait(interval);
       await this.showLogs(logGroupName, newNextToken);
     }
+  }
+
+  getDomain() {
+    if (!this.api) {
+      throw new this.serverless.classes.Error(
+        'AppSync configuration not found',
+      );
+    }
+
+    const { domain } = this.api.config;
+    if (!domain) {
+      throw new this.serverless.classes.Error('Domain configuration not found');
+    }
+
+    return domain;
+  }
+
+  async createDomain() {
+    const domain = this.getDomain();
+
+    await this.provider.request<
+      CreateDomainNameRequest,
+      CreateDomainNameRequest
+    >('AppSync', 'createDomainName', {
+      domainName: domain.name,
+      certificateArn: domain.certificateArn,
+    });
+    this.log.success(`Domain '${domain.name}' created successfully`);
+  }
+
+  async deleteDomain() {
+    const domain = this.getDomain();
+
+    await this.provider.request<
+      DeleteDomainNameRequest,
+      DeleteDomainNameResponse
+    >('AppSync', 'deleteDomainName', {
+      domainName: domain.name,
+    });
+    this.log.success(`Domain '${domain.name}' deleted successfully`);
+  }
+
+  async getApiAssocStatus(name: string) {
+    try {
+      const result = await this.provider.request<
+        GetApiAssociationRequest,
+        GetApiAssociationResponse
+      >('AppSync', 'getApiAssociation', {
+        domainName: name,
+      });
+      return result.apiAssociation;
+    } catch (error) {
+      if (
+        error instanceof this.serverless.classes.Error &&
+        error.providerErrorCodeExtension === 'NOT_FOUND_EXCEPTION'
+      ) {
+        return { associationStatus: 'NOT_FOUND' };
+      }
+      throw error;
+    }
+  }
+
+  async showApiAssocStatus({
+    name,
+    message,
+    desiredStatus,
+  }: {
+    name: string;
+    message: string;
+    desiredStatus: 'SUCCESS' | 'NOT_FOUND';
+  }) {
+    let progress: ServerlessProgress | undefined = undefined;
+    if (this.slsVersion === 'v3') {
+      progress = this.helpers?.progress.create({ message });
+    } else {
+      this.log.info(message);
+    }
+
+    let status: string;
+    do {
+      status =
+        (await this.getApiAssocStatus(name))?.associationStatus || 'UNKNOWN';
+      if (this.slsVersion === 'v2') {
+        process.stdout.write(chalk.yellow('.'));
+      }
+      if (status !== desiredStatus) {
+        await wait(1000);
+      }
+    } while (status !== desiredStatus);
+
+    if (progress) {
+      progress.remove();
+    }
+    if (this.slsVersion === 'v2') {
+      process.stdout.write('\n');
+    }
+  }
+
+  async assocDomain() {
+    const domain = this.getDomain();
+    const apiId = await this.getApiId();
+
+    const assoc = await this.getApiAssocStatus(domain.name);
+
+    if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
+      this.log.warning(
+        `The domain ${domain.name} is currently associated to another API (${assoc?.apiId})`,
+      );
+      if (!this.options.yes && !(await confirmAction())) {
+        return;
+      }
+    } else if (assoc?.apiId === apiId) {
+      this.log.success('The domain is already associated to this API');
+      return;
+    }
+
+    await this.provider.request<AssociateApiRequest, AssociateApiResponse>(
+      'AppSync',
+      'associateApi',
+      {
+        domainName: domain.name,
+        apiId: await this.getApiId(),
+      },
+    );
+
+    const message = `Associating API with domain '${domain.name}'`;
+    await this.showApiAssocStatus({
+      name: domain.name,
+      message,
+      desiredStatus: 'SUCCESS',
+    });
+    this.log.success(`API successfully associated to domain '${domain.name}'`);
+  }
+
+  async disassocDomain() {
+    const domain = this.getDomain();
+    const apiId = await this.getApiId();
+    const assoc = await this.getApiAssocStatus(domain.name);
+
+    if (assoc?.associationStatus === 'NOT_FOUND') {
+      this.log.warning(
+        `The domain ${domain.name} is currently not associated to any API`,
+      );
+      return;
+    }
+
+    if (assoc?.apiId !== apiId && !this.options.force) {
+      throw new this.serverless.classes.Error(
+        `The domain ${domain.name} is currently associated to another API (${assoc?.apiId})\n` +
+          `Try running this command from that API's stack or stage, or use the --force / -f flag`,
+      );
+    }
+
+    this.log.warning(
+      `The domain ${domain.name} will beassociated from API '${apiId}'`,
+    );
+    if (!(await confirmAction())) {
+      return;
+    }
+
+    await this.provider.request<
+      DisassociateApiRequest,
+      DisassociateApiResponse
+    >('AppSync', 'disassociateApi', {
+      domainName: domain.name,
+    });
+
+    const message = `Disassociating API with domain '${domain.name}'`;
+    await this.showApiAssocStatus({
+      name: domain.name,
+      message,
+      desiredStatus: 'NOT_FOUND',
+    });
+
+    this.log.success(
+      `API successfully disassociated from domain '${domain.name}'`,
+    );
   }
 
   displayEndpoints() {

@@ -3,6 +3,8 @@ import { TransformKeysToCfnCase } from './typeHelpers';
 import { ServerlessLogger } from './types/serverless';
 import chalk from 'chalk';
 import { DateTime, Duration } from 'luxon';
+import { promisify } from 'util';
+import * as readline from 'readline';
 
 const timeUnits = {
   y: 'years',
@@ -90,3 +92,28 @@ export const logger: (log: (message) => void) => ServerlessLogger = (log) => ({
   debug: log,
   success: (message) => log(chalk.green(message)),
 });
+
+export const question = async (question: string): Promise<string> => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  const q = promisify(
+    (question: string, cb: (err: unknown, answer: string) => void) => {
+      rl.question(question, (a: string) => {
+        cb(null, a);
+      });
+    },
+  ).bind(rl);
+
+  const answer = await q(`${question}: `);
+  rl.close();
+
+  return answer;
+};
+
+export const confirmAction = async (): Promise<boolean> => {
+  const answer = await question('Do you want to continue? y/N');
+
+  return answer.toLowerCase() === 'y';
+};

@@ -82,6 +82,7 @@ Object {
 exports[`Domains should generate domain resources 1`] = `
 Object {
   "GraphQlDomainAssociation": Object {
+    "DeletionPolicy": "Delete",
     "DependsOn": Array [
       "GraphQlDomainName",
     ],
@@ -97,6 +98,7 @@ Object {
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
   "GraphQlDomainName": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "api.example.com",
@@ -104,8 +106,9 @@ Object {
     "Type": "AWS::AppSync::DomainName",
   },
   "GraphQlDomainRoute53Record": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
-      "HostedZoneName": "example.com",
+      "HostedZoneName": "example.com.",
       "Name": "api.example.com",
       "ResourceRecords": Array [
         Object {
@@ -126,6 +129,7 @@ Object {
 exports[`Domains should generate domain resources with custom hostedZoneId 1`] = `
 Object {
   "GraphQlDomainAssociation": Object {
+    "DeletionPolicy": "Delete",
     "DependsOn": Array [
       "GraphQlDomainName",
     ],
@@ -141,6 +145,7 @@ Object {
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
   "GraphQlDomainName": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "api.example.com",
@@ -148,6 +153,7 @@ Object {
     "Type": "AWS::AppSync::DomainName",
   },
   "GraphQlDomainRoute53Record": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
       "HostedZoneId": "ABCDEFGHI",
       "Name": "api.example.com",
@@ -170,6 +176,7 @@ Object {
 exports[`Domains should generate domain resources with custom hostedZoneName 1`] = `
 Object {
   "GraphQlDomainAssociation": Object {
+    "DeletionPolicy": "Delete",
     "DependsOn": Array [
       "GraphQlDomainName",
     ],
@@ -185,6 +192,7 @@ Object {
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
   "GraphQlDomainName": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "foo.api.example.com",
@@ -192,8 +200,9 @@ Object {
     "Type": "AWS::AppSync::DomainName",
   },
   "GraphQlDomainRoute53Record": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
-      "HostedZoneName": "example.com",
+      "HostedZoneName": "example.com.",
       "Name": "foo.api.example.com",
       "ResourceRecords": Array [
         Object {

@@ -189,17 +189,21 @@ export class Api {
   compileCustomDomain(): CfnResources {
     const { domain } = this.config;
 
-    if (!domain || domain.enabled === false) {
+    if (
+      !domain ||
+      domain.enabled === false ||
+      domain.useCloudFormation === false
+    ) {
       return {};
     }
 
     const domainNameLogicalId = this.naming.getDomainNameLogicalId();
     const domainAssocLogicalId = this.naming.getDomainAssociationLogicalId();
-    const domainRoute53Record = this.naming.getDomainReoute53RecordLogicalId();
 
     const resources = {
       [domainNameLogicalId]: {
         Type: 'AWS::AppSync::DomainName',
+        DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
         Properties: {
           CertificateArn: domain.certificateArn,
           DomainName: domain.name,
@@ -207,6 +211,7 @@ export class Api {
       },
       [domainAssocLogicalId]: {
         Type: 'AWS::AppSync::DomainNameApiAssociation',
+        DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
         Properties: {
           ApiId: this.getApiId(),
           DomainName: domain.name,
@@ -219,15 +224,18 @@ export class Api {
       const hostedZoneName =
         typeof domain.route53 === 'object' && domain.route53.hostedZoneName
           ? domain.route53.hostedZoneName
-          : domain.name.split('.').slice(1).join('.');
+          : `${domain.name.split('.').slice(1).join('.')}.`;
       const hostedZoneId =
         typeof domain.route53 === 'object' && domain.route53.hostedZoneId
           ? domain.route53.hostedZoneId
           : undefined;
+      const domainRoute53Record =
+        this.naming.getDomainReoute53RecordLogicalId();
 
       merge(resources, {
         [domainRoute53Record]: {
           Type: 'AWS::Route53::RecordSet',
+          DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
           Properties: {
             ...(hostedZoneId
               ? { HostedZoneId: hostedZoneId }

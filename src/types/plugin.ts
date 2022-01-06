@@ -138,6 +138,8 @@ export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
 
 export type DomainConfig = {
   enabled?: boolean;
+  useCloudFormation?: boolean;
+  retain?: boolean;
   name: string;
   certificateArn: string;
   route53?:

@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "@serverless/typescript": "^2.68.0",
-    "@types/aws-sdk": "^2.7.0",
     "@types/jest": "^27.0.2",
     "@types/luxon": "^2.0.7",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -40,7 +39,7 @@
     "ajv": "^8.8.2",
     "ajv-errors": "^3.0.0",
     "ajv-merge-patch": "^5.0.1",
-    "aws-sdk": "^2.881.0",
+    "aws-sdk": "^2.1048.0",
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
     "graphql": "^15.8.0",

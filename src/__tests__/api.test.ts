@@ -860,7 +860,7 @@ describe('Domains', () => {
           certificateArn:
             'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
           route53: {
-            hostedZoneName: 'example.com',
+            hostedZoneName: 'example.com.',
           },
         },
       }),

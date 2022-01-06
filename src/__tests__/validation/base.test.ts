@@ -233,7 +233,7 @@ describe('Valdiation', () => {
               name: 'api.example.com',
               route53: {
                 hostedZoneId: '12345',
-                hostedZoneName: 'example.com',
+                hostedZoneName: 'example.com.',
               },
             },
           } as AppSyncConfigInput,

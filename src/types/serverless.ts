@@ -50,9 +50,23 @@ export type Serverless = {
     content: string | string[],
   ) => void;
   classes: {
-    Error: ErrorConstructor;
+    Error: ServerlessErrorConstructor;
   };
 };
+
+interface ServerlessError {
+  name: string;
+  message: string;
+  stack?: string;
+  providerError?: Error;
+  providerErrorCodeExtension?: string;
+}
+
+interface ServerlessErrorConstructor {
+  new (message?: string): ServerlessError;
+  (message?: string): ServerlessError;
+  readonly prototype: ServerlessError;
+}
 
 export type CloudformationTemplate = AWS['resources'];
 
@@ -102,7 +116,17 @@ export type ServerlessLogger = {
   success: (message: string) => void;
 };
 
+export type ServerlessProgressFactory = {
+  create: (params: { message: string }) => ServerlessProgress;
+};
+
+export type ServerlessProgress = {
+  update: (message: string) => void;
+  remove: () => void;
+};
+
 export type ServerlessHelpers = {
   log: ServerlessLogger;
   writeText: (message: string) => void;
+  progress: ServerlessProgressFactory;
 };
