@@ -17,7 +17,7 @@ import {
   OidcAuth,
   ResolverConfig,
 } from '../types/plugin';
-import { parseDuration } from '../utils';
+import { getHostedZoneName, parseDuration } from '../utils';
 import { DateTime, Duration } from 'luxon';
 import { Naming } from './Naming';
 import { DataSource } from './DataSource';
@@ -224,7 +224,7 @@ export class Api {
       const hostedZoneName =
         typeof domain.route53 === 'object' && domain.route53.hostedZoneName
           ? domain.route53.hostedZoneName
-          : `${domain.name.split('.').slice(1).join('.')}.`;
+          : getHostedZoneName(domain.name);
       const hostedZoneId =
         typeof domain.route53 === 'object' && domain.route53.hostedZoneId
           ? domain.route53.hostedZoneId

@@ -84,6 +84,10 @@ export const parseDuration = (input: string | number) => {
   return duration;
 };
 
+export const getHostedZoneName = (domain: string) => {
+  return `${domain.split('.').slice(1).join('.')}.`;
+};
+
 export const logger: (log: (message) => void) => ServerlessLogger = (log) => ({
   error: (message) => log(chalk.red(message)),
   warning: (message) => log(chalk.yellow(message)),

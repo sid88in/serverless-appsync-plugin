@@ -117,7 +117,8 @@ export type ServerlessLogger = {
 };
 
 export type ServerlessProgressFactory = {
-  create: (params: { message: string }) => ServerlessProgress;
+  create: (params: { name?: string; message: string }) => ServerlessProgress;
+  get: (name: string) => ServerlessProgress;
 };
 
 export type ServerlessProgress = {
