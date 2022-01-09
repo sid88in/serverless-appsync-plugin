@@ -753,6 +753,17 @@ class ServerlessAppsyncPlugin {
   }
 
   async deleteRecord() {
+    const domain = this.getDomain();
+    const appsyncDomainName = await this.getAppSyncDomainName();
+    const hostedZoneId = await this.getHostedZoneId();
+
+    this.log.warning(
+      `CNAME record '${domain.name}' with value '${appsyncDomainName}' will be deleted from Hosted Zone '${hostedZoneId}'`,
+    );
+    if (!this.options.yes && !(await confirmAction())) {
+      return;
+    }
+
     const message = 'Deleting route53 record';
     if (this.slsVersion === 'v3') {
       this.helpers?.progress.create({
@@ -763,9 +774,6 @@ class ServerlessAppsyncPlugin {
       this.log.info(message);
     }
 
-    const domain = this.getDomain();
-    const appsyncDomainName = await this.getAppSyncDomainName();
-    const hostedZoneId = await this.getHostedZoneId();
     const changeId = await this.changeRoute53Record(
       'DELETE',
       hostedZoneId,
