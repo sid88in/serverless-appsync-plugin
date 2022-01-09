@@ -15,6 +15,7 @@
     "lint": "eslint . && tsc --noEmit"
   },
   "devDependencies": {
+    "@serverless/test": "^8.8.0",
     "@serverless/typescript": "^2.68.0",
     "@types/jest": "^27.0.2",
     "@types/luxon": "^2.0.7",
@@ -28,7 +29,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
-    "serverless": "^2.68.0",
+    "serverless": "^2.70.0",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "ts-toolbelt": "^9.6.0",

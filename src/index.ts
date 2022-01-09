@@ -516,6 +516,10 @@ class ServerlessAppsyncPlugin {
   async deleteDomain() {
     try {
       const domain = this.getDomain();
+      this.log.warning(`The domain '${domain.name} will be deleted.`);
+      if (!this.options.yes && !(await confirmAction())) {
+        return;
+      }
       await this.provider.request<
         DeleteDomainNameRequest,
         DeleteDomainNameResponse
@@ -594,7 +598,6 @@ class ServerlessAppsyncPlugin {
   async assocDomain() {
     const domain = this.getDomain();
     const apiId = await this.getApiId();
-
     const assoc = await this.getApiAssocStatus(domain.name);
 
     if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
@@ -614,7 +617,7 @@ class ServerlessAppsyncPlugin {
       'associateApi',
       {
         domainName: domain.name,
-        apiId: await this.getApiId(),
+        apiId,
       },
     );
 
@@ -645,11 +648,11 @@ class ServerlessAppsyncPlugin {
           `Try running this command from that API's stack or stage, or use the --force / -f flag`,
       );
     }
-
     this.log.warning(
       `The domain ${domain.name} will beassociated from API '${apiId}'`,
     );
-    if (!(await confirmAction())) {
+
+    if (!this.options.yes && !(await confirmAction())) {
       return;
     }
 
@@ -690,7 +693,7 @@ class ServerlessAppsyncPlugin {
         (zone) => zone.Name === hostedZoneName,
       )?.Id;
       if (!foundHostedZone) {
-        throw this.serverless.classes.Error(
+        throw new this.serverless.classes.Error(
           `No hosted zone found for domain ${domain.name}`,
         );
       }
@@ -740,7 +743,7 @@ class ServerlessAppsyncPlugin {
     if (changeId) {
       await this.checkRoute53RecordStatus(changeId);
       if (this.slsVersion === 'v3') {
-        this.helpers?.progress.get('create-route53-record').remove();
+        this.helpers?.progress.get('create-route53-record')?.remove();
       }
       this.log.info(
         `CNAME record '${domain.name}' with value '${appsyncDomainName}' was created in Hosted Zone '${hostedZoneId}'`,
@@ -771,7 +774,7 @@ class ServerlessAppsyncPlugin {
     if (changeId) {
       await this.checkRoute53RecordStatus(changeId);
       if (this.slsVersion === 'v3') {
-        this.helpers?.progress.get('delete-route53-record').remove();
+        this.helpers?.progress.get('delete-route53-record')?.remove();
       }
       this.log.info(
         `CNAME record '${domain.name}' with value '${appsyncDomainName}' was deleted from Hosted Zone '${hostedZoneId}'`,
@@ -838,6 +841,10 @@ class ServerlessAppsyncPlugin {
       ({ type, uri }) => `${type}: ${uri}`,
     );
 
+    if (endpoints.length === 0) {
+      return;
+    }
+
     if (this.slsVersion === 'v3') {
       this.serverless.addServiceOutputSection('appsync endpoints', endpoints);
     } else {
@@ -859,6 +866,10 @@ class ServerlessAppsyncPlugin {
     const apiKeys = this.gatheredData.apiKeys.map(
       ({ description, value }) => `${value} (${description})`,
     );
+
+    if (apiKeys.length === 0) {
+      return;
+    }
 
     if (this.slsVersion === 'v3') {
       if (!conceal) {

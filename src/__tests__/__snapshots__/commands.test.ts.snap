@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`commands assoc domain should ask for confirmation when already associated 3`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain api.example.com is currently associated to another API (987654321)[39m[33m[39m
+AppSync: [33m[94mAssociating API with domain 'api.example.com'[39m[33m[39m
+[33m.[39m
+AppSync: [33m[32mAPI successfully associated to domain 'api.example.com'[39m[33m[39m
+"
+`;
+
+exports[`commands assoc domain should associate a domain 3`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[94mAssociating API with domain 'api.example.com'[39m[33m[39m
+[33m.[39m
+AppSync: [33m[32mAPI successfully associated to domain 'api.example.com'[39m[33m[39m
+"
+`;
+
+exports[`commands assoc domain should not ask for confirmation when yes flag is passed 3`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain api.example.com is currently associated to another API (987654321)[39m[33m[39m
+AppSync: [33m[94mAssociating API with domain 'api.example.com'[39m[33m[39m
+[33m.[39m
+AppSync: [33m[32mAPI successfully associated to domain 'api.example.com'[39m[33m[39m
+"
+`;
+
+exports[`commands create domain should create a domain 2`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[32mDomain 'api.example.com' created successfully[39m[33m[39m
+"
+`;
+
+exports[`commands delete domain should delete a domain, asking for confirmation 2`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain 'api.example.com will be deleted.[39m[33m[39m
+AppSync: [33m[32mDomain 'api.example.com' deleted successfully[39m[33m[39m
+"
+`;
+
+exports[`commands delete domain should delete a domain, skipping confirmation when the yes flag is passed 2`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain 'api.example.com will be deleted.[39m[33m[39m
+AppSync: [33m[32mDomain 'api.example.com' deleted successfully[39m[33m[39m
+"
+`;
+
+exports[`commands delete domain should not delete a domain, when not confirmed 1`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain 'api.example.com will be deleted.[39m[33m[39m
+"
+`;
+
+exports[`commands domain create-record should create a route53 record 4`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[94mCreating route53 record[39m[33m[39m
+AppSync: [33m[94mCNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was created in Hosted Zone 'KLMNOPK'[39m[33m[39m
+AppSync: [33m[32mRoute53 record created successfuly[39m[33m[39m
+"
+`;
+
+exports[`commands domain delete-record should delete a route53 record 4`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[94mDeleting route53 record[39m[33m[39m
+AppSync: [33m[94mCNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOPK'[39m[33m[39m
+AppSync: [33m[32mRoute53 record deleted successfuly[39m[33m[39m
+"
+`;
+
+exports[`commands domain disassoc should disassociate a domain, asking for confirmation  3`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain api.example.com will beassociated from API '123456789'[39m[33m[39m
+AppSync: [33m[94mDisassociating API with domain 'api.example.com'[39m[33m[39m
+[33m.[39m
+AppSync: [33m[32mAPI successfully disassociated from domain 'api.example.com'[39m[33m[39m
+"
+`;
+
+exports[`commands domain disassoc should disassociate a domain, skipping confirmation when the yes flag is passed 3`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain api.example.com will beassociated from API '123456789'[39m[33m[39m
+AppSync: [33m[94mDisassociating API with domain 'api.example.com'[39m[33m[39m
+[33m.[39m
+AppSync: [33m[32mAPI successfully disassociated from domain 'api.example.com'[39m[33m[39m
+"
+`;
+
+exports[`commands domain disassoc should not disassociate a domain, when not confirmed 1`] = `
+"AppSync: [33m[94mLoading AppSync config[39m[33m[39m
+AppSync: [33m[33mThe domain api.example.com will beassociated from API '123456789'[39m[33m[39m
+"
+`;

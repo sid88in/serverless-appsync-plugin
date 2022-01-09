@@ -4,8 +4,10 @@ import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
 import { AppSyncConfig } from '../types/plugin';
 import ServerlessAppsyncPlugin from '..';
 import { logger } from '../utils';
+import { ServerlessProgress } from '../types/serverless';
+import { Serverless as ServerlessType } from '../types/serverless';
 
-export const createServerless = () => {
+export const createServerless = (): ServerlessType => {
   const serverless = new Serverless();
   serverless.setProvider('aws', new AwsProvider(serverless));
   serverless.config.servicePath = '';
@@ -16,6 +18,11 @@ export const createServerless = () => {
   return serverless;
 };
 
+const dummyProgress: ServerlessProgress = {
+  update: noop,
+  remove: noop,
+};
+
 export const plugin = () => {
   const options = {
     stage: 'dev',
@@ -24,6 +31,10 @@ export const plugin = () => {
   return new ServerlessAppsyncPlugin(createServerless(), options, {
     log: logger(noop),
     writeText: noop,
+    progress: {
+      get: () => dummyProgress,
+      create: () => dummyProgress,
+    },
   });
 };
 
