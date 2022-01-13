@@ -63,6 +63,60 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
+              "MaxBatchSize": undefined,
+              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
+              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
+    });
+
+    it('should generate Resources with maxBatchSize', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myFunction: {
+              name: 'myFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionName: 'myFunction' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compileResolver({
+          dataSource: 'myFunction',
+          kind: 'UNIT',
+          type: 'Query',
+          field: 'user',
+          maxBatchSize: 200,
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyFunction",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": 200,
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
@@ -116,6 +170,7 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
+              "MaxBatchSize": undefined,
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
               "TypeName": "Query",
@@ -169,6 +224,7 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
+              "MaxBatchSize": undefined,
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -367,6 +423,56 @@ describe('Resolvers', () => {
               },
               "Description": "Function1 Pipeline Resolver",
               "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "function1",
+              "RequestMappingTemplate": "Content of path/to/mappingTemplates/function1.request.vtl",
+              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/function1.response.vtl",
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+
+    it('should generate Pipeline Function Resources with maxBatchSize', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myFunction: {
+              name: 'myFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionName: 'myFunction' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          name: 'function1',
+          dataSource: 'myFunction',
+          description: 'Function1 Pipeline Resolver',
+          maxBatchSize: 200,
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyFunction",
+                  "Name",
+                ],
+              },
+              "Description": "Function1 Pipeline Resolver",
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": 200,
               "Name": "function1",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/function1.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/function1.response.vtl",
@@ -416,6 +522,7 @@ describe('Resolvers', () => {
               },
               "Description": "Function1 Pipeline Resolver",
               "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
               "Name": "function1",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
@@ -465,6 +572,7 @@ describe('Resolvers', () => {
               },
               "Description": "Function1 Pipeline Resolver",
               "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
               "Name": "function1",
             },
             "Type": "AWS::AppSync::FunctionConfiguration",
@@ -543,6 +651,7 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
+              "MaxBatchSize": undefined,
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
@@ -608,6 +717,7 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "UNIT",
+              "MaxBatchSize": undefined,
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",

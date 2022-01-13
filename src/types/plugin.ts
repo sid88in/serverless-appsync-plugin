@@ -175,6 +175,7 @@ export type ResolverConfig = UnitResolverConfig | PipelineResolverConfig;
 export type UnitResolverConfig = BaseResolverConfig & {
   kind?: 'UNIT';
   dataSource: string;
+  maxBatchSize?: number;
 };
 
 export type PipelineResolverConfig = BaseResolverConfig & {
@@ -190,6 +191,7 @@ export type PipelineFunctionConfig = {
   description?: string;
   request?: string | false;
   response?: string | false;
+  maxBatchSize?: number;
   substitutions?: Substitutions;
 };
 

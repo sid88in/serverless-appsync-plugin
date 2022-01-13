@@ -15,6 +15,7 @@ describe('Basic', () => {
             function2: {
               description: 'My Function',
               dataSource: 'ds1',
+              maxBatchSize: 200,
               request: 'request.vtl',
               response: 'response.vtl',
             },
@@ -72,6 +73,7 @@ describe('Basic', () => {
               dataSource: 789,
               request: 123,
               response: 456,
+              maxBatchSize: 5000,
             },
           },
         },
