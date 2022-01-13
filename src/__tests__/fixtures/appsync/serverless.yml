@@ -1,0 +1,48 @@
+service: app
+
+provider:
+  name: aws
+
+appSync:
+  name: appsync
+  authentication:
+    type: API_KEY
+
+  domain:
+    useCloudFormation: false
+    name: api.example.com
+    certificateArn: arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493
+
+  resolvers:
+    Query.user:
+      dataSource: data
+
+    Mutation.createUser:
+      request: false
+      response: false
+      dataSource:
+        type: 'AWS_LAMBDA'
+        config:
+          function:
+            handler: 'functions/createUser.handler'
+
+  dataSources:
+    data:
+      type: AMAZON_DYNAMODB
+      description: 'Data'
+      config:
+        tableName: ${sls:stage}-data
+
+resources:
+  Resources:
+    UserTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:service}-${sls:stage}-data
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

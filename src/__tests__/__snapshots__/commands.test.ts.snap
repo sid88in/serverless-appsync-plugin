@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assoc domain should ask for confirmation when already associated 3`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain api.example.com is currently associated to another API (987654321)
+AppSync: Associating API with domain 'api.example.com'
+.
+AppSync: API successfully associated to domain 'api.example.com'
+"
+`;
+
+exports[`assoc domain should associate a domain 3`] = `
+"AppSync: Loading AppSync config
+AppSync: Associating API with domain 'api.example.com'
+.
+AppSync: API successfully associated to domain 'api.example.com'
+"
+`;
+
+exports[`assoc domain should handle already associated APIs 2`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain is already associated to this API
+"
+`;
+
+exports[`assoc domain should not ask for confirmation when yes flag is passed 3`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain api.example.com is currently associated to another API (987654321)
+AppSync: Associating API with domain 'api.example.com'
+.
+AppSync: API successfully associated to domain 'api.example.com'
+"
+`;
+
+exports[`create domain should create a domain 2`] = `
+"AppSync: Loading AppSync config
+AppSync: Domain 'api.example.com' created successfully
+"
+`;
+
+exports[`delete domain should delete a domain, asking for confirmation 2`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain 'api.example.com will be deleted.
+AppSync: Domain 'api.example.com' deleted successfully
+"
+`;
+
+exports[`delete domain should delete a domain, skipping confirmation when the yes flag is passed 2`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain 'api.example.com will be deleted.
+AppSync: Domain 'api.example.com' deleted successfully
+"
+`;
+
+exports[`delete domain should not delete a domain, when not confirmed 1`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain 'api.example.com will be deleted.
+"
+`;
+
+exports[`domain create-record should create a route53 record 4`] = `
+"AppSync: Loading AppSync config
+AppSync: Creating route53 record
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was created in Hosted Zone 'KLMNOP'
+AppSync: Route53 record created successfuly
+"
+`;
+
+exports[`domain create-record should handle changeResourceRecordSets errors silently 1`] = `
+"AppSync: Loading AppSync config
+AppSync: Creating route53 record
+AppSync: [Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]
+"
+`;
+
+exports[`domain delete-record should delete a route53 record, asking for confirmation 4`] = `
+"AppSync: Loading AppSync config
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
+AppSync: Deleting route53 record
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOP'
+AppSync: Route53 record deleted successfuly
+"
+`;
+
+exports[`domain delete-record should delete a route53 record, skipping confirmation when the yes flag is passed 4`] = `
+"AppSync: Loading AppSync config
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
+AppSync: Deleting route53 record
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOP'
+AppSync: Route53 record deleted successfuly
+"
+`;
+
+exports[`domain delete-record should handle changeResourceRecordSets errors silently 1`] = `
+"AppSync: Loading AppSync config
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
+AppSync: Deleting route53 record
+AppSync: [Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]
+"
+`;
+
+exports[`domain delete-record should not delete a route53 record, when not confirmed 2`] = `
+"AppSync: Loading AppSync config
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
+"
+`;
+
+exports[`domain disassoc should disassociate a domain, asking for confirmation  3`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain api.example.com will be disassociated from API '123456789'
+AppSync: Disassociating API from domain 'api.example.com'
+.
+AppSync: API successfully disassociated from domain 'api.example.com'
+"
+`;
+
+exports[`domain disassoc should disassociate a domain, skipping confirmation when the yes flag is passed 3`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain api.example.com will be disassociated from API '123456789'
+AppSync: Disassociating API from domain 'api.example.com'
+.
+AppSync: API successfully disassociated from domain 'api.example.com'
+"
+`;
+
+exports[`domain disassoc should not disassociate a domain, when not confirmed 1`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain api.example.com will be disassociated from API '123456789'
+"
+`;

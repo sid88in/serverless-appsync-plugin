@@ -1,11 +1,11 @@
 import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
 
 export type AppSyncConfig = {
-  apiId?: string;
   name: string;
   schema: string[];
   authentication: Auth;
   additionalAuthenticationProviders: Auth[];
+  domain?: DomainConfig;
   apiKeys?: ApiKeyConfig[];
   defaultMappingTemplates?: {
     request?: string | false;
@@ -135,6 +135,20 @@ export type ApiKeyAuth = {
 };
 
 export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
+
+export type DomainConfig = {
+  enabled?: boolean;
+  useCloudFormation?: boolean;
+  retain?: boolean;
+  name: string;
+  certificateArn: string;
+  route53?:
+    | boolean
+    | {
+        hostedZoneId?: string;
+        hostedZoneName?: string;
+      };
+};
 
 export type BaseResolverConfig = {
   field: string;

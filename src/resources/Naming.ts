@@ -19,6 +19,18 @@ export class Naming {
     return this.getLogicalId(`GraphQlSchema`);
   }
 
+  getDomainNameLogicalId() {
+    return this.getLogicalId(`GraphQlDomainName`);
+  }
+
+  getDomainAssociationLogicalId() {
+    return this.getLogicalId(`GraphQlDomainAssociation`);
+  }
+
+  getDomainReoute53RecordLogicalId() {
+    return this.getLogicalId(`GraphQlDomainRoute53Record`);
+  }
+
   getLogGroupLogicalId() {
     return this.getLogicalId(`GraphQlApiLogGroup`);
   }
