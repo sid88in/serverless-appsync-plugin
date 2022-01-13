@@ -649,7 +649,7 @@ class ServerlessAppsyncPlugin {
       );
     }
     this.log.warning(
-      `The domain ${domain.name} will beassociated from API '${apiId}'`,
+      `The domain ${domain.name} will be disassociated from API '${apiId}'`,
     );
 
     if (!this.options.yes && !(await confirmAction())) {
@@ -663,7 +663,7 @@ class ServerlessAppsyncPlugin {
       domainName: domain.name,
     });
 
-    const message = `Disassociating API with domain '${domain.name}'`;
+    const message = `Disassociating API from domain '${domain.name}'`;
     await this.showApiAssocStatus({
       name: domain.name,
       message,

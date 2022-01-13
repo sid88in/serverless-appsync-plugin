@@ -110,8 +110,8 @@ AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' w
 
 exports[`domain disassoc should disassociate a domain, asking for confirmation  3`] = `
 "AppSync: Loading AppSync config
-AppSync: The domain api.example.com will beassociated from API '123456789'
-AppSync: Disassociating API with domain 'api.example.com'
+AppSync: The domain api.example.com will be disassociated from API '123456789'
+AppSync: Disassociating API from domain 'api.example.com'
 .
 AppSync: API successfully disassociated from domain 'api.example.com'
 "
@@ -119,8 +119,8 @@ AppSync: API successfully disassociated from domain 'api.example.com'
 
 exports[`domain disassoc should disassociate a domain, skipping confirmation when the yes flag is passed 3`] = `
 "AppSync: Loading AppSync config
-AppSync: The domain api.example.com will beassociated from API '123456789'
-AppSync: Disassociating API with domain 'api.example.com'
+AppSync: The domain api.example.com will be disassociated from API '123456789'
+AppSync: Disassociating API from domain 'api.example.com'
 .
 AppSync: API successfully disassociated from domain 'api.example.com'
 "
@@ -128,6 +128,6 @@ AppSync: API successfully disassociated from domain 'api.example.com'
 
 exports[`domain disassoc should not disassociate a domain, when not confirmed 1`] = `
 "AppSync: Loading AppSync config
-AppSync: The domain api.example.com will beassociated from API '123456789'
+AppSync: The domain api.example.com will be disassociated from API '123456789'
 "
 `;
