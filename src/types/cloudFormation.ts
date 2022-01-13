@@ -106,6 +106,7 @@ export type CfnResolver = {
         LambdaConflictHandlerArn: string | IntrinsicFunction;
       };
     };
+    MaxBatchSize?: number;
   };
 };
 
@@ -119,6 +120,7 @@ export type CfnFunctionResolver = {
     FunctionVersion?: string;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;
+    MaxBatchSize?: number;
   };
 };
 

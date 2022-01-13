@@ -98,6 +98,7 @@ export class Resolver {
         ...Properties,
         Kind: 'UNIT',
         DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+        MaxBatchSize: this.config.maxBatchSize,
       };
     }
 

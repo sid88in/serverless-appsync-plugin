@@ -32,6 +32,7 @@ export class PipelineFunction {
       DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
       Description: this.config.description,
       FunctionVersion: '2018-05-29',
+      MaxBatchSize: this.config.maxBatchSize,
     };
 
     const requestMappingTemplates = this.resolveMappingTemplate('request');

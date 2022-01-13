@@ -101,6 +101,7 @@ Object {
       },
       "FieldName": "user",
       "Kind": "UNIT",
+      "MaxBatchSize": undefined,
       "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
       "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
       "SyncConfig": Object {

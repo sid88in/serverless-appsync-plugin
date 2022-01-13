@@ -30,6 +30,7 @@ describe('Basic', () => {
                 conflictHandler: 'LAMBDA',
                 function: { handler: 'index.handler' },
               },
+              maxBatchSize: 200,
             },
             getPosts: {
               type: 'Query',
@@ -126,6 +127,7 @@ describe('Basic', () => {
               field: 456,
               request: 123,
               response: 456,
+              maxBatchSize: 5000,
             },
           },
         },
