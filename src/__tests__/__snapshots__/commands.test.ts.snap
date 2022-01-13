@@ -17,6 +17,12 @@ AppSync: API successfully associated to domain 'api.example.com'
 "
 `;
 
+exports[`assoc domain should handle already associated APIs 2`] = `
+"AppSync: Loading AppSync config
+AppSync: The domain is already associated to this API
+"
+`;
+
 exports[`assoc domain should not ask for confirmation when yes flag is passed 3`] = `
 "AppSync: Loading AppSync config
 AppSync: The domain api.example.com is currently associated to another API (987654321)
@@ -55,32 +61,50 @@ AppSync: The domain 'api.example.com will be deleted.
 exports[`domain create-record should create a route53 record 4`] = `
 "AppSync: Loading AppSync config
 AppSync: Creating route53 record
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was created in Hosted Zone 'KLMNOPK'
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was created in Hosted Zone 'KLMNOP'
 AppSync: Route53 record created successfuly
+"
+`;
+
+exports[`domain create-record should handle changeResourceRecordSets errors silently 1`] = `
+"AppSync: Loading AppSync config
+AppSync: Creating route53 record
+AppSync: [Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]
 "
 `;
 
 exports[`domain delete-record should delete a route53 record, asking for confirmation 4`] = `
 "AppSync: Loading AppSync config
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOPK'
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
 AppSync: Deleting route53 record
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOPK'
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOP'
 AppSync: Route53 record deleted successfuly
 "
 `;
 
 exports[`domain delete-record should delete a route53 record, skipping confirmation when the yes flag is passed 4`] = `
 "AppSync: Loading AppSync config
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOPK'
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
 AppSync: Deleting route53 record
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOPK'
+.
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' was deleted from Hosted Zone 'KLMNOP'
 AppSync: Route53 record deleted successfuly
+"
+`;
+
+exports[`domain delete-record should handle changeResourceRecordSets errors silently 1`] = `
+"AppSync: Loading AppSync config
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
+AppSync: Deleting route53 record
+AppSync: [Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]
 "
 `;
 
 exports[`domain delete-record should not delete a route53 record, when not confirmed 2`] = `
 "AppSync: Loading AppSync config
-AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOPK'
+AppSync: CNAME record 'api.example.com' with value 'qbcdefghij.cloudfront.net' will be deleted from Hosted Zone 'KLMNOP'
 "
 `;
 

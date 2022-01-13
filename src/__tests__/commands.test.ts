@@ -1,6 +1,7 @@
 import { runServerless } from './utils';
 import stripAnsi from 'strip-ansi';
 import * as utils from '../utils';
+import { ServerlessError } from 'serverless/lib/classes/Error';
 
 const confirmSpy = jest.spyOn(utils, 'confirmAction');
 const describeStackResources = jest.fn().mockResolvedValue({
@@ -151,17 +152,57 @@ describe('assoc domain', () => {
     expect(describeStackResources).toHaveBeenCalledTimes(1);
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
-    expect(getApiAssociation.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "apiId": "123456789",
                 "domainName": "api.example.com",
               }
           `);
+    expect(stripAnsi(stdoutData)).toMatchSnapshot();
+  });
+
+  it('should handle already associated APIs', async () => {
+    getApiAssociation.mockResolvedValueOnce({
+      apiAssociation: {
+        apiId: '123456789',
+        associationStatus: 'SUCCESS',
+      },
+    });
+    const { stdoutData } = await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        CloudFormation: { describeStackResources },
+        AppSync: { associateApi, getApiAssociation },
+      },
+      command: 'appsync domain assoc',
+    });
+
+    expect(describeStackResources).toHaveBeenCalledTimes(1);
+    expect(getApiAssociation).toHaveBeenCalledTimes(1);
+    expect(associateApi).not.toHaveBeenCalled();
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
@@ -177,6 +218,7 @@ describe('assoc domain', () => {
       })
       .mockResolvedValue({
         apiAssociation: {
+          apiId: '123456789',
           associationStatus: 'SUCCESS',
         },
       });
@@ -193,11 +235,20 @@ describe('assoc domain', () => {
     expect(describeStackResources).toHaveBeenCalledTimes(1);
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
-    expect(getApiAssociation.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "apiId": "123456789",
@@ -218,6 +269,7 @@ describe('assoc domain', () => {
       })
       .mockResolvedValue({
         apiAssociation: {
+          apiId: '123456789',
           associationStatus: 'SUCCESS',
         },
       });
@@ -237,11 +289,20 @@ describe('assoc domain', () => {
     expect(describeStackResources).toHaveBeenCalledTimes(1);
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
-    expect(getApiAssociation.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "apiId": "123456789",
@@ -288,11 +349,20 @@ describe('domain disassoc', () => {
     expect(describeStackResources).toHaveBeenCalledTimes(1);
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(disassociateApi).toHaveBeenCalledTimes(1);
-    expect(getApiAssociation.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(disassociateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "domainName": "api.example.com",
@@ -331,11 +401,20 @@ describe('domain disassoc', () => {
     expect(describeStackResources).toHaveBeenCalledTimes(1);
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(disassociateApi).toHaveBeenCalledTimes(1);
-    expect(getApiAssociation.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+    expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+        Array [
+          Object {
+            "domainName": "api.example.com",
+          },
+        ],
+      ]
+    `);
     expect(disassociateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "domainName": "api.example.com",
@@ -370,30 +449,37 @@ describe('domain disassoc', () => {
 });
 
 describe('domain create-record', () => {
-  const getDomainName = jest.fn().mockResolvedValue({
-    domainNameConfig: {
-      appsyncDomainName: 'qbcdefghij.cloudfront.net',
-    },
-  });
-  const listHostedZonesByName = jest.fn().mockResolvedValue({
-    HostedZones: [
-      {
-        Id: '/hostedzone/KLMNOPK',
-        Name: 'example.com.',
+  const getDomainName = jest.fn();
+  const listHostedZonesByName = jest.fn();
+  const changeResourceRecordSets = jest.fn();
+  const getChange = jest.fn();
+
+  beforeEach(() => {
+    getDomainName.mockResolvedValue({
+      domainNameConfig: {
+        appsyncDomainName: 'qbcdefghij.cloudfront.net',
       },
-    ],
-  });
-  const changeResourceRecordSets = jest.fn().mockResolvedValue({
-    ChangeInfo: {
-      Id: '1234567890',
-      Status: 'PENDING',
-    },
-  });
-  const getChange = jest.fn().mockResolvedValue({
-    ChangeInfo: {
-      Id: '1234567890',
-      Status: 'INSYNC',
-    },
+    });
+    listHostedZonesByName.mockResolvedValue({
+      HostedZones: [
+        {
+          Id: '/hostedzone/KLMNOP',
+          Name: 'example.com.',
+        },
+      ],
+    });
+    changeResourceRecordSets.mockResolvedValue({
+      ChangeInfo: {
+        Id: '1234567890',
+        Status: 'PENDING',
+      },
+    });
+    getChange.mockResolvedValue({
+      ChangeInfo: {
+        Id: '1234567890',
+        Status: 'INSYNC',
+      },
+    });
   });
 
   afterEach(() => {
@@ -449,7 +535,7 @@ describe('domain create-record', () => {
                 },
               ],
             },
-            "HostedZoneId": "KLMNOPK",
+            "HostedZoneId": "KLMNOP",
           },
         ]
       `);
@@ -462,6 +548,97 @@ describe('domain create-record', () => {
       `);
     expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
+
+  it('should handle changeResourceRecordSets errors', async () => {
+    changeResourceRecordSets.mockRejectedValue(
+      new ServerlessError(
+        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+      ),
+    );
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        awsRequestStubMap: {
+          CloudFormation: { describeStackResources },
+          AppSync: { getDomainName },
+          Route53: {
+            changeResourceRecordSets,
+            listHostedZonesByName,
+            getChange,
+          },
+        },
+
+        command: 'appsync domain create-record',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]"`,
+    );
+
+    expect(getDomainName).toHaveBeenCalledTimes(1);
+    expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
+    expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
+    expect(getChange).not.toHaveBeenCalled();
+  });
+
+  it('should handle changeResourceRecordSets errors silently', async () => {
+    changeResourceRecordSets.mockRejectedValue(
+      new ServerlessError(
+        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+      ),
+    );
+
+    const { stdoutData } = await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        CloudFormation: { describeStackResources },
+        AppSync: { getDomainName },
+        Route53: {
+          changeResourceRecordSets,
+          listHostedZonesByName,
+          getChange,
+        },
+      },
+      command: 'appsync domain create-record',
+      options: { quiet: true },
+    });
+
+    expect(getDomainName).toHaveBeenCalledTimes(1);
+    expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
+    expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
+    expect(getChange).not.toHaveBeenCalled();
+    expect(stripAnsi(stdoutData)).toMatchSnapshot();
+  });
+
+  it('should handle when appsync domain name not created', async () => {
+    getDomainName.mockResolvedValue(new ServerlessError('Domain not found'));
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        awsRequestStubMap: {
+          CloudFormation: { describeStackResources },
+          AppSync: { getDomainName },
+          Route53: {
+            changeResourceRecordSets,
+            listHostedZonesByName,
+            getChange,
+          },
+        },
+
+        command: 'appsync domain create-record',
+        options: { quiet: true },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+            "Domain api.example.com not found
+            Did you forget to run 'sls appsync domain create'?"
+          `);
+
+    expect(getDomainName).toHaveBeenCalledTimes(1);
+    expect(listHostedZonesByName).not.toHaveBeenCalled();
+    expect(changeResourceRecordSets).not.toHaveBeenCalled();
+    expect(getChange).not.toHaveBeenCalled();
+  });
 });
 
 describe('domain delete-record', () => {
@@ -473,17 +650,12 @@ describe('domain delete-record', () => {
   const listHostedZonesByName = jest.fn().mockResolvedValue({
     HostedZones: [
       {
-        Id: '/hostedzone/KLMNOPK',
+        Id: '/hostedzone/KLMNOP',
         Name: 'example.com.',
       },
     ],
   });
-  const changeResourceRecordSets = jest.fn().mockResolvedValue({
-    ChangeInfo: {
-      Id: '1234567890',
-      Status: 'PENDING',
-    },
-  });
+  const changeResourceRecordSets = jest.fn();
   const getChange = jest.fn().mockResolvedValue({
     ChangeInfo: {
       Id: '1234567890',
@@ -500,6 +672,12 @@ describe('domain delete-record', () => {
 
   it('should delete a route53 record, asking for confirmation', async () => {
     confirmSpy.mockResolvedValue(true);
+    changeResourceRecordSets.mockResolvedValue({
+      ChangeInfo: {
+        Id: '1234567890',
+        Status: 'PENDING',
+      },
+    });
 
     const { stdoutData } = await runServerless({
       fixture: 'appsync',
@@ -547,7 +725,7 @@ describe('domain delete-record', () => {
                 },
               ],
             },
-            "HostedZoneId": "KLMNOPK",
+            "HostedZoneId": "KLMNOP",
           },
         ]
       `);
@@ -563,6 +741,12 @@ describe('domain delete-record', () => {
 
   it('should not delete a route53 record, when not confirmed', async () => {
     confirmSpy.mockResolvedValue(false);
+    changeResourceRecordSets.mockResolvedValue({
+      ChangeInfo: {
+        Id: '1234567890',
+        Status: 'PENDING',
+      },
+    });
 
     const { stdoutData } = await runServerless({
       fixture: 'appsync',
@@ -596,6 +780,12 @@ describe('domain delete-record', () => {
 
   it('should delete a route53 record, skipping confirmation when the yes flag is passed', async () => {
     confirmSpy.mockResolvedValue(true);
+    changeResourceRecordSets.mockResolvedValue({
+      ChangeInfo: {
+        Id: '1234567890',
+        Status: 'PENDING',
+      },
+    });
 
     const { stdoutData } = await runServerless({
       fixture: 'appsync',
@@ -644,7 +834,7 @@ describe('domain delete-record', () => {
                 },
               ],
             },
-            "HostedZoneId": "KLMNOPK",
+            "HostedZoneId": "KLMNOP",
           },
         ]
       `);
@@ -655,6 +845,73 @@ describe('domain delete-record', () => {
           },
         ]
       `);
+    expect(stripAnsi(stdoutData)).toMatchSnapshot();
+  });
+
+  it('should handle changeResourceRecordSets errors', async () => {
+    confirmSpy.mockResolvedValue(true);
+    changeResourceRecordSets.mockRejectedValue(
+      new ServerlessError(
+        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+      ),
+    );
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        awsRequestStubMap: {
+          CloudFormation: { describeStackResources },
+          AppSync: { getDomainName },
+          Route53: {
+            changeResourceRecordSets,
+            listHostedZonesByName,
+            getChange,
+          },
+        },
+
+        command: 'appsync domain delete-record',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]"`,
+    );
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(getDomainName).toHaveBeenCalledTimes(1);
+    expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
+    expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
+    expect(getChange).not.toHaveBeenCalled();
+  });
+
+  it('should handle changeResourceRecordSets errors silently', async () => {
+    confirmSpy.mockResolvedValue(true);
+    changeResourceRecordSets.mockRejectedValue(
+      new ServerlessError(
+        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+      ),
+    );
+
+    const { stdoutData } = await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        CloudFormation: { describeStackResources },
+        AppSync: { getDomainName },
+        Route53: {
+          changeResourceRecordSets,
+          listHostedZonesByName,
+          getChange,
+        },
+      },
+      command: 'appsync domain delete-record',
+      options: {
+        quiet: true,
+      },
+    });
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(getDomainName).toHaveBeenCalledTimes(1);
+    expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
+    expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
+    expect(getChange).not.toHaveBeenCalled();
     expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });

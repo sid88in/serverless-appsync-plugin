@@ -103,7 +103,10 @@ export const question = async (question: string): Promise<string> => {
     output: process.stdout,
   });
   const q = promisify(
-    (question: string, cb: (err: unknown, answer: string) => void) => {
+    (
+      question: string,
+      cb: (err: object | string | null, answer: string) => void,
+    ) => {
       rl.question(question, (a: string) => {
         cb(null, a);
       });

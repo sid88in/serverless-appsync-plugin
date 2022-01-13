@@ -677,9 +677,8 @@ class ServerlessAppsyncPlugin {
 
   async getHostedZoneId() {
     const domain = this.getDomain();
-    let hostedZoneId: string;
     if (typeof domain.route53 === 'object' && domain.route53.hostedZoneId) {
-      hostedZoneId = domain.route53.hostedZoneId;
+      return domain.route53.hostedZoneId;
     } else {
       const { HostedZones } = await this.provider.request<
         ListHostedZonesByNameRequest,
@@ -697,10 +696,8 @@ class ServerlessAppsyncPlugin {
           `No hosted zone found for domain ${domain.name}`,
         );
       }
-      hostedZoneId = foundHostedZone;
+      return foundHostedZone.replace('/hostedzone/', '');
     }
-
-    return hostedZoneId.replace('/hostedzone/', '');
   }
 
   async getAppSyncDomainName() {
@@ -714,7 +711,7 @@ class ServerlessAppsyncPlugin {
     const { appsyncDomainName } = domainNameConfig || {};
     if (!appsyncDomainName) {
       throw new this.serverless.classes.Error(
-        `Domain ${domain.name} not found`,
+        `Domain ${domain.name} not found\nDid you forget to run 'sls appsync domain create'?`,
       );
     }
 
@@ -799,8 +796,16 @@ class ServerlessAppsyncPlugin {
         'getChange',
         { Id: changeId },
       );
-      await wait(1000);
+      if (this.slsVersion === 'v2') {
+        process.stdout.write(chalk.yellow('.'));
+      }
+      if (result.ChangeInfo.Status !== 'INSYNC') {
+        await wait(1000);
+      }
     } while (result.ChangeInfo.Status !== 'INSYNC');
+    if (this.slsVersion === 'v2') {
+      process.stdout.write('\n');
+    }
   }
 
   async changeRoute53Record(
