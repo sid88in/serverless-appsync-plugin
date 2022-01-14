@@ -1459,6 +1459,25 @@ describe('Templates', () => {
     ).not.toHaveProperty('ResponseMappingTemplate');
   });
 
+  test('Batch resolvers', () => {
+    const apiConfig = {
+      ...config,
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          maxBatchSize: 5,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties.MaxBatchSize).toBe(
+      5,
+    );
+  });
+
   test('Pileline Resolver with template', () => {
     const apiConfig = {
       ...config,

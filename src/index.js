@@ -1160,6 +1160,10 @@ class ServerlessAppsyncPlugin {
         FieldName: tpl.field,
       };
 
+      if (tpl.maxBatchSize) {
+        Properties.MaxBatchSize = tpl.maxBatchSize;
+      }
+
       const requestTemplate = has('request')(tpl)
         ? tpl.request
         : config.defaultMappingTemplates.request;
