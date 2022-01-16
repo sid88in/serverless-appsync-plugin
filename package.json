@@ -40,6 +40,7 @@
     "ajv": "^8.8.2",
     "ajv-errors": "^3.0.0",
     "ajv-merge-patch": "^5.0.1",
+    "appsync-schema-converter": "^2.0.0",
     "aws-sdk": "^2.1048.0",
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
