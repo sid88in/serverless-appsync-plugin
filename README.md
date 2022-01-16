@@ -163,6 +163,7 @@ custom:
         dataSource: # data source name
         request: # request mapping template name | defaults to {name}.request.vtl
         response: # reponse mapping template name | defaults to {name}.response.vtl
+        maxBatchSize: # maximum number of requests for BatchInvoke operations
     dataSources:
       - type: NONE
         name: none
