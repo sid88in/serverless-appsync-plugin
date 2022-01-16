@@ -13,5 +13,5 @@
     "noImplicitAny": false
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
-  "exclude": ["node_modules", "src/__tests__"]
+  "exclude": ["node_modules"]
 }

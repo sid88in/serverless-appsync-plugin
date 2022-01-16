@@ -1,26 +1,21 @@
-import { noop, set } from 'lodash';
+import { set } from 'lodash';
 import Serverless from 'serverless/lib/Serverless';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
 import { AppSyncConfig } from '../types/plugin';
 import ServerlessAppsyncPlugin from '..';
-import { logger } from '../utils';
-import { ServerlessProgress } from '../types/serverless';
-import { Serverless as ServerlessType } from '../types/serverless';
 
-export const createServerless = (): ServerlessType => {
-  const serverless = new Serverless();
+export const createServerless = (): Serverless => {
+  const serverless = new Serverless({
+    commands: [],
+    options: {},
+    configuration: {},
+  });
   serverless.setProvider('aws', new AwsProvider(serverless));
   serverless.config.servicePath = '';
-  serverless.serviceOutputs = new Map();
-  serverless.servicePluginOutputs = new Map();
+  // serverless.serviceOutputs = new Map();
   set(serverless, 'configurationInput.appSync', appSyncConfig());
 
   return serverless;
-};
-
-const dummyProgress: ServerlessProgress = {
-  update: noop,
-  remove: noop,
 };
 
 export const plugin = () => {
@@ -28,14 +23,7 @@ export const plugin = () => {
     stage: 'dev',
     region: 'us-east-1',
   };
-  return new ServerlessAppsyncPlugin(createServerless(), options, {
-    log: logger(noop),
-    writeText: noop,
-    progress: {
-      get: () => dummyProgress,
-      create: () => dummyProgress,
-    },
-  });
+  return new ServerlessAppsyncPlugin(createServerless(), options);
 };
 
 export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {
