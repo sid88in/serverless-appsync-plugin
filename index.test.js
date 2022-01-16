@@ -1473,12 +1473,13 @@ describe('Templates', () => {
     };
 
     const apiResources = plugin.getResolverResources(apiConfig);
-    expect(apiResources.GraphQlResolverQueryfield.Properties.MaxBatchSize).toBe(
+    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty(
+      'MaxBatchSize',
       5,
     );
   });
 
-  test('Pileline Resolver with template', () => {
+  test('Pipeline Resolver with template', () => {
     const apiConfig = {
       ...config,
       functionConfigurationsLocation: 'mapping-templates',
@@ -1501,7 +1502,7 @@ describe('Templates', () => {
     ).toHaveProperty('ResponseMappingTemplate');
   });
 
-  test('Pileline Resolver without template', () => {
+  test('Pipeline Resolver without template', () => {
     const apiConfig = {
       ...config,
       functionConfigurationsLocation: 'mapping-templates',
@@ -1521,6 +1522,25 @@ describe('Templates', () => {
     expect(
       apiResources.GraphQlFunctionConfigurationpipeline.Properties,
     ).not.toHaveProperty('ResponseMappingTemplate');
+  });
+
+  test('Pipeline Resolver with batching', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          maxBatchSize: 5,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('MaxBatchSize', 5);
   });
 });
 
