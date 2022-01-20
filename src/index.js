@@ -96,7 +96,7 @@ class ServerlessAppsyncPlugin {
     const generateMigrationErrorMessage = (command) => () => {
       throw new this.serverless.classes.Error(
         `serverless-appsync: ${command} ` +
-        `is no longer supported. See ${MIGRATION_DOCS} for more information`,
+          `is no longer supported. See ${MIGRATION_DOCS} for more information`,
       );
     };
     // Issue 159 - as of Serverless 1.12.0, before:deploy:initialize is replaced
@@ -279,8 +279,8 @@ class ServerlessAppsyncPlugin {
         if (!apiId) {
           throw new this.serverless.classes.Error(
             'serverless-appsync: no apiId is defined. If you are not ' +
-            'migrating from a previous version of the plugin this is ' +
-            `expected.  See ${MIGRATION_DOCS} for more information`,
+              'migrating from a previous version of the plugin this is ' +
+              `expected.  See ${MIGRATION_DOCS} for more information`,
           );
         }
 
@@ -384,9 +384,9 @@ class ServerlessAppsyncPlugin {
     const lambdaAuthorizerConfig = {
       AuthorizerUri: this.getLambdaArn(provider.lambdaAuthorizerConfig),
       IdentityValidationExpression:
-      provider.lambdaAuthorizerConfig.identityValidationExpression,
+        provider.lambdaAuthorizerConfig.identityValidationExpression,
       AuthorizerResultTtlInSeconds:
-      provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
+        provider.lambdaAuthorizerConfig.authorizerResultTtlInSeconds,
     };
 
     return lambdaAuthorizerConfig;
@@ -466,12 +466,12 @@ class ServerlessAppsyncPlugin {
           LogConfig: !config.logConfig
             ? undefined
             : {
-              CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn || {
-                'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
+                CloudWatchLogsRoleArn: config.logConfig.loggingRoleArn || {
+                  'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
+                },
+                FieldLogLevel: config.logConfig.level,
+                ExcludeVerboseContent: config.logConfig.excludeVerboseContent,
               },
-              FieldLogLevel: config.logConfig.level,
-              ExcludeVerboseContent: config.logConfig.excludeVerboseContent,
-            },
           XrayEnabled: config.xrayEnabled,
           Tags: !config.tags ? undefined : this.getTagsConfig(config),
         },
@@ -492,7 +492,7 @@ class ServerlessAppsyncPlugin {
                 ],
               },
               RetentionInDays:
-              this.serverless.service.provider.logRetentionInDays,
+                this.serverless.service.provider.logRetentionInDays,
             },
           },
         }),
@@ -507,18 +507,18 @@ class ServerlessAppsyncPlugin {
 
     return lambdaConfig
       ? {
-        [`${logicalIdGraphQLApi}LambdaAuthorizerPermission`]: {
-          Type: 'AWS::Lambda::Permission',
-          Properties: {
-            Action: 'lambda:InvokeFunction',
-            FunctionName: this.getLambdaArn(
-              lambdaConfig.lambdaAuthorizerConfig,
-            ),
-            Principal: 'appsync.amazonaws.com',
-            SourceArn: { Ref: logicalIdGraphQLApi },
+          [`${logicalIdGraphQLApi}LambdaAuthorizerPermission`]: {
+            Type: 'AWS::Lambda::Permission',
+            Properties: {
+              Action: 'lambda:InvokeFunction',
+              FunctionName: this.getLambdaArn(
+                lambdaConfig.lambdaAuthorizerConfig,
+              ),
+              Principal: 'appsync.amazonaws.com',
+              SourceArn: { Ref: logicalIdGraphQLApi },
+            },
           },
-        },
-      }
+        }
       : undefined;
   }
 
@@ -1038,7 +1038,7 @@ class ServerlessAppsyncPlugin {
                     authConfig.awsIamConfig.signingRegion || config.region,
                   ...(authConfig.awsIamConfig.signingServiceName && {
                     SigningServiceName:
-                    authConfig.awsIamConfig.signingServiceName,
+                      authConfig.awsIamConfig.signingServiceName,
                   }),
                 },
               }),
@@ -1231,10 +1231,10 @@ class ServerlessAppsyncPlugin {
           ConflictHandler: tpl.sync.conflictHandler,
           ...(tpl.sync.conflictHandler === 'LAMBDA'
             ? {
-              LambdaConflictHandlerConfig: {
-                LambdaConflictHandlerArn: this.getLambdaArn(tpl.sync),
-              },
-            }
+                LambdaConflictHandlerConfig: {
+                  LambdaConflictHandlerArn: this.getLambdaArn(tpl.sync),
+                },
+              }
             : {}),
         };
       }
