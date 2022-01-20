@@ -898,6 +898,7 @@ class ServerlessAppsyncPlugin {
         defaultStatements.push(dbStatement, secretManagerStatement);
         break;
       }
+      case 'AMAZON_OPENSEARCH_SERVICE':
       case 'AMAZON_ELASTICSEARCH': {
         let arn;
         if (ds.config.domain) {
@@ -916,7 +917,7 @@ class ServerlessAppsyncPlugin {
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
             throw new this.serverless.classes.Error(
-              `Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`,
+              `Invalid AWS OpenSearch/ElasticSearch endpoint: '${ds.config.endpoint}`,
             );
           }
           arn = {
@@ -1015,6 +1016,19 @@ class ServerlessAppsyncPlugin {
         }
       } else if (ds.type === 'AMAZON_ELASTICSEARCH') {
         resource.Properties.ElasticsearchConfig = {
+          AwsRegion: ds.config.region || config.region,
+          Endpoint: ds.config.endpoint || {
+            'Fn::Join': [
+              '',
+              [
+                'https://',
+                { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] },
+              ],
+            ],
+          },
+        };
+      } else if (ds.type === 'AMAZON_OPENSEARCH_SERVICE') {
+        resource.Properties.OpenSearchServiceConfig = {
           AwsRegion: ds.config.region || config.region,
           Endpoint: ds.config.endpoint || {
             'Fn::Join': [
