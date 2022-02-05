@@ -1,7 +1,4 @@
-import fs from 'fs';
 import { Api } from '../resources/Api';
-import { flatten, upperFirst } from 'lodash';
-import globby from 'globby';
 import * as given from './given';
 
 // 2020-12-09T16:24:22+00:00
@@ -344,111 +341,6 @@ describe('Api', () => {
         },
       }
     `);
-  });
-
-  describe('schema', () => {
-    let mock: jest.SpyInstance;
-    let globbyMock: jest.SpyInstance;
-    beforeAll(() => {
-      mock = jest.spyOn(fs, 'readFileSync').mockImplementation((path) => {
-        const matches = `${path}`.match(/([a-z]+)\.graphql$/);
-        const type = upperFirst(matches?.[1] || 'Unknown');
-        return `
-            type Query {
-              get${type}: ${type}!
-            }
-
-            type ${type} {
-              id: ID!
-            }
-          `;
-      });
-
-      globbyMock = jest.spyOn(globby, 'sync').mockImplementation((globPath) => {
-        const genGlob = (glob: string) => [
-          glob.replace('*', 'users'),
-          glob.replace('*', 'posts'),
-        ];
-        if (typeof globPath === 'string') {
-          return genGlob(globPath);
-        } else {
-          return flatten(globPath.map(genGlob));
-        }
-      });
-    });
-
-    afterAll(() => {
-      mock.mockRestore();
-      globbyMock.mockRestore();
-    });
-
-    it('should merge the schemas', () => {
-      const api = new Api(
-        given.appSyncConfig({ schema: ['users.graphql', 'posts.graphql'] }),
-        plugin,
-      );
-      expect(api.compileSchema()).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlSchema": Object {
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "Definition": "type Query  {
-          getUsers: Users!
-          getPosts: Posts!
-        }
-
-        type Users  {
-          id: ID!
-        }
-
-        type Posts  {
-          id: ID!
-        }",
-            },
-            "Type": "AWS::AppSync::GraphQLSchema",
-          },
-        }
-      `);
-    });
-
-    it('should merge glob schemas', () => {
-      const api = new Api(
-        given.appSyncConfig({ schema: ['*.graphql'] }),
-        plugin,
-      );
-      expect(api.compileSchema()).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlSchema": Object {
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "Definition": "type Query  {
-          getUsers: Users!
-          getPosts: Posts!
-        }
-
-        type Users  {
-          id: ID!
-        }
-
-        type Posts  {
-          id: ID!
-        }",
-            },
-            "Type": "AWS::AppSync::GraphQLSchema",
-          },
-        }
-      `);
-    });
   });
 
   describe('Logs', () => {

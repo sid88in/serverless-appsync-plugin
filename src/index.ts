@@ -271,6 +271,7 @@ class ServerlessAppsyncPlugin {
       },
       // Commands
       'appsync:validate-schema:run': () => {
+        this.loadConfig();
         this.validateSchemas();
         log.success('AppSync schema valid');
       },
@@ -847,7 +848,7 @@ class ServerlessAppsyncPlugin {
       log.info('Validating AppSync schema');
       if (!this.api) {
         throw new this.serverless.classes.Error(
-          'Could not load hte API. This should not happen.',
+          'Could not load the API. This should not happen.',
         );
       }
       this.api.compileSchema();
@@ -864,7 +865,7 @@ class ServerlessAppsyncPlugin {
   buildAndAppendResources() {
     if (!this.api) {
       throw new this.serverless.classes.Error(
-        'Could not load hte API. This should not happen.',
+        'Could not load the API. This should not happen.',
       );
     }
 
@@ -923,9 +924,7 @@ class ServerlessAppsyncPlugin {
   handleError(message: string) {
     const { configValidationMode } = this.serverless.service;
     if (configValidationMode === 'error') {
-      throw new this.serverless.classes.Error(
-        `Invalid AppSync Schema: ${message}`,
-      );
+      throw new this.serverless.classes.Error(message);
     } else if (configValidationMode === 'warn') {
       log.warning(message);
     }
