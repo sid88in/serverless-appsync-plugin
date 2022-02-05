@@ -1,6 +1,6 @@
 import { runServerless } from './utils';
 import * as utils from '../utils';
-import { ServerlessError } from 'serverless/lib/classes/Error';
+import ServerlessError from 'serverless/lib/serverless-error';
 
 jest.mock('@serverless/utils/log', () => {
   const dummyProgress = {
