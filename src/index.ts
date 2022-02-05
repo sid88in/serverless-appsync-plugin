@@ -478,13 +478,13 @@ class ServerlessAppsyncPlugin {
   async createDomain() {
     try {
       const domain = this.getDomain();
-      await this.provider.request<
-        CreateDomainNameRequest,
-        CreateDomainNameRequest
-      >('AppSync', 'createDomainName', {
-        domainName: domain.name,
-        certificateArn: domain.certificateArn,
-      });
+      // await this.provider.request<
+      //   CreateDomainNameRequest,
+      //   CreateDomainNameRequest
+      // >('AppSync', 'createDomainName', {
+      //   domainName: domain.name,
+      //   certificateArn: domain.certificateArn,
+      // });
       log.success(`Domain '${domain.name}' created successfully`);
     } catch (error) {
       if (
