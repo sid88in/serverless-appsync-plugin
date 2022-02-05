@@ -1,7 +1,5 @@
 import { upperFirst, transform, values } from 'lodash';
 import { TransformKeysToCfnCase } from './typeHelpers';
-import { ServerlessLogger } from './types/serverless';
-import chalk from 'chalk';
 import { DateTime, Duration } from 'luxon';
 import { promisify } from 'util';
 import * as readline from 'readline';
@@ -87,15 +85,6 @@ export const parseDuration = (input: string | number) => {
 export const getHostedZoneName = (domain: string) => {
   return `${domain.split('.').slice(1).join('.')}.`;
 };
-
-export const logger: (log: (message) => void) => ServerlessLogger = (log) => ({
-  error: (message) => log(chalk.red(message)),
-  warning: (message) => log(chalk.yellow(message)),
-  notice: (message) => log(chalk.yellow(message)),
-  info: (message) => log(chalk.blueBright(message)),
-  debug: log,
-  success: (message) => log(chalk.green(message)),
-});
 
 export const question = async (question: string): Promise<string> => {
   const rl = readline.createInterface({

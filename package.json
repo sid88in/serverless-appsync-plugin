@@ -15,22 +15,20 @@
     "lint": "eslint . && tsc --noEmit"
   },
   "devDependencies": {
-    "@serverless/test": "^8.8.0",
+    "@serverless/test": "^9.0.0",
     "@serverless/typescript": "^2.68.0",
     "@types/jest": "^27.0.2",
     "@types/luxon": "^2.0.7",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "all-contributors-cli": "^6.20.0",
-    "appsync-schema-converter": "^2.0.0",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
-    "serverless": "^2.70.0",
-    "strip-ansi": "^6.0.1",
+    "serverless": "^3.1.1",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "ts-toolbelt": "^9.6.0",
@@ -38,9 +36,11 @@
   },
   "dependencies": {
     "@graphql-tools/merge": "^8.2.0",
+    "@serverless/utils": "^6.0.1",
     "ajv": "^8.8.2",
     "ajv-errors": "^3.0.0",
     "ajv-merge-patch": "^5.0.1",
+    "appsync-schema-converter": "^2.0.0",
     "aws-sdk": "^2.1048.0",
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
@@ -48,5 +48,8 @@
     "lodash": "^4.17.20",
     "luxon": "^2.1.1",
     "open": "^8.4.0"
+  },
+  "peerDependencies": {
+    "serverless": ">=3.0.0"
   }
 }

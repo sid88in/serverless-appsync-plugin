@@ -1,7 +1,35 @@
 import { runServerless } from './utils';
-import stripAnsi from 'strip-ansi';
 import * as utils from '../utils';
-import { ServerlessError } from 'serverless/lib/classes/Error';
+import ServerlessError from 'serverless/lib/serverless-error';
+
+jest.setTimeout(30000);
+
+jest.mock('@serverless/utils/log', () => {
+  const dummyProgress = {
+    update: jest.fn(),
+    remove: jest.fn(),
+  };
+  const logger = {
+    error: jest.fn(),
+    warning: jest.fn(),
+    notice: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+    success: jest.fn(),
+  };
+  return {
+    writeText: jest.fn(),
+    progress: {
+      get: () => dummyProgress,
+      create: () => dummyProgress,
+    },
+    log: {
+      get: () => logger,
+      ...logger,
+    },
+    getPluginWriters: jest.fn(),
+  };
+});
 
 const confirmSpy = jest.spyOn(utils, 'confirmAction');
 const describeStackResources = jest.fn().mockResolvedValue({
@@ -24,7 +52,7 @@ describe('create domain', () => {
     createDomainName.mockClear();
   });
   it('should create a domain', async () => {
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
@@ -41,7 +69,6 @@ describe('create domain', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });
 
@@ -53,7 +80,7 @@ describe('delete domain', () => {
   it('should delete a domain, asking for confirmation', async () => {
     confirmSpy.mockResolvedValue(true);
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
@@ -70,13 +97,12 @@ describe('delete domain', () => {
         }
       `);
     expect(confirmSpy).toHaveBeenCalled();
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should delete a domain, skipping confirmation when the yes flag is passed', async () => {
     confirmSpy.mockResolvedValue(true);
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
@@ -96,13 +122,12 @@ describe('delete domain', () => {
           "domainName": "api.example.com",
         }
       `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should not delete a domain, when not confirmed', async () => {
     confirmSpy.mockResolvedValue(false);
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
@@ -114,7 +139,6 @@ describe('delete domain', () => {
 
     expect(confirmSpy).toHaveBeenCalled();
     expect(deleteDomainName).not.toHaveBeenCalled();
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });
 
@@ -140,7 +164,7 @@ describe('assoc domain', () => {
           associationStatus: 'SUCCESS',
         },
       });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -172,7 +196,6 @@ describe('assoc domain', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should handle already associated APIs', async () => {
@@ -182,7 +205,7 @@ describe('assoc domain', () => {
         associationStatus: 'SUCCESS',
       },
     });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -203,7 +226,6 @@ describe('assoc domain', () => {
         ],
       ]
     `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should ask for confirmation when already associated', async () => {
@@ -222,7 +244,7 @@ describe('assoc domain', () => {
           associationStatus: 'SUCCESS',
         },
       });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -255,7 +277,6 @@ describe('assoc domain', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should not ask for confirmation when yes flag is passed', async () => {
@@ -273,7 +294,7 @@ describe('assoc domain', () => {
           associationStatus: 'SUCCESS',
         },
       });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -309,7 +330,6 @@ describe('assoc domain', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });
 
@@ -336,7 +356,7 @@ describe('domain disassoc', () => {
           associationStatus: 'NOT_FOUND',
         },
       });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -368,7 +388,6 @@ describe('domain disassoc', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should disassociate a domain, skipping confirmation when the yes flag is passed', async () => {
@@ -385,7 +404,7 @@ describe('domain disassoc', () => {
           associationStatus: 'NOT_FOUND',
         },
       });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -420,7 +439,6 @@ describe('domain disassoc', () => {
                 "domainName": "api.example.com",
               }
           `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should not disassociate a domain, when not confirmed', async () => {
@@ -431,7 +449,7 @@ describe('domain disassoc', () => {
         associationStatus: 'SUCCESS',
       },
     });
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -444,7 +462,6 @@ describe('domain disassoc', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(1);
     expect(confirmSpy).toHaveBeenCalled();
     expect(disassociateApi).not.toHaveBeenCalled();
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });
 
@@ -490,7 +507,7 @@ describe('domain create-record', () => {
   });
 
   it('should create a route53 record', async () => {
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -546,7 +563,6 @@ describe('domain create-record', () => {
           },
         ]
       `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should handle changeResourceRecordSets errors', async () => {
@@ -588,7 +604,7 @@ describe('domain create-record', () => {
       ),
     );
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -607,7 +623,6 @@ describe('domain create-record', () => {
     expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
     expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
     expect(getChange).not.toHaveBeenCalled();
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should handle when appsync domain name not created', async () => {
@@ -679,7 +694,7 @@ describe('domain delete-record', () => {
       },
     });
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -736,7 +751,6 @@ describe('domain delete-record', () => {
           },
         ]
       `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should not delete a route53 record, when not confirmed', async () => {
@@ -748,7 +762,7 @@ describe('domain delete-record', () => {
       },
     });
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -774,8 +788,6 @@ describe('domain delete-record', () => {
           },
         ]
       `);
-
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should delete a route53 record, skipping confirmation when the yes flag is passed', async () => {
@@ -787,7 +799,7 @@ describe('domain delete-record', () => {
       },
     });
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -845,7 +857,6 @@ describe('domain delete-record', () => {
           },
         ]
       `);
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 
   it('should handle changeResourceRecordSets errors', async () => {
@@ -890,7 +901,7 @@ describe('domain delete-record', () => {
       ),
     );
 
-    const { stdoutData } = await runServerless({
+    await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         CloudFormation: { describeStackResources },
@@ -912,6 +923,5 @@ describe('domain delete-record', () => {
     expect(listHostedZonesByName).toHaveBeenCalledTimes(1);
     expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
     expect(getChange).not.toHaveBeenCalled();
-    expect(stripAnsi(stdoutData)).toMatchSnapshot();
   });
 });
