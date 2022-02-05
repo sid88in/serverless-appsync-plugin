@@ -23,9 +23,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: |
-          yarn install --frozen-lockfile
+        run: npm install
       - name: Lint
-        run: yarn run lint
+        run: npm run lint
       - name: Tests
-        run: yarn run test
+        run: npm run test
