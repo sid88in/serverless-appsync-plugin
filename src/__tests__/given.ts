@@ -12,7 +12,6 @@ export const createServerless = (): Serverless => {
   });
   serverless.setProvider('aws', new AwsProvider(serverless));
   serverless.config.servicePath = '';
-  // serverless.serviceOutputs = new Map();
   set(serverless, 'configurationInput.appSync', appSyncConfig());
 
   return serverless;

@@ -48,5 +48,8 @@
     "lodash": "^4.17.20",
     "luxon": "^2.1.1",
     "open": "^8.4.0"
+  },
+  "peerDependencies": {
+    "serverless": ">=3.0.0"
   }
 }
