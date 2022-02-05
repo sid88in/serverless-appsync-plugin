@@ -1,0 +1,20 @@
+extend type Query {
+  getPost(id: ID!): Post!
+}
+
+extend type Mutation {
+  createPost(post: PostInput!): Post!
+}
+
+# This is a comment
+type Post {
+  id: ID!
+  title: String!
+}
+
+"""
+This is a description
+"""
+input PostInput {
+  title: String!
+}

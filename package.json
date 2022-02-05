@@ -35,16 +35,14 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@graphql-tools/merge": "^8.2.0",
     "@serverless/utils": "^6.0.1",
     "ajv": "^8.8.2",
     "ajv-errors": "^3.0.0",
     "ajv-merge-patch": "^5.0.1",
-    "appsync-schema-converter": "^2.0.0",
     "aws-sdk": "^2.1048.0",
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
-    "graphql": "^15.8.0",
+    "graphql": "^16.3.0",
     "lodash": "^4.17.20",
     "luxon": "^2.1.1",
     "open": "^8.4.0"
