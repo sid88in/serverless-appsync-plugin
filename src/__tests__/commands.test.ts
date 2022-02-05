@@ -2,6 +2,8 @@ import { runServerless } from './utils';
 import * as utils from '../utils';
 import ServerlessError from 'serverless/lib/serverless-error';
 
+jest.setTimeout(30000);
+
 jest.mock('@serverless/utils/log', () => {
   const dummyProgress = {
     update: jest.fn(),
