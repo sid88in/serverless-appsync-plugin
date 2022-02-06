@@ -139,9 +139,10 @@ describe('schema', () => {
       }),
       plugin,
     );
-    expect(() => api.compileSchema()).toThrowErrorMatchingInlineSnapshot(
-      `"Unknown type \\"Post\\"."`,
-    );
+    expect(() => api.compileSchema()).toThrowErrorMatchingInlineSnapshot(`
+      "Invalid GraphQL schema:
+           Unknown type \\"Post\\"."
+    `);
   });
 
   it('should return single files schemas as-is', () => {
