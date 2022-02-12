@@ -796,7 +796,7 @@ If an API is associated to it, you will need to disassociate it first.
 ## Associate/disassociate an API to the domain
 
 ```bash
-sls appsync-domain assoc -s dev
+sls appsync-domain assoc --stage dev
 ```
 
 You can associate an API to a domain that already has another API attached to it. The old API will be replaced by the new one.
@@ -804,7 +804,7 @@ You can associate an API to a domain that already has another API attached to it
 To disassociate an API from the domain, use
 
 ```bash
-sls appsync-domain disassoc  -s dev
+sls appsync-domain disassoc --stage dev
 ```
 
 ## Create/delete a route53 record
