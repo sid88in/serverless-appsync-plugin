@@ -5,8 +5,14 @@ const { buildASTSchema } = require('graphql/utilities');
 const runPlayground = require('./graphql-playground');
 const getConfig = require('./get-config');
 const chalk = require('chalk');
-const { has, merge } = require('ramda');
-const { parseDuration, toCfnKeys } = require('./utils');
+const { has, merge, last } = require('ramda');
+const {
+  parseDuration,
+  toCfnKeys,
+  getHostedZoneName,
+  confirmAction,
+  wait,
+} = require('./utils');
 const moment = require('moment');
 
 const MIGRATION_DOCS =
@@ -90,6 +96,89 @@ class ServerlessAppsyncPlugin {
         usage: 'DEPRECATED: Helps you update AppSync API',
         lifecycleEvents: ['update'],
       },
+      'appsync-domain': {
+        usage: 'Manage the domain for this AppSync API',
+        commands: {
+          create: {
+            usage: 'Create the domain in AppSync',
+            lifecycleEvents: ['run'],
+            options: {
+              quiet: {
+                usage: "Don't return an error if the domain already exists",
+                shortcut: 'q',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+          delete: {
+            usage: 'Delete the domain from AppSync',
+            lifecycleEvents: ['run'],
+            options: {
+              quiet: {
+                usage: "Don't return an error if the domain does not exist",
+                shortcut: 'q',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+          'create-record': {
+            usage: 'Create the CNAME record for this domain in Route53',
+            lifecycleEvents: ['run'],
+            options: {
+              quiet: {
+                usage: "Don't return an error if the record already exists",
+                shortcut: 'q',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+          'delete-record': {
+            usage: 'Deletes the CNAME record for this domain from Route53',
+            lifecycleEvents: ['run'],
+            options: {
+              quiet: {
+                usage: "Don't return an error if the record does not exist",
+                shortcut: 'q',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+          assoc: {
+            usage: 'Associate this AppSync API with the domain',
+            lifecycleEvents: ['run'],
+            options: {
+              yes: {
+                usage: 'Automatic yes to prompts',
+                shortcut: 'y',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+          disassoc: {
+            usage: 'Disassociate the AppSync API associated to the domain',
+            lifecycleEvents: ['run'],
+            options: {
+              yes: {
+                usage: 'Automatic yes to prompts',
+                shortcut: 'y',
+                required: false,
+                type: 'boolean',
+              },
+              force: {
+                usage: 'Force the disassociation of *any* API from this domain',
+                shortcut: 'f',
+                required: false,
+                type: 'boolean',
+              },
+            },
+          },
+        },
+      },
     };
 
     this.log = this.log.bind(this);
@@ -114,6 +203,12 @@ class ServerlessAppsyncPlugin {
       'after:aws:info:gatherData': () => this.gatherData(),
       'after:aws:info:displayEndpoints': () => this.displayEndpoints(),
       'after:aws:info:displayApiKeys': () => this.displayApiKeys(),
+      'appsync-domain:create:run': async () => this.createDomain(),
+      'appsync-domain:delete:run': async () => this.deleteDomain(),
+      'appsync-domain:assoc:run': async () => this.assocDomain(),
+      'appsync-domain:disassoc:run': async () => this.disassocDomain(),
+      'appsync-domain:create-record:run': async () => this.createRecord(),
+      'appsync-domain:delete-record:run': async () => this.deleteRecord(),
     };
   }
 
@@ -1713,6 +1808,346 @@ class ServerlessAppsyncPlugin {
       }
     }
     return { 'Fn::Join': ['', templateJoin] };
+  }
+
+  async getApiId() {
+    const { StackResources } = await this.provider.request(
+      'CloudFormation',
+      'describeStackResources',
+      {
+        StackName: this.provider.naming.getStackName(),
+      },
+    );
+
+    const apiId = last(
+      StackResources.find(
+        (resource) => resource.ResourceType === 'AWS::AppSync::GraphQLApi',
+      ).PhysicalResourceId.split('/'),
+    );
+
+    if (!apiId) {
+      throw new this.serverless.classes.Error(
+        'AppSync Api not found in stack. Did you forget to deploy?',
+      );
+    }
+
+    return apiId;
+  }
+
+  getDomain() {
+    const config = this.loadConfig();
+    const { domain } = config[0];
+
+    if (!domain) {
+      throw new this.serverless.classes.Error('Domain configuration not found');
+    }
+
+    return domain;
+  }
+
+  async createDomain() {
+    try {
+      const domain = this.getDomain();
+      await this.provider.request('AppSync', 'createDomainName', {
+        domainName: domain.name,
+        certificateArn: domain.certificateArn,
+      });
+      this.log(`Domain '${domain.name}' created successfully`, {
+        color: 'green',
+      });
+    } catch (error) {
+      if (
+        error instanceof this.serverless.classes.Error &&
+        this.options.quiet
+      ) {
+        this.log(error.message, { color: 'red' });
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  async deleteDomain() {
+    try {
+      const domain = this.getDomain();
+      this.log(`The domain '${domain.name} will be deleted.`);
+      if (!this.options.yes && !(await confirmAction())) {
+        return;
+      }
+      await this.provider.request('AppSync', 'deleteDomainName', {
+        domainName: domain.name,
+      });
+      this.log(`Domain '${domain.name}' deleted successfully`, {
+        color: 'green',
+      });
+    } catch (error) {
+      if (
+        error instanceof this.serverless.classes.Error &&
+        this.options.quiet
+      ) {
+        this.log(error.message, { color: 'red' });
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  async getApiAssocStatus(name) {
+    try {
+      const result = await this.provider.request(
+        'AppSync',
+        'getApiAssociation',
+        {
+          domainName: name,
+        },
+      );
+      return result.apiAssociation;
+    } catch (error) {
+      if (
+        error instanceof this.serverless.classes.Error &&
+        error.providerErrorCodeExtension === 'NOT_FOUND_EXCEPTION'
+      ) {
+        return { associationStatus: 'NOT_FOUND' };
+      }
+      throw error;
+    }
+  }
+
+  async showApiAssocStatus({ name, message, desiredStatus }) {
+    this.log(message);
+    let status;
+    do {
+      const result = await this.getApiAssocStatus(name);
+      status = result.associationStatus || 'UNKNOWN';
+      if (status !== desiredStatus) {
+        await wait(1000);
+        process.stdout.write('.');
+      }
+    } while (status !== desiredStatus);
+    process.stdout.write('\n');
+  }
+
+  async assocDomain() {
+    const domain = this.getDomain();
+    const apiId = await this.getApiId();
+    const assoc = await this.getApiAssocStatus(domain.name);
+
+    if (assoc.associationStatus !== 'NOT_FOUND' && assoc.apiId !== apiId) {
+      this.log(
+        `The domain ${domain.name} is currently associated to another API (${assoc.apiId})`,
+        { color: 'orange' },
+      );
+      if (!this.options.yes && !(await confirmAction())) {
+        return;
+      }
+    } else if (assoc.apiId === apiId) {
+      this.log('The domain is already associated to this API', {
+        color: 'green',
+      });
+      return;
+    }
+
+    await this.provider.request('AppSync', 'associateApi', {
+      domainName: domain.name,
+      apiId,
+    });
+
+    const message = `Associating API with domain '${domain.name}'`;
+    await this.showApiAssocStatus({
+      name: domain.name,
+      message,
+      desiredStatus: 'SUCCESS',
+    });
+    this.log(`API successfully associated to domain '${domain.name}'`, {
+      color: 'green',
+    });
+  }
+
+  async disassocDomain() {
+    const domain = this.getDomain();
+    const apiId = await this.getApiId();
+    const assoc = await this.getApiAssocStatus(domain.name);
+
+    if (assoc.associationStatus === 'NOT_FOUND') {
+      this.log(
+        `The domain ${domain.name} is currently not associated to any API`,
+      );
+      return;
+    }
+
+    if (assoc.apiId !== apiId && !this.options.force) {
+      throw new this.serverless.classes.Error(
+        `The domain ${domain.name} is currently associated to another API (${assoc.apiId})\n` +
+          `Try running this command from that API's stack or stage, or use the --force / -f flag`,
+      );
+    }
+    this.log(
+      `The domain ${domain.name} will be disassociated from API '${apiId}'`,
+    );
+
+    if (!this.options.yes && !(await confirmAction())) {
+      return;
+    }
+
+    await this.provider.request('AppSync', 'disassociateApi', {
+      domainName: domain.name,
+    });
+
+    const message = `Disassociating API from domain '${domain.name}'`;
+    await this.showApiAssocStatus({
+      name: domain.name,
+      message,
+      desiredStatus: 'NOT_FOUND',
+    });
+
+    this.log(`API successfully disassociated from domain '${domain.name}'`, {
+      color: 'green',
+    });
+  }
+
+  async getHostedZoneId() {
+    const domain = this.getDomain();
+    if (typeof domain.route53 === 'object' && domain.route53.hostedZoneId) {
+      return domain.route53.hostedZoneId;
+    } else {
+      const { HostedZones } = await this.provider.request(
+        'Route53',
+        'listHostedZonesByName',
+        {},
+      );
+      const hostedZoneName =
+        typeof domain.route53 === 'object' && domain.route53.hostedZoneName
+          ? domain.route53.hostedZoneName
+          : getHostedZoneName(domain.name);
+      const foundHostedZone = HostedZones.find(
+        (zone) => zone.Name === hostedZoneName,
+      ).Id;
+      if (!foundHostedZone) {
+        throw new this.serverless.classes.Error(
+          `No hosted zone found for domain ${domain.name}`,
+        );
+      }
+      return foundHostedZone.replace('/hostedzone/', '');
+    }
+  }
+
+  async getAppSyncDomainName() {
+    const domain = this.getDomain();
+    const { domainNameConfig } = await this.provider.request(
+      'AppSync',
+      'getDomainName',
+      {
+        domainName: domain.name,
+      },
+    );
+    const { appsyncDomainName } = domainNameConfig || {};
+    if (!appsyncDomainName) {
+      throw new this.serverless.classes.Error(
+        `Domain ${domain.name} not found\nDid you forget to run 'sls appsync domain create'?`,
+      );
+    }
+
+    return appsyncDomainName;
+  }
+
+  async createRecord() {
+    this.log('Creating route53 record');
+
+    const domain = this.getDomain();
+    const appsyncDomainName = await this.getAppSyncDomainName();
+    const hostedZoneId = await this.getHostedZoneId();
+    const changeId = await this.changeRoute53Record(
+      'CREATE',
+      hostedZoneId,
+      appsyncDomainName,
+    );
+    if (changeId) {
+      await this.checkRoute53RecordStatus(changeId);
+      this.log(
+        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was created in Hosted Zone '${hostedZoneId}'`,
+      );
+      this.log('Route53 record created successfuly', { color: 'green' });
+    }
+  }
+
+  async deleteRecord() {
+    const domain = this.getDomain();
+    const appsyncDomainName = await this.getAppSyncDomainName();
+    const hostedZoneId = await this.getHostedZoneId();
+
+    this.log(
+      `CNAME record '${domain.name}' with value '${appsyncDomainName}' will be deleted from Hosted Zone '${hostedZoneId}'`,
+    );
+    if (!this.options.yes && !(await confirmAction())) {
+      return;
+    }
+
+    this.log('Deleting route53 record');
+
+    const changeId = await this.changeRoute53Record(
+      'DELETE',
+      hostedZoneId,
+      appsyncDomainName,
+    );
+    if (changeId) {
+      await this.checkRoute53RecordStatus(changeId);
+      this.log(
+        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was deleted from Hosted Zone '${hostedZoneId}'`,
+      );
+      this.log('Route53 record deleted successfuly', { color: 'green' });
+    }
+  }
+
+  async checkRoute53RecordStatus(changeId) {
+    let result;
+    do {
+      result = await this.provider.request('Route53', 'getChange', {
+        Id: changeId,
+      });
+      if (result.ChangeInfo.Status !== 'INSYNC') {
+        await wait(1000);
+        process.stdout.write('.');
+      }
+    } while (result.ChangeInfo.Status !== 'INSYNC');
+    process.stdout.write('\n');
+  }
+
+  async changeRoute53Record(action, hostedZoneId, cname) {
+    const domain = this.getDomain();
+
+    try {
+      const { ChangeInfo } = await this.provider.request(
+        'Route53',
+        'changeResourceRecordSets',
+        {
+          HostedZoneId: hostedZoneId,
+          ChangeBatch: {
+            Changes: [
+              {
+                Action: action,
+                ResourceRecordSet: {
+                  Name: domain.name,
+                  Type: 'CNAME',
+                  ResourceRecords: [{ Value: cname }],
+                  TTL: 300,
+                },
+              },
+            ],
+          },
+        },
+      );
+
+      return ChangeInfo.Id;
+    } catch (error) {
+      if (
+        error instanceof this.serverless.classes.Error &&
+        this.options.quiet
+      ) {
+        this.log(error.message, { color: 'red' });
+      } else {
+        throw error;
+      }
+    }
   }
 }
 
