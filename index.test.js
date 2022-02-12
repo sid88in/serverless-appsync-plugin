@@ -116,12 +116,9 @@ describe('appsync config', () => {
     expect(resources.GraphQlApiLogGroup).toMatchSnapshot();
   });
 
-  test('Schema is transformed into App Sync compatible syntax', async () => {
+  test('Schema is transformed into App Sync compatible syntax', () => {
     Object.assign(config, {
       schema: `
-          interface One
-          interface Another
-
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -133,16 +130,13 @@ describe('appsync config', () => {
           }
         `,
     });
-    const schema = await plugin.getGraphQLSchemaResource(config);
+    const schema = plugin.getGraphQLSchemaResource(config);
     expect(schema).toMatchSnapshot();
   });
 
-  test('Schema allow hash comments when using allowHashDescription true in config', async () => {
+  test('Schema allow hash comments when using allowHashDescription true in config', () => {
     Object.assign(config, {
       schema: `
-          interface One
-          interface Another
-
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -155,7 +149,7 @@ describe('appsync config', () => {
         `,
     });
     config.allowHashDescription = true;
-    const schema = await plugin.getGraphQLSchemaResource(config);
+    const schema = plugin.getGraphQLSchemaResource(config);
     expect(schema).toMatchSnapshot();
   });
 
@@ -329,7 +323,7 @@ describe('appsync config', () => {
     }).toThrowErrorMatchingSnapshot();
   });
 
-  test('AppSync settings are not updated when ApiId is provided', async () => {
+  test('AppSync settings are not updated when ApiId is provided', () => {
     const ignoredResources = {
       caching: {
         behavior: 'FULL_REQUEST_CACHING',
@@ -370,9 +364,6 @@ describe('appsync config', () => {
       ...ignoredResources,
       apiId: 'testApiId',
       schema: `
-          interface One
-          interface Another
-
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -416,18 +407,15 @@ describe('appsync config', () => {
 
     const resources = {};
     const outputs = {};
-    await plugin.addResource(resources, outputs, apiConfig);
+    plugin.addResource(resources, outputs, apiConfig);
     expect(resources).toMatchSnapshot();
   });
 
-  test('Existing ApiId is used for all resources if provided', async () => {
+  test('Existing ApiId is used for all resources if provided', () => {
     const apiConfig = {
       ...config,
       apiId: 'testApiId',
       schema: `
-          interface One
-          interface Another
-
           """A valid schema"""
           type Thing implements One & Another {
             hello: ID!
@@ -471,7 +459,7 @@ describe('appsync config', () => {
 
     const resources = {};
     const outputs = {};
-    await plugin.addResource(resources, outputs, apiConfig);
+    plugin.addResource(resources, outputs, apiConfig);
 
     expect(outputs).toEqual({
       GraphQlApiId: {
@@ -1459,7 +1447,27 @@ describe('Templates', () => {
     ).not.toHaveProperty('ResponseMappingTemplate');
   });
 
-  test('Pileline Resolver with template', () => {
+  test('Batch resolvers', () => {
+    const apiConfig = {
+      ...config,
+      mappingTemplates: [
+        {
+          dataSource: 'ds',
+          type: 'Query',
+          field: 'field',
+          maxBatchSize: 5,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getResolverResources(apiConfig);
+    expect(apiResources.GraphQlResolverQueryfield.Properties).toHaveProperty(
+      'MaxBatchSize',
+      5,
+    );
+  });
+
+  test('Pipeline Resolver with template', () => {
     const apiConfig = {
       ...config,
       functionConfigurationsLocation: 'mapping-templates',
@@ -1482,7 +1490,7 @@ describe('Templates', () => {
     ).toHaveProperty('ResponseMappingTemplate');
   });
 
-  test('Pileline Resolver without template', () => {
+  test('Pipeline Resolver without template', () => {
     const apiConfig = {
       ...config,
       functionConfigurationsLocation: 'mapping-templates',
@@ -1502,6 +1510,25 @@ describe('Templates', () => {
     expect(
       apiResources.GraphQlFunctionConfigurationpipeline.Properties,
     ).not.toHaveProperty('ResponseMappingTemplate');
+  });
+
+  test('Pipeline Resolver with batching', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          maxBatchSize: 5,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('MaxBatchSize', 5);
   });
 });
 

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { mergeTypeDefs } = require('@graphql-tools/merge');
 const { mapObjIndexed, pipe, values, merge } = require('ramda');
 const globby = require('globby');
 
@@ -7,6 +8,21 @@ const objectToArrayWithNameProp = pipe(
   mapObjIndexed((item, key) => merge({ name: key }, item)),
   values,
 );
+
+const mergeTypes = (types, options) => {
+  const schemaDefinition =
+    options && typeof options.schemaDefinition === 'boolean'
+      ? options.schemaDefinition
+      : true;
+  return mergeTypeDefs(types, {
+    useSchemaDefinition: schemaDefinition,
+    forceSchemaDefinition: schemaDefinition,
+    throwOnConflict: true,
+    commentDescriptions: true,
+    reverseDirectives: true,
+    ...options,
+  });
+};
 
 const getConfig = (config, provider, servicePath) => {
   if (
@@ -81,7 +97,7 @@ const getConfig = (config, provider, servicePath) => {
   const schemaFiles = [].concat(
     ...schema.map((s) => globby.sync(toAbsolutePosixPath(s))),
   );
-  const schemaContent = schemaFiles.map(readSchemaFile);
+  const schemaContent = mergeTypes(schemaFiles.map(readSchemaFile));
 
   let dataSources = [];
   if (Array.isArray(config.dataSources)) {

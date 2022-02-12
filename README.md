@@ -125,6 +125,7 @@ custom:
           - # function name
         request: # request mapping template name | defaults to `defaultMappingTemplates.request` or {type}.{field}.request.vtl
         response: # response mapping template name | defaults to `defaultMappingTemplates.response` or {type}.{field}.response.vtl
+        maxBatchSize: # maximum number of requests for BatchInvoke operations
         # When caching is enaled with `PER_RESOLVER_CACHING`,
         # the caching options of the resolver.
         # Disabled by default.
@@ -162,6 +163,7 @@ custom:
         dataSource: # data source name
         request: # request mapping template name | defaults to {name}.request.vtl
         response: # reponse mapping template name | defaults to {name}.response.vtl
+        maxBatchSize: # maximum number of requests for BatchInvoke operations
     dataSources:
       - type: NONE
         name: none
@@ -759,9 +761,9 @@ You are also very welcome to open a PR and we will gladely review it.
 
 - *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
 
-- *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
+- *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
 
-- *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
+- *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
 
 - *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
 
