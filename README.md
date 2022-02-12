@@ -766,13 +766,18 @@ custom:
     domain:
       name: api.example.com
       certificateArn: arn:aws:acm:us-east-1123456789:certificate/1c4e4c36-9a63-4685-94b7-e873402baca3
+      route53:
+        hostedZoneId: ABCDEFGHIJKLMN # optional. The plugin will try find the best match from the domain name
+        hostedZoneName: example.com # optional. The plugin will try find the best match from the domain name
 ```
 
 Domains are managed trhough the CLI commands. This allows a better flexibility and control over your domains and APIs.
 
 e.g. You can swap one API with another on a domain easily (for blue/green deployments)
 
-## Create/Delete a domain
+Note: This is currently only supported for one API. If you have multiple APIs in your stack, the first one will be used.
+
+## Create/delete a domain
 
 Before associating a domain to an API, you must first create it. You can do so using the following command.
 
@@ -788,7 +793,7 @@ sls appsync-domain delete
 
 If an API is associated to it, you will need to disassociate it first.
 
-## Associate/Disassociate the current API to the domain
+## Associate/disassociate an API to the domain
 
 ```bash
 sls appsync-domain assoc -s dev
@@ -802,7 +807,7 @@ To disassociate an API from the domain, use
 sls appsync-domain disassoc  -s dev
 ```
 
-## Create/Delete a route53 record
+## Create/delete a route53 record
 
 If you use Route53 for your hosted zone, you can also manage the CNAME record for your custom domain easily using the following commands.
 

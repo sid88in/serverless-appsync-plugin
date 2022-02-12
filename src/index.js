@@ -1819,19 +1819,17 @@ class ServerlessAppsyncPlugin {
       },
     );
 
-    const apiId = last(
-      StackResources.find(
-        (resource) => resource.ResourceType === 'AWS::AppSync::GraphQLApi',
-      ).PhysicalResourceId.split('/'),
+    const api = StackResources.find(
+      (resource) => resource.ResourceType === 'AWS::AppSync::GraphQLApi',
     );
 
-    if (!apiId) {
+    if (!api) {
       throw new this.serverless.classes.Error(
         'AppSync Api not found in stack. Did you forget to deploy?',
       );
     }
 
-    return apiId;
+    return last(api.PhysicalResourceId.split('/'));
   }
 
   getDomain() {
