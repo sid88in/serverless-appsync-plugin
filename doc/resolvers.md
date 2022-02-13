@@ -2,7 +2,9 @@
 
 All the Resolvers in your AppSync API can be found in serverless.yml under the `appSync.resolvers` property.
 
-Resolvers are defined using key-value pairs where the key can either be an arbitrary name for the resolver or the `type` and `field` in the schema it is attached to separated with a dot (`.`).
+Resolvers are defined using key-value pairs where the key can either be an arbitrary name for the resolver or the `type` and `field` in the schema it is attached to separated with a dot (`.`) abd the value is the configuration of the resolver.
+
+The definition can also be a string in which case it's the [dataSource](dataSources.md) name to use. The other attributes use the default values.
 
 ## Quick start
 
@@ -11,6 +13,7 @@ appSync:
   resolvers:
     Query.user:
       dataSource: my-table
+    Query.users: my-table
 ```
 
 ## Configuration
@@ -20,15 +23,15 @@ appSync:
 - `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `UNIT`
 - `dataSource`: The name of the [dataSource](dataSoruces.md) this resolver uses.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda datasoures)
-- `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Default to `{Type}.{Field}.request.vtl`.
-- `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Default to `{Type}.{Field}.response.vtl`.
+- `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{Type}.{Field}.request.vtl`.
+- `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{Type}.{Field}.response.vtl`.
 - `substitutions`: See [VTL template substitutions](substitutions.md)
 - `caching`: [See below](#Caching)
 - `sync`: [See blow](#Sync)
 
 ## PIPELINE resolvers
 
-When `kind` is `PIPELINE`, you must specify the pipeline functions to use
+When `kind` is `PIPELINE`, you can specify the [pipeline function](pipeline-functions.md) names to use:
 
 ```yaml
 appSync:

@@ -47,6 +47,7 @@ appSync:
 
 - [DataSources](doc/dataSources.md)
 - [Resolvers](doc/resolvers.md)
+- [Pipeline Functions](doc/pipeline-functions.md)
 - [Authentication](doc/authentication.md)
 - [API keys](doc/API-keys.md)
 - [VTL Template Substitutions](doc/substitutions.md)

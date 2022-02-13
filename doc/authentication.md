@@ -56,7 +56,7 @@ appSync:
 ```
 
 - `userPoolId`: The user pool id to use.
-- `awsRegion`: The region where the user pool is located. Default to the stack's region.
+- `awsRegion`: The region where the user pool is located. Defaults to the stack's region.
 - `appIdClientRegex`: An optional regular expression for validating the incoming Amazon Cognito user pool app client ID.
 
 ### OIDC

@@ -69,7 +69,7 @@ appSync:
 ### config
 
 - `endpoint`: The endpoint url to the OpenSearch domain
-- `region`: The region of the OpenSearch domain. Default to the stack's region.
+- `region`: The region of the OpenSearch domain. Defaults to the stack's region.
 - `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 
@@ -117,7 +117,7 @@ appSync:
 ### config
 
 - `databaseName`: The name of the database
-- `region`: The region of the RDS HTTP ednpoint. Default to the region of the stack.
+- `region`: The region of the RDS HTTP ednpoint. Defaults to the region of the stack.
 - `awsSecretStoreArn`: The ARN for database credentials stored in AWS Secrets Manager.
 - `dbClusterIdentifier`: Amazon RDS cluster Amazon Resource Name (ARN).
 - `schema`: Logical schema name.
