@@ -1,6 +1,6 @@
 # DataSources
 
-All the DataSources in your AppSync API can be found in serverless.yml under the `appSync.dataSources` property. DataSources are defiend as key-value objects, the key being the name of the DataSource.
+All the DataSources in your AppSync API can be found in serverless.yml under the `appSync.dataSources` property. DataSources are defined as key-value objects, the key being the name of the DataSource.
 
 ## DynamoDB
 
@@ -9,7 +9,7 @@ All the DataSources in your AppSync API can be found in serverless.yml under the
 ```yaml
 appSync:
   dataSources:
-    my-table:
+    myTableDs:
       type: AMAZON_DYNAMODB
       description: 'My table'
       config:
@@ -18,10 +18,10 @@ appSync:
 
 ### config
 
-- `tableName`: the name of the DynamODB table
+- `tableName`: the name of the DynamoDB table
 - `region`: the region of the table. Defaults to the stack's region
 - `useCallerCredentials`: Set to `true` to use AWS Identity and Access Management with this data source
-- `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 - `versioned`: Set to `true` to use Conflict Detection and Resolution with this data source.
 - `deltaSyncConfig`:
@@ -31,7 +31,7 @@ appSync:
 
 ## AWS Lambda
 
-### quick start
+### Quick start
 
 ```yaml
 appSync:
@@ -46,7 +46,7 @@ appSync:
 
 ### config
 
-- `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 - `function`: A Lambda function definition as you would define it under the `functions` section of your `serverless.yml` file.
 - `functionName`: The name of the function as defined under the `functions` section of the `serverless.yml` file
@@ -70,7 +70,7 @@ appSync:
 
 - `endpoint`: The endpoint url to the OpenSearch domain
 - `region`: The region of the OpenSearch domain. Defaults to the stack's region.
-- `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 
 ## HTTP
@@ -89,7 +89,7 @@ appSync:
 ### config
 
 - `endpoint`: The url of the HTTP endpoint.
-- `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 - `authorizationConfig`:
   - `authorizationType`: The authorization type that the HTTP endpoint requires.
@@ -121,7 +121,7 @@ appSync:
 - `awsSecretStoreArn`: The ARN for database credentials stored in AWS Secrets Manager.
 - `dbClusterIdentifier`: Amazon RDS cluster Amazon Resource Name (ARN).
 - `schema`: Logical schema name.
-- `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
 
 ## NONE

@@ -33,7 +33,7 @@ appSync:
 
 ### IAM
 
-Allows IAM users ands roles to access the API.
+Allows IAM users and roles to access the API.
 
 ```yaml
 appSync:
@@ -45,7 +45,7 @@ appSync:
 
 ### Cognito
 
-Allows authentication using a Cognito.
+Allows authentication using a Cognito user pool.
 
 ```yaml
 appSync:

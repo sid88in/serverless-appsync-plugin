@@ -1,6 +1,6 @@
 # API Keys
 
-When you use `API_KEY` as an [authentication method](authentication.md), you can control how API keys are created under `appSync.apiKeys`. It takes an array of api key definitions or strings.
+When you use `API_KEY` as an [authentication method](authentication.md), you can control how API keys are created under `appSync.apiKeys`. It takes an array of API key definitions or strings.
 
 ## Quick start
 
@@ -13,14 +13,14 @@ appSync:
       expiresAfter: 1M
 ```
 
-## configuration
+## Configuration
 
 It can either be string, which translates into the API key's name with default values for the other attributes, or use a custom configuration.
 
 - `name`: A unique name for this API key. Required.
 - `description`: An optional description for this API key.
-- `expiresAfter`: A time ater which this API key will expire. [See below](Expiry) for more details about expiry. Defaults to `365y`.
-- `expiresAt`: A time at which this API key will expire. [See below](Expiry) for more details about expiry.
+- `expiresAfter`: A time after which this API key will expire. [See below](#expiry) for more details about expiry. Defaults to `365y`.
+- `expiresAt`: A time at which this API key will expire. [See below](#expiry) for more details about expiry.
 - `wafRules`: an array of [WAF rules](WAF.md) that will apply to this API key only.
 
 ## Expiry
@@ -29,7 +29,7 @@ You can control expiry of the API keys with the `expiresAfter` or `expiresAt` at
 
 `expiresAfter` behaves as a sliding-window expiry date which extends after each deployment. It can be a number of hours until expiry or a more human-friendly string. e.g. `24h`, `30d`, `3M`, `1y`.
 
-`expiresAt` is an exact ISO datetime at which this API will expire. It will not be renewd unless you change this value. e.g. `2022-02-13T10:00:00`.
+`expiresAt` is an exact ISO datetime at which this API will expire. It will not be renewed unless you change this value. e.g. `2022-02-13T10:00:00`.
 
 `expiresAfter` takes precedence over `expiresAt`. If neither are passed, it defaults to a `expiresAfter` of `365d`
 

@@ -38,7 +38,7 @@ appSync:
 Common configuration to all rules:
 
 - `name`: The name of the rule
-- `action`: How this rule should handle the incoming request. `Allow` or `Deny`. Defaults to `Allow`.
+- `action`: How this rule should handle the incoming request when matching the rule. `Allow` or `Deny`. Defaults to `Allow`.
 - `priority`: The priority of this rule. See [Rules Priority](#rules-priority)
 - `visibilityConfig`: The [visibility config](https://docs.aws.amazon.com/waf/latest/APIReference/API_VisibilityConfig.html) for this rule.
 

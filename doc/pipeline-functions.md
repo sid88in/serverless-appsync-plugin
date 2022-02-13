@@ -1,6 +1,6 @@
 # Pipeline functions
 
-When you use `PIPELINE` [resolvers](resolvers.md), you will also need to define the use pipeline functions. You can do so under the `appSync.pipelineFunctions` attribute.
+When you use `PIPELINE` [resolvers](resolvers.md), you will also need to define the used pipeline functions. You can do so under the `appSync.pipelineFunctions` attribute.
 
 It's a key-value pair object whose key is the name of the function and the value is its configuration.
 
@@ -22,7 +22,7 @@ appSync:
 - `description`: An optional description for this pipeline function.
 - `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.request.vtl`.
 - `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.response.vtl`.
-- `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda datasoures)
+- `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataAources)
 - `substitutions`: See [VTL template substitutions](substitutions.md)
 
 ## Inline DataSources

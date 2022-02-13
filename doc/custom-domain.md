@@ -1,6 +1,6 @@
 # Custom Domains
 
-Appsync supports associating your API to a [custom domain](https://aws.amazon.com/blogs/mobile/introducing-custom-domain-names-for-aws-appsync-apis/).
+AppSync supports associating your API to a [custom domain](https://aws.amazon.com/blogs/mobile/introducing-custom-domain-names-for-aws-appsync-apis/).
 
 The configuration for custom domain can be found under the `appSync.domain` attribute.
 
@@ -26,9 +26,9 @@ appSync:
 
 This plugin does not provide any way to generate or manage your domain certificate. This is usually a set-and-forget kind of operation. You still need to provide its ARN and it must be a valid certificate for the provided domain name.
 
-## Route 53 configuration
+## Route53 configuration
 
-When `true`, This plugin will try to create a Route53 CNAME entry in the Hosted Zone corresponding to the domain. This plugin will do its best to fint the best Hosted Zone that matches the domain name.
+When `true`, this plugin will try to create a Route53 CNAME entry in the Hosted Zone corresponding to the domain. This plugin will do its best to find the best Hosted Zone that matches the domain name.
 
 When `false`, no CNAME record will be created.
 
@@ -57,7 +57,7 @@ If `useCloudFormation` is set to `true`, the domain and domain association will 
 
 For example, if you wanted to use blue/green deployments, you might need to associate APIs from different stacks to the same domain. In that case, the only way to do it is to use the CLI.
 
-For more information about managing domains with the CLI, see the [Commands](commands.md#domain)
+For more information about managing domains with the CLI, see the [Commands](commands.md#domain) section.
 
 ## Ejecting from CloudFormation
 
@@ -65,17 +65,17 @@ If you started to manage your domain through CloudFormation and want to eject fr
 
 1. Set `retain` to `true`
 
-To avoid breaking your API if it is already on production, you first need to tell CloudFormation to retain the domain and any association with an existing API. For that, you can set the `retain` attribute to `true`. **You Will then need to deploy one more time to make sure that CloudFormation takes the change into account.**
+To avoid breaking your API if it is already on production, you first need to tell CloudFormation to retain the domain and any association with an existing API. For that, you can set the `retain` attribute to `true`. **You will then need to re-deploy to make sure that CloudFormation takes the change into account.**
 
 2. Set `useCloudFormation` to `false`
 
-You can now set `useCloudFormation` to `false` and **deploy again**. The domain and domain association resources will be removed from the CloudFormation template, but the resources will be retained (see point 1.)
+You can now set `useCloudFormation` to `false` and **deploy one more time**. The domain and domain association resources will be removed from the CloudFormation template, but the resources will be retained (see point 1.)
 
 3. Manage your domain using the CLI
 
 You can now manage your domain using the CLI [commands](commands.md#domain)
 
-## Domains per stage
+## Domain names per stage
 
 You can use different domains by stage easily thanks to [Serverless Framework Stage Parameters](https://www.serverless.com/framework/docs/guides/parameters)
 
