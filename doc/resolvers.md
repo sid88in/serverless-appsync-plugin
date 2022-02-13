@@ -17,7 +17,7 @@ appSync:
 
 - `type`: The Type in the schema this resolver is attached to. Optional if specified in the configuration key.
 - `field`: The Field in the schema this resolver is attached to. Optional if specified in the configuration key.
-- `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE%20resolvers)). Defaults to `UNIT`
+- `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `UNIT`
 - `dataSource`: The name of the [dataSource](dataSoruces.md) this resolver uses.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda datasoures)
 - `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Default to `{Type}.{Field}.request.vtl`.

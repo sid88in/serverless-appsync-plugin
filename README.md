@@ -47,6 +47,7 @@ appSync:
 
 - [DataSources](doc/dataSources.md)
 - [Resolvers](doc/resolvers.md)
+- [API keys](doc/API-keys.md)
 - [VTL Template Substitutions](doc/substitutions.md)
 - [Caching](doc/caching.md)
 
