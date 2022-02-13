@@ -48,10 +48,10 @@ appSync:
 
 - `serviceRoleArn`: The service roel ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
-- `function`: A Lambda function definition as you would define it under the `functions` section of you `serverless.yml file.
+- `function`: A Lambda function definition as you would define it under the `functions` section of your `serverless.yml` file.
 - `functionName`: The name of the function as defined under the `functions` section of the `serverless.yml` file
 - `functionAlias`: A specific function alias to use
-- `functionArn`: The function ARN to use for this DataSoruce.
+- `functionArn`: The function ARN to use for this DataSource.
 
 ## OpenSearch (ElasticSearch)
 

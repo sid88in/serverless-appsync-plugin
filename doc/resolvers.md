@@ -93,7 +93,7 @@ Query.user:
 
 - `conflictDetection`: Defaults to 'VERSION'
 - `conflictHandler`: `OPTIMISTIC_CONCURRENCY`, `AUTOMERGE` or `LAMBDA`
-- `function`: A Lambda function definition as you would define it under the `functions` section of you `serverless.yml file.
+- `function`: A Lambda function definition as you would define it under the `functions` section of your `serverless.yml` file.
 - `functionName`: When `conflictHandler` is `LAMBDA`, the name of the function as defined under the `functions` section of the `serverless.yml` file
-- `functionAlias`: When `conflictHandler` is `LAMBDA`, a specific function alias to use
-- `functionArn`: When `conflictHandler` is `LAMBDA`, the function ARN to use for this DataSoruce.
+- `functionAlias`: When `conflictHandler` is `LAMBDA`, a specific function alias to use.
+- `functionArn`: When `conflictHandler` is `LAMBDA`, the function ARN to use.
