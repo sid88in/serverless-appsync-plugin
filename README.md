@@ -87,7 +87,7 @@ appSync:
 
 # Upgrading from v1
 
-To upgrade form v1 of this plugin, [follow this guide](Upgrading from v1)[doc/upgrading-from-v1.md]
+To upgrade form v1 of this plugin, [follow this guide](doc/upgrading-from-v1.md)
 
 # Contributing
 
