@@ -100,3 +100,13 @@ Query.user:
 - `functionName`: When `conflictHandler` is `LAMBDA`, the name of the function as defined under the `functions` section of the `serverless.yml` file
 - `functionAlias`: When `conflictHandler` is `LAMBDA`, a specific function alias to use.
 - `functionArn`: When `conflictHandler` is `LAMBDA`, the function ARN to use.
+
+# Organize your resolvers
+
+You can define your data sources into several files for organizational reasons. You can pass each file into the `dataSources` attribute as an array.
+
+```yaml
+resolvers:
+  - ${file(appsync/resolvers/users.yml)}
+  - ${file(appsync/resolvers/posts.yml)}
+```

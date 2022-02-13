@@ -4,7 +4,7 @@ All the DataSources in your AppSync API can be found in serverless.yml under the
 
 ## DynamoDB
 
-### quick start
+### Quick start
 
 ```yaml
 appSync:
@@ -131,4 +131,14 @@ appSync:
   dataSources:
     api:
       type: 'NONE'
+```
+
+# Organize your data sources
+
+You can define your data sources into several files for organizational reasons. You can pass each file into the `dataSources` attribute as an array.
+
+```yaml
+dataSources:
+  - ${file(appsync/dataSources/users.yml)}
+  - ${file(appsync/dataSources/posts.yml)}
 ```
