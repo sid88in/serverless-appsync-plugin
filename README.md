@@ -46,6 +46,9 @@ appSync:
 ## Concepts
 
 - [DataSources](docs/dataSources.md)
+- [Resolvers](docs/resolvers.md)
+- [VTL Template Substitutions](docs/substitutions.md)
+- [Caching](docs/caching.md)
 
 # Contributing
 
