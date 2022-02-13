@@ -74,3 +74,28 @@ You can now set `useCloudFormation` to `false` and **deploy again**. The domain 
 3. Manage your domain using the CLI
 
 You can now manage your domain using the CLI [commands](commands.md#domain)
+
+## Domains per stage
+
+You can use different domains by stage easily thanks to [Serverless Framework Stage Parameters](https://www.serverless.com/framework/docs/guides/parameters)
+
+```yaml
+params:
+  prod:
+    domain: api.example.com
+    domainCert: arn:aws:acm:us-east-1:123456789:certificate/7e14a3b2-f7a5-4da5-8150-4a03ede7158c
+
+  staging:
+    domain: qa.example.com
+    domainCert: arn:aws:acm:us-east-1:123456789:certificate/61d7d798-d656-4630-9ff9-d77a7d616dbe
+
+  default:
+    domain: ${sls:stage}.example.com
+    domainCert: arn:aws:acm:us-east-1:379730309663:certificate/44211071-e102-4bf4-b7b0-06d0b78cd667
+
+appSync:
+  name: my-api
+  domain:
+    name: ${param:domain}
+    certificateArn: ${param:domainCert}
+```
