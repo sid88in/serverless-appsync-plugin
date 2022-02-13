@@ -26,3 +26,7 @@ appSync:
 ## Per resolver caching
 
 See [Resolver cacing](resolvers.md#caching)
+
+## Flushing the cache
+
+You can use the [flush-cache command](commands.md#flush-cache) to easily flush the cache.

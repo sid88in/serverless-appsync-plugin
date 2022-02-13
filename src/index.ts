@@ -147,7 +147,7 @@ class ServerlessAppsyncPlugin {
             lifecycleEvents: ['run'],
           },
           logs: {
-            usage: 'Output the logs of the AppSync API',
+            usage: 'Output the logs of the AppSync API to stdout',
             lifecycleEvents: ['run'],
             options: {
               startTime: {
@@ -168,7 +168,7 @@ class ServerlessAppsyncPlugin {
                 type: 'string',
               },
               filter: {
-                usage: 'A filter pattern to apply',
+                usage: 'A filter pattern to apply to the logs',
                 shortcut: 'f',
                 required: false,
                 type: 'string',
@@ -200,6 +200,12 @@ class ServerlessAppsyncPlugin {
                     required: false,
                     type: 'boolean',
                   },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
                 },
               },
               'create-record': {
@@ -221,6 +227,12 @@ class ServerlessAppsyncPlugin {
                   quiet: {
                     usage: "Don't return an error if the record does not exist",
                     shortcut: 'q',
+                    required: false,
+                    type: 'boolean',
+                  },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
                     required: false,
                     type: 'boolean',
                   },
