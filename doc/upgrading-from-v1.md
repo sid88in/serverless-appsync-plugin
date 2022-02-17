@@ -225,3 +225,45 @@ additionalAuthenticationProviders:
     config:
       userPoolId: # user pool ID
 ```
+
+**Schema**
+
+If you split your schema into several files, you must use [Object extension](https://spec.graphql.org/October2021/#sec-Object-Extensions) on the types that have already been defined. This will often be the case for the `Query`, `Mutation`, `Subscription` types.
+
+example:
+
+```graphql
+# users.graphql
+type Query {
+  getUser(id: ID!): User
+}
+```
+
+```graphql
+# users.graphql
+type Query {
+  getPost(id: ID!): Post
+}
+```
+
+becomes
+
+```graphql
+# base.graphql
+## The Query type must be defined before being extended
+type Query
+```
+
+```graphql
+# users.graphql
+extend type Query {
+  getUser(id: ID!): User
+}
+```
+
+```graphql
+# users.graphql
+extend type Query {
+  getPost(id: ID!): Post
+}
+```
