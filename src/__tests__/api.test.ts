@@ -74,7 +74,7 @@ describe('Api', () => {
     it('should compile the Api Resource with additional auths', () => {
       const api = new Api(
         given.appSyncConfig({
-          additionalAuthenticationProviders: [
+          additionalAuthentications: [
             {
               type: 'AMAZON_COGNITO_USER_POOLS',
               config: {
@@ -184,7 +184,7 @@ describe('Api', () => {
     it('should compile the Api Resource with embedded additional authorizer Lambda function', () => {
       const api = new Api(
         given.appSyncConfig({
-          additionalAuthenticationProviders: [
+          additionalAuthentications: [
             {
               type: 'AWS_LAMBDA',
               config: {
@@ -213,7 +213,7 @@ describe('Api', () => {
             appIdClientRegex: '[a-z]',
           },
         },
-        additionalAuthenticationProviders: [
+        additionalAuthentications: [
           {
             type: 'AWS_IAM',
           },
@@ -263,7 +263,7 @@ describe('Api', () => {
             appIdClientRegex: '[a-z]',
           },
         },
-        additionalAuthenticationProviders: [],
+        additionalAuthentications: [],
       }),
       plugin,
     );
@@ -299,7 +299,7 @@ describe('Api', () => {
         authentication: {
           type: 'API_KEY',
         },
-        additionalAuthenticationProviders: [
+        additionalAuthentications: [
           {
             type: 'AMAZON_COGNITO_USER_POOLS',
             config: {
@@ -572,7 +572,7 @@ describe('Api', () => {
     it('should generate the Lambda Authorizer Resources from additional auth', () => {
       const api = new Api(
         given.appSyncConfig({
-          additionalAuthenticationProviders: [
+          additionalAuthentications: [
             {
               type: 'AWS_LAMBDA',
               config: {
@@ -603,8 +603,18 @@ describe('Api', () => {
 });
 
 describe('Caching', () => {
-  it('should not generate Resources when disabled', () => {
+  it('should not generate Resources when not configured', () => {
     const api = new Api(given.appSyncConfig({ caching: undefined }), plugin);
+    expect(api.compileCachingResources()).toEqual({});
+  });
+
+  it('should not generate Resources when disabled', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        caching: { enabled: false, behavior: 'FULL_REQUEST_CACHING' },
+      }),
+      plugin,
+    );
     expect(api.compileCachingResources()).toEqual({});
   });
 

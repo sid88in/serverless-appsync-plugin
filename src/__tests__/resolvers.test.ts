@@ -434,6 +434,35 @@ describe('Resolvers', () => {
       `);
     });
 
+    it('should generate Resources with sync configuration', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myLambdaFunction: {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          dataSource: 'myLambdaFunction',
+          name: 'myFunction',
+          sync: {
+            conflictDetection: 'VERSION',
+            conflictHandler: 'LAMBDA',
+            function: {
+              handler: 'index.handler',
+            },
+          },
+        }),
+      ).toMatchSnapshot();
+      expect(api.functions).toMatchSnapshot();
+    });
+
     it('should generate Pipeline Function Resources with maxBatchSize', () => {
       const api = new Api(
         given.appSyncConfig({

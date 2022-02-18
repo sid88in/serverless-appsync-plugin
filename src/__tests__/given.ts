@@ -33,7 +33,7 @@ export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {
     authentication: {
       type: 'API_KEY',
     },
-    additionalAuthenticationProviders: [],
+    additionalAuthentications: [],
     mappingTemplatesLocation: {
       resolvers: 'path/to/mappingTemplates',
       pipelineFunctions: 'path/to/mappingTemplates',

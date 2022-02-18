@@ -37,11 +37,8 @@ export class DataSource {
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
       resource.Properties.DynamoDBConfig = this.getDynamoDbConfig(this.config);
-    } else if (
-      this.config.type === 'AMAZON_ELASTICSEARCH' ||
-      this.config.type === 'AMAZON_OPENSEARCH_SERVICE'
-    ) {
-      resource.Properties.ElasticsearchConfig = this.getOpenSearchConfig(
+    } else if (this.config.type === 'AMAZON_OPENSEARCH_SERVICE') {
+      resource.Properties.OpenSearchServiceConfig = this.getOpenSearchConfig(
         this.config,
       );
     } else if (this.config.type === 'RELATIONAL_DATABASE') {

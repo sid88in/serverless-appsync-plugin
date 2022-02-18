@@ -12,7 +12,6 @@ const AUTH_TYPES = [
 
 const DATASOURCE_TYPES = [
   'AMAZON_DYNAMODB',
-  'AMAZON_ELASTICSEARCH',
   'AMAZON_OPENSEARCH_SERVICE',
   'AWS_LAMBDA',
   'HTTP',
@@ -330,6 +329,7 @@ export const appSyncSchema = {
         description: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
+        sync: { $ref: '#/definitions/pipelineFunctionSyncConfig' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
@@ -374,7 +374,28 @@ export const appSyncSchema = {
           properties: {
             functionArn: { type: 'string' },
             functionName: { type: 'string' },
-            conflictDetection: { type: 'string', const: 'VERSION' },
+            conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
+            conflictHandler: {
+              type: 'string',
+              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
+            },
+          },
+          required: [],
+        },
+      ],
+      errorMessage: 'is not a valid resolver sync config',
+    },
+    pipelineFunctionSyncConfig: {
+      oneOf: [
+        { type: 'boolean' },
+        {
+          type: 'object',
+          if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
+          then: { $ref: '#/definitions/lambdaFunctionConfig' },
+          properties: {
+            functionArn: { type: 'string' },
+            functionName: { type: 'string' },
+            conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
             conflictHandler: {
               type: 'string',
               enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
@@ -442,7 +463,7 @@ export const appSyncSchema = {
             if: {
               properties: {
                 type: {
-                  enum: ['AMAZON_ELASTICSEARCH', 'AMAZON_OPENSEARCH_SERVICE'],
+                  const: ['AMAZON_OPENSEARCH_SERVICE'],
                 },
               },
             },
@@ -676,6 +697,7 @@ export const appSyncSchema = {
     caching: {
       type: 'object',
       properties: {
+        enabled: { type: 'boolean' },
         behavior: {
           type: 'string',
           enum: ['FULL_REQUEST_CACHING' || 'PER_RESOLVER_CACHING'],
@@ -699,7 +721,7 @@ export const appSyncSchema = {
       required: ['behavior'],
       errorMessage: 'is not a valid caching config',
     },
-    additionalAuthenticationProviders: {
+    additionalAuthentications: {
       type: 'array',
       items: { $ref: '#/definitions/auth' },
     },

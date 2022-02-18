@@ -106,7 +106,7 @@ Query.user:
       handler: 'functions/userSync.handler'
 ```
 
-- `conflictDetection`: Defaults to `VERSION`
+- `conflictDetection`: `VERSION` or `NONE`. Defaults to `VERSION`
 - `conflictHandler`: `OPTIMISTIC_CONCURRENCY`, `AUTOMERGE` or `LAMBDA`
 - `function`: When `conflictHandler` is `LAMBDA`, a Lambda function definition as you would define it under the `functions` section of your `serverless.yml` file.
 - `functionName`: When `conflictHandler` is `LAMBDA`, the name of the function as defined under the `functions` section of the `serverless.yml` file

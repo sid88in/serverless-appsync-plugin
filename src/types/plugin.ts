@@ -4,7 +4,7 @@ export type AppSyncConfig = {
   name: string;
   schema: string[];
   authentication: Auth;
-  additionalAuthenticationProviders: Auth[];
+  additionalAuthentications: Auth[];
   domain?: DomainConfig;
   apiKeys?: ApiKeyConfig[];
   defaultMappingTemplates?: {
@@ -163,7 +163,7 @@ export type BaseResolverConfig = {
     | boolean;
   sync?:
     | ({
-        conflictDetection: 'VERSION';
+        conflictDetection: 'VERSION' | 'NONE';
         conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
       } & LambdaConfig)
     | boolean;
@@ -193,6 +193,12 @@ export type PipelineFunctionConfig = {
   response?: string | false;
   maxBatchSize?: number;
   substitutions?: Substitutions;
+  sync?:
+    | ({
+        conflictDetection: 'VERSION' | 'NONE';
+        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
+      } & LambdaConfig)
+    | boolean;
 };
 
 export type DsDynamoDBConfig = {
@@ -303,6 +309,7 @@ export type LogConfig = {
 };
 
 export type CachingConfig = {
+  enabled?: boolean;
   behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
   type?: string;
   ttl?: number;

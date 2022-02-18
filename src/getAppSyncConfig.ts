@@ -49,7 +49,7 @@ export type AppSyncConfigInput = Replace<
     AppSyncConfig,
     | 'defaultMappingTemplates'
     | 'mappingTemplatesLocation'
-    | 'additionalAuthenticationProviders'
+    | 'additionalAuthentications'
   >
 >;
 
@@ -155,13 +155,12 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     };
   });
 
-  const additionalAuthenticationProviders =
-    config.additionalAuthenticationProviders || [];
+  const additionalAuthentications = config.additionalAuthentications || [];
 
   let apiKeys: ApiKeyConfig[] | undefined;
   if (
     config.authentication.type === 'API_KEY' ||
-    additionalAuthenticationProviders.some((auth) => auth.type === 'API_KEY')
+    additionalAuthentications.some((auth) => auth.type === 'API_KEY')
   ) {
     const inputKeys = config.apiKeys || [];
 
@@ -176,7 +175,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
 
   return {
     ...config,
-    additionalAuthenticationProviders,
+    additionalAuthentications,
     apiKeys,
     schema,
     dataSources,
