@@ -232,8 +232,8 @@ export type DsRelationalDbConfig = {
   };
 };
 
-export type DsElasticSearchConfig = {
-  type: 'AMAZON_ELASTICSEARCH' | 'AMAZON_OPENSEARCH_SERVICE';
+export type DsOpenSearchConfig = {
+  type: 'AMAZON_OPENSEARCH_SERVICE';
   config: {
     domain?: string;
     endpoint?: string | IntrinsicFunction;
@@ -290,7 +290,7 @@ export type DataSourceConfig = {
   | DsHttpConfig
   | DsDynamoDBConfig
   | DsRelationalDbConfig
-  | DsElasticSearchConfig
+  | DsOpenSearchConfig
   | DsLambdaConfig
   | DsNone
 );

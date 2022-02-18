@@ -779,13 +779,13 @@ Object {
         ],
       },
       "Description": "OpenSearch resolver",
-      "ElasticsearchConfig": Object {
+      "Name": "opensearch",
+      "OpenSearchServiceConfig": Object {
         "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
         "Endpoint": "https://mydomain.us-east-1.es.amazonaws.com",
       },
-      "Name": "opensearch",
       "ServiceRoleArn": Object {
         "Fn::GetAtt": Array [
           "GraphQlDsopensearchRole",
@@ -869,7 +869,8 @@ Object {
         ],
       },
       "Description": "OpenSearch resolver",
-      "ElasticsearchConfig": Object {
+      "Name": "opensearch",
+      "OpenSearchServiceConfig": Object {
         "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
@@ -888,7 +889,6 @@ Object {
           ],
         },
       },
-      "Name": "opensearch",
       "ServiceRoleArn": Object {
         "Fn::GetAtt": Array [
           "GraphQlDsopensearchRole",

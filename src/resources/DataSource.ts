@@ -7,7 +7,7 @@ import {
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
-  DsElasticSearchConfig,
+  DsOpenSearchConfig,
   DsHttpConfig,
   DsRelationalDbConfig,
   IamStatement,
@@ -47,9 +47,6 @@ export class DataSource {
       );
     } else if (this.config.type === 'HTTP') {
       resource.Properties.HttpConfig = this.getHttpConfig(this.config);
-    } else if (this.config.type !== 'NONE') {
-      // FIXME: take validation elsewhere
-      throw new Error(`Data Source Type not supported: ${this.config.type}`);
     }
 
     const logicalId = this.api.naming.getDataSourceLogicalId(this.config.name);
@@ -101,8 +98,8 @@ export class DataSource {
   }
 
   getOpenSearchConfig(
-    config: DsElasticSearchConfig,
-  ): CfnDataSource['Properties']['ElasticsearchConfig'] {
+    config: DsOpenSearchConfig,
+  ): CfnDataSource['Properties']['OpenSearchServiceConfig'] {
     const endpoint =
       config.config.endpoint ||
       (config.config.domain && {
@@ -339,8 +336,7 @@ export class DataSource {
 
         return [dbStatement, secretManagerStatement];
       }
-      case 'AMAZON_OPENSEARCH_SERVICE':
-      case 'AMAZON_ELASTICSEARCH': {
+      case 'AMAZON_OPENSEARCH_SERVICE': {
         let arn;
         if (
           this.config.config.endpoint &&
@@ -352,7 +348,7 @@ export class DataSource {
           const result = rx.exec(this.config.config.endpoint);
           if (!result) {
             throw new Error(
-              `Invalid AWS ElasticSearch endpoint: '${this.config.config.endpoint}`,
+              `Invalid AWS OpenSearch endpoint: '${this.config.config.endpoint}`,
             );
           }
           arn = {

@@ -462,9 +462,7 @@ export const appSyncSchema = {
           else: {
             if: {
               properties: {
-                type: {
-                  const: ['AMAZON_OPENSEARCH_SERVICE'],
-                },
+                type: { const: 'AMAZON_OPENSEARCH_SERVICE' },
               },
             },
             then: {
