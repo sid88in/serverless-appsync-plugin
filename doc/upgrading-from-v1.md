@@ -228,7 +228,7 @@ additionalAuthenticationProviders:
 
 **Schema**
 
-If you split your schema into several files, you must use [Object extension](https://spec.graphql.org/October2021/#sec-Object-Extensions) on the types that have already been defined. This will often be the case for the `Query`, `Mutation`, `Subscription` types.
+If you split your schema into several files, you must use [Object extensions](https://spec.graphql.org/October2021/#sec-Object-Extensions) on the types that have already been defined. This will often be the case for the `Query`, `Mutation` and `Subscription` types.
 
 example:
 
