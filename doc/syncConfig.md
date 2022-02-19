@@ -1,6 +1,6 @@
 # Sync Config
 
-Descbies the [Delta Sync](https://docs.aws.amazon.com/appsync/latest/devguide/tutorial-delta-sync.html) configuration for [resolvers](resolvers.md) and [pipeline functions](pipeline-functions.md).
+[Delta Sync](https://docs.aws.amazon.com/appsync/latest/devguide/tutorial-delta-sync.html) configuration for [resolvers](resolvers.md) and [pipeline functions](pipeline-functions.md).
 
 ## Quick start
 

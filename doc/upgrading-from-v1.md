@@ -206,12 +206,12 @@ appSync:
       userPoolId: # user pool ID
 ```
 
-Additional auth provider stay under `additionalAuthentications` but follow the same stucture as `authentication`.
+Additional auth provider are now under `additionalAuthentications`. Items follow the same stucture as `authentication`.
 
 Example:
 
 ```yaml
-additionalAuthentications:
+additionalAuthenticationProviders:
   - authenticationType: AMAZON_COGNITO_USER_POOLS
     userPoolConfig:
       userPoolId: # user pool ID
@@ -270,16 +270,16 @@ extend type Query {
 
 **ElasticSearch**
 
-As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch Service. DataSources of type `AMAZON_ELASTICSEARCH` should not be `AMAZON_OPENSEARCH_SERVICE`
+As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch Service. DataSources of type `AMAZON_ELASTICSEARCH` should now use `AMAZON_OPENSEARCH_SERVICE` instead.
 
-Example
+Example:
 
 ```yaml
 dataSources:
   - type: AMAZON_ELASTICSEARCH
-      name: myEndpoint
-      config:
-        endpoint: https://abcdefgh.us-east-1.es.amazonaws.com
+    name: myEndpoint
+    config:
+      endpoint: https://abcdefgh.us-east-1.es.amazonaws.com
 ```
 
 becomes:
