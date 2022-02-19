@@ -24,29 +24,7 @@ appSync:
 - `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.response.vtl`.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataAources)
 - `substitutions`: See [VTL template substitutions](substitutions.md)
-- `sync`: [See blow](#Sync)
-
-## Sync
-
-The [Delta Sync](https://docs.aws.amazon.com/appsync/latest/devguide/tutorial-delta-sync.html) configuration for this pipeline function.
-
-```yaml
-Query.user:
-  dataSource: my-table
-  sync:
-    conflictDetection: 'VERSION'
-    conflictHandler: 'LAMBDA'
-    function:
-      timeout: 30
-      handler: 'functions/userSync.handler'
-```
-
-- `conflictDetection`: `VERSION` or `NONE`. Defaults to `VERSION`
-- `conflictHandler`: `OPTIMISTIC_CONCURRENCY`, `AUTOMERGE` or `LAMBDA`. Defaults to `OPTIMISTIC_CONCURRENCY`
-- `function`: When `conflictHandler` is `LAMBDA`, a Lambda function definition as you would define it under the `functions` section of your `serverless.yml` file.
-- `functionName`: When `conflictHandler` is `LAMBDA`, the name of the function as defined under the `functions` section of the `serverless.yml` file
-- `functionAlias`: When `conflictHandler` is `LAMBDA`, a specific function alias to use.
-- `functionArn`: When `conflictHandler` is `LAMBDA`, the function ARN to use.
+- `sync`: [See SyncConfig](syncConfig.md)
 
 ## Inline DataSources
 
