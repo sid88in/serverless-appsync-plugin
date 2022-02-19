@@ -26,8 +26,8 @@ appSync:
 - `versioned`: Set to `true` to use Conflict Detection and Resolution with this data source.
 - `deltaSyncConfig`:
   - `deltaSyncTableName`: The Delta Sync table name.
-  - `baseTableTTL`: The number of minutes that an Item is stored in the data source.
-  - `deltaSyncTableTTL`: The number of minutes that a Delta Sync log entry is stored in the Delta Sync table.
+  - `baseTableTTL`: The number of minutes that an Item is stored in the data source. Defaults to `43200`
+  - `deltaSyncTableTTL`: The number of minutes that a Delta Sync log entry is stored in the Delta Sync table. Defaults to `1440`
 
 ## AWS Lambda
 

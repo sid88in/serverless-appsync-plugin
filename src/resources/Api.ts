@@ -83,10 +83,10 @@ export class Api {
       this.compileAuthenticationProvider(this.config.authentication),
     );
 
-    if (this.config.additionalAuthenticationProviders.length > 0) {
+    if (this.config.additionalAuthentications.length > 0) {
       merge(endpointResource.Properties, {
         AdditionalAuthenticationProviders:
-          this.config.additionalAuthenticationProviders?.map((provider) =>
+          this.config.additionalAuthentications?.map((provider) =>
             this.compileAuthenticationProvider(provider),
           ),
       });
@@ -256,7 +256,7 @@ export class Api {
 
   compileLambdaAuthorizerPermission(): CfnResources {
     const lambdaAuth = [
-      ...this.config.additionalAuthenticationProviders,
+      ...this.config.additionalAuthentications,
       this.config.authentication,
     ].find(({ type }) => type === 'AWS_LAMBDA') as LambdaAuth | undefined;
 
@@ -332,7 +332,7 @@ export class Api {
   }
 
   compileCachingResources(): CfnResources {
-    if (this.config.caching) {
+    if (this.config.caching && this.config.caching.enabled !== false) {
       const cacheConfig = this.config.caching;
       const logicalId = this.naming.getCachingLogicalId();
 
@@ -398,7 +398,7 @@ export class Api {
       DefaultAction:
         auth.config.defaultAction ||
         (this.config.authentication.type === 'AMAZON_COGNITO_USER_POOLS' &&
-        this.config.additionalAuthenticationProviders.length > 0
+        this.config.additionalAuthentications.length > 0
           ? 'ALLOW'
           : 'DENY'),
     };

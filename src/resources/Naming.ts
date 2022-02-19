@@ -1,4 +1,8 @@
-import { DataSourceConfig, ResolverConfig } from '../types/plugin';
+import {
+  DataSourceConfig,
+  PipelineFunctionConfig,
+  ResolverConfig,
+} from '../types/plugin';
 
 export class Naming {
   constructor(private apiName: string) {}
@@ -85,8 +89,14 @@ export class Naming {
     return config.name;
   }
 
-  getResolverEmbeddedSyncLambdaName(config: ResolverConfig) {
-    return `${config.type}_${config.field}_Sync`;
+  getResolverEmbeddedSyncLambdaName(
+    config: ResolverConfig | PipelineFunctionConfig,
+  ) {
+    if ('name' in config) {
+      return `${config.name}_Sync`;
+    } else {
+      return `${config.type}_${config.field}_Sync`;
+    }
   }
 
   getAuthenticationEmbeddedLamdbaName() {

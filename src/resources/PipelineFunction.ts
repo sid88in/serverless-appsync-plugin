@@ -7,6 +7,7 @@ import { PipelineFunctionConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
+import { SyncConfig } from './SyncConfig';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
@@ -43,6 +44,11 @@ export class PipelineFunction {
     const responseMappingTemplate = this.resolveMappingTemplate('response');
     if (responseMappingTemplate) {
       Properties.ResponseMappingTemplate = responseMappingTemplate;
+    }
+
+    if (this.config.sync) {
+      const asyncConfig = new SyncConfig(this.api, this.config);
+      Properties.SyncConfig = asyncConfig.compile();
     }
 
     return {

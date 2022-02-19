@@ -4,7 +4,7 @@ export type AppSyncConfig = {
   name: string;
   schema: string[];
   authentication: Auth;
-  additionalAuthenticationProviders: Auth[];
+  additionalAuthentications: Auth[];
   domain?: DomainConfig;
   apiKeys?: ApiKeyConfig[];
   defaultMappingTemplates?: {
@@ -150,6 +150,11 @@ export type DomainConfig = {
       };
 };
 
+export type SyncConfig = {
+  conflictDetection: 'VERSION' | 'NONE';
+  conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
+} & LambdaConfig;
+
 export type BaseResolverConfig = {
   field: string;
   type: string;
@@ -161,12 +166,7 @@ export type BaseResolverConfig = {
         keys?: string[];
       }
     | boolean;
-  sync?:
-    | ({
-        conflictDetection: 'VERSION';
-        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
-      } & LambdaConfig)
-    | boolean;
+  sync?: SyncConfig;
   substitutions?: Substitutions;
 };
 
@@ -193,6 +193,7 @@ export type PipelineFunctionConfig = {
   response?: string | false;
   maxBatchSize?: number;
   substitutions?: Substitutions;
+  sync?: SyncConfig;
 };
 
 export type DsDynamoDBConfig = {
@@ -226,8 +227,8 @@ export type DsRelationalDbConfig = {
   };
 };
 
-export type DsElasticSearchConfig = {
-  type: 'AMAZON_ELASTICSEARCH' | 'AMAZON_OPENSEARCH_SERVICE';
+export type DsOpenSearchConfig = {
+  type: 'AMAZON_OPENSEARCH_SERVICE';
   config: {
     domain?: string;
     endpoint?: string | IntrinsicFunction;
@@ -284,7 +285,7 @@ export type DataSourceConfig = {
   | DsHttpConfig
   | DsDynamoDBConfig
   | DsRelationalDbConfig
-  | DsElasticSearchConfig
+  | DsOpenSearchConfig
   | DsLambdaConfig
   | DsNone
 );
@@ -303,6 +304,7 @@ export type LogConfig = {
 };
 
 export type CachingConfig = {
+  enabled?: boolean;
   behavior: 'FULL_REQUEST_CACHING' | 'PER_RESOLVER_CACHING';
   type?: string;
   ttl?: number;

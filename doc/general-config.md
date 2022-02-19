@@ -38,7 +38,7 @@ appSync:
 - `name`: The name of this AppSync API
 - `schema`: The filename of the schema file. Defaults to `schema.graphql`. [Read more](#Schema)
 - `authentication`: See [Authentication](authentication.md)
-- `additionalAuthenticationProviders`: See [Authentication](authentication.md)
+- `additionalAuthentications`: See [Authentication](authentication.md)
 - `apiKeys`: See [API Keys](API-keys.md)
 - `domain`: See [Custom domains](custom-domain.md)
 - `dataSources`: See [DataSources](dataSources.md)

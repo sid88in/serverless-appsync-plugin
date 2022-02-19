@@ -36,7 +36,6 @@ export type CfnDataSource = {
     Type?:
       | 'AWS_LAMBDA'
       | 'AMAZON_DYNAMODB'
-      | 'AMAZON_ELASTICSEARCH'
       | 'AMAZON_OPENSEARCH_SERVICE'
       | 'NONE'
       | 'HTTP'
@@ -52,7 +51,7 @@ export type CfnDataSource = {
       Versioned?: boolean;
       DeltaSyncConfig?: CfnDeltaSyncConfig;
     };
-    ElasticsearchConfig?: {
+    OpenSearchServiceConfig?: {
       AwsRegion: string | IntrinsicFunction;
       Endpoint: string | IntrinsicFunction;
     };
@@ -100,7 +99,7 @@ export type CfnResolver = {
       CachingKeys?: string[];
     };
     SyncConfig?: {
-      ConflictDetection: 'VERSION';
+      ConflictDetection: 'VERSION' | 'NONE';
       ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
       LambdaConflictHandlerConfig?: {
         LambdaConflictHandlerArn: string | IntrinsicFunction;
@@ -120,6 +119,13 @@ export type CfnFunctionResolver = {
     FunctionVersion?: string;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;
+    SyncConfig?: {
+      ConflictDetection: 'VERSION' | 'NONE';
+      ConflictHandler?: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
+      LambdaConflictHandlerConfig?: {
+        LambdaConflictHandlerArn: string | IntrinsicFunction;
+      };
+    };
     MaxBatchSize?: number;
   };
 };

@@ -7,7 +7,7 @@ import {
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
-  DsElasticSearchConfig,
+  DsOpenSearchConfig,
   DsHttpConfig,
   DsRelationalDbConfig,
   IamStatement,
@@ -37,11 +37,8 @@ export class DataSource {
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
       resource.Properties.DynamoDBConfig = this.getDynamoDbConfig(this.config);
-    } else if (
-      this.config.type === 'AMAZON_ELASTICSEARCH' ||
-      this.config.type === 'AMAZON_OPENSEARCH_SERVICE'
-    ) {
-      resource.Properties.ElasticsearchConfig = this.getOpenSearchConfig(
+    } else if (this.config.type === 'AMAZON_OPENSEARCH_SERVICE') {
+      resource.Properties.OpenSearchServiceConfig = this.getOpenSearchConfig(
         this.config,
       );
     } else if (this.config.type === 'RELATIONAL_DATABASE') {
@@ -50,9 +47,6 @@ export class DataSource {
       );
     } else if (this.config.type === 'HTTP') {
       resource.Properties.HttpConfig = this.getHttpConfig(this.config);
-    } else if (this.config.type !== 'NONE') {
-      // FIXME: take validation elsewhere
-      throw new Error(`Data Source Type not supported: ${this.config.type}`);
     }
 
     const logicalId = this.api.naming.getDataSourceLogicalId(this.config.name);
@@ -93,19 +87,20 @@ export class DataSource {
   getDeltaSyncConfig(config: DsDynamoDBConfig) {
     if (config.config.versioned && config.config.deltaSyncConfig) {
       return {
+        Versioned: true,
         DeltaSyncConfig: {
-          BaseTableTTL: config.config.deltaSyncConfig.baseTableTTL || 0,
+          BaseTableTTL: config.config.deltaSyncConfig.baseTableTTL || 43200,
           DeltaSyncTableName: config.config.deltaSyncConfig.deltaSyncTableName,
           DeltaSyncTableTTL:
-            config.config.deltaSyncConfig.deltaSyncTableTTL || 60,
+            config.config.deltaSyncConfig.deltaSyncTableTTL || 1440,
         },
       };
     }
   }
 
   getOpenSearchConfig(
-    config: DsElasticSearchConfig,
-  ): CfnDataSource['Properties']['ElasticsearchConfig'] {
+    config: DsOpenSearchConfig,
+  ): CfnDataSource['Properties']['OpenSearchServiceConfig'] {
     const endpoint =
       config.config.endpoint ||
       (config.config.domain && {
@@ -342,8 +337,7 @@ export class DataSource {
 
         return [dbStatement, secretManagerStatement];
       }
-      case 'AMAZON_OPENSEARCH_SERVICE':
-      case 'AMAZON_ELASTICSEARCH': {
+      case 'AMAZON_OPENSEARCH_SERVICE': {
         let arn;
         if (
           this.config.config.endpoint &&
@@ -355,7 +349,7 @@ export class DataSource {
           const result = rx.exec(this.config.config.endpoint);
           if (!result) {
             throw new Error(
-              `Invalid AWS ElasticSearch endpoint: '${this.config.config.endpoint}`,
+              `Invalid AWS OpenSearch endpoint: '${this.config.config.endpoint}`,
             );
           }
           arn = {

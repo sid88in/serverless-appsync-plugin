@@ -24,6 +24,7 @@ appSync:
 - `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.response.vtl`.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataAources)
 - `substitutions`: See [VTL template substitutions](substitutions.md)
+- `sync`: [See SyncConfig](syncConfig.md)
 
 ## Inline DataSources
 

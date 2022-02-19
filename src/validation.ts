@@ -12,7 +12,6 @@ const AUTH_TYPES = [
 
 const DATASOURCE_TYPES = [
   'AMAZON_DYNAMODB',
-  'AMAZON_ELASTICSEARCH',
   'AMAZON_OPENSEARCH_SERVICE',
   'AWS_LAMBDA',
   'HTTP',
@@ -281,7 +280,7 @@ export const appSyncSchema = {
         functions: { type: 'array', items: { type: 'string' } },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
-        sync: { $ref: '#/definitions/resolverSyncConfig' },
+        sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
@@ -330,6 +329,7 @@ export const appSyncSchema = {
         description: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
+        sync: { $ref: '#/definitions/syncConfig' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
@@ -364,26 +364,20 @@ export const appSyncSchema = {
       ],
       errorMessage: 'is not a valid resolver caching config',
     },
-    resolverSyncConfig: {
-      oneOf: [
-        { type: 'boolean' },
-        {
-          type: 'object',
-          if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
-          then: { $ref: '#/definitions/lambdaFunctionConfig' },
-          properties: {
-            functionArn: { type: 'string' },
-            functionName: { type: 'string' },
-            conflictDetection: { type: 'string', const: 'VERSION' },
-            conflictHandler: {
-              type: 'string',
-              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
-            },
-          },
-          required: [],
+    syncConfig: {
+      type: 'object',
+      if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
+      then: { $ref: '#/definitions/lambdaFunctionConfig' },
+      properties: {
+        functionArn: { type: 'string' },
+        functionName: { type: 'string' },
+        conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
+        conflictHandler: {
+          type: 'string',
+          enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
         },
-      ],
-      errorMessage: 'is not a valid resolver sync config',
+      },
+      required: [],
     },
     iamRoleStatements: {
       type: 'array',
@@ -441,9 +435,7 @@ export const appSyncSchema = {
           else: {
             if: {
               properties: {
-                type: {
-                  enum: ['AMAZON_ELASTICSEARCH', 'AMAZON_OPENSEARCH_SERVICE'],
-                },
+                type: { const: 'AMAZON_OPENSEARCH_SERVICE' },
               },
             },
             then: {
@@ -676,6 +668,7 @@ export const appSyncSchema = {
     caching: {
       type: 'object',
       properties: {
+        enabled: { type: 'boolean' },
         behavior: {
           type: 'string',
           enum: ['FULL_REQUEST_CACHING' || 'PER_RESOLVER_CACHING'],
@@ -699,7 +692,7 @@ export const appSyncSchema = {
       required: ['behavior'],
       errorMessage: 'is not a valid caching config',
     },
-    additionalAuthenticationProviders: {
+    additionalAuthentications: {
       type: 'array',
       items: { $ref: '#/definitions/auth' },
     },
