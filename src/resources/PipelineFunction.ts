@@ -7,6 +7,7 @@ import { PipelineFunctionConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
+import { SyncConfig } from './SyncConfig';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
@@ -45,28 +46,9 @@ export class PipelineFunction {
       Properties.ResponseMappingTemplate = responseMappingTemplate;
     }
 
-    if (this.config.sync === true) {
-      // Use defaults
-      Properties.SyncConfig = {
-        ConflictDetection: 'VERSION',
-      };
-    } else if (typeof this.config.sync === 'object') {
-      Properties.SyncConfig = {
-        ConflictDetection: this.config.sync.conflictDetection,
-        ConflictHandler: this.config.sync.conflictHandler,
-        ...(this.config.sync.conflictHandler === 'LAMBDA'
-          ? {
-              LambdaConflictHandlerConfig: {
-                LambdaConflictHandlerArn: this.api.getLambdaArn(
-                  this.config.sync,
-                  this.api.naming.getResolverEmbeddedSyncLambdaName(
-                    this.config,
-                  ),
-                ),
-              },
-            }
-          : {}),
-      };
+    if (this.config.sync) {
+      const asyncConfig = new SyncConfig(this.api, this.config);
+      Properties.SyncConfig = asyncConfig.compile();
     }
 
     return {

@@ -280,7 +280,7 @@ export const appSyncSchema = {
         functions: { type: 'array', items: { type: 'string' } },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
-        sync: { $ref: '#/definitions/resolverSyncConfig' },
+        sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
@@ -329,7 +329,7 @@ export const appSyncSchema = {
         description: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
-        sync: { $ref: '#/definitions/pipelineFunctionSyncConfig' },
+        sync: { $ref: '#/definitions/syncConfig' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         substitutions: { $ref: '#/definitions/substitutions' },
       },
@@ -364,47 +364,20 @@ export const appSyncSchema = {
       ],
       errorMessage: 'is not a valid resolver caching config',
     },
-    resolverSyncConfig: {
-      oneOf: [
-        { type: 'boolean' },
-        {
-          type: 'object',
-          if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
-          then: { $ref: '#/definitions/lambdaFunctionConfig' },
-          properties: {
-            functionArn: { type: 'string' },
-            functionName: { type: 'string' },
-            conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
-            conflictHandler: {
-              type: 'string',
-              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
-            },
-          },
-          required: [],
+    syncConfig: {
+      type: 'object',
+      if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
+      then: { $ref: '#/definitions/lambdaFunctionConfig' },
+      properties: {
+        functionArn: { type: 'string' },
+        functionName: { type: 'string' },
+        conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
+        conflictHandler: {
+          type: 'string',
+          enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
         },
-      ],
-      errorMessage: 'is not a valid resolver sync config',
-    },
-    pipelineFunctionSyncConfig: {
-      oneOf: [
-        { type: 'boolean' },
-        {
-          type: 'object',
-          if: { properties: { conflictHandler: { const: ['LAMBDA'] } } },
-          then: { $ref: '#/definitions/lambdaFunctionConfig' },
-          properties: {
-            functionArn: { type: 'string' },
-            functionName: { type: 'string' },
-            conflictDetection: { type: 'string', enum: ['VERSION', 'NONE'] },
-            conflictHandler: {
-              type: 'string',
-              enum: ['LAMBDA', 'OPTIMISTIC_CONCURRENCY', 'AUTOMERGE'],
-            },
-          },
-          required: [],
-        },
-      ],
-      errorMessage: 'is not a valid resolver sync config',
+      },
+      required: [],
     },
     iamRoleStatements: {
       type: 'array',

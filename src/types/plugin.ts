@@ -150,6 +150,11 @@ export type DomainConfig = {
       };
 };
 
+export type SyncConfig = {
+  conflictDetection: 'VERSION' | 'NONE';
+  conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
+} & LambdaConfig;
+
 export type BaseResolverConfig = {
   field: string;
   type: string;
@@ -161,12 +166,7 @@ export type BaseResolverConfig = {
         keys?: string[];
       }
     | boolean;
-  sync?:
-    | ({
-        conflictDetection: 'VERSION' | 'NONE';
-        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
-      } & LambdaConfig)
-    | boolean;
+  sync?: SyncConfig;
   substitutions?: Substitutions;
 };
 
@@ -193,12 +193,7 @@ export type PipelineFunctionConfig = {
   response?: string | false;
   maxBatchSize?: number;
   substitutions?: Substitutions;
-  sync?:
-    | ({
-        conflictDetection: 'VERSION' | 'NONE';
-        conflictHandler: 'OPTIMISTIC_CONCURRENCY' | 'AUTOMERGE' | 'LAMBDA';
-      } & LambdaConfig)
-    | boolean;
+  sync?: SyncConfig;
 };
 
 export type DsDynamoDBConfig = {

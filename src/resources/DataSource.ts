@@ -87,11 +87,12 @@ export class DataSource {
   getDeltaSyncConfig(config: DsDynamoDBConfig) {
     if (config.config.versioned && config.config.deltaSyncConfig) {
       return {
+        Versioned: true,
         DeltaSyncConfig: {
-          BaseTableTTL: config.config.deltaSyncConfig.baseTableTTL || 0,
+          BaseTableTTL: config.config.deltaSyncConfig.baseTableTTL || 43200,
           DeltaSyncTableName: config.config.deltaSyncConfig.deltaSyncTableName,
           DeltaSyncTableTTL:
-            config.config.deltaSyncConfig.deltaSyncTableTTL || 60,
+            config.config.deltaSyncConfig.deltaSyncTableTTL || 1440,
         },
       };
     }

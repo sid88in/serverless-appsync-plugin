@@ -7,6 +7,8 @@ import { ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
+import { appSyncConfig } from '../__tests__/given';
+import { SyncConfig } from './SyncConfig';
 
 export class Resolver {
   constructor(private api: Api, private config: ResolverConfig) {}
@@ -42,28 +44,9 @@ export class Resolver {
       }
     }
 
-    if (this.config.sync === true) {
-      // Use defaults
-      Properties.SyncConfig = {
-        ConflictDetection: 'VERSION',
-      };
-    } else if (typeof this.config.sync === 'object') {
-      Properties.SyncConfig = {
-        ConflictDetection: this.config.sync.conflictDetection,
-        ConflictHandler: this.config.sync.conflictHandler,
-        ...(this.config.sync.conflictHandler === 'LAMBDA'
-          ? {
-              LambdaConflictHandlerConfig: {
-                LambdaConflictHandlerArn: this.api.getLambdaArn(
-                  this.config.sync,
-                  this.api.naming.getResolverEmbeddedSyncLambdaName(
-                    this.config,
-                  ),
-                ),
-              },
-            }
-          : {}),
-      };
+    if (this.config.sync) {
+      const asyncConfig = new SyncConfig(this.api, this.config);
+      Properties.SyncConfig = asyncConfig.compile();
     }
 
     if (this.config.kind === 'PIPELINE') {

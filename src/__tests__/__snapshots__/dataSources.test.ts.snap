@@ -261,6 +261,7 @@ Object {
         },
         "TableName": "data",
         "UseCallerCredentials": false,
+        "Versioned": true,
       },
       "Name": "dynamo",
       "ServiceRoleArn": Object {
