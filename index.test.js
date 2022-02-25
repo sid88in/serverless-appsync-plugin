@@ -949,6 +949,27 @@ describe('iamRoleStatements', () => {
             },
           },
         },
+        {
+          type: 'AMAZON_OPENSEARCH_SERVICE',
+          name: 'OpenSearchSource',
+          description: 'My OpenSearch Source',
+          config: {
+            region: 'us-east-1',
+            endpoint:
+              'https://search-my-os-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
+          },
+        },
+        {
+          type: 'AMAZON_OPENSEARCH_SERVICE',
+          name: 'OpenSearchSource2',
+          description: 'other OS Source',
+          config: {
+            region: 'us-east-1',
+            domain: {
+              Ref: 'OSDomain',
+            },
+          },
+        },
       ],
     });
 
@@ -1007,6 +1028,18 @@ describe('iamRoleStatements', () => {
             region: 'us-east-1',
             endpoint:
               'https://search-my-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
+          },
+        },
+        {
+          type: 'AMAZON_OPENSEARCH',
+          name: 'OpenSearchSource',
+          description: 'My OpenSearch Source',
+          config: {
+            serviceRoleArn:
+              'arn:aws:iam::123456789012:role/service-role/myOsRole',
+            region: 'us-east-1',
+            endpoint:
+              'https://search-my-os-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com',
           },
         },
         {
