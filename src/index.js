@@ -898,7 +898,8 @@ class ServerlessAppsyncPlugin {
         defaultStatements.push(dbStatement, secretManagerStatement);
         break;
       }
-      case 'AMAZON_ELASTICSEARCH': {
+      case 'AMAZON_ELASTICSEARCH': 
+      case 'AMAZON_OPENSEARCH_SERVICE': {
         let arn;
         if (ds.config.domain) {
           arn = {
@@ -1024,6 +1025,19 @@ class ServerlessAppsyncPlugin {
                 { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] },
               ],
             ],
+          },
+        };
+      } else if (ds.type === 'AMAZON_OPENSEARCH_SERVICE') {
+        resource.Properties.OpenSearchServiceConfig = {
+          AwsRegion: ds.config.region || config.region,
+          Endpoint: ds.config.endpoint || {
+            'Fn::Join': [
+              '',
+              [
+                'https://',
+                { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] },
+              ]
+            ]
           },
         };
       } else if (ds.type === 'RELATIONAL_DATABASE') {
