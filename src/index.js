@@ -898,7 +898,7 @@ class ServerlessAppsyncPlugin {
         defaultStatements.push(dbStatement, secretManagerStatement);
         break;
       }
-      case 'AMAZON_ELASTICSEARCH': 
+      case 'AMAZON_ELASTICSEARCH':
       case 'AMAZON_OPENSEARCH_SERVICE': {
         let arn;
         if (ds.config.domain) {
@@ -1036,8 +1036,8 @@ class ServerlessAppsyncPlugin {
               [
                 'https://',
                 { 'Fn::GetAtt': [ds.config.domain, 'DomainEndpoint'] },
-              ]
-            ]
+              ],
+            ],
           },
         };
       } else if (ds.type === 'RELATIONAL_DATABASE') {
