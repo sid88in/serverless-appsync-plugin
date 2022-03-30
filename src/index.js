@@ -1012,7 +1012,7 @@ class ServerlessAppsyncPlugin {
           const result = rx.exec(ds.config.endpoint);
           if (!result) {
             throw new this.serverless.classes.Error(
-              `Invalid AWS ElasticSearch endpoint: '${ds.config.endpoint}`,
+              `Invalid AWS OpenSearch/ElasticSearch endpoint: '${ds.config.endpoint}`,
             );
           }
           arn = {
