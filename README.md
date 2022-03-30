@@ -756,7 +756,7 @@ module.exports = {
 
 AppSync [supports custom domains](https://aws.amazon.com/blogs/mobile/introducing-custom-domain-names-for-aws-appsync-apis/).
 
-You need to generate and provide a valid certificate ARN for the domain.
+You need to generate and provide a valid certificate ARN for the domain (Note: Taht certificate ust be in the `us-east-1` region, no matter where you deploy your AppSync API).
 
 example:
 
@@ -767,8 +767,8 @@ custom:
       name: api.example.com
       certificateArn: arn:aws:acm:us-east-1123456789:certificate/1c4e4c36-9a63-4685-94b7-e873402baca3
       route53:
-        hostedZoneId: ABCDEFGHIJKLMN # optional. The plugin will try find the best match from the domain name
-        hostedZoneName: example.com # optional. The plugin will try find the best match from the domain name
+        hostedZoneId: ABCDEFGHIJKLMN # optional. If not provided, the plugin will try to find the best match from the domain name
+        hostedZoneName: example.com # optional. If not provided, the plugin will try to find the best match from the domain name
 ```
 
 Domains are managed trhough the CLI commands. This allows a better flexibility and control over your domains and APIs.
