@@ -1,5 +1,7 @@
 const moment = require('moment');
 const { upperFirst, transform } = require('lodash');
+const { promisify } = require('util');
+const readline = require('readline');
 
 const timeUnits = [
   'years?',
@@ -30,6 +32,37 @@ const toCfnKeys = (object) =>
 
     return acc;
   });
+
+const question = async (question) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  const q = promisify((question, cb) => {
+    rl.question(question, (a) => {
+      cb(null, a);
+    });
+  }).bind(rl);
+
+  const answer = await q(`${question}: `);
+  rl.close();
+
+  return answer;
+};
+
+const confirmAction = async () => {
+  const answer = await question('Do you want to continue? y/N');
+
+  return answer.toLowerCase() === 'y';
+};
+
+const wait = async (time) => {
+  await new Promise((resolve) => setTimeout(resolve, time));
+};
+
+const getHostedZoneName = (domain) => {
+  return `${domain.split('.').slice(1).join('.')}.`;
+};
 
 module.exports = {
   parseDuration: (input) => {
@@ -71,4 +104,7 @@ module.exports = {
     return duration;
   },
   toCfnKeys,
+  getHostedZoneName,
+  confirmAction,
+  wait,
 };
