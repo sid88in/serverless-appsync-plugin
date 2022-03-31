@@ -22,13 +22,13 @@ Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has 
 Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
 ```
-yarn add serverless-appsync-plugin
+yarn add serverless-appsync-plugin --dev
 ```
 
 or via [NPM](https://docs.npmjs.com/cli/install)
 
 ```
-npm install serverless-appsync-plugin
+npm install serverless-appsync-plugin --save-dev
 ```
 
 ## Configuring the plugin
