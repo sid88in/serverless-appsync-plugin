@@ -882,9 +882,10 @@ class ServerlessAppsyncPlugin {
     }
 
     const resources = this.api.compile();
-    merge(this.serverless.service, { resources: { Resources: resources } });
-    merge(this.serverless.configurationInput, {
+
+    merge(this.serverless.service, {
       functions: this.api.functions,
+      resources: { Resources: resources },
     });
 
     this.serverless.service.setFunctionNames(
