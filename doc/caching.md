@@ -20,7 +20,7 @@ appSync:
 - `behavior`: `FULL_REQUEST_CACHING` or `PER_RESOLVER_CACHING`
 - `type`: The type of the Redis instance. `SMALL`, `MEDIUM`, `LARGE`, `XLARGE`, `LARGE_2X`, `LARGE_4X`, `LARGE_8X`, `LARGE_12X`. Defaults to `SMALL`
 - `ttl`: The default TTL of the cache in seconds. Defaults to `3600`. Maximum is `3600`
-- `enabled`: Boolean. Whether caching is enabled. Defaults to `true` when the `caching` definition is present, `false` otherwise.
+- `enabled`: Boolean. Whether caching is enabled. Defaults to `true` when the `caching` definition is present.
 - `atRestEncryption`: Boolean. Whether to encrypt the data at rest. Defaults to `false`
 - `transitEncryption`: Boolean. Whether to encrypt the data in transit. Detaults to `false`
 
