@@ -53,7 +53,7 @@ export class Schema {
 
     // AppSync does not support Object extensions
     // https://spec.graphql.org/October2021/#sec-Object-Extensions
-    // the workwround is to build a GraphQLSchema and print it back
+    // the workwaround is to build a GraphQLSchema and print it back
     return printSchema(
       buildSchema(schemas.join('\n'), {
         assumeValidSDL: true,
