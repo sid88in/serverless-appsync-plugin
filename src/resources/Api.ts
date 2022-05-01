@@ -47,7 +47,7 @@ export class Api {
     merge(resources, this.compileLambdaAuthorizerPermission());
     merge(resources, this.compileWafRules());
 
-    this.config.apiKeys?.forEach((key) => {
+    forEach(this.config.apiKeys, (key) => {
       merge(resources, this.compileApiKey(key));
     });
 

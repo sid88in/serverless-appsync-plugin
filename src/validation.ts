@@ -1,6 +1,8 @@
 import Ajv from 'ajv';
 import ajvErrors from 'ajv-errors';
 import ajvMergePatch from 'ajv-merge-patch';
+import addFormats from 'ajv-formats';
+import { timeUnits } from './utils';
 
 const AUTH_TYPES = [
   'AMAZON_COGNITO_USER_POOLS',
@@ -103,7 +105,6 @@ export const appSyncSchema = {
         defaultAction: {
           type: 'string',
           enum: ['ALLOW', 'DENY'],
-
           errorMessage: 'must be "ALLOW" or "DENY"',
         },
         appIdClientRegex: { type: 'string' },
@@ -179,7 +180,7 @@ export const appSyncSchema = {
               },
             },
           },
-          required: [],
+          required: ['disableIntrospection'],
         },
         {
           type: 'object',
@@ -225,7 +226,7 @@ export const appSyncSchema = {
               ],
             },
           },
-          required: [],
+          required: ['throttle'],
         },
         { $ref: '#/definitions/customWafRule' },
       ],
@@ -651,7 +652,11 @@ export const appSyncSchema = {
       properties: {
         enabled: { type: 'boolean' },
         name: { type: 'string' },
-        defaultAction: { type: 'string', enum: ['Allow', 'Block'] },
+        defaultAction: {
+          type: 'string',
+          enum: ['Allow', 'Block'],
+          errorMessage: "must be 'Allow' or 'Block'",
+        },
         description: { type: 'string' },
         rules: {
           type: 'array',
@@ -659,7 +664,6 @@ export const appSyncSchema = {
         },
       },
       required: ['rules'],
-      errorMessage: 'is not a valid WAF config',
     },
     tags: {
       type: 'object',
@@ -699,29 +703,32 @@ export const appSyncSchema = {
     apiKeys: {
       type: 'array',
       items: {
-        type: 'object',
-        oneOf: [
-          {
-            type: 'object',
-            properties: { expiresAfter: { type: 'string' } },
-            required: ['expiresAfter'],
+        if: { type: 'object' },
+        then: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            description: { type: 'string' },
+            expiresAfter: {
+              type: ['string', 'number'],
+              pattern: `^(\\d+)(${Object.keys(timeUnits).join('|')})?$`,
+              errorMessage: 'must be a valid duration.',
+            },
+            expiresAt: {
+              type: 'string',
+              format: 'date-time',
+              errorMessage: 'must be a valid date-time',
+            },
+            wafRules: {
+              type: 'array',
+              items: { $ref: '#/definitions/wafRule' },
+            },
           },
-          {
-            type: 'object',
-            properties: { expiresAt: { type: 'string' } },
-            required: ['expiresAt'],
-          },
-        ],
-        properties: {
-          name: { type: 'string' },
-          description: { type: 'string' },
-          wafRules: {
-            type: 'array',
-            items: { $ref: '#/definitions/wafRule' },
-          },
+          required: ['name'],
         },
-        required: ['name'],
-        errorMessage: 'is not a valid API key config',
+        else: {
+          type: 'string',
+        },
       },
     },
     log: {
@@ -810,9 +817,10 @@ export const appSyncSchema = {
   },
 };
 
-const ajv = new Ajv({ allErrors: true });
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
 ajvMergePatch(ajv);
 ajvErrors(ajv);
+addFormats(ajv);
 
 const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {

@@ -201,7 +201,7 @@ Array [
 exports[`returns basic config 1`] = `
 Object {
   "additionalAuthentications": Array [],
-  "apiKeys": Array [],
+  "apiKeys": Object {},
   "authentication": Object {
     "type": "API_KEY",
   },

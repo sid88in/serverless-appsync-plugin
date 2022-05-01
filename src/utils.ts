@@ -4,7 +4,7 @@ import { DateTime, Duration } from 'luxon';
 import { promisify } from 'util';
 import * as readline from 'readline';
 
-const timeUnits = {
+export const timeUnits = {
   y: 'years',
   q: 'quarters',
   M: 'months',
@@ -58,11 +58,11 @@ export const parseDuration = (input: string | number) => {
   if (typeof input === 'number') {
     duration = Duration.fromDurationLike({ hours: input });
   } else if (typeof input === 'string') {
-    const regexp = new RegExp(`^(\\d+)(${Object.keys(timeUnits).join('|')})$`);
+    const regexp = new RegExp(`^(\\d+)(${Object.keys(timeUnits).join('|')})?$`);
     const match = input.match(regexp);
     if (match) {
       let amount: number = parseInt(match[1], 10);
-      let unit = timeUnits[match[2]] as TimeUnit;
+      let unit = (timeUnits[match[2]] as TimeUnit) || 'hours';
 
       // 1 year could be 366 days on or before leap year,
       // which would fail. Swap for 365 days
