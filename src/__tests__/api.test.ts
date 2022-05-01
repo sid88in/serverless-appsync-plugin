@@ -33,10 +33,10 @@ describe('Api', () => {
     it('should compile the Api Resource with logs enabled', () => {
       const api = new Api(
         given.appSyncConfig({
-          log: {
+          logging: {
             level: 'ERROR',
             excludeVerboseContent: false,
-            logRetentionInDays: 14,
+            retentionInDays: 14,
           },
         }),
         plugin,
@@ -344,8 +344,24 @@ describe('Api', () => {
   });
 
   describe('Logs', () => {
-    it('should not compile CloudWatch Resources when disabled', () => {
+    it('should not compile CloudWatch Resources when logging not configured', () => {
       const api = new Api(given.appSyncConfig(), plugin);
+      expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(
+        `Object {}`,
+      );
+    });
+
+    it('should not compile CloudWatch Resources when logging is disabled', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          logging: {
+            level: 'ERROR',
+            retentionInDays: 14,
+            enabled: false,
+          },
+        }),
+        plugin,
+      );
       expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(
         `Object {}`,
       );
@@ -354,9 +370,9 @@ describe('Api', () => {
     it('should compile CloudWatch Resources when enaabled', () => {
       const api = new Api(
         given.appSyncConfig({
-          log: {
+          logging: {
             level: 'ERROR',
-            logRetentionInDays: 14,
+            retentionInDays: 14,
           },
         }),
         plugin,

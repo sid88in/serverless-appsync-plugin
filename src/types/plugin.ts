@@ -20,7 +20,7 @@ export type AppSyncConfig = {
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
-  log?: LogConfig;
+  logging?: LoggingConfig;
   caching?: CachingConfig;
   waf?: WafConfig;
   tags?: Record<string, string>;
@@ -296,10 +296,11 @@ export type VisibilityConfig = {
   sampledRequestsEnabled?: boolean;
 };
 
-export type LogConfig = {
+export type LoggingConfig = {
   level: 'ERROR' | 'NONE' | 'ALL';
+  enabled?: boolean;
   excludeVerboseContent?: boolean;
-  logRetentionInDays?: number;
+  retentionInDays?: number;
   roleArn?: string | IntrinsicFunction;
 };
 

@@ -47,7 +47,7 @@ appSync:
 - `substitutions`: See [Substitutions](substitutions.md)
 - `caching`: See [Cacing](caching.md)
 - `waf`: See [Web Application Firefall](WAF.md)
-- `log`: See [Logs](#Logs)
+- `logging`: See [Logging](#Logging)
 - `defaultMappingTemplates`:
   - `request`: Optional. A default request mapping template filename for all resolvers.
   - `response`: Optional. A default response mapping template filename for all resolvers.
@@ -176,17 +176,18 @@ Old-style descriptions (using `#`) are supported by AppSync but will be removed 
 
 Types can implement multiple [interfaces](https://spec.graphql.org/October2021/#sec-Interfaces) using an ampersand `&` in GraphQL, but AppSync uses the old comma (`,`) separator. `&` is the only separator suported by this plugin, but it will automatically be replaced with a `,`.
 
-## Logs
+## Logging
 
 ```yaml
 appSync:
   name: my-api
-  log:
+  logging:
     level: ERROR
-    logRetentionInDays: 14
+    retentionInDays: 14
 ```
 
 - `level`: `ERROR`, `NONE`, or `ALL`
-- `excludeVerboseContent`: Boolean. Exclude or not verbose content.
-- `logRetentionInDays`: Number of days to retain the logs.
+- `enabled`: Boolean. Defaults to `true` when `logging` is present.
+- `excludeVerboseContent`: Boolean. Exclude or not verbose content (headers, response headers, context, and evaluated mapping templates), regardless of field logging level. Defaults to `false`.
+- `retentionInDays`: Number of days to retain the logs. Defaults to [`provider.logRetentionInDays`](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml#general-function-settings).
 - `roleArn`: Optional. The role ARN to use for AppSync to write into CloudWatch. If not specified, a new role is created by default.
