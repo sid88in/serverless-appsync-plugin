@@ -6,7 +6,7 @@ export type AppSyncConfig = {
   authentication: Auth;
   additionalAuthentications: Auth[];
   domain?: DomainConfig;
-  apiKeys?: ApiKeyConfig[];
+  apiKeys?: Record<string, ApiKeyConfig>;
   defaultMappingTemplates?: {
     request?: string | false;
     response?: string | false;
@@ -93,7 +93,7 @@ export type ApiKeyConfig = {
   apiKeyId?: string;
   name: string;
   description?: string;
-  expiresAfter?: string;
+  expiresAfter?: string | number;
   expiresAt?: string;
   wafRules?: WafRule[];
 };

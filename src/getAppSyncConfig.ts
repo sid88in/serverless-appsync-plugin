@@ -157,20 +157,22 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
 
   const additionalAuthentications = config.additionalAuthentications || [];
 
-  let apiKeys: ApiKeyConfig[] | undefined;
+  let apiKeys: Record<string, ApiKeyConfig> | undefined;
   if (
     config.authentication.type === 'API_KEY' ||
     additionalAuthentications.some((auth) => auth.type === 'API_KEY')
   ) {
     const inputKeys = config.apiKeys || [];
 
-    apiKeys = inputKeys.map((key) => {
+    apiKeys = inputKeys.reduce((acc, key) => {
       if (typeof key === 'string') {
-        return { name: key };
+        acc[key] = { name: key };
+      } else {
+        acc[key.name] = key;
       }
 
-      return key;
-    });
+      return acc;
+    }, {});
   }
 
   return {

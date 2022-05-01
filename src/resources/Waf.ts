@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { isEmpty, reduce } from 'lodash';
 import {
   CfnResources,
   CfnWafAction,
@@ -111,7 +111,8 @@ export class Waf {
 
   buildApiKeysWafRules(): CfnWafRule[] {
     return (
-      this.api.config.apiKeys?.reduce(
+      reduce(
+        this.api.config.apiKeys,
         (rules, key) => rules.concat(this.buildApiKeyRules(key)),
         [] as CfnWafRule[],
       ) || []

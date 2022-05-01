@@ -7,7 +7,6 @@ import { ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
-import { appSyncConfig } from '../__tests__/given';
 import { SyncConfig } from './SyncConfig';
 
 export class Resolver {

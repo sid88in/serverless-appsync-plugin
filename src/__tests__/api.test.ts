@@ -444,7 +444,61 @@ describe('Api', () => {
   describe('apiKeys', () => {
     const api = new Api(given.appSyncConfig(), plugin);
 
-    it('should generate an api key with sliding window expiration', () => {
+    it('should generate an api key with sliding window expiration in numeric hours', () => {
+      expect(
+        api.compileApiKey({
+          name: 'Default',
+          description: 'Default Key',
+          expiresAfter: 24,
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApiDefault": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "ApiKeyId": undefined,
+              "Description": "Default Key",
+              "Expires": 1607619600,
+            },
+            "Type": "AWS::AppSync::ApiKey",
+          },
+        }
+      `);
+    });
+
+    it('should generate an api key with sliding window expiration in string hours', () => {
+      expect(
+        api.compileApiKey({
+          name: 'Default',
+          description: 'Default Key',
+          expiresAfter: '24',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApiDefault": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "ApiKeyId": undefined,
+              "Description": "Default Key",
+              "Expires": 1607619600,
+            },
+            "Type": "AWS::AppSync::ApiKey",
+          },
+        }
+      `);
+    });
+
+    it('should generate an api key with sliding window expiration in duration', () => {
       expect(
         api.compileApiKey({
           name: 'Default',

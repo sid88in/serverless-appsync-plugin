@@ -92,8 +92,8 @@ class ServerlessAppsyncPlugin {
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
 
-    // We are using a newer version of AJV than Serverless Frameowrk
-    // and some customizations (eg: custom errors, $merge, filter irrelevant errors )
+    // We are using a newer version of AJV than Serverless Framework
+    // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
     // field (ie: `appSync`). Actual valiation will be handled by this plugin
     // later in `validateConfig()`
@@ -844,8 +844,6 @@ class ServerlessAppsyncPlugin {
 
     try {
       validateConfig(appSync);
-      const config = getAppSyncConfig(appSync);
-      this.api = new Api(config, this);
     } catch (error) {
       if (error instanceof AppSyncValidationError) {
         this.handleConfigValidationError(error);
@@ -853,6 +851,8 @@ class ServerlessAppsyncPlugin {
         throw error;
       }
     }
+    const config = getAppSyncConfig(appSync);
+    this.api = new Api(config, this);
   }
 
   validateSchemas() {
