@@ -14,9 +14,9 @@ exports[`Valdiation Domain Invalid should validate a Invalid Route 53 1`] = `
 `;
 
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
-"/log/level: must be \\"ALL\\", \\"ERROR\\" or \\"NONE\\"
-/log/logRetentionInDays: must be integer
-/log/excludeVerboseContent: must be boolean"
+"/logging/level: must be one of 'ALL', 'ERROR' or 'NONE'
+/logging/retentionInDays: must be integer
+/logging/excludeVerboseContent: must be boolean"
 `;
 
 exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `

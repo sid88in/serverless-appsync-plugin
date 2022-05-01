@@ -92,15 +92,15 @@ export class Api {
       });
     }
 
-    if (this.config.log) {
+    if (this.config.logging && this.config.logging.enabled !== false) {
       const logicalIdCloudWatchLogsRole =
         this.naming.getLogGroupRoleLogicalId();
       set(endpointResource, 'Properties.LogConfig', {
-        CloudWatchLogsRoleArn: this.config.log.roleArn || {
+        CloudWatchLogsRoleArn: this.config.logging.roleArn || {
           'Fn::GetAtt': [logicalIdCloudWatchLogsRole, 'Arn'],
         },
-        FieldLogLevel: this.config.log.level,
-        ExcludeVerboseContent: this.config.log.excludeVerboseContent,
+        FieldLogLevel: this.config.logging.level,
+        ExcludeVerboseContent: this.config.logging.excludeVerboseContent,
       });
     }
 
@@ -112,7 +112,7 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.log) {
+    if (!this.config.logging || this.config.logging.enabled === false) {
       return {};
     }
 
@@ -132,7 +132,7 @@ export class Api {
             ],
           },
           RetentionInDays:
-            this.config.log.logRetentionInDays ||
+            this.config.logging.retentionInDays ||
             this.plugin.serverless.service.provider.logRetentionInDays,
         },
       },

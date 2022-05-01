@@ -731,17 +731,18 @@ export const appSyncSchema = {
         },
       },
     },
-    log: {
+    logging: {
       type: 'object',
       properties: {
         roleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         level: {
           type: 'string',
           enum: ['ALL', 'ERROR', 'NONE'],
-          errorMessage: 'must be "ALL", "ERROR" or "NONE"',
+          errorMessage: "must be one of 'ALL', 'ERROR' or 'NONE'",
         },
-        logRetentionInDays: { type: 'integer' },
+        retentionInDays: { type: 'integer' },
         excludeVerboseContent: { type: 'boolean' },
+        enabled: { type: 'boolean' },
       },
       required: ['level'],
     },

@@ -18,7 +18,7 @@ describe('Valdiation', () => {
           name: 'Minimum',
           config: {
             ...basicConfig,
-            log: {
+            logging: {
               level: 'ALL',
             },
           } as AppSyncConfigInput,
@@ -27,9 +27,9 @@ describe('Valdiation', () => {
           name: 'Full',
           config: {
             ...basicConfig,
-            log: {
+            logging: {
               level: 'ALL',
-              logRetentionInDays: 14,
+              retentionInDays: 14,
               excludeVerboseContent: true,
               loggingRoleArn: { Ref: 'MyLogGorupArn' },
             },
@@ -50,9 +50,9 @@ describe('Valdiation', () => {
           name: 'Invalid',
           config: {
             ...basicConfig,
-            log: {
+            logging: {
               level: 'FOO',
-              logRetentionInDays: 'bar',
+              retentionInDays: 'bar',
               excludeVerboseContent: 'buzz',
               loggingRoleArn: 123,
             },
