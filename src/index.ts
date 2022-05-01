@@ -46,6 +46,7 @@ import { AppSyncValidationError, validateConfig } from './validation';
 import {
   confirmAction,
   getHostedZoneName,
+  getWildCardDomainName,
   parseDateTimeOrDuration,
   wait,
 } from './utils';
@@ -59,6 +60,11 @@ import {
   ListHostedZonesByNameRequest,
   ListHostedZonesByNameResponse,
 } from 'aws-sdk/clients/route53';
+import {
+  ListCertificatesRequest,
+  ListCertificatesResponse,
+} from 'aws-sdk/clients/acm';
+import { S3 } from 'aws-sdk';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -488,15 +494,50 @@ class ServerlessAppsyncPlugin {
     return domain;
   }
 
+  async getDomainCertificateArn() {
+    const { CertificateSummaryList } = await this.provider.request<
+      ListCertificatesRequest,
+      ListCertificatesResponse
+    >(
+      'ACM',
+      'listCertificates',
+      // only fully issued certificates
+      { CertificateStatuses: ['ISSUED'] },
+      // certificates must always be in us-east-1
+      { region: 'us-east-1' },
+    );
+
+    const domain = this.getDomain();
+
+    // try to find an exact match certificate
+    // fallback on wildcard
+    const matches = [domain.name, getWildCardDomainName(domain.name)];
+    for (const match of matches) {
+      const cert = CertificateSummaryList?.find(
+        ({ DomainName }) => DomainName === match,
+      );
+      if (cert) {
+        return cert.CertificateArn;
+      }
+    }
+  }
+
   async createDomain() {
     try {
       const domain = this.getDomain();
+      const certificateArn =
+        domain.certificateArn || (await this.getDomainCertificateArn());
+
+      if (!certificateArn) {
+        throw new Error(`No certificate found for domain ${domain.name}.`);
+      }
+
       await this.provider.request<
         CreateDomainNameRequest,
         CreateDomainNameRequest
       >('AppSync', 'createDomainName', {
         domainName: domain.name,
-        certificateArn: domain.certificateArn,
+        certificateArn,
       });
       log.success(`Domain '${domain.name}' created successfully`);
     } catch (error) {

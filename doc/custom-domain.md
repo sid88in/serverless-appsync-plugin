@@ -17,7 +17,7 @@ appSync:
 ## Configuration
 
 - `name`: Required. The fully qualified domain name to assiciate this API to.
-- `certificateArn`: Required. A valid certificate ARN for the domain name.
+- `certificateArn`: Optional. A valid certificate ARN for the domain name. If not provided, this plugin will try its best finding a certificate that matches the domain.
 - `useCloudFormation`: Boolean. Optional. Wheter to use CloudFormation or CLI commands to manage the domain. See [Using CloudFormation or CLI commands](#using-cloudformation-vs-the-cli-commands). Defaults to `true`.
 - `retain`: Boolean. Optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
 - `route53`: See [Route53 configuration](#route53-configuration). Defaults to `true`

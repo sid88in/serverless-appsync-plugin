@@ -86,6 +86,10 @@ export const getHostedZoneName = (domain: string) => {
   return `${domain.split('.').slice(1).join('.')}.`;
 };
 
+export const getWildCardDomainName = (domain: string) => {
+  return `*.${domain.split('.').slice(1).join('.')}`;
+};
+
 export const question = async (question: string): Promise<string> => {
   const rl = readline.createInterface({
     input: process.stdin,

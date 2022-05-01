@@ -141,7 +141,7 @@ export type DomainConfig = {
   useCloudFormation?: boolean;
   retain?: boolean;
   name: string;
-  certificateArn: string;
+  certificateArn?: string;
   route53?:
     | boolean
     | {

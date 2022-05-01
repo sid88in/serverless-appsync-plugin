@@ -48,27 +48,130 @@ afterEach(() => {
 
 describe('create domain', () => {
   const createDomainName = jest.fn();
+  const listCertificates = jest.fn();
   afterEach(() => {
     createDomainName.mockClear();
+    listCertificates.mockClear();
   });
-  it('should create a domain', async () => {
+  it('should create a domain with specified certificate ARN', async () => {
     await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
           createDomainName,
         },
+        ACM: {
+          listCertificates,
+        },
       },
       command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            certificateArn:
+              'arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493',
+          },
+        },
+      },
     });
 
     expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(listCertificates).not.toHaveBeenCalled();
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
                 "domainName": "api.example.com",
               }
           `);
+  });
+
+  it('should create a domain and find a matching certificate, exact match', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: '*.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507',
+        },
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+        {
+          DomainName: 'api.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493',
+        },
+      ],
+    });
+
+    await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        AppSync: {
+          createDomainName,
+        },
+        ACM: {
+          listCertificates,
+        },
+      },
+      command: 'appsync domain create',
+    });
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(
+      `Object {}`,
+    );
+    expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
+        "domainName": "api.example.com",
+      }
+    `);
+  });
+
+  it('should create a domain and find a matching certificate, wildcard match', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+        {
+          DomainName: '*.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507',
+        },
+      ],
+    });
+
+    await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        AppSync: {
+          createDomainName,
+        },
+        ACM: {
+          listCertificates,
+        },
+      },
+      command: 'appsync domain create',
+    });
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(
+      `Object {}`,
+    );
+    expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 });
 

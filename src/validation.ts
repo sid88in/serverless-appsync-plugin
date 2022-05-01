@@ -644,6 +644,7 @@ export const appSyncSchema = {
           },
         },
       },
+      required: ['name'],
     },
     xrayEnabled: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },
