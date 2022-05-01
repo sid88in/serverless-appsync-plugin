@@ -844,8 +844,6 @@ class ServerlessAppsyncPlugin {
 
     try {
       validateConfig(appSync);
-      const config = getAppSyncConfig(appSync);
-      this.api = new Api(config, this);
     } catch (error) {
       if (error instanceof AppSyncValidationError) {
         this.handleConfigValidationError(error);
@@ -853,6 +851,8 @@ class ServerlessAppsyncPlugin {
         throw error;
       }
     }
+    const config = getAppSyncConfig(appSync);
+    this.api = new Api(config, this);
   }
 
   validateSchemas() {
