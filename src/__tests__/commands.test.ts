@@ -120,9 +120,13 @@ describe('create domain', () => {
     });
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
-    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(
-      `Object {}`,
-    );
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
     expect(createDomainName).toHaveBeenCalledTimes(1);
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
@@ -130,6 +134,47 @@ describe('create domain', () => {
         "domainName": "api.example.com",
       }
     `);
+  });
+
+  it('should fail creating a domain if ARN cannot be resolved', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+      ],
+    });
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        awsRequestStubMap: {
+          AppSync: {
+            createDomainName,
+          },
+
+          ACM: {
+            listCertificates,
+          },
+        },
+
+        command: 'appsync domain create',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"No certificate found for domain api.example.com."`,
+    );
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
+    expect(createDomainName).not.toHaveBeenCalled();
   });
 
   it('should create a domain and find a matching certificate, wildcard match', async () => {
@@ -162,9 +207,13 @@ describe('create domain', () => {
     });
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
-    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(
-      `Object {}`,
-    );
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
     expect(createDomainName).toHaveBeenCalledTimes(1);
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
