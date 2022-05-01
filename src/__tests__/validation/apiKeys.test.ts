@@ -45,7 +45,6 @@ describe('Basic', () => {
             },
             {
               name: 'Name only',
-              expiresAfter: '1y',
             },
             'InlineKey',
           ],

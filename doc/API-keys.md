@@ -20,7 +20,7 @@ It can either be string, which translates into the API key's name with default v
 - `name`: A unique name for this API key. Required.
 - `description`: An optional description for this API key.
 - `expiresAfter`: A time after which this API key will expire. [See below](#expiry) for more details about expiry. Defaults to `365y`.
-- `expiresAt`: A time at which this API key will expire. [See below](#expiry) for more details about expiry.
+- `expiresAt`: A date-time at which this API key will expire. [See below](#expiry) for more details about expiry.
 - `wafRules`: an array of [WAF rules](WAF.md) that will apply to this API key only.
 
 ## Expiry
