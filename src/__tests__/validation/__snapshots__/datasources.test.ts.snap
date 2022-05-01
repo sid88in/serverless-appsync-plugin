@@ -15,7 +15,7 @@ exports[`DynamoDB Invalid should validate: Invalid config 1`] = `
 /dataSources/myDynamoSource1/config/useCallerCredentials: must be boolean
 /dataSources/myDynamoSource1/config/serviceRoleArn: must be a string or a CloudFormation intrinsic function
 /dataSources/myDynamoSource1/config/region: must be a string or a CloudFormation intrinsic function
-/dataSources/myDynamoSource1/config/iamRoleStatements/0: is not a valid IAM role statement
+/dataSources/myDynamoSource1/config/iamRoleStatements/0: must be a valid IAM role statement
 /dataSources/myDynamoSource1/config/versioned: must be boolean
 /dataSources/myDynamoSource1/config/deltaSyncConfig: must have required property 'deltaSyncTableName'
 /dataSources/myDynamoSource1/config/deltaSyncConfig/baseTableTTL: must be integer

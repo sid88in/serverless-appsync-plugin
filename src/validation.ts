@@ -143,7 +143,7 @@ export const appSyncSchema = {
         },
       },
       required: ['type'],
-      errorMessage: 'is not a valid IAM config',
+      errorMessage: 'must be a valid IAM config',
     },
     apiKeyAuth: {
       type: 'object',
@@ -154,7 +154,7 @@ export const appSyncSchema = {
         },
       },
       required: ['type'],
-      errorMessage: 'is not a valid API_KEY config',
+      errorMessage: 'must be a valid API_KEY config',
     },
     visibilityConfig: {
       type: 'object',
@@ -230,7 +230,7 @@ export const appSyncSchema = {
         },
         { $ref: '#/definitions/customWafRule' },
       ],
-      errorMessage: 'is not a valid WAF rule',
+      errorMessage: 'must be a valid WAF rule',
     },
     customWafRule: {
       type: 'object',
@@ -256,7 +256,7 @@ export const appSyncSchema = {
         $ref: '#/definitions/stringOrIntrinsicFunction',
       },
       required: [],
-      errorMessage: 'is not a valid substitutions definition',
+      errorMessage: 'must be a valid substitutions definition',
     },
     dataSource: {
       if: { type: 'object' },
@@ -363,7 +363,7 @@ export const appSyncSchema = {
           required: [],
         },
       ],
-      errorMessage: 'is not a valid resolver caching config',
+      errorMessage: 'must be a valid resolver caching config',
     },
     syncConfig: {
       type: 'object',
@@ -399,7 +399,7 @@ export const appSyncSchema = {
           },
         },
         required: ['Effect', 'Action', 'Resource'],
-        errorMessage: 'is not a valid IAM role statement',
+        errorMessage: 'must be a valid IAM role statement',
       },
     },
     dataSourceConfig: {
@@ -610,7 +610,7 @@ export const appSyncSchema = {
           items: { type: 'string' },
         },
       ],
-      errorMessage: 'is not a valid schema config',
+      errorMessage: 'must be a valid schema config',
     },
     domain: {
       type: 'object',
@@ -694,7 +694,7 @@ export const appSyncSchema = {
         transitEncryption: { type: 'boolean' },
       },
       required: ['behavior'],
-      errorMessage: 'is not a valid caching config',
+      errorMessage: 'must be a valid caching config',
     },
     additionalAuthentications: {
       type: 'array',

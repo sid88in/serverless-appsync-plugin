@@ -23,9 +23,9 @@ exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `
 "/waf/enabled: must be boolean
 /waf/name: must be string
 /waf/defaultAction: must be 'Allow' or 'Block'
-/waf/rules/0: is not a valid WAF rule
-/waf/rules/1: is not a valid WAF rule
-/waf/rules/2: is not a valid WAF rule"
+/waf/rules/0: must be a valid WAF rule
+/waf/rules/1: must be a valid WAF rule
+/waf/rules/2: must be a valid WAF rule"
 `;
 
 exports[`Valdiation should validate  1`] = `
