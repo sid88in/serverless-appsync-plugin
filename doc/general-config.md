@@ -187,7 +187,7 @@ appSync:
 ```
 
 - `level`: `ERROR`, `NONE`, or `ALL`
-- `enabled`: Boolean. Defaults to `true` when `logging` is present.
+- `enabled`: Boolean, Optional. Defaults to `true` when `logging` is present.
 - `excludeVerboseContent`: Boolean. Exclude or not verbose content (headers, response headers, context, and evaluated mapping templates), regardless of field logging level. Defaults to `false`.
 - `retentionInDays`: Number of days to retain the logs. Defaults to [`provider.logRetentionInDays`](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml#general-function-settings).
 - `roleArn`: Optional. The role ARN to use for AppSync to write into CloudWatch. If not specified, a new role is created by default.
