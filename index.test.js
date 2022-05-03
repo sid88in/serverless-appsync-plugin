@@ -1619,6 +1619,67 @@ describe('SyncConfig', () => {
     expect(result).toMatchSnapshot();
   });
 
+  test('Pipeline Resolver Function uses default', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+          sync: true,
+        },
+      ],
+    };
+
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('SyncConfig');
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig).toEqual({
+      "ConflictDetection": "VERSION",
+    });
+  })
+
+  test('Pipeline Resolver Function uses advanced config', () => {
+    const apiConfig = {
+      ...config,
+      functionConfigurationsLocation: 'mapping-templates',
+      functionConfigurations: [
+        {
+          dataSource: 'ds',
+          name: 'pipeline',
+          request: 'request.vtl',
+          response: 'response.vtl',
+          sync: {
+            conflictDetection: 'VERSION',
+            conflictHandler: 'LAMBDA',
+            functionName: 'syncLambda',
+          },
+        },
+      ],
+    };
+
+    const apiResources = plugin.getFunctionConfigurationResources(apiConfig);
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties,
+    ).toHaveProperty('SyncConfig');
+    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig).toEqual({
+      "ConflictDetection": "VERSION",
+      "ConflictHandler": "LAMBDA",
+      "LambdaConflictHandlerConfig": {
+        "LambdaConflictHandlerArn": {
+          "Fn::GetAtt": [
+            "SyncLambdaLambdaFunction",
+            "Arn",
+          ],
+        },
+      },
+    });
+  })
+
   test('Uses lambda config', () => {
     Object.assign(config, {
       mappingTemplates: [
