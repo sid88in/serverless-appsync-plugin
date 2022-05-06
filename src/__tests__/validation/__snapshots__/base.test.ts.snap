@@ -13,6 +13,10 @@ exports[`Valdiation Domain Invalid should validate a Invalid Route 53 1`] = `
 /domain/route53/hostedZoneName: must be a valid zone name. Note: you must include a trailing dot (eg: \`example.com.\`)"
 `;
 
+exports[`Valdiation Domain Invalid should validate a useCloudFormation: not present, certificateArn required 1`] = `"/domain: must have property 'certificateArn' when using cloudFormation"`;
+
+exports[`Valdiation Domain Invalid should validate a useCloudFormation: true, certificateArn required 1`] = `"/domain: must have property 'certificateArn' when using cloudFormation"`;
+
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
 "/logging/level: must be one of 'ALL', 'ERROR' or 'NONE'
 /logging/retentionInDays: must be integer

@@ -208,6 +208,7 @@ describe('Valdiation', () => {
             ...basicConfig,
             domain: {
               name: 'api.example.com',
+              certificateArn: 'arn:aws:',
             },
           } as AppSyncConfigInput,
         },
@@ -238,6 +239,16 @@ describe('Valdiation', () => {
             },
           } as AppSyncConfigInput,
         },
+        {
+          name: 'useCloudFormation: false, missing certificateArn',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+              useCloudFormation: false,
+            },
+          } as AppSyncConfigInput,
+        },
       ];
 
       assertions.forEach((config) => {
@@ -262,11 +273,31 @@ describe('Valdiation', () => {
           },
         },
         {
+          name: 'useCloudFormation: true, certificateArn required',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+              useCloudFormation: true,
+            },
+          },
+        },
+        {
+          name: 'useCloudFormation: not present, certificateArn required',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+            },
+          },
+        },
+        {
           name: 'Invalid Route 53',
           config: {
             ...basicConfig,
             domain: {
               name: 'bar',
+              certificateArn: 'arn:aws:',
               route53: {
                 hostedZoneId: 456,
                 hostedZoneName: 789,

@@ -645,6 +645,23 @@ export const appSyncSchema = {
         },
       },
       required: ['name'],
+      if: {
+        anyOf: [
+          {
+            not: { properties: { useCloudFormation: { const: false } } },
+          },
+          { not: { required: ['useCloudFormation'] } },
+        ],
+      },
+      then: {
+        required: ['certificateArn'],
+        errorMessage: {
+          required: {
+            certificateArn:
+              "must have property 'certificateArn' when using cloudFormation",
+          },
+        },
+      },
     },
     xrayEnabled: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },

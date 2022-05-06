@@ -64,7 +64,6 @@ import {
   ListCertificatesRequest,
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
-import { S3 } from 'aws-sdk';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
