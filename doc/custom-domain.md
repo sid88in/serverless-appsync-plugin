@@ -10,14 +10,14 @@ The configuration for custom domain can be found under the `appSync.domain` attr
 appSync:
   name: my-api
   domain:
-    name: api.example.rehab
+    name: api.example.com
     certificateArn: arn:aws:acm:us-east-1:123456789:certificate/7e14a3b2-f7a5-4da5-8150-4a03ede7158c
 ```
 
 ## Configuration
 
 - `name`: Required. The fully qualified domain name to assiciate this API to.
-- `certificateArn`: Optional. A valid certificate ARN for the domain name. If not provided, this plugin will try its best finding a certificate that matches the domain.
+- `certificateArn`: Conditional. A valid certificate ARN for the domain name. If not provided, and using command-line management, this plugin will try its best finding a certificate that matches the domain. Requiered if using the CloudFormation integration.
 - `useCloudFormation`: Boolean. Optional. Wheter to use CloudFormation or CLI commands to manage the domain. See [Using CloudFormation or CLI commands](#using-cloudformation-vs-the-cli-commands). Defaults to `true`.
 - `retain`: Boolean. Optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
 - `route53`: See [Route53 configuration](#route53-configuration). Defaults to `true`
