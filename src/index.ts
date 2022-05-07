@@ -64,6 +64,7 @@ import {
   ListCertificatesRequest,
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
+import terminalLink from 'terminal-link';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -297,17 +298,20 @@ class ServerlessAppsyncPlugin {
       'appsync:console:run': () => this.openConsole(),
       'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'appsync:logs:run': async () => this.initShowLogs(),
-      'before:appsync:domain:create:run': async () => this.loadConfig(),
+      'before:appsync:domain:create:run': async () => this.initDomainCommand(),
       'appsync:domain:create:run': async () => this.createDomain(),
-      'before:appsync:domain:delete:run': async () => this.loadConfig(),
+      'before:appsync:domain:delete:run': async () => this.initDomainCommand(),
       'appsync:domain:delete:run': async () => this.deleteDomain(),
-      'before:appsync:domain:assoc:run': async () => this.loadConfig(),
+      'before:appsync:domain:assoc:run': async () => this.initDomainCommand(),
       'appsync:domain:assoc:run': async () => this.assocDomain(),
-      'before:appsync:domain:disassoc:run': async () => this.loadConfig(),
+      'before:appsync:domain:disassoc:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:disassoc:run': async () => this.disassocDomain(),
-      'before:appsync:domain:create-record:run': async () => this.loadConfig(),
+      'before:appsync:domain:create-record:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:create-record:run': async () => this.createRecord(),
-      'before:appsync:domain:delete-record:run': async () => this.loadConfig(),
+      'before:appsync:domain:delete-record:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
     };
 
@@ -475,6 +479,29 @@ class ServerlessAppsyncPlugin {
         : 1000;
       await wait(interval);
       await this.showLogs(logGroupName, newNextToken);
+    }
+  }
+
+  async initDomainCommand() {
+    this.loadConfig();
+    const domain = this.getDomain();
+
+    if (domain.useCloudFormation !== false) {
+      log.warning(
+        'You are using the CloudFormation integration for domain configuration.\n' +
+          'To avoid CloudFormation drifts, you should not use it in combimnation with this command.\n' +
+          'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
+          'If you already deployed using CloudFormation and would like to switch the CLI, you can ' +
+          terminalLink(
+            'eject from CloudFormation',
+            'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
+          ) +
+          ' first.',
+      );
+
+      if (!(await confirmAction())) {
+        process.exit(0);
+      }
     }
   }
 

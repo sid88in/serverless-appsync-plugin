@@ -68,6 +68,7 @@ describe('create domain', () => {
       configExt: {
         appSync: {
           domain: {
+            useCloudFormation: false,
             certificateArn:
               'arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493',
           },
@@ -117,6 +118,13 @@ describe('create domain', () => {
         },
       },
       command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
@@ -161,6 +169,13 @@ describe('create domain', () => {
         },
 
         command: 'appsync domain create',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `"No certificate found for domain api.example.com."`,
@@ -204,6 +219,13 @@ describe('create domain', () => {
         },
       },
       command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
@@ -240,6 +262,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(deleteDomainName).toHaveBeenCalledTimes(1);
@@ -262,6 +291,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -287,6 +323,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -323,6 +366,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -364,6 +414,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -403,6 +460,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -453,6 +517,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -515,6 +586,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -563,6 +641,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -608,6 +693,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -671,6 +763,13 @@ describe('domain create-record', () => {
         },
       },
       command: 'appsync domain create-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(getDomainName).toHaveBeenCalledTimes(1);
@@ -738,6 +837,13 @@ describe('domain create-record', () => {
         },
 
         command: 'appsync domain create-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `"[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]"`,
@@ -768,6 +874,13 @@ describe('domain create-record', () => {
         },
       },
       command: 'appsync domain create-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: { quiet: true },
     });
 
@@ -794,6 +907,13 @@ describe('domain create-record', () => {
         },
 
         command: 'appsync domain create-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
         options: { quiet: true },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -858,6 +978,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -926,6 +1053,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -963,6 +1097,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: { yes: true },
     });
 
@@ -1033,6 +1174,13 @@ describe('domain delete-record', () => {
         },
 
         command: 'appsync domain delete-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `"[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]"`,
@@ -1065,6 +1213,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         quiet: true,
       },
