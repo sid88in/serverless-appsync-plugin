@@ -489,9 +489,9 @@ class ServerlessAppsyncPlugin {
     if (domain.useCloudFormation !== false) {
       log.warning(
         'You are using the CloudFormation integration for domain configuration.\n' +
-          'To avoid CloudFormation drifts, you should not use it in combimnation with this command.\n' +
+          'To avoid CloudFormation drifts, you should not use it in combination with this command.\n' +
           'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
-          'If you already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
+          'If you have already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
           terminalLink(
             'eject from CloudFormation',
             'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
@@ -893,7 +893,16 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    this.serverless.addServiceOutputSection('appsync endpoints', endpoints);
+    const { name } = this.api?.config?.domain || {};
+    if (name) {
+      endpoints.push(`graphql: https://${name}/graphql`);
+      endpoints.push(`realtime: wss://${name}/graphql/realtime`);
+    }
+
+    this.serverless.addServiceOutputSection(
+      'appsync endpoints',
+      endpoints.sort(),
+    );
   }
 
   displayApiKeys() {
