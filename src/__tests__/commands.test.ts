@@ -719,6 +719,7 @@ describe('domain create-record', () => {
     getDomainName.mockResolvedValue({
       domainNameConfig: {
         appsyncDomainName: 'qbcdefghij.cloudfront.net',
+        hostedZoneId: 'ABCDEFGHI',
       },
     });
     listHostedZonesByName.mockResolvedValue({
@@ -784,29 +785,28 @@ describe('domain create-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "CREATE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "CREATE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "ABCDEFGHI",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -932,6 +932,7 @@ describe('domain delete-record', () => {
   const getDomainName = jest.fn().mockResolvedValue({
     domainNameConfig: {
       appsyncDomainName: 'qbcdefghij.cloudfront.net',
+      hostedZoneId: 'ABCDEFGHI',
     },
   });
   const listHostedZonesByName = jest.fn().mockResolvedValue({
@@ -1000,29 +1001,28 @@ describe('domain delete-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "DELETE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "DELETE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "ABCDEFGHI",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -1120,29 +1120,28 @@ describe('domain delete-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "DELETE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "DELETE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "ABCDEFGHI",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {

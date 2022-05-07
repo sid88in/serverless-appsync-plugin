@@ -215,7 +215,7 @@ class ServerlessAppsyncPlugin {
                 },
               },
               'create-record': {
-                usage: 'Create the CNAME record for this domain in Route53',
+                usage: 'Create the Alias record for this domain in Route53',
                 lifecycleEvents: ['run'],
                 options: {
                   quiet: {
@@ -227,7 +227,7 @@ class ServerlessAppsyncPlugin {
                 },
               },
               'delete-record': {
-                usage: 'Deletes the CNAME record for this domain from Route53',
+                usage: 'Deletes the Alias record for this domain from Route53',
                 lifecycleEvents: ['run'],
                 options: {
                   quiet: {
@@ -491,7 +491,7 @@ class ServerlessAppsyncPlugin {
         'You are using the CloudFormation integration for domain configuration.\n' +
           'To avoid CloudFormation drifts, you should not use it in combimnation with this command.\n' +
           'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
-          'If you already deployed using CloudFormation and would like to switch the CLI, you can ' +
+          'If you already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
           terminalLink(
             'eject from CloudFormation',
             'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
@@ -758,14 +758,15 @@ class ServerlessAppsyncPlugin {
     >('AppSync', 'getDomainName', {
       domainName: domain.name,
     });
-    const { appsyncDomainName } = domainNameConfig || {};
-    if (!appsyncDomainName) {
+
+    const { hostedZoneId, appsyncDomainName: dnsName } = domainNameConfig || {};
+    if (!hostedZoneId || !dnsName) {
       throw new this.serverless.classes.Error(
         `Domain ${domain.name} not found\nDid you forget to run 'sls appsync domain create'?`,
       );
     }
 
-    return appsyncDomainName;
+    return { hostedZoneId, dnsName };
   }
 
   async createRecord() {
@@ -785,7 +786,7 @@ class ServerlessAppsyncPlugin {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
       log.info(
-        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was created in Hosted Zone '${hostedZoneId}'`,
+        `Alias record for '${domain.name}' was created in Hosted Zone '${hostedZoneId}'`,
       );
       log.success('Route53 record created successfuly');
     }
@@ -797,7 +798,7 @@ class ServerlessAppsyncPlugin {
     const hostedZoneId = await this.getHostedZoneId();
 
     log.warning(
-      `CNAME record '${domain.name}' with value '${appsyncDomainName}' will be deleted from Hosted Zone '${hostedZoneId}'`,
+      `Alias record for '${domain.name}' will be deleted from Hosted Zone '${hostedZoneId}'`,
     );
     if (!this.options.yes && !(await confirmAction())) {
       return;
@@ -816,7 +817,7 @@ class ServerlessAppsyncPlugin {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
       log.info(
-        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was deleted from Hosted Zone '${hostedZoneId}'`,
+        `Alias record for '${domain.name}' was deleted from Hosted Zone '${hostedZoneId}'`,
       );
       log.success('Route53 record deleted successfuly');
     }
@@ -839,7 +840,10 @@ class ServerlessAppsyncPlugin {
   async changeRoute53Record(
     action: 'CREATE' | 'DELETE',
     hostedZoneId: string,
-    cname: string,
+    domainNamConfig: {
+      hostedZoneId: string;
+      dnsName: string;
+    },
   ) {
     const domain = this.getDomain();
 
@@ -855,9 +859,12 @@ class ServerlessAppsyncPlugin {
               Action: action,
               ResourceRecordSet: {
                 Name: domain.name,
-                Type: 'CNAME',
-                ResourceRecords: [{ Value: cname }],
-                TTL: 300,
+                Type: 'A',
+                AliasTarget: {
+                  HostedZoneId: domainNamConfig.hostedZoneId,
+                  DNSName: domainNamConfig.dnsName,
+                  EvaluateTargetHealth: false,
+                },
               },
             },
           ],

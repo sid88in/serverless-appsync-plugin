@@ -620,7 +620,7 @@ export const appSyncSchema = {
         retain: { type: 'boolean' },
         name: {
           type: 'string',
-          pattern: '^([a-z][a-z0-9+-]*\\.){2,}[a-z][a-z0-9]*$',
+          pattern: '^([a-z][a-z0-9+-]*\\.)+[a-z][a-z0-9]*$',
           errorMessage: 'must be a valid domain name',
         },
         certificateArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
