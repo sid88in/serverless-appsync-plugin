@@ -48,7 +48,8 @@
     "graphql": "^16.3.0",
     "lodash": "^4.17.20",
     "luxon": "^2.1.1",
-    "open": "^8.4.0"
+    "open": "^8.4.0",
+    "terminal-link": "^2.1.1"
   },
   "peerDependencies": {
     "serverless": ">=3.0.0"
