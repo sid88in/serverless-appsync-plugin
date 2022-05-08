@@ -719,7 +719,7 @@ describe('domain create-record', () => {
     getDomainName.mockResolvedValue({
       domainNameConfig: {
         appsyncDomainName: 'qbcdefghij.cloudfront.net',
-        hostedZoneId: 'ABCDEFGHI',
+        hostedZoneId: 'Z111111QQQQQQQ',
       },
     });
     listHostedZonesByName.mockResolvedValue({
@@ -795,7 +795,7 @@ describe('domain create-record', () => {
                   "AliasTarget": Object {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
-                    "HostedZoneId": "ABCDEFGHI",
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
                   "Name": "api.example.com",
                   "Type": "A",
@@ -932,7 +932,7 @@ describe('domain delete-record', () => {
   const getDomainName = jest.fn().mockResolvedValue({
     domainNameConfig: {
       appsyncDomainName: 'qbcdefghij.cloudfront.net',
-      hostedZoneId: 'ABCDEFGHI',
+      hostedZoneId: 'Z111111QQQQQQQ',
     },
   });
   const listHostedZonesByName = jest.fn().mockResolvedValue({
@@ -1011,7 +1011,7 @@ describe('domain delete-record', () => {
                   "AliasTarget": Object {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
-                    "HostedZoneId": "ABCDEFGHI",
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
                   "Name": "api.example.com",
                   "Type": "A",
@@ -1130,7 +1130,7 @@ describe('domain delete-record', () => {
                   "AliasTarget": Object {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
-                    "HostedZoneId": "ABCDEFGHI",
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
                   "Name": "api.example.com",
                   "Type": "A",

@@ -21,8 +21,8 @@ appSync:
 - `useCloudFormation`: Boolean. Optional. Wheter to use CloudFormation or CLI commands to manage the domain. See [Using CloudFormation or CLI commands](#using-cloudformation-vs-the-cli-commands). Defaults to `true`.
 - `retain`: Boolean, optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
 - `hostedZoneId`: Boolean, conditional. The Route53 hosted zone id where to create the certificate validation and/or AppSync Alias records. Required if `useCloudFormation` is `true` and `certificateArn` is not provided.
-- `hostedZoneName`: The hosted zone name where to create the route53 Alias record. If `v` is provided, it takes precedence over `hostedZoneName`.
-- `route53`: Boolean. wether or not to create the Route53 Alias record for this domain. Set to `false` if you don't use Route53. Defaults to `true`.
+- `hostedZoneName`: The hosted zone name where to create the route53 Alias record. If `certificateArn` is provided, it takes precedence over `hostedZoneName`.
+- `route53`: Boolean. Wether to create the Route53 Alias record for this domain. Set to `false` if you don't use Route53. Defaults to `true`.
 
 ## Certificate
 

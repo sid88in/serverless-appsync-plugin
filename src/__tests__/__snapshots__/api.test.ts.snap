@@ -98,6 +98,7 @@ Object {
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
   "GraphQlDomainCertificate": Object {
+    "DeletionPolicy": "Delete",
     "Properties": Object {
       "DomainName": "api.example.com",
       "DomainValidationOptions": Array [

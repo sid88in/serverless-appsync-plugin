@@ -1,5 +1,6 @@
 import {
   getHostedZoneName,
+  getWildCardDomainName,
   parseDateTimeOrDuration,
   parseDuration,
 } from '../utils';
@@ -55,6 +56,15 @@ describe('domain', () => {
       expect(getHostedZoneName('api.example.com')).toMatch('example.com.');
       expect(getHostedZoneName('api.prod.example.com')).toMatch(
         'prod.example.com.',
+      );
+    });
+  });
+
+  describe('getWildCardDomainName', () => {
+    it('should extract a correct getWildCardDomainName', () => {
+      expect(getWildCardDomainName('api.example.com')).toMatch('*.example.com');
+      expect(getWildCardDomainName('api.prod.example.com')).toMatch(
+        '*.prod.example.com',
       );
     });
   });

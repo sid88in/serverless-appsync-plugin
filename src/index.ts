@@ -543,6 +543,9 @@ class ServerlessAppsyncPlugin {
         ({ DomainName }) => DomainName === match,
       );
       if (cert) {
+        log.info(
+          `Found matching certificate for ${match}: ${cert.CertificateArn}`,
+        );
         return cert.CertificateArn;
       }
     }
@@ -555,7 +558,9 @@ class ServerlessAppsyncPlugin {
         domain.certificateArn || (await this.getDomainCertificateArn());
 
       if (!certificateArn) {
-        throw new Error(`No certificate found for domain ${domain.name}.`);
+        throw new this.serverless.classes.Error(
+          `No certificate found for domain ${domain.name}.`,
+        );
       }
 
       await this.provider.request<

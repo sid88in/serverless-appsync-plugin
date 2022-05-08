@@ -228,6 +228,7 @@ export class Api {
       merge(resources, {
         [domainCertificateLogicalId]: {
           Type: 'AWS::CertificateManager::Certificate',
+          DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
           Properties: {
             DomainName: domain.name,
             ValidationMethod: 'DNS',
