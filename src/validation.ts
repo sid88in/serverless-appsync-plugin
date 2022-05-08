@@ -627,7 +627,7 @@ export const appSyncSchema = {
         hostedZoneId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         hostedZoneName: {
           type: 'string',
-          pattern: '^([a-z][a-z0-9+-]*\\.){2,}$',
+          pattern: '^([a-z][a-z0-9+-]*\\.)+[a-z][a-z0-9]*\\.$',
           errorMessage:
             'must be a valid zone name. Note: you must include a trailing dot (eg: `example.com.`)',
         },

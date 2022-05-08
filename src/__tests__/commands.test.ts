@@ -819,7 +819,7 @@ describe('domain create-record', () => {
   it('should handle changeResourceRecordSets errors', async () => {
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+        "[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]",
       ),
     );
 
@@ -846,7 +846,7 @@ describe('domain create-record', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]"`,
+      `"[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]"`,
     );
 
     expect(getDomainName).toHaveBeenCalledTimes(1);
@@ -858,7 +858,7 @@ describe('domain create-record', () => {
   it('should handle changeResourceRecordSets errors silently', async () => {
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+        "[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]",
       ),
     );
 
@@ -1155,7 +1155,7 @@ describe('domain delete-record', () => {
     confirmSpy.mockResolvedValue(true);
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+        "[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]",
       ),
     );
 
@@ -1182,7 +1182,7 @@ describe('domain delete-record', () => {
         },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]"`,
+      `"[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]"`,
     );
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -1196,7 +1196,7 @@ describe('domain delete-record', () => {
     confirmSpy.mockResolvedValue(true);
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+        "[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]",
       ),
     );
 

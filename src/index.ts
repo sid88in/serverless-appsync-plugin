@@ -194,6 +194,12 @@ class ServerlessAppsyncPlugin {
                     required: false,
                     type: 'boolean',
                   },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
                 },
               },
               delete: {
@@ -221,6 +227,12 @@ class ServerlessAppsyncPlugin {
                   quiet: {
                     usage: "Don't return an error if the record already exists",
                     shortcut: 'q',
+                    required: false,
+                    type: 'boolean',
+                  },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
                     required: false,
                     type: 'boolean',
                   },
@@ -499,7 +511,7 @@ class ServerlessAppsyncPlugin {
           ' first.',
       );
 
-      if (!(await confirmAction())) {
+      if (!this.options.yes && !(await confirmAction())) {
         process.exit(0);
       }
     }
