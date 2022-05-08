@@ -648,7 +648,7 @@ export const appSyncSchema = {
           { required: ['hostedZoneId'] },
         ],
         errorMessage:
-          'when using CloudFormation, you must provide either certificateArn or hostedZoneId',
+          'when using CloudFormation, you must provide either certificateArn or hostedZoneId.',
       },
     },
     xrayEnabled: { type: 'boolean' },

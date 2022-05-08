@@ -789,7 +789,7 @@ describe('Domains', () => {
     expect(api.compileCustomDomain()).toMatchSnapshot();
   });
 
-  it('should generate domain resources without certificate', () => {
+  it('should generate domain resources with custom certificate ARN', () => {
     const api = new Api(
       given.appSyncConfig({
         domain: {
