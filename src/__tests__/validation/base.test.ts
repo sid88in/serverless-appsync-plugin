@@ -220,22 +220,9 @@ describe('Valdiation', () => {
               enabled: true,
               certificateArn: 'arn:aws:',
               name: 'api.example.com',
+              hostedZoneId: '12345',
+              hostedZoneName: 'example.com.',
               route53: true,
-            },
-          } as AppSyncConfigInput,
-        },
-        {
-          name: 'Rotue53 object',
-          config: {
-            ...basicConfig,
-            domain: {
-              enabled: true,
-              certificateArn: 'arn:aws:',
-              name: 'api.example.com',
-              route53: {
-                hostedZoneId: '12345',
-                hostedZoneName: 'example.com.',
-              },
             },
           } as AppSyncConfigInput,
         },
@@ -273,7 +260,7 @@ describe('Valdiation', () => {
           },
         },
         {
-          name: 'useCloudFormation: true, certificateArn required',
+          name: 'useCloudFormation: true, certificateArn or hostedZoneId is required',
           config: {
             ...basicConfig,
             domain: {
@@ -283,7 +270,7 @@ describe('Valdiation', () => {
           },
         },
         {
-          name: 'useCloudFormation: not present, certificateArn required',
+          name: 'useCloudFormation: not present, certificateArn or hostedZoneId is required',
           config: {
             ...basicConfig,
             domain: {

@@ -4,18 +4,17 @@ exports[`Valdiation Domain Invalid should validate a Invalid 1`] = `
 "/domain/enabled: must be boolean
 /domain/name: must be a valid domain name
 /domain/certificateArn: must be a string or a CloudFormation intrinsic function
-/domain/route53: must be a boolean or a route53 configuration object"
+/domain/route53: must be boolean"
 `;
 
 exports[`Valdiation Domain Invalid should validate a Invalid Route 53 1`] = `
 "/domain/name: must be a valid domain name
-/domain/route53/hostedZoneId: must be a string or a CloudFormation intrinsic function
-/domain/route53/hostedZoneName: must be a valid zone name. Note: you must include a trailing dot (eg: \`example.com.\`)"
+/domain/route53: must be boolean"
 `;
 
-exports[`Valdiation Domain Invalid should validate a useCloudFormation: not present, certificateArn required 1`] = `"/domain: must have property 'certificateArn' when using cloudFormation"`;
+exports[`Valdiation Domain Invalid should validate a useCloudFormation: not present, certificateArn or hostedZoneId is required 1`] = `"/domain: when using CloudFormation, you must provide either certificateArn or hostedZoneId"`;
 
-exports[`Valdiation Domain Invalid should validate a useCloudFormation: true, certificateArn required 1`] = `"/domain: must have property 'certificateArn' when using cloudFormation"`;
+exports[`Valdiation Domain Invalid should validate a useCloudFormation: true, certificateArn or hostedZoneId is required 1`] = `"/domain: when using CloudFormation, you must provide either certificateArn or hostedZoneId"`;
 
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
 "/logging/level: must be one of 'ALL', 'ERROR' or 'NONE'

@@ -17,25 +17,32 @@ appSync:
 ## Configuration
 
 - `name`: Required. The fully qualified domain name to assiciate this API to.
-- `certificateArn`: Conditional. A valid certificate ARN for the domain name. If not provided, and using command-line management, this plugin will try its best finding a certificate that matches the domain. Requiered if using the CloudFormation integration.
+- `certificateArn`: Optional. A valid certificate ARN for the domain name. See [Certificate](#certificate).
 - `useCloudFormation`: Boolean. Optional. Wheter to use CloudFormation or CLI commands to manage the domain. See [Using CloudFormation or CLI commands](#using-cloudformation-vs-the-cli-commands). Defaults to `true`.
 - `retain`: Boolean. Optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
-- `route53`: See [Route53 configuration](#route53-configuration). Defaults to `true`
+- `hostedZoneId`: Boolean, conditional. The Route53 hosted zone id where to create the certificate validation and AppSync Alias records. Required if `useCloudFormation` is `true` and `certificateArn` is not provided.
+- `hostedZoneName`: The hosted zone name where to create the route53 Alias record.
+- `route53`: Boolean. wether or not to create the Rotue53 Alias for this domain. Set to `false` if you don't use Route53. Defaults to `true`
 
 ## Certificate
 
-This plugin does not provide any way to generate or manage your domain certificate. This is usually a set-and-forget kind of operation. You still need to provide its ARN and it must be a valid certificate for the provided domain name.
+When a valid `certificateArn` is not provided, this plugin will try to generate one for the
+provided domain `name`. If `useCloudFormation` is `true`, you must provide the `hostedZoneId`
+where the DNS validation records for the certificate will be created. If `useCloudFormation` is
+`false`, this plugin will first try to find an existing certificate that matches the given domain
+when using the `domain create` command. If no valida certificate is found, it will prompt you to generate a new one.
+
+⚠️ Any change that requires a change of certificate requires a replacement of the domain in AppSync. CloudFormation will usually fail with the following error when that happens:
+
+```bash
+CloudFormation cannot update a stack when a custom-named resource requires replacing. Rename api.example.com and update the stack again.
+```
 
 ## Route53 configuration
 
 When `true`, this plugin will try to create a Route53 CNAME entry in the Hosted Zone corresponding to the domain. This plugin will do its best to find the best Hosted Zone that matches the domain name.
 
 When `false`, no CNAME record will be created.
-
-You can also specify which hosted zone you want to create the record into:
-
-- `hostedZoneName`: The specific hosted zone name where to create the CNAME record.
-- `hostedZoneId`: The specific hosted zone id where to create the CNAME record.
 
 example:
 

@@ -142,12 +142,9 @@ export type DomainConfig = {
   retain?: boolean;
   name: string;
   certificateArn?: string;
-  route53?:
-    | boolean
-    | {
-        hostedZoneId?: string;
-        hostedZoneName?: string;
-      };
+  hostedZoneId?: string;
+  hostedZoneName?: string;
+  route53?: boolean;
 };
 
 export type SyncConfig = {

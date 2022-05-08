@@ -727,17 +727,15 @@ class ServerlessAppsyncPlugin {
 
   async getHostedZoneId() {
     const domain = this.getDomain();
-    if (typeof domain.route53 === 'object' && domain.route53.hostedZoneId) {
-      return domain.route53.hostedZoneId;
+    if (domain.hostedZoneId) {
+      return domain.hostedZoneId;
     } else {
       const { HostedZones } = await this.provider.request<
         ListHostedZonesByNameRequest,
         ListHostedZonesByNameResponse
       >('Route53', 'listHostedZonesByName', {});
       const hostedZoneName =
-        typeof domain.route53 === 'object' && domain.route53.hostedZoneName
-          ? domain.route53.hostedZoneName
-          : getHostedZoneName(domain.name);
+        domain.hostedZoneName || getHostedZoneName(domain.name);
       const foundHostedZone = HostedZones.find(
         (zone) => zone.Name === hostedZoneName,
       )?.Id;

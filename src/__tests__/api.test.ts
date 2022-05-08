@@ -781,6 +781,19 @@ describe('Domains', () => {
       given.appSyncConfig({
         domain: {
           name: 'api.example.com',
+          hostedZoneId: `Z111111AAAAAA`,
+        },
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchSnapshot();
+  });
+
+  it('should generate domain resources without certificate', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        domain: {
+          name: 'api.example.com',
           certificateArn:
             'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
         },
@@ -814,9 +827,8 @@ describe('Domains', () => {
           name: 'api.example.com',
           certificateArn:
             'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
-          route53: {
-            hostedZoneId: 'ABCDEFGHI',
-          },
+          hostedZoneId: 'ABCDEFGHI',
+          route53: true,
         },
       }),
       plugin,
@@ -831,9 +843,8 @@ describe('Domains', () => {
           name: 'foo.api.example.com',
           certificateArn:
             'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
-          route53: {
-            hostedZoneName: 'example.com.',
-          },
+          hostedZoneName: 'example.com.',
+          route53: true,
         },
       }),
       plugin,
