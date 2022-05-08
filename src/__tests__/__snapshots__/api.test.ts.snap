@@ -103,7 +103,7 @@ Object {
       "DomainValidationOptions": Array [
         Object {
           "DomainName": "api.example.com",
-          "HostedZoneId": "Z111111AAAAAA",
+          "HostedZoneId": "Z111111QQQQQQQ",
         },
       ],
       "ValidationMethod": "DNS",
@@ -138,7 +138,7 @@ Object {
           ],
         },
       },
-      "HostedZoneId": "Z111111AAAAAA",
+      "HostedZoneId": "Z111111QQQQQQQ",
       "Name": "api.example.com",
       "Type": "A",
     },
@@ -191,7 +191,7 @@ Object {
           ],
         },
       },
-      "HostedZoneId": "ABCDEFGHI",
+      "HostedZoneId": "Z111111QQQQQQQ",
       "Name": "api.example.com",
       "Type": "A",
     },

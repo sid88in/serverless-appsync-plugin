@@ -781,7 +781,7 @@ describe('Domains', () => {
       given.appSyncConfig({
         domain: {
           name: 'api.example.com',
-          hostedZoneId: `Z111111AAAAAA`,
+          hostedZoneId: `Z111111QQQQQQQ`,
         },
       }),
       plugin,
@@ -827,7 +827,7 @@ describe('Domains', () => {
           name: 'api.example.com',
           certificateArn:
             'arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52',
-          hostedZoneId: 'ABCDEFGHI',
+          hostedZoneId: 'Z111111QQQQQQQ',
           route53: true,
         },
       }),

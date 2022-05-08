@@ -220,7 +220,7 @@ describe('Valdiation', () => {
               enabled: true,
               certificateArn: 'arn:aws:',
               name: 'api.example.com',
-              hostedZoneId: '12345',
+              hostedZoneId: 'Z111111QQQQQQQ',
               hostedZoneName: 'example.com.',
               route53: true,
             },
