@@ -97,6 +97,75 @@ Object {
     },
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
+  "GraphQlDomainCertificate": Object {
+    "DeletionPolicy": "Delete",
+    "Properties": Object {
+      "DomainName": "api.example.com",
+      "DomainValidationOptions": Array [
+        Object {
+          "DomainName": "api.example.com",
+          "HostedZoneId": "Z111111QQQQQQQ",
+        },
+      ],
+      "ValidationMethod": "DNS",
+    },
+    "Type": "AWS::CertificateManager::Certificate",
+  },
+  "GraphQlDomainName": Object {
+    "DeletionPolicy": "Delete",
+    "Properties": Object {
+      "CertificateArn": Object {
+        "Ref": "GraphQlDomainCertificate",
+      },
+      "DomainName": "api.example.com",
+    },
+    "Type": "AWS::AppSync::DomainName",
+  },
+  "GraphQlDomainRoute53Record": Object {
+    "DeletionPolicy": "Delete",
+    "Properties": Object {
+      "AliasTarget": Object {
+        "DNSName": Object {
+          "Fn::GetAtt": Array [
+            "GraphQlDomainName",
+            "AppSyncDomainName",
+          ],
+        },
+        "EvaluateTargetHealth": false,
+        "HostedZoneId": Object {
+          "Fn::GetAtt": Array [
+            "GraphQlDomainName",
+            "HostedZoneId",
+          ],
+        },
+      },
+      "HostedZoneId": "Z111111QQQQQQQ",
+      "Name": "api.example.com",
+      "Type": "A",
+    },
+    "Type": "AWS::Route53::RecordSet",
+  },
+}
+`;
+
+exports[`Domains should generate domain resources with custom certificate ARN 1`] = `
+Object {
+  "GraphQlDomainAssociation": Object {
+    "DeletionPolicy": "Delete",
+    "DependsOn": Array [
+      "GraphQlDomainName",
+    ],
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "ApiId",
+        ],
+      },
+      "DomainName": "api.example.com",
+    },
+    "Type": "AWS::AppSync::DomainNameApiAssociation",
+  },
   "GraphQlDomainName": Object {
     "DeletionPolicy": "Delete",
     "Properties": Object {
@@ -108,18 +177,24 @@ Object {
   "GraphQlDomainRoute53Record": Object {
     "DeletionPolicy": "Delete",
     "Properties": Object {
-      "HostedZoneName": "example.com.",
-      "Name": "api.example.com",
-      "ResourceRecords": Array [
-        Object {
+      "AliasTarget": Object {
+        "DNSName": Object {
           "Fn::GetAtt": Array [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
-      ],
-      "TTL": 300,
-      "Type": "CNAME",
+        "EvaluateTargetHealth": false,
+        "HostedZoneId": Object {
+          "Fn::GetAtt": Array [
+            "GraphQlDomainName",
+            "HostedZoneId",
+          ],
+        },
+      },
+      "HostedZoneName": "example.com.",
+      "Name": "api.example.com",
+      "Type": "A",
     },
     "Type": "AWS::Route53::RecordSet",
   },
@@ -155,18 +230,24 @@ Object {
   "GraphQlDomainRoute53Record": Object {
     "DeletionPolicy": "Delete",
     "Properties": Object {
-      "HostedZoneId": "ABCDEFGHI",
-      "Name": "api.example.com",
-      "ResourceRecords": Array [
-        Object {
+      "AliasTarget": Object {
+        "DNSName": Object {
           "Fn::GetAtt": Array [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
-      ],
-      "TTL": 300,
-      "Type": "CNAME",
+        "EvaluateTargetHealth": false,
+        "HostedZoneId": Object {
+          "Fn::GetAtt": Array [
+            "GraphQlDomainName",
+            "HostedZoneId",
+          ],
+        },
+      },
+      "HostedZoneId": "Z111111QQQQQQQ",
+      "Name": "api.example.com",
+      "Type": "A",
     },
     "Type": "AWS::Route53::RecordSet",
   },
@@ -202,18 +283,24 @@ Object {
   "GraphQlDomainRoute53Record": Object {
     "DeletionPolicy": "Delete",
     "Properties": Object {
-      "HostedZoneName": "example.com.",
-      "Name": "foo.api.example.com",
-      "ResourceRecords": Array [
-        Object {
+      "AliasTarget": Object {
+        "DNSName": Object {
           "Fn::GetAtt": Array [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
-      ],
-      "TTL": 300,
-      "Type": "CNAME",
+        "EvaluateTargetHealth": false,
+        "HostedZoneId": Object {
+          "Fn::GetAtt": Array [
+            "GraphQlDomainName",
+            "HostedZoneId",
+          ],
+        },
+      },
+      "HostedZoneName": "example.com.",
+      "Name": "foo.api.example.com",
+      "Type": "A",
     },
     "Type": "AWS::Route53::RecordSet",
   },

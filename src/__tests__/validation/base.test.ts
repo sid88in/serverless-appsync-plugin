@@ -208,6 +208,7 @@ describe('Valdiation', () => {
             ...basicConfig,
             domain: {
               name: 'api.example.com',
+              certificateArn: 'arn:aws:',
             },
           } as AppSyncConfigInput,
         },
@@ -219,22 +220,19 @@ describe('Valdiation', () => {
               enabled: true,
               certificateArn: 'arn:aws:',
               name: 'api.example.com',
+              hostedZoneId: 'Z111111QQQQQQQ',
+              hostedZoneName: 'example.com.',
               route53: true,
             },
           } as AppSyncConfigInput,
         },
         {
-          name: 'Rotue53 object',
+          name: 'useCloudFormation: false, missing certificateArn',
           config: {
             ...basicConfig,
             domain: {
-              enabled: true,
-              certificateArn: 'arn:aws:',
               name: 'api.example.com',
-              route53: {
-                hostedZoneId: '12345',
-                hostedZoneName: 'example.com.',
-              },
+              useCloudFormation: false,
             },
           } as AppSyncConfigInput,
         },
@@ -262,11 +260,31 @@ describe('Valdiation', () => {
           },
         },
         {
+          name: 'useCloudFormation: true, certificateArn or hostedZoneId is required',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+              useCloudFormation: true,
+            },
+          },
+        },
+        {
+          name: 'useCloudFormation: not present, certificateArn or hostedZoneId is required',
+          config: {
+            ...basicConfig,
+            domain: {
+              name: 'api.example.com',
+            },
+          },
+        },
+        {
           name: 'Invalid Route 53',
           config: {
             ...basicConfig,
             domain: {
               name: 'bar',
+              certificateArn: 'arn:aws:',
               route53: {
                 hostedZoneId: 456,
                 hostedZoneName: 789,

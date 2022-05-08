@@ -199,13 +199,17 @@ export class Api {
 
     const domainNameLogicalId = this.naming.getDomainNameLogicalId();
     const domainAssocLogicalId = this.naming.getDomainAssociationLogicalId();
+    const domainCertificateLogicalId =
+      this.naming.getDomainCertificateLogicalId();
 
     const resources = {
       [domainNameLogicalId]: {
         Type: 'AWS::AppSync::DomainName',
         DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
         Properties: {
-          CertificateArn: domain.certificateArn,
+          CertificateArn: domain.certificateArn || {
+            Ref: domainCertificateLogicalId,
+          },
           DomainName: domain.name,
         },
       },
@@ -220,15 +224,29 @@ export class Api {
       },
     };
 
+    if (!domain.certificateArn) {
+      merge(resources, {
+        [domainCertificateLogicalId]: {
+          Type: 'AWS::CertificateManager::Certificate',
+          DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
+          Properties: {
+            DomainName: domain.name,
+            ValidationMethod: 'DNS',
+            DomainValidationOptions: [
+              {
+                DomainName: domain.name,
+                HostedZoneId: domain.hostedZoneId,
+              },
+            ],
+          },
+        },
+      });
+    }
+
     if (domain.route53 !== false) {
       const hostedZoneName =
-        typeof domain.route53 === 'object' && domain.route53.hostedZoneName
-          ? domain.route53.hostedZoneName
-          : getHostedZoneName(domain.name);
-      const hostedZoneId =
-        typeof domain.route53 === 'object' && domain.route53.hostedZoneId
-          ? domain.route53.hostedZoneId
-          : undefined;
+        domain.hostedZoneName || getHostedZoneName(domain.name);
+
       const domainRoute53Record =
         this.naming.getDomainReoute53RecordLogicalId();
 
@@ -237,15 +255,20 @@ export class Api {
           Type: 'AWS::Route53::RecordSet',
           DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
           Properties: {
-            ...(hostedZoneId
-              ? { HostedZoneId: hostedZoneId }
+            ...(domain.hostedZoneId
+              ? { HostedZoneId: domain.hostedZoneId }
               : { HostedZoneName: hostedZoneName }),
             Name: domain.name,
-            Type: 'CNAME',
-            ResourceRecords: [
-              { 'Fn::GetAtt': [domainNameLogicalId, 'AppSyncDomainName'] },
-            ],
-            TTL: 300,
+            Type: 'A',
+            AliasTarget: {
+              HostedZoneId: {
+                'Fn::GetAtt': [domainNameLogicalId, 'HostedZoneId'],
+              },
+              DNSName: {
+                'Fn::GetAtt': [domainNameLogicalId, 'AppSyncDomainName'],
+              },
+              EvaluateTargetHealth: false,
+            },
           },
         },
       });

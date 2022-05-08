@@ -1,4 +1,9 @@
-import { parseDateTimeOrDuration, parseDuration } from '../utils';
+import {
+  getHostedZoneName,
+  getWildCardDomainName,
+  parseDateTimeOrDuration,
+  parseDuration,
+} from '../utils';
 
 beforeAll(() => {
   jest.useFakeTimers('modern');
@@ -41,5 +46,26 @@ describe('parseDateTimeOrDuration', () => {
     expect(function () {
       parseDateTimeOrDuration('foo');
     }).toThrowErrorMatchingInlineSnapshot(`"Invalid date or duration"`);
+  });
+});
+
+describe('domain', () => {
+  describe('getHostedZoneName', () => {
+    it('should extract a correct hostedZoneName', () => {
+      expect(getHostedZoneName('example.com')).toMatch('example.com.');
+      expect(getHostedZoneName('api.example.com')).toMatch('example.com.');
+      expect(getHostedZoneName('api.prod.example.com')).toMatch(
+        'prod.example.com.',
+      );
+    });
+  });
+
+  describe('getWildCardDomainName', () => {
+    it('should extract a correct getWildCardDomainName', () => {
+      expect(getWildCardDomainName('api.example.com')).toMatch('*.example.com');
+      expect(getWildCardDomainName('api.prod.example.com')).toMatch(
+        '*.prod.example.com',
+      );
+    });
   });
 });

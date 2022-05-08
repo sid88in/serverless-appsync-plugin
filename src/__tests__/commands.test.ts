@@ -48,27 +48,201 @@ afterEach(() => {
 
 describe('create domain', () => {
   const createDomainName = jest.fn();
+  const listCertificates = jest.fn();
   afterEach(() => {
     createDomainName.mockClear();
+    listCertificates.mockClear();
   });
-  it('should create a domain', async () => {
+  it('should create a domain with specified certificate ARN', async () => {
     await runServerless({
       fixture: 'appsync',
       awsRequestStubMap: {
         AppSync: {
           createDomainName,
         },
+        ACM: {
+          listCertificates,
+        },
       },
       command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+            certificateArn:
+              'arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493',
+          },
+        },
+      },
     });
 
     expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(listCertificates).not.toHaveBeenCalled();
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
               Object {
                 "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
                 "domainName": "api.example.com",
               }
           `);
+  });
+
+  it('should create a domain and find a matching certificate, exact match', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: '*.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507',
+        },
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+        {
+          DomainName: 'api.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493',
+        },
+      ],
+    });
+
+    await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        AppSync: {
+          createDomainName,
+        },
+        ACM: {
+          listCertificates,
+        },
+      },
+      command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
+    });
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
+    expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
+        "domainName": "api.example.com",
+      }
+    `);
+  });
+
+  it('should fail creating a domain if ARN cannot be resolved', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+      ],
+    });
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        awsRequestStubMap: {
+          AppSync: {
+            createDomainName,
+          },
+
+          ACM: {
+            listCertificates,
+          },
+        },
+
+        command: 'appsync domain create',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"No certificate found for domain api.example.com."`,
+    );
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
+    expect(createDomainName).not.toHaveBeenCalled();
+  });
+
+  it('should create a domain and find a matching certificate, wildcard match', async () => {
+    listCertificates.mockResolvedValueOnce({
+      CertificateSummaryList: [
+        {
+          DomainName: 'foo.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/932b56de-bb63-45fe-8a31-b3150fb9accd',
+        },
+        {
+          DomainName: '*.example.com',
+          CertificateArn:
+            'arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507',
+        },
+      ],
+    });
+
+    await runServerless({
+      fixture: 'appsync',
+      awsRequestStubMap: {
+        AppSync: {
+          createDomainName,
+        },
+        ACM: {
+          listCertificates,
+        },
+      },
+      command: 'appsync domain create',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
+    });
+
+    expect(listCertificates).toHaveBeenCalledTimes(1);
+    expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "CertificateStatuses": Array [
+          "ISSUED",
+        ],
+      }
+    `);
+    expect(createDomainName).toHaveBeenCalledTimes(1);
+    expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 });
 
@@ -88,6 +262,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(deleteDomainName).toHaveBeenCalledTimes(1);
@@ -110,6 +291,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -135,6 +323,13 @@ describe('delete domain', () => {
         },
       },
       command: 'appsync domain delete',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -171,6 +366,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -212,6 +414,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -251,6 +460,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -301,6 +517,13 @@ describe('assoc domain', () => {
         AppSync: { associateApi, getApiAssociation },
       },
       command: 'appsync domain assoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -363,6 +586,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -411,6 +641,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         yes: true,
       },
@@ -456,6 +693,13 @@ describe('domain disassoc', () => {
         AppSync: { disassociateApi, getApiAssociation },
       },
       command: 'appsync domain disassoc',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(describeStackResources).toHaveBeenCalledTimes(1);
@@ -475,6 +719,7 @@ describe('domain create-record', () => {
     getDomainName.mockResolvedValue({
       domainNameConfig: {
         appsyncDomainName: 'qbcdefghij.cloudfront.net',
+        hostedZoneId: 'Z111111QQQQQQQ',
       },
     });
     listHostedZonesByName.mockResolvedValue({
@@ -519,6 +764,13 @@ describe('domain create-record', () => {
         },
       },
       command: 'appsync domain create-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(getDomainName).toHaveBeenCalledTimes(1);
@@ -533,29 +785,28 @@ describe('domain create-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "CREATE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "CREATE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -568,7 +819,7 @@ describe('domain create-record', () => {
   it('should handle changeResourceRecordSets errors', async () => {
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+        "[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]",
       ),
     );
 
@@ -586,9 +837,16 @@ describe('domain create-record', () => {
         },
 
         command: 'appsync domain create-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]"`,
+      `"[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]"`,
     );
 
     expect(getDomainName).toHaveBeenCalledTimes(1);
@@ -600,7 +858,7 @@ describe('domain create-record', () => {
   it('should handle changeResourceRecordSets errors silently', async () => {
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to create resource record set [name='api.example.com.', type='CNAME'] but it already exists]",
+        "[Tried to create resource record set [name='api.example.com.', type='A'] but it already exists]",
       ),
     );
 
@@ -616,6 +874,13 @@ describe('domain create-record', () => {
         },
       },
       command: 'appsync domain create-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: { quiet: true },
     });
 
@@ -642,6 +907,13 @@ describe('domain create-record', () => {
         },
 
         command: 'appsync domain create-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
         options: { quiet: true },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -660,6 +932,7 @@ describe('domain delete-record', () => {
   const getDomainName = jest.fn().mockResolvedValue({
     domainNameConfig: {
       appsyncDomainName: 'qbcdefghij.cloudfront.net',
+      hostedZoneId: 'Z111111QQQQQQQ',
     },
   });
   const listHostedZonesByName = jest.fn().mockResolvedValue({
@@ -706,6 +979,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -721,29 +1001,28 @@ describe('domain delete-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "DELETE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "DELETE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -774,6 +1053,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
     });
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -811,6 +1097,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: { yes: true },
     });
 
@@ -827,29 +1120,28 @@ describe('domain delete-record', () => {
         ]
       `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "ChangeBatch": Object {
-              "Changes": Array [
-                Object {
-                  "Action": "DELETE",
-                  "ResourceRecordSet": Object {
-                    "Name": "api.example.com",
-                    "ResourceRecords": Array [
-                      Object {
-                        "Value": "qbcdefghij.cloudfront.net",
-                      },
-                    ],
-                    "TTL": 300,
-                    "Type": "CNAME",
+      Array [
+        Object {
+          "ChangeBatch": Object {
+            "Changes": Array [
+              Object {
+                "Action": "DELETE",
+                "ResourceRecordSet": Object {
+                  "AliasTarget": Object {
+                    "DNSName": "qbcdefghij.cloudfront.net",
+                    "EvaluateTargetHealth": false,
+                    "HostedZoneId": "Z111111QQQQQQQ",
                   },
+                  "Name": "api.example.com",
+                  "Type": "A",
                 },
-              ],
-            },
-            "HostedZoneId": "KLMNOP",
+              },
+            ],
           },
-        ]
-      `);
+          "HostedZoneId": "KLMNOP",
+        },
+      ]
+    `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -863,7 +1155,7 @@ describe('domain delete-record', () => {
     confirmSpy.mockResolvedValue(true);
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+        "[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]",
       ),
     );
 
@@ -881,9 +1173,16 @@ describe('domain delete-record', () => {
         },
 
         command: 'appsync domain delete-record',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+            },
+          },
+        },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]"`,
+      `"[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]"`,
     );
 
     expect(confirmSpy).toHaveBeenCalled();
@@ -897,7 +1196,7 @@ describe('domain delete-record', () => {
     confirmSpy.mockResolvedValue(true);
     changeResourceRecordSets.mockRejectedValue(
       new ServerlessError(
-        "[Tried to delete resource record set [name='api.example.com.', type='CNAME'] but it was not found]",
+        "[Tried to delete resource record set [name='api.example.com.', type='A'] but it was not found]",
       ),
     );
 
@@ -913,6 +1212,13 @@ describe('domain delete-record', () => {
         },
       },
       command: 'appsync domain delete-record',
+      configExt: {
+        appSync: {
+          domain: {
+            useCloudFormation: false,
+          },
+        },
+      },
       options: {
         quiet: true,
       },

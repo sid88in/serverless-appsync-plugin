@@ -27,6 +27,10 @@ export class Naming {
     return this.getLogicalId(`GraphQlDomainName`);
   }
 
+  getDomainCertificateLogicalId() {
+    return this.getLogicalId(`GraphQlDomainCertificate`);
+  }
+
   getDomainAssociationLogicalId() {
     return this.getLogicalId(`GraphQlDomainAssociation`);
   }

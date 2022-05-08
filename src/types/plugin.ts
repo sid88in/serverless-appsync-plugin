@@ -141,13 +141,10 @@ export type DomainConfig = {
   useCloudFormation?: boolean;
   retain?: boolean;
   name: string;
-  certificateArn: string;
-  route53?:
-    | boolean
-    | {
-        hostedZoneId?: string;
-        hostedZoneName?: string;
-      };
+  certificateArn?: string;
+  hostedZoneId?: string;
+  hostedZoneName?: string;
+  route53?: boolean;
 };
 
 export type SyncConfig = {

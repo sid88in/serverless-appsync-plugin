@@ -10,52 +10,44 @@ The configuration for custom domain can be found under the `appSync.domain` attr
 appSync:
   name: my-api
   domain:
-    name: api.example.rehab
-    certificateArn: arn:aws:acm:us-east-1:123456789:certificate/7e14a3b2-f7a5-4da5-8150-4a03ede7158c
+    name: api.example.com
+    hostedZoneId: Z111111QQQQQQQ
 ```
 
 ## Configuration
 
 - `name`: Required. The fully qualified domain name to assiciate this API to.
-- `certificateArn`: Required. A valid certificate ARN for the domain name.
+- `certificateArn`: Optional. A valid certificate ARN for the domain name. See [Certificate](#certificate).
 - `useCloudFormation`: Boolean. Optional. Wheter to use CloudFormation or CLI commands to manage the domain. See [Using CloudFormation or CLI commands](#using-cloudformation-vs-the-cli-commands). Defaults to `true`.
-- `retain`: Boolean. Optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
-- `route53`: See [Route53 configuration](#route53-configuration). Defaults to `true`
+- `retain`: Boolean, optional. Whether to retain the domain and domain association when they are removed from CloudFormation. Defaults to `false`. See [Ejecting from CloudFormation](#ejecting-from-cloudformation)
+- `hostedZoneId`: Boolean, conditional. The Route53 hosted zone id where to create the certificate validation and/or AppSync Alias records. Required if `useCloudFormation` is `true` and `certificateArn` is not provided.
+- `hostedZoneName`: The hosted zone name where to create the route53 Alias record. If `certificateArn` is provided, it takes precedence over `hostedZoneName`.
+- `route53`: Boolean. Wether to create the Route53 Alias record for this domain. Set to `false` if you don't use Route53. Defaults to `true`.
 
 ## Certificate
 
-This plugin does not provide any way to generate or manage your domain certificate. This is usually a set-and-forget kind of operation. You still need to provide its ARN and it must be a valid certificate for the provided domain name.
+If `useCloudFormation` is `true` and a valid `certificateArn` is not provided, a certificate will be created for the provided domain `name` using CloudFormation. You must provide the `hostedZoneId`
+where the DNS validation records for the certificate will be created.
 
-## Route53 configuration
+⚠️ Any change that requires a change of certificate attached to the domain requires a replacement of the AppSync domain resource. CloudFormation will usually fail with the following error when that happens:
 
-When `true`, this plugin will try to create a Route53 CNAME entry in the Hosted Zone corresponding to the domain. This plugin will do its best to find the best Hosted Zone that matches the domain name.
-
-When `false`, no CNAME record will be created.
-
-You can also specify which hosted zone you want to create the record into:
-
-- `hostedZoneName`: The specific hosted zone name where to create the CNAME record.
-- `hostedZoneId`: The specific hosted zone id where to create the CNAME record.
-
-example:
-
-```yaml
-appSync:
-  domain: api.example.com
-  route53:
-    hostedZoneId: ABCDEFGHIJ
+```bash
+CloudFormation cannot update a stack when a custom-named resource requires replacing. Rename api.example.com and update the stack again.
 ```
+
+If `useCloudFormation` is `false`, when creating the domain with the `domain create` command, this plugin will try to find an existing certificate that
+matches the given domain. If no valid certificate is found, an error will be thrown. No certificate will be auto-generated.
 
 ## Using CloudFormation vs the CLI commands
 
 There are two ways to manage your custom domain:
 
-- using CloudFormation
+- using CloudFormation (default)
 - using the CLI [commands](commands.md#domain)
 
-If `useCloudFormation` is set to `true`, the domain and domain association will be automatically created and managed by CloudFormation. However, in some cases you might not want that.
+If `useCloudFormation` is set to `true`, the domain, domain association, and optionally, the domain certificate will be automatically created and managed by CloudFormation. However, in some cases you might not want that.
 
-For example, if you wanted to use blue/green deployments, you might need to associate APIs from different stacks to the same domain. In that case, the only way to do it is to use the CLI.
+For example, if you want to use blue/green deployments, you might need to associate APIs from different stacks to the same domain. In that case, the only way to do it is to use the CLI.
 
 For more information about managing domains with the CLI, see the [Commands](commands.md#domain) section.
 
@@ -83,15 +75,15 @@ You can use different domains by stage easily thanks to [Serverless Framework St
 params:
   prod:
     domain: api.example.com
-    domainCert: arn:aws:acm:us-east-1:123456789:certificate/7e14a3b2-f7a5-4da5-8150-4a03ede7158c
+    domainCert: arn:aws:acm:us-east-1:123456789012:certificate/7e14a3b2-f7a5-4da5-8150-4a03ede7158c
 
   staging:
     domain: qa.example.com
-    domainCert: arn:aws:acm:us-east-1:123456789:certificate/61d7d798-d656-4630-9ff9-d77a7d616dbe
+    domainCert: arn:aws:acm:us-east-1:123456789012:certificate/61d7d798-d656-4630-9ff9-d77a7d616dbe
 
   default:
     domain: ${sls:stage}.example.com
-    domainCert: arn:aws:acm:us-east-1:379730309663:certificate/44211071-e102-4bf4-b7b0-06d0b78cd667
+    domainCert: arn:aws:acm:us-east-1:123456789012:certificate/44211071-e102-4bf4-b7b0-06d0b78cd667
 
 appSync:
   name: my-api

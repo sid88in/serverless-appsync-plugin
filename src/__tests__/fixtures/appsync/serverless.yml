@@ -11,7 +11,6 @@ appSync:
   domain:
     useCloudFormation: false
     name: api.example.com
-    certificateArn: arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493
 
   resolvers:
     Query.user:

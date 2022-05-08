@@ -46,6 +46,7 @@ import { AppSyncValidationError, validateConfig } from './validation';
 import {
   confirmAction,
   getHostedZoneName,
+  getWildCardDomainName,
   parseDateTimeOrDuration,
   wait,
 } from './utils';
@@ -59,6 +60,11 @@ import {
   ListHostedZonesByNameRequest,
   ListHostedZonesByNameResponse,
 } from 'aws-sdk/clients/route53';
+import {
+  ListCertificatesRequest,
+  ListCertificatesResponse,
+} from 'aws-sdk/clients/acm';
+import terminalLink from 'terminal-link';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -188,6 +194,12 @@ class ServerlessAppsyncPlugin {
                     required: false,
                     type: 'boolean',
                   },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
                 },
               },
               delete: {
@@ -209,7 +221,7 @@ class ServerlessAppsyncPlugin {
                 },
               },
               'create-record': {
-                usage: 'Create the CNAME record for this domain in Route53',
+                usage: 'Create the Alias record for this domain in Route53',
                 lifecycleEvents: ['run'],
                 options: {
                   quiet: {
@@ -218,10 +230,16 @@ class ServerlessAppsyncPlugin {
                     required: false,
                     type: 'boolean',
                   },
+                  yes: {
+                    usage: 'Automatic yes to prompts',
+                    shortcut: 'y',
+                    required: false,
+                    type: 'boolean',
+                  },
                 },
               },
               'delete-record': {
-                usage: 'Deletes the CNAME record for this domain from Route53',
+                usage: 'Deletes the Alias record for this domain from Route53',
                 lifecycleEvents: ['run'],
                 options: {
                   quiet: {
@@ -292,17 +310,20 @@ class ServerlessAppsyncPlugin {
       'appsync:console:run': () => this.openConsole(),
       'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'appsync:logs:run': async () => this.initShowLogs(),
-      'before:appsync:domain:create:run': async () => this.loadConfig(),
+      'before:appsync:domain:create:run': async () => this.initDomainCommand(),
       'appsync:domain:create:run': async () => this.createDomain(),
-      'before:appsync:domain:delete:run': async () => this.loadConfig(),
+      'before:appsync:domain:delete:run': async () => this.initDomainCommand(),
       'appsync:domain:delete:run': async () => this.deleteDomain(),
-      'before:appsync:domain:assoc:run': async () => this.loadConfig(),
+      'before:appsync:domain:assoc:run': async () => this.initDomainCommand(),
       'appsync:domain:assoc:run': async () => this.assocDomain(),
-      'before:appsync:domain:disassoc:run': async () => this.loadConfig(),
+      'before:appsync:domain:disassoc:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:disassoc:run': async () => this.disassocDomain(),
-      'before:appsync:domain:create-record:run': async () => this.loadConfig(),
+      'before:appsync:domain:create-record:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:create-record:run': async () => this.createRecord(),
-      'before:appsync:domain:delete-record:run': async () => this.loadConfig(),
+      'before:appsync:domain:delete-record:run': async () =>
+        this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
     };
 
@@ -473,6 +494,29 @@ class ServerlessAppsyncPlugin {
     }
   }
 
+  async initDomainCommand() {
+    this.loadConfig();
+    const domain = this.getDomain();
+
+    if (domain.useCloudFormation !== false) {
+      log.warning(
+        'You are using the CloudFormation integration for domain configuration.\n' +
+          'To avoid CloudFormation drifts, you should not use it in combination with this command.\n' +
+          'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
+          'If you have already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
+          terminalLink(
+            'eject from CloudFormation',
+            'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
+          ) +
+          ' first.',
+      );
+
+      if (!this.options.yes && !(await confirmAction())) {
+        process.exit(0);
+      }
+    }
+  }
+
   getDomain() {
     if (!this.api) {
       throw new this.serverless.classes.Error(
@@ -488,15 +532,55 @@ class ServerlessAppsyncPlugin {
     return domain;
   }
 
+  async getDomainCertificateArn() {
+    const { CertificateSummaryList } = await this.provider.request<
+      ListCertificatesRequest,
+      ListCertificatesResponse
+    >(
+      'ACM',
+      'listCertificates',
+      // only fully issued certificates
+      { CertificateStatuses: ['ISSUED'] },
+      // certificates must always be in us-east-1
+      { region: 'us-east-1' },
+    );
+
+    const domain = this.getDomain();
+
+    // try to find an exact match certificate
+    // fallback on wildcard
+    const matches = [domain.name, getWildCardDomainName(domain.name)];
+    for (const match of matches) {
+      const cert = CertificateSummaryList?.find(
+        ({ DomainName }) => DomainName === match,
+      );
+      if (cert) {
+        log.info(
+          `Found matching certificate for ${match}: ${cert.CertificateArn}`,
+        );
+        return cert.CertificateArn;
+      }
+    }
+  }
+
   async createDomain() {
     try {
       const domain = this.getDomain();
+      const certificateArn =
+        domain.certificateArn || (await this.getDomainCertificateArn());
+
+      if (!certificateArn) {
+        throw new this.serverless.classes.Error(
+          `No certificate found for domain ${domain.name}.`,
+        );
+      }
+
       await this.provider.request<
         CreateDomainNameRequest,
         CreateDomainNameRequest
       >('AppSync', 'createDomainName', {
         domainName: domain.name,
-        certificateArn: domain.certificateArn,
+        certificateArn,
       });
       log.success(`Domain '${domain.name}' created successfully`);
     } catch (error) {
@@ -660,17 +744,15 @@ class ServerlessAppsyncPlugin {
 
   async getHostedZoneId() {
     const domain = this.getDomain();
-    if (typeof domain.route53 === 'object' && domain.route53.hostedZoneId) {
-      return domain.route53.hostedZoneId;
+    if (domain.hostedZoneId) {
+      return domain.hostedZoneId;
     } else {
       const { HostedZones } = await this.provider.request<
         ListHostedZonesByNameRequest,
         ListHostedZonesByNameResponse
       >('Route53', 'listHostedZonesByName', {});
       const hostedZoneName =
-        typeof domain.route53 === 'object' && domain.route53.hostedZoneName
-          ? domain.route53.hostedZoneName
-          : getHostedZoneName(domain.name);
+        domain.hostedZoneName || getHostedZoneName(domain.name);
       const foundHostedZone = HostedZones.find(
         (zone) => zone.Name === hostedZoneName,
       )?.Id;
@@ -691,14 +773,15 @@ class ServerlessAppsyncPlugin {
     >('AppSync', 'getDomainName', {
       domainName: domain.name,
     });
-    const { appsyncDomainName } = domainNameConfig || {};
-    if (!appsyncDomainName) {
+
+    const { hostedZoneId, appsyncDomainName: dnsName } = domainNameConfig || {};
+    if (!hostedZoneId || !dnsName) {
       throw new this.serverless.classes.Error(
         `Domain ${domain.name} not found\nDid you forget to run 'sls appsync domain create'?`,
       );
     }
 
-    return appsyncDomainName;
+    return { hostedZoneId, dnsName };
   }
 
   async createRecord() {
@@ -718,7 +801,7 @@ class ServerlessAppsyncPlugin {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
       log.info(
-        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was created in Hosted Zone '${hostedZoneId}'`,
+        `Alias record for '${domain.name}' was created in Hosted Zone '${hostedZoneId}'`,
       );
       log.success('Route53 record created successfuly');
     }
@@ -730,7 +813,7 @@ class ServerlessAppsyncPlugin {
     const hostedZoneId = await this.getHostedZoneId();
 
     log.warning(
-      `CNAME record '${domain.name}' with value '${appsyncDomainName}' will be deleted from Hosted Zone '${hostedZoneId}'`,
+      `Alias record for '${domain.name}' will be deleted from Hosted Zone '${hostedZoneId}'`,
     );
     if (!this.options.yes && !(await confirmAction())) {
       return;
@@ -749,7 +832,7 @@ class ServerlessAppsyncPlugin {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
       log.info(
-        `CNAME record '${domain.name}' with value '${appsyncDomainName}' was deleted from Hosted Zone '${hostedZoneId}'`,
+        `Alias record for '${domain.name}' was deleted from Hosted Zone '${hostedZoneId}'`,
       );
       log.success('Route53 record deleted successfuly');
     }
@@ -772,7 +855,10 @@ class ServerlessAppsyncPlugin {
   async changeRoute53Record(
     action: 'CREATE' | 'DELETE',
     hostedZoneId: string,
-    cname: string,
+    domainNamConfig: {
+      hostedZoneId: string;
+      dnsName: string;
+    },
   ) {
     const domain = this.getDomain();
 
@@ -788,9 +874,12 @@ class ServerlessAppsyncPlugin {
               Action: action,
               ResourceRecordSet: {
                 Name: domain.name,
-                Type: 'CNAME',
-                ResourceRecords: [{ Value: cname }],
-                TTL: 300,
+                Type: 'A',
+                AliasTarget: {
+                  HostedZoneId: domainNamConfig.hostedZoneId,
+                  DNSName: domainNamConfig.dnsName,
+                  EvaluateTargetHealth: false,
+                },
               },
             },
           ],
@@ -819,7 +908,16 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    this.serverless.addServiceOutputSection('appsync endpoints', endpoints);
+    const { name } = this.api?.config?.domain || {};
+    if (name) {
+      endpoints.push(`graphql: https://${name}/graphql`);
+      endpoints.push(`realtime: wss://${name}/graphql/realtime`);
+    }
+
+    this.serverless.addServiceOutputSection(
+      'appsync endpoints',
+      endpoints.sort(),
+    );
   }
 
   displayApiKeys() {

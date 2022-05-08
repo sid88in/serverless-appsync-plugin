@@ -83,7 +83,15 @@ export const parseDuration = (input: string | number) => {
 };
 
 export const getHostedZoneName = (domain: string) => {
-  return `${domain.split('.').slice(1).join('.')}.`;
+  const parts = domain.split('.');
+  if (parts.length > 2) {
+    parts.shift();
+  }
+  return `${parts.join('.')}.`;
+};
+
+export const getWildCardDomainName = (domain: string) => {
+  return `*.${domain.split('.').slice(1).join('.')}`;
 };
 
 export const question = async (question: string): Promise<string> => {
