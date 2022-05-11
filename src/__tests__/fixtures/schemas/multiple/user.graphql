@@ -9,6 +9,8 @@ extend type Mutation {
 type User {
   id: ID!
   name: String!
+  role: String! @aws_oidc
+  email: AWSEmail!
   posts: [Post!]!
 }
 
