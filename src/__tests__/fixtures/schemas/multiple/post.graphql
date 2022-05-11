@@ -7,9 +7,11 @@ extend type Mutation {
 }
 
 # This is a comment
-type Post {
+type Post @aws_oidc {
   id: ID!
   title: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
 }
 
 """

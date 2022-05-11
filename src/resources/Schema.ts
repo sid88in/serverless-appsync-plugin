@@ -4,9 +4,32 @@ import path from 'path';
 import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { flatten } from 'lodash';
-import { buildSchema, parse, printSchema } from 'graphql';
+import { parse, print } from 'graphql';
 import ServerlessError from 'serverless/lib/serverless-error';
 import { validateSDL } from 'graphql/validation/validate';
+import { mergeTypeDefs } from '@graphql-tools/merge';
+
+const AWS_TYPES = `
+directive @aws_iam on FIELD_DEFINITION | OBJECT
+directive @aws_oidc on FIELD_DEFINITION | OBJECT
+directive @aws_api_key on FIELD_DEFINITION | OBJECT
+directive @aws_lambda on FIELD_DEFINITION | OBJECT
+directive @aws_auth(cognito_groups: [String]) on FIELD_DEFINITION | OBJECT
+directive @aws_cognito_user_pools(
+  cognito_groups: [String]
+) on FIELD_DEFINITION | OBJECT
+directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
+scalar AWSDate
+scalar AWSTime
+scalar AWSDateTime
+scalar AWSTimestamp
+scalar AWSEmail
+scalar AWSJSON
+scalar AWSURL
+scalar AWSPhone
+scalar AWSIPAddress
+`;
+
 export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
 
@@ -44,7 +67,7 @@ export class Schema {
       );
     });
 
-    this.valdiateSchema(schemas.join('\n'));
+    this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
 
     // Return single files as-is.
     if (schemas.length === 1) {
@@ -53,10 +76,13 @@ export class Schema {
 
     // AppSync does not support Object extensions
     // https://spec.graphql.org/October2021/#sec-Object-Extensions
-    // the workwaround is to build a GraphQLSchema and print it back
-    return printSchema(
-      buildSchema(schemas.join('\n'), {
-        assumeValidSDL: true,
+    // Merge the schemas
+    return print(
+      mergeTypeDefs(schemas, {
+        forceSchemaDefinition: false,
+        useSchemaDefinition: false,
+        sort: true,
+        throwOnConflict: true,
       }),
     );
   }
