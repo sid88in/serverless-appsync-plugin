@@ -268,7 +268,7 @@ export class DataSource {
               'dynamodb',
               this.config.config.region || { Ref: 'AWS::Region' },
               { Ref: 'AWS::AccountId' },
-              `table/${this.config.config.tableName}`,
+              `table`,
             ],
           ],
         };
@@ -288,8 +288,18 @@ export class DataSource {
           ],
           Effect: 'Allow',
           Resource: [
-            dynamoDbResourceArn,
-            { 'Fn::Join': ['/', [dynamoDbResourceArn, '*']] },
+            {
+              'Fn::Join': [
+                '/',
+                [dynamoDbResourceArn, this.config.config.tableName],
+              ],
+            },
+            {
+              'Fn::Join': [
+                '/',
+                [dynamoDbResourceArn, this.config.config.tableName, '*'],
+              ],
+            },
           ],
         };
 
