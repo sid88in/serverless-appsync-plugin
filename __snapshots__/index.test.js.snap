@@ -1743,19 +1743,13 @@ Object {
   "GraphQlSchema": Object {
     "Properties": Object {
       "ApiId": "testApiId",
-      "Definition": "interface One
-
-interface Another
-
-# A valid schema
-type Thing implements One, Another  {
-  hello: ID!
-}
-
-enum Method {
-  DELETE
-  GET
-}",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -1959,19 +1953,13 @@ Object {
   "GraphQlSchema": Object {
     "Properties": Object {
       "ApiId": "testApiId",
-      "Definition": "interface One
-
-interface Another
-
-# A valid schema
-type Thing implements One, Another  {
-  hello: ID!
-}
-
-enum Method {
-  DELETE
-  GET
-}",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -2059,19 +2047,16 @@ Object {
           "ApiId",
         ],
       },
-      "Definition": "interface One
-
-interface Another
-
-# A valid schema
-type Thing implements One, Another  {
-  hello: ID!
-}
-
-enum Method {
-  DELETE
-  GET
-}",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+          # test enum
+          enum Method {
+            DELETE
+            GET
+          }
+        ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -2088,19 +2073,13 @@ Object {
           "ApiId",
         ],
       },
-      "Definition": "interface One
-
-interface Another
-
-# A valid schema
-type Thing implements One, Another  {
-  hello: ID!
-}
-
-enum Method {
-  DELETE
-  GET
-}",
+      "Definition": "
+                    type Thing implements One, Another {
+            hello: ID!
+          }
+                    enum Method {
+            DELETE             GET           }
+        ",
     },
     "Type": "AWS::AppSync::GraphQLSchema",
   },
@@ -2464,6 +2443,125 @@ Object {
             "Version": "2012-10-17",
           },
           "PolicyName": "GraphQlDsLambdaSourcePolicy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsOpenSearchSource2Role": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "es:ESHttpDelete",
+                  "es:ESHttpGet",
+                  "es:ESHttpHead",
+                  "es:ESHttpPost",
+                  "es:ESHttpPut",
+                  "es:ESHttpPatch",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      "/",
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
+                            Object {
+                              "Ref": "OSDomain",
+                            },
+                            "Arn",
+                          ],
+                        },
+                        "*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsOpenSearchSource2Policy",
+        },
+      ],
+    },
+    "Type": "AWS::IAM::Role",
+  },
+  "GraphQlDsOpenSearchSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
+              "sts:AssumeRole",
+            ],
+            "Effect": "Allow",
+            "Principal": Object {
+              "Service": Array [
+                "appsync.amazonaws.com",
+              ],
+            },
+          },
+        ],
+        "Version": "2012-10-17",
+      },
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
+                  "es:ESHttpDelete",
+                  "es:ESHttpGet",
+                  "es:ESHttpHead",
+                  "es:ESHttpPost",
+                  "es:ESHttpPut",
+                  "es:ESHttpPatch",
+                ],
+                "Effect": "Allow",
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
+                      ":",
+                      Array [
+                        "arn",
+                        "aws",
+                        "es",
+                        "us-east-1",
+                        Object {
+                          "Ref": "AWS::AccountId",
+                        },
+                        "domain/search-my-os-domain-abcdefghijklmnop.us-east-1.es.amazonaws.com/*",
+                      ],
+                    ],
+                  },
+                ],
+              },
+            ],
+            "Version": "2012-10-17",
+          },
+          "PolicyName": "GraphQlDsOpenSearchSourcePolicy",
         },
       ],
     },

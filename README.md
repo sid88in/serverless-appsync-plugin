@@ -1,5 +1,5 @@
 [![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-69-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-70-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -8,9 +8,9 @@ Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Se
 
 Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has to offer. Here are a few resources to help you understand everything needed to get started!
 
-* [Mapping Templates](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html) - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
-* [Data Sources and Resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html) - Get more information on what data sources are supported and how to set them up!
-* [Security](https://docs.aws.amazon.com/appsync/latest/devguide/security.html) - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
+- [Mapping Templates](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-mapping-template-reference.html) - Not sure how to create Mapping Templates for **DynamoDB**, **Lambda** or **Elasticsearch**? Here's a great place to start!
+- [Data Sources and Resolvers](https://docs.aws.amazon.com/appsync/latest/devguide/tutorials.html) - Get more information on what data sources are supported and how to set them up!
+- [Security](https://docs.aws.amazon.com/appsync/latest/devguide/security.html) - Checkout this guide to find out more information on securing your API endpoints with AWS_IAM or Cognito User Pools!
 
 # Minimum requirements
 
@@ -21,31 +21,34 @@ Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has 
 
 Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
-```
-yarn add serverless-appsync-plugin
+```bash
+yarn add serverless-appsync-plugin --dev
 ```
 
 or via [NPM](https://docs.npmjs.com/cli/install)
 
-```
-npm install serverless-appsync-plugin
+```bash
+npm install serverless-appsync-plugin --save-dev
 ```
 
 ## Configuring the plugin
 
-Add ```serverless-appsync-plugin``` to the plugins section of ```serverless.yml```
+Add `serverless-appsync-plugin` to the plugins section of `serverless.yml`
 
-```
+```yaml
 plugins:
    - serverless-appsync-plugin
 ```
 
-Add the following config to the custom section of ```serverless.yml``` and update it accordingly to your needs
+Add the following config to the custom section of `serverless.yml` and update it accordingly to your needs
 
 ```yaml
 custom:
   appSync:
-    name:  # defaults to api
+    name: # defaults to api
+    domain: # custom domain. See the Custom Domains section below
+      name: api.example.com
+      certificateArn: arn:aws:acm:us-east-1123456789:certificate/1c4e4c36-9a63-4685-94b7-e873402baca3
     # apiKey # only required for update-appsync/delete-appsync
     # apiId # if provided, will update the specified API.
     authenticationType: API_KEY or AWS_IAM or AMAZON_COGNITO_USER_POOLS or OPENID_CONNECT or AWS_LAMBDA
@@ -64,7 +67,7 @@ custom:
       awsRegion: # defaults to provider region
       defaultAction: # required # ALLOW or DENY
       userPoolId: # required # user pool ID
-      appIdClientRegex: # optional      
+      appIdClientRegex: # optional
     # if AWS_LAMBDA
     lambdaAuthorizerConfig:
       functionName: # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
@@ -122,9 +125,10 @@ custom:
         field: getUserInfo
         # kind: UNIT (default, not required) or PIPELINE (required for pipeline resolvers)
         functions: # array of functions if kind === 'PIPELINE'
-          - # function name
+          -  # function name
         request: # request mapping template name | defaults to `defaultMappingTemplates.request` or {type}.{field}.request.vtl
         response: # response mapping template name | defaults to `defaultMappingTemplates.response` or {type}.{field}.response.vtl
+        maxBatchSize: # maximum number of requests for BatchInvoke operations
         # When caching is enaled with `PER_RESOLVER_CACHING`,
         # the caching options of the resolver.
         # Disabled by default.
@@ -136,8 +140,8 @@ custom:
         #            $context.arguments and $context.identity
         caching:
           keys: # array. A list of VTL variables to use as cache key.
-            - "$context.identity.sub"
-            - "$context.arguments.id"
+            - '$context.identity.sub'
+            - '$context.arguments.id'
           ttl: 1000 # override the ttl for this resolver. (default comes from global config)
         # When versioning is enabled with `versioned` on the datasource,
         # the datasync options of the resolver.
@@ -153,7 +157,7 @@ custom:
           conflictDetection: VERSION # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-appsync-resolver-syncconfig.html
           conflictHandler: OPTIMISTIC_CONCURRENCY # when not using lambda conflict handler choose The Conflict Resolution strategy to perform in the event of a conflict. OPTIMISTIC_CONCURRENCY / AUTOMERGE / LAMBDA
           functionName: graphql # The function name in your serverless.yml. Ignored if lambdaFunctionArn is provided.
-          lambdaFunctionArn: "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
+          lambdaFunctionArn: 'arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction'
 
       - ${file({fileLocation}.yml)} # link to a file with arrays of mapping templates
     functionConfigurationsLocation: # defaults to mappingTemplatesLocation (mapping-templates)
@@ -162,6 +166,7 @@ custom:
         dataSource: # data source name
         request: # request mapping template name | defaults to {name}.request.vtl
         response: # reponse mapping template name | defaults to {name}.response.vtl
+        maxBatchSize: # maximum number of requests for BatchInvoke operations
     dataSources:
       - type: NONE
         name: none
@@ -172,12 +177,12 @@ custom:
           tableName: { Ref: MyTable } # Where MyTable is a dynamodb table defined in Resources
           serviceRoleArn: { Fn::GetAtt: [AppSyncDynamoDBServiceRole, Arn] } # Where AppSyncDynamoDBServiceRole is an IAM role defined in Resources
           iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
-            - Effect: "Allow"
+            - Effect: 'Allow'
               Action:
-                - "dynamodb:GetItem"
+                - 'dynamodb:GetItem'
               Resource:
-                - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable"
-                - "arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*"
+                - 'arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable'
+                - 'arn:aws:dynamodb:{REGION}:{ACCOUNT_ID}:myTable/*'
           # Versioned DataSource configuration
           versioned: false # (default, not required)
           # When you enable versioning on a DynamoDB data source, you specify the following fields
@@ -198,23 +203,23 @@ custom:
           databaseName: # optional database name
           schema: # optional database schema
           iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
-            - Effect: "Allow"
+            - Effect: 'Allow'
               Action:
-                - "rds-data:DeleteItems"
-                - "rds-data:ExecuteSql"
-                - "rds-data:ExecuteStatement"
-                - "rds-data:GetItems"
-                - "rds-data:InsertItems"
-                - "rds-data:UpdateItems"
+                - 'rds-data:DeleteItems'
+                - 'rds-data:ExecuteSql'
+                - 'rds-data:ExecuteStatement'
+                - 'rds-data:GetItems'
+                - 'rds-data:InsertItems'
+                - 'rds-data:UpdateItems'
               Resource:
-                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster"
-                - "arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster:*"
-            - Effect: "Allow"
+                - 'arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster'
+                - 'arn:aws:rds:{REGION}:{ACCOUNT_ID}:cluster:mydbcluster:*'
+            - Effect: 'Allow'
               Action:
-                - "secretsmanager:GetSecretValue"
+                - 'secretsmanager:GetSecretValue'
               Resource:
-                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret"
-                - "arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret:*"
+                - 'arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret'
+                - 'arn:aws:secretsmanager:{REGION}:{ACCOUNT_ID}:secret:mysecret:*'
 
           region: # Overwrite default region for this data source
       - type: AMAZON_ELASTICSEARCH
@@ -225,11 +230,11 @@ custom:
           endpoint: # required if `domain` not provided. Ex: "https://{XXX}.{REGION}.es.amazonaws.com"
           serviceRoleArn: { Fn::GetAtt: [AppSyncESServiceRole, Arn] } # Where AppSyncESServiceRole is an IAM role defined in Resources
           iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
-            - Effect: "Allow"
+            - Effect: 'Allow'
               Action:
-                - "es:ESHttpGet"
+                - 'es:ESHttpGet'
               Resource:
-                - "arn:aws:es:{REGION}:{ACCOUNT_ID}:{DOMAIN}"
+                - 'arn:aws:es:{REGION}:{ACCOUNT_ID}:{DOMAIN}'
       - type: AWS_LAMBDA
         name: # data source name
         description: 'Lambda DataSource'
@@ -238,12 +243,12 @@ custom:
           lambdaFunctionArn: { Fn::GetAtt: [GraphqlLambdaFunction, Arn] } # Where GraphqlLambdaFunction is the lambda function cloudformation resource created by serverless for the serverless function named graphql
           serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] } # Where AppSyncLambdaServiceRole is an IAM role defined in Resources
           iamRoleStatements: # custom IAM Role statements for this DataSource. Ignored if `serviceRoleArn` is present. Auto-generated if both `serviceRoleArn` and `iamRoleStatements` are omitted
-            - Effect: "Allow"
+            - Effect: 'Allow'
               Action:
-                - "lambda:invokeFunction"
+                - 'lambda:invokeFunction'
               Resource:
-                - "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction"
-                - "arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction:*"
+                - 'arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction'
+                - 'arn:aws:lambda:{REGION}:{ACCOUNT_ID}:myFunction:*'
       - type: HTTP
         name: # data source name
         description: 'Http endpoint'
@@ -252,8 +257,8 @@ custom:
       - ${file({dataSources}.yml)} # link to a file with an array or object of datasources
     substitutions: # allows to pass variables from here to velocity templates
       # ${exampleVar1} will be replaced with given value in all mapping templates
-      exampleVar1: "${self:service.name}"
-      exampleVar2: {'Fn::ImportValue': 'Some-external-stuff'}
+      exampleVar1: '${self:service.name}'
+      exampleVar2: { 'Fn::ImportValue': 'Some-external-stuff' }
     xrayEnabled: true # Bool, Optional. Enable X-Ray. disabled by default.
     wafConfig:
       enabled: true
@@ -284,7 +289,8 @@ custom:
 If you already have an API created in AppSync through the UI or from a different CF stack
 and want to manage it via Serverless then the plugin can also support that.
 
-There is an optional *apiId* parameter that you can use to specify the ID of an existing AppSync API:
+There is an optional _apiId_ parameter that you can use to specify the ID of an existing AppSync API:
+
 ```yaml
 custom:
   appSync:
@@ -292,17 +298,17 @@ custom:
     apiId: 1234abcd
     # ...
 ```
-Without *apiId* parameter the plugin will create a different endpoint with the same name alongside the original one.
 
+Without _apiId_ parameter the plugin will create a different endpoint with the same name alongside the original one.
 
-You can find the *apiId* value in the AppSync console, just open your existing AppSync API
+You can find the _apiId_ value in the AppSync console, just open your existing AppSync API
 and go to Settings.
 
 In that case, the plugin will not attempt to create a new endpoint for you, instead, it will attach all newly configured resources to the
 existing endpoint.
 
 The following configuration options are only associated with the creation of a new AppSync endpoint
-and will be ignored if you provide *apiId* parameter:
+and will be ignored if you provide _apiId_ parameter:
 
 - name
 - authenticationType
@@ -316,7 +322,7 @@ and will be ignored if you provide *apiId* parameter:
 - wafConfig
 
 So later, if you wanted to change the name of the API, or add some tags, or change the logging configuration,
- anything from the list above you would have to do that via a different method, for example from the UI.
+anything from the list above you would have to do that via a different method, for example from the UI.
 
 If the existing API already contains schema and resolvers those will be completely replaced by the new
 schema and resolvers from the code.
@@ -366,15 +372,16 @@ Amazon supports [direct lambda resolvers](https://docs.aws.amazon.com/appsync/la
 With a direct lambda resolver, no VTL mapping template is required for either request or response. This can be an option if you would like to avoid usage of the Apache VTL langauge or require a complex resolver. You can enable direct Lambda resolvers by setting `false` as the `request` and/or `response` value.
 
 Example:
+
 ```yml
 custom:
   appsync:
     mappingTemplates:
-    - type: Query
-      request: false
-      response: false
-      dataSource: myLambdaSource
-      field: getMyData
+      - type: Query
+        request: false
+        response: false
+        dataSource: myLambdaSource
+        field: getMyData
 ```
 
 Furthermore, direct resolution can be enabled separately for the request and response templates.
@@ -419,13 +426,13 @@ Since v1.5.0, api keys management is supported. You can pass one or more api key
 
 The keys can either be a string (name of the key with defaults) or an object of the following shape:
 
-|   property   |      default      | description|
-|--------------| ------------------|------------|
-| name         | *auto-generated*  | Name of the key. This is used under the hood to differentiate keys in the deployment process.<br/><br/>Names are used in the Cfn resource name. Please, keep them short and without spaces or special characters to avoid issues. Key names are case sensitive. |
-| description  | *name of the key*   | A short description for that key |
-| expiresAfter | 365d                | Expiration time for the key. <br/>Can be expressed in hours or in "human" format (As in momentjs [add](https://momentjscom.readthedocs.io/en/latest/moment/03-manipulating/01-add/)).<br/>eg: `24`, `30d`, `1M`, `2w`, `1y`<br/>Min: 1d, max: 1y |
-| expiresAt      | *one year from now* | A specific expiration date in ISO 8601 format. Or as a unix timestamp |
-| apiKeyId      | `undefined`      | the id if the api to update. Useful for when an api key has been created manually in the AWS console. |
+| property     | default             | description                                                                                                                                                                                                                                                     |
+| ------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name         | _auto-generated_    | Name of the key. This is used under the hood to differentiate keys in the deployment process.<br/><br/>Names are used in the Cfn resource name. Please, keep them short and without spaces or special characters to avoid issues. Key names are case sensitive. |
+| description  | _name of the key_   | A short description for that key                                                                                                                                                                                                                                |
+| expiresAfter | 365d                | Expiration time for the key. <br/>Can be expressed in hours or in "human" format (As in momentjs [add](https://momentjscom.readthedocs.io/en/latest/moment/03-manipulating/01-add/)).<br/>eg: `24`, `30d`, `1M`, `2w`, `1y`<br/>Min: 1d, max: 1y                |
+| expiresAt    | _one year from now_ | A specific expiration date in ISO 8601 format. Or as a unix timestamp                                                                                                                                                                                           |
+| apiKeyId     | `undefined`         | the id if the api to update. Useful for when an api key has been created manually in the AWS console.                                                                                                                                                           |
 
 If both `expiresAfter` and `expiresAt` are specified, `expiresAfter` takes precedence.
 
@@ -442,6 +449,7 @@ Unnamed keys are named automatically sequentially Key1, Key2, Key3 and so forth.
 :bulb: If a key expires, or you have manually deleted it from the cosole, subsequent deployments will fail (after 60 days in the case it expires). You can fix that by simply removing the key from your yml file, or by renaming it (in which case, a new key will be generated).
 
 Example:
+
 ```yml
 apiKeys:
   - name: Default # default API key. Use this name if you already have an auto-generated API key
@@ -471,11 +479,9 @@ apiKeys:
               GeoMatchStatement:
                 CountryCodes:
                   - US
-
-
 ```
 
-:bulb:  Finally, if you dont't want serverless to handle keys for you, just pass an empty array:
+:bulb: Finally, if you dont't want serverless to handle keys for you, just pass an empty array:
 
 ```yml
 # Handle keys manually in the aws console.
@@ -494,7 +500,7 @@ Throttling will disallow requests coming from the same ip address when a limit i
 
 There are several ways to enable it. Here are some examples:
 
-````yml
+```yml
 wafConfig:
   enabled: true
   rules:
@@ -507,18 +513,18 @@ wafConfig:
         forwardedIPConfig:
           headerName: 'X-Forwarded-For'
           fallbackBehavior: 'MATCH'
-````
+```
 
 ### Disable Introspection
 
 Sometimes, you want to disable introspection to disallow untrusted consumers to discover the structure of your API.
 
-````yml
+```yml
 wafConfig:
   enabled: true
   rules:
-    - disableIntrospection  # disables introspection for everyone
-````
+    - disableIntrospection # disables introspection for everyone
+```
 
 ### Using AWS Managed Rules
 
@@ -544,29 +550,29 @@ Managed rules require `overrideAction` set and `action` not set.
 For more information view the
 [AWS Managed Rule Groups List](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-list.html).
 
-
 ### Per Api Key rules
 
 In some cases, you might want to enable a rule only for a given API key only. You can specify `wafRules` under the `apiKeys` configuration. The rules will apply only to the api key under which the rule is set.
 
-````yml
+```yml
 apiKeys:
   - name: MyApiKey
     expiresAfter: 365d
     wafRules:
       - throttle # throttles this API key
       - disableIntrospection # disables introspection for this API key
-````
+```
 
 Adding a rule to an API key without any _statement_ will add a "match-all" rule for that key.
 This is usefull for example to exclude api keys from high-level rules. In that case, you need to make sure to attribute a higher priority to that rule.
 
 Example:
+
 - Block all requests by default
 - Add a rule to allow US requests
 - Except for the `WorldWideApiKey` key, that should have worldwide access.
 
-````yml
+```yml
 wafConfig:
   enabled: true
   defaultAction: Block # Block all by default
@@ -587,7 +593,7 @@ apiKeys:
       - name: WorldWideApiKeyRule
         action: Allow
         priority: 1 # Make sure the priority is higher (lower number) to evaluate it first
-````
+```
 
 ### About priority
 
@@ -602,7 +608,7 @@ For more info about how rules are executed, pease refer to [the documentation](h
 
 Example:
 
-````yml
+```yml
 wafConfig:
   enabled: true
   rules:
@@ -625,8 +631,7 @@ apiKeys:
         priority: 1 # Priority = 1
       - name: Rule7
         # (no-set) Priority = 104
-````
-
+```
 
 ### Advanced usage
 
@@ -634,7 +639,7 @@ You can also specify custom rules. For more info on how to define a rule, see th
 
 Example:
 
-````yml
+```yml
 wafConfig:
   enabled: true
   defaultAction: Block
@@ -646,32 +651,37 @@ wafConfig:
         geoMatchStatement:
           countryCodes:
             - US
-````
+```
 
 ### Schema Comments
-In some cases you want to enable usage of old-style comments (#) in appSync. setting the ``allowHashDescription`` setting
+
+In some cases you want to enable usage of old-style comments (#) in appSync. setting the `allowHashDescription` setting
 to true, will enable this.
 
 Example:
+
 ```yml
 custom:
   appSync:
-    name:  # defaults to api
+    name: # defaults to api
     allowHashDescription: true
     # ... other settings
 ```
 
 ### Stack Outputs & Exports
+
 `GraphQlApiId`and `GraphQlApiUrl` are exported to allow cross-stack resource reference using `Fn::ImportValue`.
 Output Exports are named with a `${AWS::StackName}-` prefix to the logical IDs. For example, `${AWS::StackName}-GraphQlApiId`.
+
 > Note: CloudFormation stack outputs and logical IDs will be changed from the defaults to api name prefixed. This allows you to differentiate the APIs on your stack if you want to work with multiple APIs.
+
 # Cli Usage
 
 ## `serverless deploy`
 
 This command will deploy all AppSync resources in the same CloudFormation template used by the other serverless resources.
 
-* Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
+- Providing the `--conceal` option will conceal the API keys from the output when the authentication type of `API_KEY` is used.
 
 ## `validate-schema`
 
@@ -683,7 +693,7 @@ This command will start a local graphql-playground server which is connected to 
 
 For API_KEY, either the GraphQLApiKeyDefault output or the --apiKey option is required
 
-For AMAZON_COGNITO_USER_POOLS, the -u/--username and -p/--password arguments are required. The cognito user pool client id can be provided with the --clientId option or directly in the yaml file (```custom.appSync.userPoolConfig.playgroundClientId```)
+For AMAZON_COGNITO_USER_POOLS, the -u/--username and -p/--password arguments are required. The cognito user pool client id can be provided with the --clientId option or directly in the yaml file (`custom.appSync.userPoolConfig.playgroundClientId`)
 
 For OPENID_CONNECT, the --jwtToken option is required.
 
@@ -697,10 +707,9 @@ There are 2 ways to work with offline development for serverless appsync.
 
 [serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-## serverless-appsync-simulator (deprecated/unmaintained)
+## serverless-appsync-offline (deprecated/unmaintained)
 
 [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
-
 
 # Split Stacks Plugin
 
@@ -708,7 +717,7 @@ You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serv
 
 1. Install [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks)
 
-```
+```bash
 yarn add --dev serverless-plugin-split-stacks
  or
 npm install --save-dev serverless-plugin-split-stacks
@@ -730,14 +739,84 @@ plugins:
 module.exports = {
   'AWS::AppSync::ApiKey': { destination: 'AppSync', allowSuffix: true },
   'AWS::AppSync::DataSource': { destination: 'AppSync', allowSuffix: true },
-  'AWS::AppSync::FunctionConfiguration': { destination: 'AppSync', allowSuffix: true },
+  'AWS::AppSync::FunctionConfiguration': {
+    destination: 'AppSync',
+    allowSuffix: true,
+  },
   'AWS::AppSync::GraphQLApi': { destination: 'AppSync', allowSuffix: true },
   'AWS::AppSync::GraphQLSchema': { destination: 'AppSync', allowSuffix: true },
-  'AWS::AppSync::Resolver': { destination: 'AppSync', allowSuffix: true }
-}
+  'AWS::AppSync::Resolver': { destination: 'AppSync', allowSuffix: true },
+};
 ```
 
 5. Enjoy :beers:
+
+# Custom domains
+
+AppSync [supports custom domains](https://aws.amazon.com/blogs/mobile/introducing-custom-domain-names-for-aws-appsync-apis/).
+
+You need to generate and provide a valid certificate ARN for the domain (Note: Taht certificate ust be in the `us-east-1` region, no matter where you deploy your AppSync API).
+
+example:
+
+```yaml
+custom:
+  appSync:
+    domain:
+      name: api.example.com
+      certificateArn: arn:aws:acm:us-east-1123456789:certificate/1c4e4c36-9a63-4685-94b7-e873402baca3
+      route53:
+        hostedZoneId: ABCDEFGHIJKLMN # optional. If not provided, the plugin will try to find the best match from the domain name
+        hostedZoneName: example.com # optional. If not provided, the plugin will try to find the best match from the domain name
+```
+
+Domains are managed trhough the CLI commands. This allows a better flexibility and control over your domains and APIs.
+
+e.g. You can swap one API with another on a domain easily (for blue/green deployments)
+
+Note: This is currently only supported for one API. If you have multiple APIs in your stack, the first one will be used.
+
+## Create/delete a domain
+
+Before associating a domain to an API, you must first create it. You can do so using the following command.
+
+```bash
+sls appsync-domain create
+```
+
+And to delete it:
+
+```bash
+sls appsync-domain delete
+```
+
+If an API is associated to it, you will need to disassociate it first.
+
+## Associate/disassociate an API to the domain
+
+```bash
+sls appsync-domain assoc --stage dev
+```
+
+You can associate an API to a domain that already has another API attached to it. The old API will be replaced by the new one.
+
+To disassociate an API from the domain, use
+
+```bash
+sls appsync-domain disassoc --stage dev
+```
+
+## Create/delete a route53 record
+
+If you use Route53 for your hosted zone, you can also manage the CNAME record for your custom domain easily using the following commands.
+
+```bash
+sls appsync-domain create-record
+```
+
+```bash
+sls appsync-domain delete-record
+```
 
 # Contributing
 
@@ -748,22 +827,23 @@ You are also very welcome to open a PR and we will gladely review it.
 # Resources
 
 ## VSCode extensions
+
 - [AppSync Utils](https://marketplace.visualstudio.com/items?itemName=bboure.vscode-appsync-utils): A collection of snippets that make AppSync development easier
 - [AppSync Resolver Autocomplete](https://marketplace.visualstudio.com/items?itemName=theBenForce.appsync-resolver-autocomplete): Autocomplete support for VTL template files.
 
 ## Video tutorials
-- [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
+- [Building an AppSync + Serverless Framework Backend | FooBar](https://www.youtube.com/watch?v=eTUYqI_LCQ4)
 
 ## Blog tutorial
 
-- *Part 1:* [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
+- _Part 1:_ [Running a scalable & reliable GraphQL endpoint with Serverless](https://serverless.com/blog/running-scalable-reliable-graphql-endpoint-with-serverless/)
 
-- *Part 2:* [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
+- _Part 2:_ [AppSync Backend: AWS Managed GraphQL Service](https://medium.com/@sid88in/running-a-scalable-reliable-graphql-endpoint-with-serverless-24c3bb5acb43)
 
-- *Part 3:* [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
+- _Part 3:_ [AppSync Frontend: AWS Managed GraphQL Service](https://hackernoon.com/running-a-scalable-reliable-graphql-endpoint-with-serverless-db16e42dc266)
 
-- *Part 4:* [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
+- _Part 4:_ [Serverless AppSync Plugin: Top 10 New Features](https://medium.com/hackernoon/serverless-appsync-plugin-top-10-new-features-3faaf6789480)
 
 # Contributors ✨
 
@@ -861,6 +941,7 @@ Thanks goes to these wonderful people :clap:
     <td align="center"><a href="https://github.com/AleksaC"><img src="https://avatars.githubusercontent.com/u/25728391?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aleksa Cukovic</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=AleksaC" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/sc0ttdav3y"><img src="https://avatars.githubusercontent.com/u/405607?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Scott Davey</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=sc0ttdav3y" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/mshlz"><img src="https://avatars.githubusercontent.com/u/37939755?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mateus Holzschuh</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=mshlz" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/nvanlo"><img src="https://avatars.githubusercontent.com/u/68108702?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nik Van Looy</b></sub></a><br /><a href="https://github.com/sid88in/serverless-appsync-plugin/commits?author=nvanlo" title="Code">💻</a></td>
   </tr>
 </table>
 
