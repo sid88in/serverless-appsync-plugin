@@ -21,13 +21,13 @@ Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has 
 
 Install the plugin via [Yarn](https://yarnpkg.com/lang/en/docs/install/)
 
-```
+```bash
 yarn add serverless-appsync-plugin --dev
 ```
 
 or via [NPM](https://docs.npmjs.com/cli/install)
 
-```
+```bash
 npm install serverless-appsync-plugin --save-dev
 ```
 
@@ -35,7 +35,7 @@ npm install serverless-appsync-plugin --save-dev
 
 Add `serverless-appsync-plugin` to the plugins section of `serverless.yml`
 
-```
+```yaml
 plugins:
    - serverless-appsync-plugin
 ```
@@ -707,7 +707,7 @@ There are 2 ways to work with offline development for serverless appsync.
 
 [serverless-appsync-simulator](https://github.com/bboure/serverless-appsync-simulator) is a wrapper of aws's [amplify-cli](https://github.com/aws-amplify/amplify-cli) for serverless and this plugin. Both are actively maintained.
 
-## serverless-appsync-simulator (deprecated/unmaintained)
+## serverless-appsync-offline (deprecated/unmaintained)
 
 [serverless-appsync-offline](https://github.com/aheissenberger/serverless-appsync-offline) is based on [AppSync Emulator](https://github.com/ConduitVC/aws-utils/tree/appsync/packages/appsync-emulator-serverless). Both these packages are currently unmaintained.
 
@@ -717,7 +717,7 @@ You can use [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serv
 
 1. Install [serverless-plugin-split-stacks](https://github.com/dougmoscrop/serverless-plugin-split-stacks)
 
-```
+```bash
 yarn add --dev serverless-plugin-split-stacks
  or
 npm install --save-dev serverless-plugin-split-stacks
