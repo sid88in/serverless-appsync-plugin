@@ -1438,7 +1438,7 @@ class ServerlessAppsyncPlugin {
     const wafAssocLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF_ASSOC);
 
     if (wafConfig.arn) {
-      return{
+      return {
         [wafAssocLogicalId]: {
           Type: 'AWS::WAFv2::WebACLAssociation',
           Properties: {
@@ -1446,7 +1446,7 @@ class ServerlessAppsyncPlugin {
             WebACLArn: wafConfig.arn,
           },
         },
-      }
+      };
     }
 
     const Name = wafConfig.name || `${apiConfig.name}Waf`;
