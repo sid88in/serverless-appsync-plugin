@@ -312,18 +312,26 @@ Object {
                 "Resource": Array [
                   Object {
                     "Fn::Join": Array [
-                      ":",
+                      "/",
                       Array [
-                        "arn",
-                        "aws",
-                        "dynamodb",
                         Object {
-                          "Ref": "AWS::Region",
+                          "Fn::Join": Array [
+                            ":",
+                            Array [
+                              "arn",
+                              "aws",
+                              "dynamodb",
+                              Object {
+                                "Ref": "AWS::Region",
+                              },
+                              Object {
+                                "Ref": "AWS::AccountId",
+                              },
+                              "table",
+                            ],
+                          ],
                         },
-                        Object {
-                          "Ref": "AWS::AccountId",
-                        },
-                        "table/data",
+                        "data",
                       ],
                     ],
                   },
@@ -344,10 +352,11 @@ Object {
                               Object {
                                 "Ref": "AWS::AccountId",
                               },
-                              "table/data",
+                              "table",
                             ],
                           ],
                         },
+                        "data",
                         "*",
                       ],
                     ],
@@ -433,18 +442,26 @@ Object {
                 "Resource": Array [
                   Object {
                     "Fn::Join": Array [
-                      ":",
+                      "/",
                       Array [
-                        "arn",
-                        "aws",
-                        "dynamodb",
                         Object {
-                          "Ref": "AWS::Region",
+                          "Fn::Join": Array [
+                            ":",
+                            Array [
+                              "arn",
+                              "aws",
+                              "dynamodb",
+                              Object {
+                                "Ref": "AWS::Region",
+                              },
+                              Object {
+                                "Ref": "AWS::AccountId",
+                              },
+                              "table",
+                            ],
+                          ],
                         },
-                        Object {
-                          "Ref": "AWS::AccountId",
-                        },
-                        "table/data",
+                        "data",
                       ],
                     ],
                   },
@@ -465,10 +482,11 @@ Object {
                               Object {
                                 "Ref": "AWS::AccountId",
                               },
-                              "table/data",
+                              "table",
                             ],
                           ],
                         },
+                        "data",
                         "*",
                       ],
                     ],
@@ -552,16 +570,24 @@ Object {
                 "Resource": Array [
                   Object {
                     "Fn::Join": Array [
-                      ":",
+                      "/",
                       Array [
-                        "arn",
-                        "aws",
-                        "dynamodb",
-                        "us-east-2",
                         Object {
-                          "Ref": "AWS::AccountId",
+                          "Fn::Join": Array [
+                            ":",
+                            Array [
+                              "arn",
+                              "aws",
+                              "dynamodb",
+                              "us-east-2",
+                              Object {
+                                "Ref": "AWS::AccountId",
+                              },
+                              "table",
+                            ],
+                          ],
                         },
-                        "table/data",
+                        "data",
                       ],
                     ],
                   },
@@ -580,10 +606,11 @@ Object {
                               Object {
                                 "Ref": "AWS::AccountId",
                               },
-                              "table/data",
+                              "table",
                             ],
                           ],
                         },
+                        "data",
                         "*",
                       ],
                     ],
