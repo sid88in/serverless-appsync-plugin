@@ -55,6 +55,20 @@ describe('DataSource', () => {
       expect(dataSource.compile()).toMatchSnapshot();
     });
 
+    it('should generate default role with a Ref for the table name', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_DYNAMODB',
+        name: 'dynamo',
+        description: 'My dynamo table',
+        config: {
+          tableName: { Ref: 'MyTable' },
+        },
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+    });
+
     it('should generate default role with custom statement', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
