@@ -34,6 +34,7 @@ export type IamStatement = {
 
 export type WafConfig = {
   enabled?: boolean;
+  arn?: string;
   name?: string;
   defaultAction?: WafAction;
   description?: string;

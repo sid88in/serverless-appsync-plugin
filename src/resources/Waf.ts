@@ -23,11 +23,23 @@ export class Waf {
     if (wafConfig.enabled === false) {
       return {};
     }
+    const apiLogicalId = this.api.naming.getApiLogicalId();
+    const wafAssocLogicalId = this.api.naming.getWafAssociationLogicalId();
+
+    if (wafConfig.arn) {
+      return {
+        [wafAssocLogicalId]: {
+          Type: 'AWS::WAFv2::WebACLAssociation',
+          Properties: {
+            ResourceArn: { 'Fn::GetAtt': [apiLogicalId, 'Arn'] },
+            WebACLArn: wafConfig.arn,
+          },
+        },
+      };
+    }
 
     const name = wafConfig.name || `${this.api.config.name}Waf`;
-    const apiLogicalId = this.api.naming.getApiLogicalId();
     const wafLogicalId = this.api.naming.getWafLogicalId();
-    const wafAssocLogicalId = this.api.naming.getWafAssociationLogicalId();
     const defaultActionSource = wafConfig.defaultAction || 'Allow';
     const defaultAction: CfnWafAction =
       typeof defaultActionSource === 'string'
