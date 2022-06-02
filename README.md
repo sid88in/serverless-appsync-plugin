@@ -14,8 +14,8 @@ Be sure to check out all that [AWS AppSync](https://aws.amazon.com/appsync) has 
 
 # Minimum requirements
 
-* [Node.js v8 or higher](https://nodejs.org)
-* [Serverless v1.83.3 or higher](https://github.com/serverless/serverless)
+- [Node.js v8 or higher](https://nodejs.org)
+- [Serverless v1.83.3 or higher](https://github.com/serverless/serverless)
 
 # Installation & Configuration
 
