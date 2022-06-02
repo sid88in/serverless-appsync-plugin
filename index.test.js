@@ -2115,7 +2115,7 @@ describe('WAF', () => {
     expect(tags[0].Value).toBe('testValue');
   });
 
-  it('should generate the association without the WAF config', () => {
+  it('should generate the WAF association and not the config', () => {
     const apiConfig = {
       ...config,
       wafConfig: {
@@ -2123,7 +2123,6 @@ describe('WAF', () => {
         arn: 'arn:aws:waf-regional:us-east-1:123456789012:rule/123-456-7890',
       },
     };
-
     expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
   });
 });

@@ -1449,7 +1449,7 @@ Object {
 }
 `;
 
-exports[`WAF should generate the association without the WAF config 1`] = `
+exports[`WAF should generate the WAF association and not the config 1`] = `
 Object {
   "GraphQlWafAssoc": Object {
     "Properties": Object {
