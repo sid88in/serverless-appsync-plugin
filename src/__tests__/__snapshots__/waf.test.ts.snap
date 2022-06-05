@@ -287,7 +287,7 @@ Array [
 ]
 `;
 
-exports[`Waf Base Resources should generate the association and not the waf 1`] = `
+exports[`Waf Base Resources should generate only the waf association 1`] = `
 Object {
   "GraphQlWafAssoc": Object {
     "Properties": Object {

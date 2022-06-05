@@ -39,7 +39,7 @@ describe('Waf', () => {
       expect(api.compileWafRules()).toEqual({});
     });
 
-    it('should generate the association and not the waf', () => {
+    it('should generate only the waf association', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const waf = new Waf(api, {
         enabled: true,
