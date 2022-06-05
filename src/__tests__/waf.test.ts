@@ -38,6 +38,15 @@ describe('Waf', () => {
       );
       expect(api.compileWafRules()).toEqual({});
     });
+
+    it('should generate the association and not the waf', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const waf = new Waf(api, {
+        enabled: true,
+        arn: 'arn:aws:waf-regional:us-east-1:123456789012:rule/123-456-7890',
+      });
+      expect(waf.compile()).toMatchSnapshot();
+    });
   });
 
   describe('Throttle rules', () => {

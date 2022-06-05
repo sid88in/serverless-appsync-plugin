@@ -39,7 +39,7 @@ export type WafConfig = {
   defaultAction?: WafAction;
   description?: string;
   visibilityConfig?: VisibilityConfig;
-  rules: WafRule[];
+  rules?: WafRule[];
 };
 
 export type WafThrottleConfig =

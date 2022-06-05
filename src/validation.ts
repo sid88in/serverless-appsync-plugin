@@ -657,6 +657,7 @@ export const appSyncSchema = {
       type: 'object',
       properties: {
         enabled: { type: 'boolean' },
+        arn: { type: 'string' },
         name: { type: 'string' },
         defaultAction: {
           type: 'string',
