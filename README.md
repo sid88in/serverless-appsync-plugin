@@ -1,5 +1,6 @@
 [![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-70-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
@@ -37,7 +38,7 @@ Add `serverless-appsync-plugin` to the plugins section of `serverless.yml`
 
 ```yaml
 plugins:
-   - serverless-appsync-plugin
+  - serverless-appsync-plugin
 ```
 
 Add the following config to the custom section of `serverless.yml` and update it accordingly to your needs
@@ -262,6 +263,7 @@ custom:
     xrayEnabled: true # Bool, Optional. Enable X-Ray. disabled by default.
     wafConfig:
       enabled: true
+      arn: 'arn:aws:waf-regional:{REGION}:{ACCOUNT_ID}:rule/{RULE_ID}' # The arn for your WAF. Remaining WAF config options are ignored if arn is provided.
       name: AppSyncWaf
       defaultAction: Allow # or Block. Defaults to Allow
       description: 'My AppSync Waf rules'

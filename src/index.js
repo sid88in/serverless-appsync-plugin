@@ -1434,10 +1434,23 @@ class ServerlessAppsyncPlugin {
       return {};
     }
 
-    const Name = wafConfig.name || `${apiConfig.name}Waf`;
     const apiLogicalId = this.getLogicalId(apiConfig, RESOURCE_API);
-    const wafLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF);
     const wafAssocLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF_ASSOC);
+
+    if (wafConfig.arn) {
+      return {
+        [wafAssocLogicalId]: {
+          Type: 'AWS::WAFv2::WebACLAssociation',
+          Properties: {
+            ResourceArn: { 'Fn::GetAtt': [apiLogicalId, 'Arn'] },
+            WebACLArn: wafConfig.arn,
+          },
+        },
+      };
+    }
+
+    const Name = wafConfig.name || `${apiConfig.name}Waf`;
+    const wafLogicalId = this.getLogicalId(apiConfig, RESOURCE_WAF);
     const defaultAction = wafConfig.defaultAction || 'Allow';
 
     return {

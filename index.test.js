@@ -2114,4 +2114,15 @@ describe('WAF', () => {
     expect(tags[0].Key).toBe('testKey');
     expect(tags[0].Value).toBe('testValue');
   });
+
+  it('should generate the WAF association and not the config', () => {
+    const apiConfig = {
+      ...config,
+      wafConfig: {
+        enabled: true,
+        arn: 'arn:aws:waf-regional:us-east-1:123456789012:rule/123-456-7890',
+      },
+    };
+    expect(plugin.getWafResources(apiConfig)).toMatchSnapshot();
+  });
 });
