@@ -107,7 +107,7 @@ export const appSyncSchema = {
           enum: ['ALLOW', 'DENY'],
           errorMessage: 'must be "ALLOW" or "DENY"',
         },
-        appIdClientRegex: { type: 'string' },
+        appIdClientRegex: { $ref: '#/definitions/stringOrIntrinsicFunction' },
       },
       required: ['userPoolId'],
     },

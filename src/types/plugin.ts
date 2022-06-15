@@ -104,7 +104,7 @@ export type CognitoAuth = {
     userPoolId: string | IntrinsicFunction;
     awsRegion?: string | IntrinsicFunction;
     defaultAction?: 'ALLOW' | 'DENY';
-    appIdClientRegex?: string;
+    appIdClientRegex?: string | IntrinsicFunction;
   };
 };
 

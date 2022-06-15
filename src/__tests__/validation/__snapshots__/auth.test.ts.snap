@@ -8,7 +8,7 @@ exports[`Valdiation Invalid should validate a Cognito with invalid userPoolId 1`
 "/authentication/config/userPoolId: must be a string or a CloudFormation intrinsic function
 /authentication/config/awsRegion: must be a string or a CloudFormation intrinsic function
 /authentication/config/defaultAction: must be \\"ALLOW\\" or \\"DENY\\"
-/authentication/config/appIdClientRegex: must be string"
+/authentication/config/appIdClientRegex: must be a string or a CloudFormation intrinsic function"
 `;
 
 exports[`Valdiation Invalid should validate a Lambda with empty config 1`] = `"/authentication/config: must specify functionName, functionArn or function (all exclusives)"`;
