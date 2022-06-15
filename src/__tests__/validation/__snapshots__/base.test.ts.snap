@@ -4,7 +4,7 @@ exports[`Valdiation Caching Invalid should validate a Invalid 1`] = `
 "/caching/enabled: must be boolean
 /caching/behavior: must be one of 'FULL_REQUEST_CACHING', 'PER_RESOLVER_CACHING'
 /caching/type: must be one of 'SMALL', 'MEDIUM', 'LARGE', 'XLARGE', 'LARGE_2X', 'LARGE_4X', 'LARGE_8X', 'LARGE_12X'
-/caching/ttl: must be number
+/caching/ttl: must be integer
 /caching/atRestEncryption: must be boolean
 /caching/transitEncryption: must be boolean"
 `;
