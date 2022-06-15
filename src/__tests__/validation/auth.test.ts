@@ -39,6 +39,9 @@ describe('Valdiation', () => {
               userPoolId: {
                 Ref: 'CognitoUserPool',
               },
+              appIdClientRegex: {
+                Ref: 'CognitoUserPoolClient',
+              },
             },
           },
         } as AppSyncConfigInput,
