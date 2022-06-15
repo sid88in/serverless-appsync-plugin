@@ -46,6 +46,7 @@ export class Api {
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
     merge(resources, this.compileWafRules());
+    merge(resources, this.compileCachingResources());
 
     forEach(this.config.apiKeys, (key) => {
       merge(resources, this.compileApiKey(key));
