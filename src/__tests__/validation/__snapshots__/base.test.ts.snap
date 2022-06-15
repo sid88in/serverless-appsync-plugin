@@ -44,6 +44,11 @@ exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `
 /waf/rules/2: must be a valid WAF rule"
 `;
 
+exports[`Valdiation Waf Invalid should validate a Throttle limit 1`] = `
+"/waf/rules/0: must be a valid WAF rule
+/waf/rules/1: must be a valid WAF rule"
+`;
+
 exports[`Valdiation should validate  1`] = `
 ": must have required property 'name'
 : must have required property 'authentication'

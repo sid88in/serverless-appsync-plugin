@@ -187,7 +187,7 @@ export const appSyncSchema = {
           properties: {
             throttle: {
               oneOf: [
-                { type: 'integer' },
+                { type: 'integer', minimum: 100 },
                 {
                   type: 'object',
                   properties: {
@@ -200,7 +200,7 @@ export const appSyncSchema = {
                       type: 'string',
                       enum: ['IP', 'FORWARDED_IP'],
                     },
-                    limit: { type: 'integer' },
+                    limit: { type: 'integer', minimum: 100 },
                     priority: { type: 'integer' },
                     scopeDownStatement: { type: 'object' },
                     forwardedIPConfig: {

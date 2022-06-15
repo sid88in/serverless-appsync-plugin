@@ -1,5 +1,5 @@
 import ServerlessAppsyncPlugin from '..';
-import { forEach, merge, set } from 'lodash';
+import { forEach, isEmpty, merge, set } from 'lodash';
 import {
   CfnResource,
   CfnResources,
@@ -457,8 +457,8 @@ export class Api {
   }
 
   getTagsConfig() {
-    if (!this.config.tags) {
-      return [];
+    if (!this.config.tags || isEmpty(this.config.tags)) {
+      return undefined;
     }
 
     const tags = this.config.tags;
