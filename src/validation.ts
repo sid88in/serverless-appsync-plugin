@@ -354,7 +354,7 @@ export const appSyncSchema = {
         {
           type: 'object',
           properties: {
-            ttl: { type: 'integer' },
+            ttl: { type: 'integer', minimum: 1, maximum: 3600 },
             keys: {
               type: 'array',
               items: { type: 'string' },
@@ -681,7 +681,9 @@ export const appSyncSchema = {
         enabled: { type: 'boolean' },
         behavior: {
           type: 'string',
-          enum: ['FULL_REQUEST_CACHING' || 'PER_RESOLVER_CACHING'],
+          enum: ['FULL_REQUEST_CACHING', 'PER_RESOLVER_CACHING'],
+          errorMessage:
+            "must be one of 'FULL_REQUEST_CACHING', 'PER_RESOLVER_CACHING'",
         },
         type: {
           enum: [
@@ -694,13 +696,14 @@ export const appSyncSchema = {
             'LARGE_8X',
             'LARGE_12X',
           ],
+          errorMessage:
+            "must be one of 'SMALL', 'MEDIUM', 'LARGE', 'XLARGE', 'LARGE_2X', 'LARGE_4X', 'LARGE_8X', 'LARGE_12X'",
         },
-        ttl: { type: 'number' },
+        ttl: { type: 'integer', minimum: 1, maximum: 3600 },
         atRestEncryption: { type: 'boolean' },
         transitEncryption: { type: 'boolean' },
       },
       required: ['behavior'],
-      errorMessage: 'must be a valid caching config',
     },
     additionalAuthentications: {
       type: 'array',
