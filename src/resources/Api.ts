@@ -416,14 +416,8 @@ export class Api {
       UserPoolId: auth.config.userPoolId,
       AppIdClientRegex: auth.config.appIdClientRegex,
       // Default action is the one passed in the config
-      // or 'ALLOW' if the primary auth is Cognito User Pool
-      // else, DENY
-      DefaultAction:
-        auth.config.defaultAction ||
-        (this.config.authentication.type === 'AMAZON_COGNITO_USER_POOLS' &&
-        this.config.additionalAuthentications.length > 0
-          ? 'ALLOW'
-          : 'DENY'),
+      // or 'ALLOW'
+      DefaultAction: auth.config.defaultAction || 'ALLOW',
     };
 
     return userPoolConfig;
