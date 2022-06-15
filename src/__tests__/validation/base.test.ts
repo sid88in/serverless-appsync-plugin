@@ -303,4 +303,87 @@ describe('Valdiation', () => {
       });
     });
   });
+
+  describe('Caching', () => {
+    describe('Valid', () => {
+      const assertions = [
+        {
+          name: 'Minimum',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+            },
+          } as AppSyncConfigInput,
+        },
+        {
+          name: 'Full',
+          config: {
+            ...basicConfig,
+            caching: {
+              enabled: true,
+              behavior: 'PER_RESOLVER_CACHING',
+              type: 'SMALL',
+              ttl: 3600,
+              atRestEncryption: true,
+              transitEncryption: true,
+            },
+          } as AppSyncConfigInput,
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(validateConfig(config.config)).toBe(true);
+        });
+      });
+    });
+
+    describe('Invalid', () => {
+      const assertions = [
+        {
+          name: 'Invalid',
+          config: {
+            ...basicConfig,
+            caching: {
+              enabled: 'foo',
+              behavior: 'bar',
+              type: 'INVALID',
+              ttl: 'bizz',
+              atRestEncryption: 'bizz',
+              transitEncryption: 'bazz',
+            },
+          },
+        },
+        {
+          name: 'Ttl min value',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+              ttl: 0,
+            },
+          },
+        },
+        {
+          name: 'Ttl max value',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+              ttl: 3601,
+            },
+          },
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(function () {
+            validateConfig(config.config);
+          }).toThrowErrorMatchingSnapshot();
+        });
+      });
+    });
+  });
 });
