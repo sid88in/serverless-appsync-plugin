@@ -187,6 +187,23 @@ describe('Valdiation', () => {
             },
           },
         },
+        {
+          name: 'Throttle limit',
+          config: {
+            ...basicConfig,
+            waf: {
+              rules: [
+                { throttle: 99 },
+                {
+                  throttle: {
+                    name: 'Throttle',
+                    limit: 99,
+                  },
+                },
+              ],
+            },
+          },
+        },
       ];
 
       assertions.forEach((config) => {
