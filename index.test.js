@@ -1638,10 +1638,12 @@ describe('SyncConfig', () => {
     expect(
       apiResources.GraphQlFunctionConfigurationpipeline.Properties,
     ).toHaveProperty('SyncConfig');
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig).toEqual({
-      "ConflictDetection": "VERSION",
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig,
+    ).toEqual({
+      ConflictDetection: 'VERSION',
     });
-  })
+  });
 
   test('Pipeline Resolver Function uses advanced config', () => {
     const apiConfig = {
@@ -1666,19 +1668,18 @@ describe('SyncConfig', () => {
     expect(
       apiResources.GraphQlFunctionConfigurationpipeline.Properties,
     ).toHaveProperty('SyncConfig');
-    expect(apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig).toEqual({
-      "ConflictDetection": "VERSION",
-      "ConflictHandler": "LAMBDA",
-      "LambdaConflictHandlerConfig": {
-        "LambdaConflictHandlerArn": {
-          "Fn::GetAtt": [
-            "SyncLambdaLambdaFunction",
-            "Arn",
-          ],
+    expect(
+      apiResources.GraphQlFunctionConfigurationpipeline.Properties.SyncConfig,
+    ).toEqual({
+      ConflictDetection: 'VERSION',
+      ConflictHandler: 'LAMBDA',
+      LambdaConflictHandlerConfig: {
+        LambdaConflictHandlerArn: {
+          'Fn::GetAtt': ['SyncLambdaLambdaFunction', 'Arn'],
         },
       },
     });
-  })
+  });
 
   test('Uses lambda config', () => {
     Object.assign(config, {
