@@ -49,6 +49,7 @@ describe('Basic', () => {
                 request: 'request.vtl',
                 response: 'response.vtl',
               },
+              function4: 'ds1',
             },
           ] as Record<string, FunctionConfigInput>[],
         },
