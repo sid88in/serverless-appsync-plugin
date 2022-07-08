@@ -657,20 +657,31 @@ export const appSyncSchema = {
       type: 'object',
       properties: {
         enabled: { type: 'boolean' },
-        arn: { type: 'string' },
-        name: { type: 'string' },
-        defaultAction: {
-          type: 'string',
-          enum: ['Allow', 'Block'],
-          errorMessage: "must be 'Allow' or 'Block'",
-        },
-        description: { type: 'string' },
-        rules: {
-          type: 'array',
-          items: { $ref: '#/definitions/wafRule' },
+      },
+      if: {
+        required: ['arn'],
+      },
+      then: {
+        properties: {
+          arn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         },
       },
-      required: ['rules'],
+      else: {
+        properties: {
+          name: { type: 'string' },
+          defaultAction: {
+            type: 'string',
+            enum: ['Allow', 'Block'],
+            errorMessage: "must be 'Allow' or 'Block'",
+          },
+          description: { type: 'string' },
+          rules: {
+            type: 'array',
+            items: { $ref: '#/definitions/wafRule' },
+          },
+        },
+        required: ['rules'],
+      },
     },
     tags: {
       type: 'object',

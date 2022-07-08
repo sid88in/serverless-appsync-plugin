@@ -152,6 +152,16 @@ describe('Valdiation', () => {
             },
           } as AppSyncConfigInput,
         },
+        {
+          name: 'Using arn',
+          config: {
+            ...basicConfig,
+            waf: {
+              enabled: true,
+              arn: 'arn:aws:',
+            },
+          },
+        },
       ];
 
       assertions.forEach((config) => {

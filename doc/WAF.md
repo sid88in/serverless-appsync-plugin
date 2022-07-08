@@ -28,21 +28,21 @@ appSync:
   name: my-api
   waf:
     enabled: true
-    arn: 'arn:aws:waf-regional:{REGION}:{ACCOUNT_ID}:rule/{RULE_ID}'
+    arn: 'arn:aws:wafv2:us-east-1:123456789012:regional/webacl/my-Waf/d7b694d2-4f7d-4dd6-a9a9-843dd1931330'
 ```
 
 ## Configuration
 
 - `enabled`: Boolean. Enable or disable WAF. Defaults to `true` when `appSync.waf` is defined.
-- `name`: Optional. The name of this WAF instance. Defaults to the name of your API.
 - `arn`: Optional. The WAF's ARN to associate with your AppSync resource.
+- `name`: Optional. The name of this WAF instance. Defaults to the name of your API.
 - `defaultAction`: Optional. The default action if a request does not match a rule. `Allow` or `Block`. Defaults to `Allow`.
 - `description`: Optional. A description for this WAF instance.
 - `visibilityConfig`: Optional. A [visibility config](https://docs.aws.amazon.com/waf/latest/APIReference/API_VisibilityConfig.html) for this WAF
   - `name`: Metric name
   - `cloudWatchMetricsEnabled`: A boolean indicating whether the associated resource sends metrics to Amazon CloudWatch
   - `sampledRequestsEnabled`: A boolean indicating whether AWS WAF should store a sampling of the web requests that match the rule
-- `rules`: Optional. An array of [rules](#rules).
+- `rules`: Required. An array of [rules](#rules). Optional when `arn` is present
 
 ## Rules
 
