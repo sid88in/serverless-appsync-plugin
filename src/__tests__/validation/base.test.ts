@@ -198,6 +198,15 @@ describe('Valdiation', () => {
           },
         },
         {
+          name: 'Invalid arn',
+          config: {
+            ...basicConfig,
+            waf: {
+              arn: 123,
+            },
+          },
+        },
+        {
           name: 'Throttle limit',
           config: {
             ...basicConfig,

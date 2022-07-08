@@ -65,7 +65,7 @@ describe('Waf', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const waf = new Waf(api, {
         enabled: true,
-        arn: 'arn:aws:waf-regional:us-east-1:123456789012:rule/123-456-7890',
+        arn: 'arn:aws:wafv2:us-east-1:123456789012:regional/webacl/my-Waf/d7b694d2-4f7d-4dd6-a9a9-843dd1931330',
       });
       expect(waf.compile()).toMatchSnapshot();
     });
