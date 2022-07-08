@@ -802,18 +802,12 @@ export const appSyncSchema = {
     pipelineFunctions: {
       oneOf: [
         {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/definitions/pipelineFunctionConfig',
-          },
+          $ref: '#/definitions/pipelineFunctionConfigMap',
         },
         {
           type: 'array',
           items: {
-            type: 'object',
-            additionalProperties: {
-              $ref: '#/definitions/pipelineFunctionConfig',
-            },
+            $ref: '#/definitions/pipelineFunctionConfigMap',
           },
         },
       ],
