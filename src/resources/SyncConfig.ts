@@ -1,4 +1,3 @@
-import { O } from 'ts-toolbelt';
 import { PipelineFunctionConfig, ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 
