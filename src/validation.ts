@@ -107,7 +107,7 @@ export const appSyncSchema = {
           enum: ['ALLOW', 'DENY'],
           errorMessage: 'must be "ALLOW" or "DENY"',
         },
-        appIdClientRegex: { type: 'string' },
+        appIdClientRegex: { $ref: '#/definitions/stringOrIntrinsicFunction' },
       },
       required: ['userPoolId'],
     },
@@ -187,7 +187,7 @@ export const appSyncSchema = {
           properties: {
             throttle: {
               oneOf: [
-                { type: 'integer' },
+                { type: 'integer', minimum: 100 },
                 {
                   type: 'object',
                   properties: {
@@ -200,7 +200,7 @@ export const appSyncSchema = {
                       type: 'string',
                       enum: ['IP', 'FORWARDED_IP'],
                     },
-                    limit: { type: 'integer' },
+                    limit: { type: 'integer', minimum: 100 },
                     priority: { type: 'integer' },
                     scopeDownStatement: { type: 'object' },
                     forwardedIPConfig: {
@@ -354,7 +354,7 @@ export const appSyncSchema = {
         {
           type: 'object',
           properties: {
-            ttl: { type: 'integer' },
+            ttl: { type: 'integer', minimum: 1, maximum: 3600 },
             keys: {
               type: 'array',
               items: { type: 'string' },
@@ -693,7 +693,9 @@ export const appSyncSchema = {
         enabled: { type: 'boolean' },
         behavior: {
           type: 'string',
-          enum: ['FULL_REQUEST_CACHING' || 'PER_RESOLVER_CACHING'],
+          enum: ['FULL_REQUEST_CACHING', 'PER_RESOLVER_CACHING'],
+          errorMessage:
+            "must be one of 'FULL_REQUEST_CACHING', 'PER_RESOLVER_CACHING'",
         },
         type: {
           enum: [
@@ -706,13 +708,14 @@ export const appSyncSchema = {
             'LARGE_8X',
             'LARGE_12X',
           ],
+          errorMessage:
+            "must be one of 'SMALL', 'MEDIUM', 'LARGE', 'XLARGE', 'LARGE_2X', 'LARGE_4X', 'LARGE_8X', 'LARGE_12X'",
         },
-        ttl: { type: 'number' },
+        ttl: { type: 'integer', minimum: 1, maximum: 3600 },
         atRestEncryption: { type: 'boolean' },
         transitEncryption: { type: 'boolean' },
       },
       required: ['behavior'],
-      errorMessage: 'must be a valid caching config',
     },
     additionalAuthentications: {
       type: 'array',
@@ -811,18 +814,12 @@ export const appSyncSchema = {
     pipelineFunctions: {
       oneOf: [
         {
-          type: 'object',
-          additionalProperties: {
-            $ref: '#/definitions/pipelineFunctionConfig',
-          },
+          $ref: '#/definitions/pipelineFunctionConfigMap',
         },
         {
           type: 'array',
           items: {
-            type: 'object',
-            additionalProperties: {
-              $ref: '#/definitions/pipelineFunctionConfig',
-            },
+            $ref: '#/definitions/pipelineFunctionConfigMap',
           },
         },
       ],

@@ -81,7 +81,7 @@ Query.user:
   caching:
     ttl: 60
     keys:
-      - '$ctx.arguments.id'
+      - '$context.arguments.id'
 ```
 
 You can either pass `true` which will use the global TTL (See the [global caching configuration](caching.md)) and no `keys`.

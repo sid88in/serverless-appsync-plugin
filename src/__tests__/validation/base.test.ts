@@ -197,6 +197,23 @@ describe('Valdiation', () => {
             },
           },
         },
+        {
+          name: 'Throttle limit',
+          config: {
+            ...basicConfig,
+            waf: {
+              rules: [
+                { throttle: 99 },
+                {
+                  throttle: {
+                    name: 'Throttle',
+                    limit: 99,
+                  },
+                },
+              ],
+            },
+          },
+        },
       ];
 
       assertions.forEach((config) => {
@@ -299,6 +316,89 @@ describe('Valdiation', () => {
                 hostedZoneId: 456,
                 hostedZoneName: 789,
               },
+            },
+          },
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(function () {
+            validateConfig(config.config);
+          }).toThrowErrorMatchingSnapshot();
+        });
+      });
+    });
+  });
+
+  describe('Caching', () => {
+    describe('Valid', () => {
+      const assertions = [
+        {
+          name: 'Minimum',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+            },
+          } as AppSyncConfigInput,
+        },
+        {
+          name: 'Full',
+          config: {
+            ...basicConfig,
+            caching: {
+              enabled: true,
+              behavior: 'PER_RESOLVER_CACHING',
+              type: 'SMALL',
+              ttl: 3600,
+              atRestEncryption: true,
+              transitEncryption: true,
+            },
+          } as AppSyncConfigInput,
+        },
+      ];
+
+      assertions.forEach((config) => {
+        it(`should validate a ${config.name}`, () => {
+          expect(validateConfig(config.config)).toBe(true);
+        });
+      });
+    });
+
+    describe('Invalid', () => {
+      const assertions = [
+        {
+          name: 'Invalid',
+          config: {
+            ...basicConfig,
+            caching: {
+              enabled: 'foo',
+              behavior: 'bar',
+              type: 'INVALID',
+              ttl: 'bizz',
+              atRestEncryption: 'bizz',
+              transitEncryption: 'bazz',
+            },
+          },
+        },
+        {
+          name: 'Ttl min value',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+              ttl: 0,
+            },
+          },
+        },
+        {
+          name: 'Ttl max value',
+          config: {
+            ...basicConfig,
+            caching: {
+              behavior: 'PER_RESOLVER_CACHING',
+              ttl: 3601,
             },
           },
         },

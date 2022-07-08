@@ -25,6 +25,28 @@ describe('Waf', () => {
       expect(waf.compile()).toMatchSnapshot();
     });
 
+    it('should generate waf Resources without tags', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          tags: undefined,
+        }),
+        plugin,
+      );
+      const waf = new Waf(api, {
+        enabled: true,
+        name: 'Waf',
+        defaultAction: 'Allow',
+        description: 'My Waf ACL',
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          name: 'MyVisibilityConfig',
+          sampledRequestsEnabled: true,
+        },
+        rules: [],
+      });
+      expect(waf.compile()).toMatchSnapshot();
+    });
+
     it('should not generate waf Resources if disabled', () => {
       const api = new Api(
         given.appSyncConfig({

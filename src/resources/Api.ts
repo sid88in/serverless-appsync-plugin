@@ -1,5 +1,5 @@
 import ServerlessAppsyncPlugin from '..';
-import { forEach, merge, set } from 'lodash';
+import { forEach, isEmpty, merge, set } from 'lodash';
 import {
   CfnResource,
   CfnResources,
@@ -46,6 +46,7 @@ export class Api {
     merge(resources, this.compileCloudWatchLogGroup());
     merge(resources, this.compileLambdaAuthorizerPermission());
     merge(resources, this.compileWafRules());
+    merge(resources, this.compileCachingResources());
 
     forEach(this.config.apiKeys, (key) => {
       merge(resources, this.compileApiKey(key));
@@ -416,14 +417,8 @@ export class Api {
       UserPoolId: auth.config.userPoolId,
       AppIdClientRegex: auth.config.appIdClientRegex,
       // Default action is the one passed in the config
-      // or 'ALLOW' if the primary auth is Cognito User Pool
-      // else, DENY
-      DefaultAction:
-        auth.config.defaultAction ||
-        (this.config.authentication.type === 'AMAZON_COGNITO_USER_POOLS' &&
-        this.config.additionalAuthentications.length > 0
-          ? 'ALLOW'
-          : 'DENY'),
+      // or 'ALLOW'
+      DefaultAction: auth.config.defaultAction || 'ALLOW',
     };
 
     return userPoolConfig;
@@ -462,8 +457,8 @@ export class Api {
   }
 
   getTagsConfig() {
-    if (!this.config.tags) {
-      return [];
+    if (!this.config.tags || isEmpty(this.config.tags)) {
+      return undefined;
     }
 
     const tags = this.config.tags;

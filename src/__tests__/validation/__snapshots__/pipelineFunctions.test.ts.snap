@@ -15,7 +15,7 @@ exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
 `;
 
 exports[`Basic Invalid should validate: Invalid inline datasource 1`] = `
-"/pipelineFunctions/function1: must be object
+"/pipelineFunctions/function1: must be a string or an object
 /pipelineFunctions: contains invalid pipeline function definitions"
 `;
 

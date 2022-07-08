@@ -349,6 +349,46 @@ Object {
 }
 `;
 
+exports[`Waf Base Resources should generate waf Resources without tags 1`] = `
+Object {
+  "GraphQlWaf": Object {
+    "Properties": Object {
+      "DefaultAction": Object {
+        "Allow": Object {},
+      },
+      "Description": "My Waf ACL",
+      "Name": "Waf",
+      "Rules": Array [],
+      "Scope": "REGIONAL",
+      "Tags": undefined,
+      "VisibilityConfig": Object {
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "MyVisibilityConfig",
+        "SampledRequestsEnabled": true,
+      },
+    },
+    "Type": "AWS::WAFv2::WebACL",
+  },
+  "GraphQlWafAssoc": Object {
+    "Properties": Object {
+      "ResourceArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlApi",
+          "Arn",
+        ],
+      },
+      "WebACLArn": Object {
+        "Fn::GetAtt": Array [
+          "GraphQlWaf",
+          "Arn",
+        ],
+      },
+    },
+    "Type": "AWS::WAFv2::WebACLAssociation",
+  },
+}
+`;
+
 exports[`Waf Custom rules should generate a custom rule 1`] = `
 Object {
   "Action": Object {
