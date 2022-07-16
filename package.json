@@ -21,6 +21,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^22.1.4",
     "prettier": "^2.4.1",
+    "semantic-release": "^19.0.3",
     "serverless": "^1.83.3"
   },
   "dependencies": {
@@ -35,7 +36,6 @@
     "moment": "^2.29.1",
     "ramda": "^0.25.0"
   },
-  "peerDependencies": {},
   "jest": {
     "testEnvironment": "node"
   }
