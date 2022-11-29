@@ -11,13 +11,13 @@ exports[`Basic Invalid should validate: Invalid 1`] = `
 /resolvers: contains invalid resolver definitions"
 `;
 
-exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
-"/resolvers/Query.getUser/dataSource/config: must specify functionName, functionArn or function (all exclusives)
+exports[`Basic Invalid should validate: Invalid datasource 1`] = `
+"/resolvers/Query.getUser: must be object
 /resolvers: contains invalid resolver definitions"
 `;
 
-exports[`Basic Invalid should validate: Invalid inline datasource 1`] = `
-"/resolvers/Query.getUser: must be object
+exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
+"/resolvers/Query.getUser/dataSource/config: must specify functionName, functionArn or function (all exclusives)
 /resolvers: contains invalid resolver definitions"
 `;
 

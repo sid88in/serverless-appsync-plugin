@@ -48,7 +48,7 @@ export function response(ctx) {
 }
 ```
 
-To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `PIPELINE` and don't specify `request` and `response` (only works with Lambda function data sources).
+To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request` and `response` (only works with Lambda function data sources).
 
 ## PIPELINE resolvers
 

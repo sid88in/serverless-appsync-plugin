@@ -14,7 +14,13 @@ describe('Basic', () => {
             },
             'Query.getPost': {
               kind: 'PIPELINE',
-              functions: ['function1', 'function2'],
+              functions: [
+                'function1',
+                {
+                  dataSource: 'function2',
+                  code: 'function2.js',
+                },
+              ],
             },
             'Query.getBlog': {
               kind: 'UNIT',
@@ -35,7 +41,18 @@ describe('Basic', () => {
             getPosts: {
               type: 'Query',
               field: 'getPosts',
-              functions: ['function1', 'function2'],
+              functions: [
+                'function1',
+                {
+                  dataSource: {
+                    type: 'AWS_LAMBDA',
+                    config: {
+                      functionName: 'function3',
+                    },
+                  },
+                  code: 'function2.js',
+                },
+              ],
             },
             getBlogs: {
               kind: 'UNIT',
@@ -174,10 +191,10 @@ describe('Basic', () => {
         },
       },
       {
-        name: 'Invalid inline datasource',
+        name: 'Invalid datasource',
         config: {
           resolvers: {
-            'Query.getUser': 1234,
+            'Query.getUser': 'foo',
           },
         },
       },
