@@ -327,8 +327,8 @@ export const appSyncSchema = {
       properties: {
         dataSource: { $ref: '#/definitions/dataSource' },
         description: { type: 'string' },
-        request: { type:  },
-        response: { type:  },
+        request: { type: 'string' },
+        response: { type: 'string' },
         sync: { $ref: '#/definitions/syncConfig' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         substitutions: { $ref: '#/definitions/substitutions' },
