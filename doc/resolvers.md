@@ -88,6 +88,19 @@ appSync:
             handler: 'functions/getUser.handler'
 ```
 
+## Inline function definitions
+
+If a [Pipeline function](pipeline-functions.md) is only used in a single resolver, you can also define it inline in the resolver configuration.
+
+```yaml
+appSync:
+  resolvers:
+    Query.user:
+      functions:
+        - dataSource: 'users'
+          code: 'getUser.js'
+```
+
 ## Caching
 
 ```yaml

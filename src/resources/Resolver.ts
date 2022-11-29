@@ -97,15 +97,11 @@ export class Resolver {
         };
       }
 
-      const functions = this.config.functions || [
-        `${this.config.type}_${this.config.field}`,
-      ];
-
       Properties = {
         ...Properties,
         Kind: 'PIPELINE',
         PipelineConfig: {
-          Functions: functions.map((name) => {
+          Functions: this.config.functions.map((name) => {
             if (!this.api.hasPipelineFunction(name)) {
               throw new this.api.plugin.serverless.classes.Error(
                 `Resolver '${this.config.type}.${this.config.field}' references unknown Pipeline function '${name}'`,

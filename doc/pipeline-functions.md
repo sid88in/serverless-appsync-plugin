@@ -11,6 +11,7 @@ appSync:
   pipelineFunctions:
     myFunction:
       dataSource: myDataSource
+      code: myFunction.js
 ```
 
 ## Configutation

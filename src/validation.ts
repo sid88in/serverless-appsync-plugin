@@ -246,9 +246,6 @@ export const appSyncSchema = {
       },
       required: ['name', 'statement'],
     },
-    mappingTemplate: {
-      type: 'string',
-    },
     substitutions: {
       type: 'object',
       additionalProperties: {
@@ -277,8 +274,8 @@ export const appSyncSchema = {
         field: { type: 'string' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         code: { type: 'string' },
-        request: { $ref: '#/definitions/mappingTemplate' },
-        response: { $ref: '#/definitions/mappingTemplate' },
+        request: { type: 'string' },
+        response: { type: 'string' },
         sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
@@ -330,8 +327,8 @@ export const appSyncSchema = {
       properties: {
         dataSource: { $ref: '#/definitions/dataSource' },
         description: { type: 'string' },
-        request: { $ref: '#/definitions/mappingTemplate' },
-        response: { $ref: '#/definitions/mappingTemplate' },
+        request: { type:  },
+        response: { type:  },
         sync: { $ref: '#/definitions/syncConfig' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         substitutions: { $ref: '#/definitions/substitutions' },
