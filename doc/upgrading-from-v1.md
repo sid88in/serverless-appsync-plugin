@@ -56,9 +56,9 @@ resolvers:
 
 ### No more defaults for resolver handler paths.
 
-In `v1`, if you did not specify a path to your mapping templates, a default based on the type, field or function name was used.
+In `v1`, if you did not specify a path to your mapping templates, a default based on the type, field or function name was used. (e.g. `Query.getPost.request.vtl`).
 
-To avoid unexpected behaviours, you are now required to explicitely specify the path to your resolver handlers. i.e. `code` for Pipeline JS resolvers or `request`/`response` for VTL.
+To avoid unexpected behaviours, you are now required to explicitely specify the path to your resolver handlers. i.e. use `code` for Pipeline JS resolvers or `request`/`response` for VTL.
 
 There is also no more `mappingTemplatesLocation` option. Paths must be relative to the `serverless.yml`. This aligns more with how Serverless Framework handles Lambda function handlers' paths.
 

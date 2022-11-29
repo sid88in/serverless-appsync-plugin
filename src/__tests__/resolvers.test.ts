@@ -41,8 +41,8 @@ describe('Resolvers', () => {
           kind: 'UNIT',
           type: 'Query',
           field: 'user',
-          request: 'Query.user.request.tpl',
-          response: 'Query.user.response.tpl',
+          request: 'path/to/mappingTemplates/Query.user.request.vtl',
+          response: 'path/to/mappingTemplates/Query.user.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -66,8 +66,8 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
-              "RequestMappingTemplate": "Content of Query.user.request.tpl",
-              "ResponseMappingTemplate": "Content of Query.user.response.tpl",
+              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
+              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -586,8 +586,8 @@ describe('Resolvers', () => {
           name: 'function1',
           dataSource: 'myTable',
           description: 'Function1 Pipeline Resolver',
-          request: 'function1.request.tpl',
-          response: 'function1.response.tpl',
+          request: 'path/to/mappingTemplates/function1.request.vtl',
+          response: 'path/to/mappingTemplates/function1.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -609,8 +609,8 @@ describe('Resolvers', () => {
               "FunctionVersion": "2018-05-29",
               "MaxBatchSize": undefined,
               "Name": "function1",
-              "RequestMappingTemplate": "Content of function1.request.tpl",
-              "ResponseMappingTemplate": "Content of function1.response.tpl",
+              "RequestMappingTemplate": "Content of path/to/mappingTemplates/function1.request.vtl",
+              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/function1.response.vtl",
             },
             "Type": "AWS::AppSync::FunctionConfiguration",
           },

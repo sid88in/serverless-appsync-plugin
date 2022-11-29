@@ -261,7 +261,7 @@ describe('Pipeline Functions', () => {
     expect(config.pipelineFunctions).toMatchSnapshot();
   });
 
-  it('should merge merge inline function definitions', async () => {
+  it('should merge inline function definitions', async () => {
     const config = getAppSyncConfig({
       ...basicConfig,
       resolvers: {

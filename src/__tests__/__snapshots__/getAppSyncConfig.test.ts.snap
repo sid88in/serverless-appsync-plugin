@@ -128,7 +128,7 @@ Object {
 }
 `;
 
-exports[`Pipeline Functions should merge merge inline function definitions 1`] = `
+exports[`Pipeline Functions should merge inline function definitions 1`] = `
 Object {
   "Mutation_createUser_0": Object {
     "code": "function1.js",
