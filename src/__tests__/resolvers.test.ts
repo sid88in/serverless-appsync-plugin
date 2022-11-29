@@ -145,7 +145,7 @@ describe('Resolvers', () => {
       `);
     });
 
-    it('should generate Resources with specific templates', () => {
+    it('should generate Resources with VTL mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -517,7 +517,7 @@ describe('Resolvers', () => {
       `);
     });
 
-    it('should generate Pipeline Function Resources VTL mapping tempaltes', () => {
+    it('should generate Pipeline Function Resources with JS code', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -535,8 +535,60 @@ describe('Resolvers', () => {
           name: 'function1',
           dataSource: 'myTable',
           description: 'Function1 Pipeline Resolver',
-          request: 'myTable.request.tpl',
-          response: 'myTable.response.tpl',
+          code: 'funciton1.js',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Content of funciton1.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "Description": "Function1 Pipeline Resolver",
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "function1",
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+
+    it('should generate Pipeline Function Resources with VTL mapping tempaltes', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          name: 'function1',
+          dataSource: 'myTable',
+          description: 'Function1 Pipeline Resolver',
+          request: 'function1.request.tpl',
+          response: 'function1.response.tpl',
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -558,8 +610,8 @@ describe('Resolvers', () => {
               "FunctionVersion": "2018-05-29",
               "MaxBatchSize": undefined,
               "Name": "function1",
-              "RequestMappingTemplate": "Content of myTable.request.tpl",
-              "ResponseMappingTemplate": "Content of myTable.response.tpl",
+              "RequestMappingTemplate": "Content of function1.request.tpl",
+              "ResponseMappingTemplate": "Content of function1.response.tpl",
             },
             "Type": "AWS::AppSync::FunctionConfiguration",
           },

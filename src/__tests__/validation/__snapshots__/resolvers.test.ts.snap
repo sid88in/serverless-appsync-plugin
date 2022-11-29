@@ -26,6 +26,11 @@ exports[`Basic Invalid should validate: Missing datasource 1`] = `
 /resolvers: contains invalid resolver definitions"
 `;
 
+exports[`Basic Invalid should validate: Missing functions 1`] = `
+"/resolvers/Query.user: must have required property 'functions'
+/resolvers: contains invalid resolver definitions"
+`;
+
 exports[`Basic Invalid should validate: Missing type and field 1`] = `
 "/resolvers/myResolver: must have required property 'type'
 /resolvers/myResolver: must have required property 'field'

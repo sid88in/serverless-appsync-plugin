@@ -40,9 +40,9 @@ Place your APIs into defferent stacks. Unfortunately, this WILL require **the re
 The default `KIND` for resolvers is now `PIPELINE`. For several reasons:
 
 - The new default runtime is JavaScript, which only supports PIPELINE resolvers
-- it makes migrations easier later, if you need to add functions to your resolvers.
+- It makes migrations easier later, if you need to add functions to your resolvers.
 
-> 💡 If you only need one resolver, you can use a pipeline resolver with only one function.
+> 💡 To simulate a UNIT resolver, use a PIPELINE with only one function.
 
 ### No more defaults for resolver handler paths.
 

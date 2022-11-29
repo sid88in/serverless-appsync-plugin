@@ -164,7 +164,9 @@ describe('DataSources', () => {
         },
       },
     });
-    expect(pick(config, ['dataSources', 'resolvers'])).toMatchSnapshot();
+    expect(
+      pick(config, ['dataSources', 'resolvers', 'pipelineFunctions']),
+    ).toMatchSnapshot();
   });
 });
 
@@ -268,6 +270,11 @@ describe('Pipeline Functions', () => {
           functions: [
             {
               dataSource: 'users',
+              code: 'function1.js',
+            },
+            {
+              dataSource: 'users',
+              code: 'function2.js',
             },
           ],
         },
@@ -275,6 +282,7 @@ describe('Pipeline Functions', () => {
           kind: 'PIPELINE',
           functions: [
             {
+              code: 'updateUser.js',
               dataSource: {
                 type: 'AWS_LAMBDA',
                 config: {

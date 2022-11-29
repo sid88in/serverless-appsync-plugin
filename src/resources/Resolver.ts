@@ -106,8 +106,6 @@ export class Resolver {
         Kind: 'PIPELINE',
         PipelineConfig: {
           Functions: functions.map((name) => {
-            // FIXME: when funciton is not explicitely defined, we should
-            // auto generate it and inject it into the funciton definitions
             if (!this.api.hasPipelineFunction(name)) {
               throw new this.api.plugin.serverless.classes.Error(
                 `Resolver '${this.config.type}.${this.config.field}' references unknown Pipeline function '${name}'`,

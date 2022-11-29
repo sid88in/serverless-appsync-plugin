@@ -145,6 +145,16 @@ describe('Basic', () => {
         },
       },
       {
+        name: 'Missing functions',
+        config: {
+          resolvers: {
+            'Query.user': {
+              kind: 'PIPELINE',
+            },
+          },
+        },
+      },
+      {
         name: 'Missing type and field',
         config: {
           resolvers: {

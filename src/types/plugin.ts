@@ -183,7 +183,6 @@ export type PipelineFunctionConfig = {
   code?: string;
   request?: string;
   response?: string;
-  runtime?: Runtime;
   maxBatchSize?: number;
   substitutions?: Substitutions;
   sync?: SyncConfig;
