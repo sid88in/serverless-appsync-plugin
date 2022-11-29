@@ -1,4 +1,3 @@
-import { Runtime } from 'aws-sdk/clients/lambda';
 import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
 
 export type AppSyncConfig = {
