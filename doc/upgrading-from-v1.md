@@ -37,12 +37,22 @@ Place your APIs into defferent stacks. Unfortunately, this WILL require **the re
 
 ### Defaults to PIPELINE and JavaScript resolvers
 
-The default `KIND` for resolvers is now `PIPELINE`. For several reasons:
+The new default runtime is JavaScript.
 
-- The new default runtime is JavaScript, which only supports PIPELINE resolvers
+The new default `KIND` for resolvers is `PIPELINE`. For several reasons:
+
+- The JavaScript runtime, is only supportsed with PIPELINE resolvers
 - It makes migrations easier later, if you need to add functions to your resolvers.
 
 > 💡 To simulate a UNIT resolver, use a PIPELINE with only one function.
+
+```yml
+resolvers:
+  Query.getPost:
+    functions:
+      - dataSource: posts
+        code: resolvers/getPost.js
+```
 
 ### No more defaults for resolver handler paths.
 
