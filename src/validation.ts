@@ -247,8 +247,7 @@ export const appSyncSchema = {
       required: ['name', 'statement'],
     },
     mappingTemplate: {
-      oneOf: [{ type: 'string' }, { type: 'boolean', const: false }],
-      errorMessage: 'must be a string or false',
+      type: 'string',
     },
     substitutions: {
       type: 'object',
@@ -277,20 +276,28 @@ export const appSyncSchema = {
         type: { type: 'string' },
         field: { type: 'string' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
-        dataSource: { $ref: '#/definitions/dataSource' },
-        functions: { type: 'array', items: { type: 'string' } },
+        code: { type: 'string' },
         request: { $ref: '#/definitions/mappingTemplate' },
         response: { $ref: '#/definitions/mappingTemplate' },
         sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
       },
-      if: { properties: { kind: { const: 'PIPELINE' } }, required: ['kind'] },
+      if: { properties: { kind: { const: 'UNIT' } }, required: ['kind'] },
       then: {
-        required: ['functions'],
+        properties: {
+          dataSource: { $ref: '#/definitions/dataSource' },
+        },
+        required: ['dataSource'],
       },
       else: {
-        required: ['dataSource'],
+        properties: {
+          functions: {
+            type: 'array',
+            items: { $ref: '#/definitions/pipelineFunction' },
+          },
+        },
+        required: ['functions'],
       },
       required: [],
     },
@@ -299,12 +306,7 @@ export const appSyncSchema = {
       patternProperties: {
         // Type.field keys, type and field are not required
         '^[_A-Za-z][_0-9A-Za-z]*\\.[_A-Za-z][_0-9A-Za-z]*$': {
-          if: { type: 'object' },
-          then: { $ref: '#/definitions/resolverConfig' },
-          else: {
-            type: 'string',
-            errorMessage: 'must be a string or an object',
-          },
+          $ref: '#/definitions/resolverConfig',
         },
       },
       additionalProperties: {
@@ -335,6 +337,14 @@ export const appSyncSchema = {
         substitutions: { $ref: '#/definitions/substitutions' },
       },
       required: ['dataSource'],
+    },
+    pipelineFunction: {
+      if: { type: 'object' },
+      then: { $ref: '#/definitions/pipelineFunctionConfig' },
+      else: {
+        type: 'string',
+        errorMessage: 'must be a string or function definition',
+      },
     },
     pipelineFunctionConfigMap: {
       type: 'object',
@@ -754,24 +764,6 @@ export const appSyncSchema = {
         enabled: { type: 'boolean' },
       },
       required: ['level'],
-    },
-    mappingTemplatesLocation: {
-      type: 'object',
-      properties: {
-        resolvers: { type: 'string' },
-        pipelineFunctions: { type: 'string' },
-      },
-    },
-    defaultMappingTemplates: {
-      type: 'object',
-      properties: {
-        request: {
-          oneOf: [{ type: 'string' }, { type: 'boolean' }],
-        },
-        response: {
-          oneOf: [{ type: 'string' }, { type: 'boolean' }],
-        },
-      },
     },
     dataSources: {
       oneOf: [

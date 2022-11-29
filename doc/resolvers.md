@@ -4,8 +4,6 @@ All the Resolvers in your AppSync API can be found in serverless.yml under the `
 
 Resolvers are defined using key-value pairs where the key can either be an arbitrary name for the resolver or the `type` and `field` in the schema it is attached to separated with a dot (`.`), and the value is the configuration of the resolver.
 
-The definition can also be a string in which case it's the [dataSource](dataSources.md) name to use. The other attributes use the default values.
-
 ## Quick start
 
 ```yaml
@@ -13,8 +11,6 @@ appSync:
   resolvers:
     Query.user:
       dataSource: myDataSource
-
-    Query.users: myDataSource
 
     getPosts:
       type: Query
@@ -26,14 +22,29 @@ appSync:
 
 - `type`: The Type in the schema this resolver is attached to. Optional if specified in the configuration key.
 - `field`: The Field in the schema this resolver is attached to. Optional if specified in the configuration key.
-- `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `UNIT`
+- `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `PIPELINE`
 - `dataSource`: The name of the [dataSource](dataSources.md) this resolver uses.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataSources)
-- `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{type}.{field}.request.vtl`.
-- `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{type}.{field}.response.vtl`.
+- `code`: The path of the JavaScript resolver handler, relative to `serverless.yml`. If not specified, a [minimalistic default](#javaccript-vs-javascript) is used.
+- `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
+- `response`: The path to the VTL response mapping template file, relative to `serverless.yml`.
 - `substitutions`: See [VTL template substitutions](substitutions.md)
 - `caching`: [See below](#Caching)
 - `sync`: [See SyncConfig](syncConfig.md)
+
+## VTL vs JavaScript
+
+If `code`, `request` and `response` are not specified, by default, resolvers are considered PIPELINE JS resolvers, and the following minimalistic resolver handler is used.
+
+```js
+export function request() {
+  return {};
+}
+
+export function response(ctx) {
+  return ctx.prev.result;
+}
+```
 
 ## PIPELINE resolvers
 

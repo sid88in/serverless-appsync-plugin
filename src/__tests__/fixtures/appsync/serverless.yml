@@ -14,9 +14,11 @@ appSync:
 
   resolvers:
     Query.user:
+      kind: UNIT
       dataSource: data
 
     Mutation.createUser:
+      kind: UNIT
       request: false
       response: false
       dataSource:

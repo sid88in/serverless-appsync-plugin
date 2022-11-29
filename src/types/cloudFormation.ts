@@ -78,6 +78,11 @@ export type CfnDataSource = {
   };
 };
 
+export type CfnAppSyncRuntime = {
+  Name: 'APPSYNC_JS';
+  RuntimeVersion: '1.0.0';
+};
+
 export type CfnResolver = {
   RequestMappingTemplate?: string;
   ResponseMappingTemplate?: string;
@@ -89,6 +94,8 @@ export type CfnResolver = {
     DataSourceName?: string | IntrinsicFunction;
     Description?: string;
     FunctionVersion?: string;
+    Code?: string | IntrinsicFunction;
+    Runtime?: CfnAppSyncRuntime;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;
     PipelineConfig?: {
@@ -117,6 +124,8 @@ export type CfnFunctionResolver = {
     DataSourceName: string | IntrinsicFunction;
     Description?: string;
     FunctionVersion?: string;
+    Code?: string | IntrinsicFunction;
+    Runtime?: CfnAppSyncRuntime;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;
     SyncConfig?: {

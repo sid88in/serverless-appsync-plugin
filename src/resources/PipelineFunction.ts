@@ -8,12 +8,13 @@ import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
 import { SyncConfig } from './SyncConfig';
+import fs from 'fs';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
 
   compile(): CfnResources {
-    const { dataSource } = this.config;
+    const { dataSource, code } = this.config;
     if (!this.api.hasDataSource(dataSource)) {
       throw new this.api.plugin.serverless.classes.Error(
         `Pipeline Function '${this.config.name}' references unknown DataSource '${dataSource}'`,
@@ -36,14 +37,22 @@ export class PipelineFunction {
       MaxBatchSize: this.config.maxBatchSize,
     };
 
-    const requestMappingTemplates = this.resolveMappingTemplate('request');
-    if (requestMappingTemplates) {
-      Properties.RequestMappingTemplate = requestMappingTemplates;
-    }
+    if (code) {
+      Properties.Code = this.resolveJsCode(code);
+      Properties.Runtime = {
+        Name: 'APPSYNC_JS',
+        RuntimeVersion: '1.0.0',
+      };
+    } else {
+      const requestMappingTemplates = this.resolveMappingTemplate('request');
+      if (requestMappingTemplates) {
+        Properties.RequestMappingTemplate = requestMappingTemplates;
+      }
 
-    const responseMappingTemplate = this.resolveMappingTemplate('response');
-    if (responseMappingTemplate) {
-      Properties.ResponseMappingTemplate = responseMappingTemplate;
+      const responseMappingTemplate = this.resolveMappingTemplate('response');
+      if (responseMappingTemplate) {
+        Properties.ResponseMappingTemplate = responseMappingTemplate;
+      }
     }
 
     if (this.config.sync) {
@@ -59,19 +68,30 @@ export class PipelineFunction {
     };
   }
 
+  resolveJsCode = (filePath: string): string => {
+    const codePath = path.join(
+      this.api.plugin.serverless.config.servicePath,
+      filePath,
+    );
+
+    if (!fs.existsSync(codePath)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `The resolver handler file '${codePath}' does not exist`,
+      );
+    }
+
+    return fs.readFileSync(codePath, 'utf8');
+  };
+
   resolveMappingTemplate(
     type: 'request' | 'response',
   ): string | IntrinsicFunction | undefined {
-    const templateName =
-      type in this.config
-        ? this.config[type]
-        : this.api.config.defaultMappingTemplates?.[type];
+    const templateName = this.config[type];
 
-    if (templateName !== false) {
+    if (templateName) {
       const templatePath = path.join(
         this.api.plugin.serverless.config.servicePath,
-        this.api.config.mappingTemplatesLocation.pipelineFunctions,
-        templateName || `${this.config.name}.${type}.vtl`,
+        templateName,
       );
       const template = new MappingTemplate(this.api, {
         path: templatePath,

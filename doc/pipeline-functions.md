@@ -4,27 +4,31 @@ When you use `PIPELINE` [resolvers](resolvers.md), you will also need to define 
 
 It's a key-value pair object whose key is the name of the function and the value is its configuration.
 
-The definition can also be a string in which case it's the [dataSource](dataSources.md) name to use. The other attributes use the default values.
-
 ## Quick start
 
 ```yaml
 appSync:
   pipelineFunctions:
-    myFunction: myDataSource
-    myOtherFunction:
-      dataSource: myOtherDataSource
+    myFunction:
+      dataSource: myDataSource
 ```
 
 ## Configutation
 
 - `dataSource`: The name of the dataSource to use.
 - `description`: An optional description for this pipeline function.
-- `request`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.request.vtl`.
-- `response`: The request mapping template file name to use for this resolver, or `false` for [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html). Defaults to `{functionName}.response.vtl`.
+- `code`: The path to the JS resolver handler.
+- `request`: The path to the VTL request mapping template file.
+- `response`: The path to the VTL response mapping template file.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataAources)
 - `substitutions`: See [VTL template substitutions](substitutions.md)
 - `sync`: [See SyncConfig](syncConfig.md)
+
+## VTL vs JavaScript vs Direct Lambda
+
+When `code` is specified, the JavaScript runtime is used. When `request` and/or `response` are specified, the VTL runtime is used.
+
+For [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), don't specify anything (only works with Lambda function data sources).
 
 ## Inline DataSources
 

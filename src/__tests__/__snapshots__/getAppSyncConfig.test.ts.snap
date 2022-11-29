@@ -24,6 +24,13 @@ Object {
 exports[`DataSources should merge dataSources embedded into resolvers and pipelineFunctions 1`] = `
 Object {
   "dataSources": Object {
+    "Mutation_createUser_0": Object {
+      "config": Object {
+        "functionName": "createUser",
+      },
+      "name": "Mutation_createUser_0",
+      "type": "AWS_LAMBDA",
+    },
     "Query_getUser": Object {
       "config": Object {
         "functionName": "getUser",
@@ -62,6 +69,14 @@ Object {
     },
   },
   "resolvers": Object {
+    "Mutation.createUser": Object {
+      "field": "createUser",
+      "functions": Array [
+        "Mutation_createUser_0",
+      ],
+      "kind": "PIPELINE",
+      "type": "Mutation",
+    },
     "Query.getUser": Object {
       "dataSource": "Query_getUser",
       "field": "getUser",
@@ -96,21 +111,32 @@ Object {
     "dataSource": "users",
     "name": "function4",
   },
-  "function5": Object {
+}
+`;
+
+exports[`Pipeline Functions should merge merge inline function definitions 1`] = `
+Object {
+  "Mutation_createUser_0": Object {
     "dataSource": "users",
-    "name": "function5",
+    "name": "Mutation_createUser_0",
+  },
+  "Mutation_updateUser_0": Object {
+    "dataSource": "Mutation_updateUser_0",
+    "name": "Mutation_updateUser_0",
+  },
+  "function1": Object {
+    "dataSource": "users",
+    "name": "function1",
+  },
+  "function2": Object {
+    "dataSource": "users",
+    "name": "function2",
   },
 }
 `;
 
 exports[`Resolvers should merge resolvers arrays 1`] = `
 Object {
-  "Query.getComments": Object {
-    "dataSource": "comments",
-    "field": "getComments",
-    "kind": "UNIT",
-    "type": "Query",
-  },
   "Query.getPost": Object {
     "dataSource": "posts",
     "field": "getPost",
@@ -158,12 +184,6 @@ Object {
 
 exports[`Resolvers should resolve resolver type and fields 1`] = `
 Object {
-  "Query.getPosts": Object {
-    "dataSource": "posts",
-    "field": "getPosts",
-    "kind": "UNIT",
-    "type": "Query",
-  },
   "Query.getUser": Object {
     "dataSource": "users",
     "field": "getUser",
@@ -206,10 +226,6 @@ Object {
     "type": "API_KEY",
   },
   "dataSources": Object {},
-  "mappingTemplatesLocation": Object {
-    "pipelineFunctions": "mapping-templates",
-    "resolvers": "mapping-templates",
-  },
   "name": "My Api",
   "pipelineFunctions": Object {},
   "resolvers": Object {},

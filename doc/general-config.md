@@ -48,12 +48,6 @@ appSync:
 - `caching`: See [Cacing](caching.md)
 - `waf`: See [Web Application Firefall](WAF.md)
 - `logging`: See [Logging](#Logging)
-- `defaultMappingTemplates`:
-  - `request`: Optional. A default request mapping template filename for all resolvers.
-  - `response`: Optional. A default response mapping template filename for all resolvers.
-- `mappingTemplatesLocation`:
-  - `resolvers`: The location where to find resolver mapping templates, relative to the service path. Defaults to `mapping-templates`.
-  - `pipelineFunctions`: The location where to find pipeline functions mapping templates. Defaults to the same value as `mappingTemplatesLocation.resolvers`.
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
 - `tags`: A key-value pair for tagging this AppSync API
 
