@@ -121,6 +121,7 @@ describe('DataSources', () => {
           },
         },
         getUsers: {
+          kind: 'UNIT',
           type: 'Query',
           field: 'getUsers',
           dataSource: {
@@ -129,6 +130,19 @@ describe('DataSources', () => {
               functionName: 'getUsers',
             },
           },
+        },
+        'Mutation.createUser': {
+          kind: 'PIPELINE',
+          functions: [
+            {
+              dataSource: {
+                type: 'AWS_LAMBDA',
+                config: {
+                  functionName: 'createUser',
+                },
+              },
+            },
+          ],
         },
       },
       pipelineFunctions: {
@@ -150,7 +164,9 @@ describe('DataSources', () => {
         },
       },
     });
-    expect(pick(config, ['dataSources', 'resolvers'])).toMatchSnapshot();
+    expect(
+      pick(config, ['dataSources', 'resolvers', 'pipelineFunctions']),
+    ).toMatchSnapshot();
   });
 });
 
@@ -160,14 +176,15 @@ describe('Resolvers', () => {
       ...basicConfig,
       resolvers: {
         'Query.getUser': {
+          kind: 'UNIT',
           dataSource: 'users',
         },
         getUsersResolver: {
           type: 'Query',
           field: 'getUsers',
+          kind: 'UNIT',
           dataSource: 'users',
         },
-        'Query.getPosts': 'posts',
       },
     });
     expect(config.resolvers).toMatchSnapshot();
@@ -179,9 +196,11 @@ describe('Resolvers', () => {
       resolvers: [
         {
           'Query.getUser': {
+            kind: 'UNIT',
             dataSource: 'users',
           },
           getUsersResolver: {
+            kind: 'UNIT',
             type: 'Query',
             field: 'getUsers',
             dataSource: 'users',
@@ -193,11 +212,12 @@ describe('Resolvers', () => {
         },
         {
           'Query.getPost': {
+            kind: 'UNIT',
             dataSource: 'posts',
           },
-          'Query.getComments': 'comments',
           getPostsResolver: {
             type: 'Query',
+            kind: 'UNIT',
             field: 'getPosts',
             dataSource: 'posts',
           },
@@ -235,9 +255,52 @@ describe('Pipeline Functions', () => {
           function4: {
             dataSource: 'users',
           },
-          function5: 'users',
         },
       ],
+    });
+    expect(config.pipelineFunctions).toMatchSnapshot();
+  });
+
+  it('should merge inline function definitions', async () => {
+    const config = getAppSyncConfig({
+      ...basicConfig,
+      resolvers: {
+        'Mutation.createUser': {
+          kind: 'PIPELINE',
+          functions: [
+            {
+              dataSource: 'users',
+              code: 'function1.js',
+            },
+            {
+              dataSource: 'users',
+              code: 'function2.js',
+            },
+          ],
+        },
+        'Mutation.updateUser': {
+          kind: 'PIPELINE',
+          functions: [
+            {
+              code: 'updateUser.js',
+              dataSource: {
+                type: 'AWS_LAMBDA',
+                config: {
+                  functionName: 'updateUser',
+                },
+              },
+            },
+          ],
+        },
+      },
+      pipelineFunctions: {
+        function1: {
+          dataSource: 'users',
+        },
+        function2: {
+          dataSource: 'users',
+        },
+      },
     });
     expect(config.pipelineFunctions).toMatchSnapshot();
   });

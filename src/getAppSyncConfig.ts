@@ -16,20 +16,20 @@ type Replace<O extends object, O1 extends object> = O.Merge<
 
 export type DataSourceConfigInput = O.Omit<DataSourceConfig, 'name'>;
 
-export type ResolverConfigInput =
-  | O.Update<
-      O.Optional<ResolverConfig, 'type' | 'field'>,
-      'dataSource',
-      string | DataSourceConfigInput
-    >
-  | string;
+export type ResolverConfigInput = O.Update<
+  O.Update<
+    O.Optional<ResolverConfig, 'type' | 'field'>,
+    'dataSource',
+    string | DataSourceConfigInput
+  >,
+  'functions',
+  (string | FunctionConfigInput)[]
+>;
 
-export type FunctionConfigInput =
-  | Replace<
-      { dataSource: string | DataSourceConfigInput },
-      O.Omit<PipelineFunctionConfig, 'name'>
-    >
-  | string;
+export type FunctionConfigInput = Replace<
+  { dataSource: string | DataSourceConfigInput },
+  O.Omit<PipelineFunctionConfig, 'name'>
+>;
 
 export type AppSyncConfigInput = Replace<
   {
@@ -45,12 +45,7 @@ export type AppSyncConfigInput = Replace<
       | Record<string, DataSourceConfigInput>[]
       | Record<string, DataSourceConfigInput>;
   },
-  O.Optional<
-    AppSyncConfig,
-    | 'defaultMappingTemplates'
-    | 'mappingTemplatesLocation'
-    | 'additionalAuthentications'
-  >
+  O.Optional<AppSyncConfig, 'additionalAuthentications'>
 >;
 
 const flattenMaps = <T>(
@@ -65,21 +60,24 @@ const flattenMaps = <T>(
 
 export const isUnitResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
-}): resolver is { kind?: 'UNIT' } => {
-  return resolver.kind === undefined || resolver.kind === 'UNIT';
+}): resolver is { kind: 'UNIT' } => {
+  return resolver.kind === 'UNIT';
+};
+
+export const isPipelineResolver = (resolver: {
+  kind?: 'UNIT' | 'PIPELINE';
+}): resolver is { kind: 'PIPELINE' } => {
+  return !resolver.kind || resolver.kind === 'PIPELINE';
+};
+
+const toResourceName = (name: string) => {
+  return name.replace(/[^a-z_]/i, '_');
 };
 
 export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
   const schema = Array.isArray(config.schema)
     ? config.schema
     : [config.schema || 'schema.graphql'];
-  const mappingTemplatesLocation = merge(
-    {
-      resolvers: 'mapping-templates',
-      pipelineFunctions: 'mapping-templates',
-    },
-    config.mappingTemplatesLocation,
-  );
 
   const dataSources: Record<string, DataSourceConfig> = {};
   const resolvers: Record<string, ResolverConfig> = {};
@@ -127,20 +125,30 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
           }
         : {
             kind: 'PIPELINE',
-            functions: resolver.functions,
+            functions: resolver.functions.map((f, index) => {
+              if (typeof f === 'string') {
+                return f;
+              }
+              const name = `${toResourceName(typeAndField)}_${index}`;
+              pipelineFunctions[name] = {
+                ...f,
+                name,
+                dataSource:
+                  typeof f.dataSource === 'string' ? f.dataSource : name,
+              };
+              if (typeof f.dataSource === 'object') {
+                dataSources[name] = {
+                  ...f.dataSource,
+                  name,
+                };
+              }
+              return name;
+            }),
           }),
     };
   });
 
   forEach(flattenMaps(config.pipelineFunctions), (func, name) => {
-    if (typeof func === 'string') {
-      pipelineFunctions[name] = {
-        name,
-        dataSource: func,
-      };
-      return;
-    }
-
     if (typeof func.dataSource === 'object') {
       dataSources[name] = {
         ...func.dataSource,
@@ -181,7 +189,6 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     apiKeys,
     schema,
     dataSources,
-    mappingTemplatesLocation,
     resolvers,
     pipelineFunctions,
   };

@@ -7,14 +7,6 @@ export type AppSyncConfig = {
   additionalAuthentications: Auth[];
   domain?: DomainConfig;
   apiKeys?: Record<string, ApiKeyConfig>;
-  defaultMappingTemplates?: {
-    request?: string | false;
-    response?: string | false;
-  };
-  mappingTemplatesLocation: {
-    resolvers: string;
-    pipelineFunctions: string;
-  };
   dataSources: Record<string, DataSourceConfig>;
   resolvers: Record<string, ResolverConfig>;
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
@@ -170,13 +162,14 @@ export type BaseResolverConfig = {
 export type ResolverConfig = UnitResolverConfig | PipelineResolverConfig;
 
 export type UnitResolverConfig = BaseResolverConfig & {
-  kind?: 'UNIT';
+  kind: 'UNIT';
   dataSource: string;
   maxBatchSize?: number;
 };
 
 export type PipelineResolverConfig = BaseResolverConfig & {
-  kind: 'PIPELINE';
+  kind?: 'PIPELINE';
+  code?: string;
   functions: string[];
 };
 
@@ -186,8 +179,9 @@ export type PipelineFunctionConfig = {
   name: string;
   dataSource: string;
   description?: string;
-  request?: string | false;
-  response?: string | false;
+  code?: string;
+  request?: string;
+  response?: string;
   maxBatchSize?: number;
   substitutions?: Substitutions;
   sync?: SyncConfig;

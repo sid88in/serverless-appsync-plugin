@@ -34,10 +34,6 @@ export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {
       type: 'API_KEY',
     },
     additionalAuthentications: [],
-    mappingTemplatesLocation: {
-      resolvers: 'path/to/mappingTemplates',
-      pipelineFunctions: 'path/to/mappingTemplates',
-    },
     resolvers: {},
     pipelineFunctions: {},
     dataSources: {},

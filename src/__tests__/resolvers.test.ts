@@ -22,7 +22,7 @@ describe('Resolvers', () => {
   });
 
   describe('Unit Resolvers', () => {
-    it('should generate Resources with default mapping templates', () => {
+    it('should generate Resources with VTL mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -41,6 +41,8 @@ describe('Resolvers', () => {
           kind: 'UNIT',
           type: 'Query',
           field: 'user',
+          request: 'path/to/mappingTemplates/Query.user.request.vtl',
+          response: 'path/to/mappingTemplates/Query.user.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -66,6 +68,56 @@ describe('Resolvers', () => {
               "MaxBatchSize": undefined,
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
+    });
+
+    it('should generate Resources with direct Lambda', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myLambdaFunction: {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compileResolver({
+          dataSource: 'myLambdaFunction',
+          kind: 'UNIT',
+          type: 'Query',
+          field: 'user',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyLambdaFunction",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": undefined,
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -117,114 +169,6 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": 200,
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
-              "TypeName": "Query",
-            },
-            "Type": "AWS::AppSync::Resolver",
-          },
-        }
-      `);
-    });
-
-    it('should generate Resources with default specific templates', () => {
-      const api = new Api(
-        given.appSyncConfig({
-          dataSources: {
-            myTable: {
-              name: 'myTable',
-              type: 'AMAZON_DYNAMODB',
-              config: { tableName: 'data' },
-            },
-          },
-        }),
-        plugin,
-      );
-      expect(
-        api.compileResolver({
-          dataSource: 'myTable',
-          kind: 'UNIT',
-          type: 'Query',
-          field: 'user',
-          request: 'specific.request.tpl',
-          response: 'specific.response.tpl',
-        }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlResolverQueryuser": Object {
-            "DependsOn": Array [
-              "GraphQlSchema",
-            ],
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "DataSourceName": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlDsmyTable",
-                  "Name",
-                ],
-              },
-              "FieldName": "user",
-              "Kind": "UNIT",
-              "MaxBatchSize": undefined,
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
-              "TypeName": "Query",
-            },
-            "Type": "AWS::AppSync::Resolver",
-          },
-        }
-      `);
-    });
-
-    it('should generate Resources with direct Lambda templates', () => {
-      const api = new Api(
-        given.appSyncConfig({
-          dataSources: {
-            myLambdaFunction: {
-              name: 'myLambdaFunction',
-              type: 'AWS_LAMBDA',
-              config: { functionArn: 'arn:lambda:' },
-            },
-          },
-        }),
-        plugin,
-      );
-      expect(
-        api.compileResolver({
-          dataSource: 'myLambdaFunction',
-          kind: 'UNIT',
-          type: 'Query',
-          field: 'user',
-          request: false,
-          response: false,
-        }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlResolverQueryuser": Object {
-            "DependsOn": Array [
-              "GraphQlSchema",
-            ],
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "DataSourceName": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlDsmyLambdaFunction",
-                  "Name",
-                ],
-              },
-              "FieldName": "user",
-              "Kind": "UNIT",
-              "MaxBatchSize": undefined,
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -260,8 +204,53 @@ describe('Resolvers', () => {
             },
           },
         }),
-      ).toMatchSnapshot();
-      expect(api.functions).toMatchSnapshot();
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyLambdaFunction",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": undefined,
+              "SyncConfig": Object {
+                "ConflictDetection": "VERSION",
+                "ConflictHandler": "LAMBDA",
+                "LambdaConflictHandlerConfig": Object {
+                  "LambdaConflictHandlerArn": Object {
+                    "Fn::GetAtt": Array [
+                      "QueryUnderscoreuserUnderscoreSyncLambdaFunction",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
+      expect(api.functions).toMatchInlineSnapshot(`
+        Object {
+          "Query_user_Sync": Object {
+            "handler": "index.handler",
+          },
+        }
+      `);
     });
 
     it('should fail when referencing unknown data source', () => {
@@ -285,7 +274,8 @@ describe('Resolvers', () => {
   });
 
   describe('Pipeline Resovlers', () => {
-    it('should generate Resources with default mapping templates', () => {
+    it('should generate JS Resources with default empty resolver', () => {
+      mockEists.mockReturnValue(false);
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -296,12 +286,8 @@ describe('Resolvers', () => {
             },
           },
           pipelineFunctions: {
-            function1: {
-              name: 'function1',
-              dataSource: 'myTable',
-            },
-            function2: {
-              name: 'function2',
+            getUser: {
+              name: 'getUser',
               dataSource: 'myTable',
             },
           },
@@ -310,15 +296,57 @@ describe('Resolvers', () => {
       );
       expect(
         api.compileResolver({
-          kind: 'PIPELINE',
           type: 'Query',
           field: 'user',
-          functions: ['function1', 'function2'],
+          functions: ['getUser'],
         }),
-      ).toMatchSnapshot();
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "
+        export function request() {
+          return {};
+        }
+
+        export function response(ctx) {
+          return ctx.prev.result;
+        }
+        ",
+              "FieldName": "user",
+              "Kind": "PIPELINE",
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlFunctionConfigurationgetUser",
+                      "FunctionId",
+                    ],
+                  },
+                ],
+              },
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
     });
 
-    it('should generate Resources with specific mapping templates', () => {
+    it('should generate Resources with VTL mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -346,11 +374,113 @@ describe('Resolvers', () => {
           kind: 'PIPELINE',
           type: 'Query',
           field: 'user',
+          request: 'Query.user.request.vtl',
+          response: 'Query.user.response.vtl',
           functions: ['function1', 'function2'],
-          request: 'specific.request.tpl',
-          response: 'specific.response.tpl',
         }),
-      ).toMatchSnapshot();
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "PIPELINE",
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlFunctionConfigurationfunction1",
+                      "FunctionId",
+                    ],
+                  },
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlFunctionConfigurationfunction2",
+                      "FunctionId",
+                    ],
+                  },
+                ],
+              },
+              "RequestMappingTemplate": "Content of Query.user.request.vtl",
+              "ResponseMappingTemplate": "Content of Query.user.response.vtl",
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
+    });
+
+    it('should generate JS Resources with specific code', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+          pipelineFunctions: {
+            getUser: {
+              name: 'getUser',
+              dataSource: 'myTable',
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compileResolver({
+          type: 'Query',
+          field: 'user',
+          functions: ['getUser'],
+          code: 'resolvers/getUserFunction.js',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Content of resolvers/getUserFunction.js",
+              "FieldName": "user",
+              "Kind": "PIPELINE",
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
+                      "GraphQlFunctionConfigurationgetUser",
+                      "FunctionId",
+                    ],
+                  },
+                ],
+              },
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
     });
 
     it('should fail when referencing unknown pipeline function', () => {
@@ -386,7 +516,7 @@ describe('Resolvers', () => {
   });
 
   describe('Pipeline Function', () => {
-    it('should generate Pipeline Function Resources with default mapping templates', () => {
+    it('should generate Pipeline Function Resources with JS code', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -404,6 +534,60 @@ describe('Resolvers', () => {
           name: 'function1',
           dataSource: 'myTable',
           description: 'Function1 Pipeline Resolver',
+          code: 'funciton1.js',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Content of funciton1.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "Description": "Function1 Pipeline Resolver",
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "function1",
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+
+    it('should generate Pipeline Function Resources with VTL mapping tempaltes', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          name: 'function1',
+          dataSource: 'myTable',
+          description: 'Function1 Pipeline Resolver',
+          request: 'path/to/mappingTemplates/function1.request.vtl',
+          response: 'path/to/mappingTemplates/function1.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -434,135 +618,7 @@ describe('Resolvers', () => {
       `);
     });
 
-    it('should generate Resources with sync configuration', () => {
-      const api = new Api(
-        given.appSyncConfig({
-          dataSources: {
-            myLambdaFunction: {
-              name: 'myLambdaFunction',
-              type: 'AWS_LAMBDA',
-              config: { functionArn: 'arn:lambda:' },
-            },
-          },
-        }),
-        plugin,
-      );
-      expect(
-        api.compilePipelineFunctionResource({
-          dataSource: 'myLambdaFunction',
-          name: 'myFunction',
-          sync: {
-            conflictDetection: 'VERSION',
-            conflictHandler: 'LAMBDA',
-            function: {
-              handler: 'index.handler',
-            },
-          },
-        }),
-      ).toMatchSnapshot();
-      expect(api.functions).toMatchSnapshot();
-    });
-
-    it('should generate Pipeline Function Resources with maxBatchSize', () => {
-      const api = new Api(
-        given.appSyncConfig({
-          dataSources: {
-            myFunction: {
-              name: 'myFunction',
-              type: 'AWS_LAMBDA',
-              config: { functionName: 'myFunction' },
-            },
-          },
-        }),
-        plugin,
-      );
-      expect(
-        api.compilePipelineFunctionResource({
-          name: 'function1',
-          dataSource: 'myFunction',
-          description: 'Function1 Pipeline Resolver',
-          maxBatchSize: 200,
-        }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlFunctionConfigurationfunction1": Object {
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "DataSourceName": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlDsmyFunction",
-                  "Name",
-                ],
-              },
-              "Description": "Function1 Pipeline Resolver",
-              "FunctionVersion": "2018-05-29",
-              "MaxBatchSize": 200,
-              "Name": "function1",
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/function1.request.vtl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/function1.response.vtl",
-            },
-            "Type": "AWS::AppSync::FunctionConfiguration",
-          },
-        }
-      `);
-    });
-
-    it('should generate Pipeline Function Resources with specific mapping tempaltes', () => {
-      const api = new Api(
-        given.appSyncConfig({
-          dataSources: {
-            myTable: {
-              name: 'myTable',
-              type: 'AMAZON_DYNAMODB',
-              config: { tableName: 'data' },
-            },
-          },
-        }),
-        plugin,
-      );
-      expect(
-        api.compilePipelineFunctionResource({
-          name: 'function1',
-          dataSource: 'myTable',
-          description: 'Function1 Pipeline Resolver',
-          request: 'specific.request.tpl',
-          response: 'specific.response.tpl',
-        }),
-      ).toMatchInlineSnapshot(`
-        Object {
-          "GraphQlFunctionConfigurationfunction1": Object {
-            "Properties": Object {
-              "ApiId": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlApi",
-                  "ApiId",
-                ],
-              },
-              "DataSourceName": Object {
-                "Fn::GetAtt": Array [
-                  "GraphQlDsmyTable",
-                  "Name",
-                ],
-              },
-              "Description": "Function1 Pipeline Resolver",
-              "FunctionVersion": "2018-05-29",
-              "MaxBatchSize": undefined,
-              "Name": "function1",
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/specific.request.tpl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/specific.response.tpl",
-            },
-            "Type": "AWS::AppSync::FunctionConfiguration",
-          },
-        }
-      `);
-    });
-
-    it('should generate Pipeline Function Resources with direct Lambda mapping tempaltes', () => {
+    it('should generate Pipeline Function Resources with direct Lambda', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -580,8 +636,6 @@ describe('Resolvers', () => {
           name: 'function1',
           dataSource: 'myLambdaFunction',
           description: 'Function1 Pipeline Resolver',
-          request: false,
-          response: false,
         }),
       ).toMatchInlineSnapshot(`
         Object {
@@ -610,6 +664,125 @@ describe('Resolvers', () => {
       `);
     });
 
+    it('should generate Resources with sync configuration', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myLambdaFunction: {
+              name: 'myLambdaFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionArn: 'arn:lambda:' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          dataSource: 'myLambdaFunction',
+          name: 'myFunction',
+          request: 'myFunction.request.vtl',
+          response: 'myFunction.response.vtl',
+          sync: {
+            conflictDetection: 'VERSION',
+            conflictHandler: 'LAMBDA',
+            function: {
+              handler: 'index.handler',
+            },
+          },
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationmyFunction": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyLambdaFunction",
+                  "Name",
+                ],
+              },
+              "Description": undefined,
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "myFunction",
+              "RequestMappingTemplate": "Content of myFunction.request.vtl",
+              "ResponseMappingTemplate": "Content of myFunction.response.vtl",
+              "SyncConfig": Object {
+                "ConflictDetection": "VERSION",
+                "ConflictHandler": "LAMBDA",
+                "LambdaConflictHandlerConfig": Object {
+                  "LambdaConflictHandlerArn": Object {
+                    "Fn::GetAtt": Array [
+                      "MyFunctionUnderscoreSyncLambdaFunction",
+                      "Arn",
+                    ],
+                  },
+                },
+              },
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+
+    it('should generate Pipeline Function Resources with maxBatchSize', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myFunction: {
+              name: 'myFunction',
+              type: 'AWS_LAMBDA',
+              config: { functionName: 'myFunction' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          name: 'function1',
+          dataSource: 'myFunction',
+          request: 'function1.request.vtl',
+          response: 'function1.response.vtl',
+          description: 'Function1 Pipeline Resolver',
+          maxBatchSize: 200,
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyFunction",
+                  "Name",
+                ],
+              },
+              "Description": "Function1 Pipeline Resolver",
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": 200,
+              "Name": "function1",
+              "RequestMappingTemplate": "Content of function1.request.vtl",
+              "ResponseMappingTemplate": "Content of function1.response.vtl",
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+
     it('should fail if Pipeline Function references unexisting data source', () => {
       const api = new Api(
         given.appSyncConfig({
@@ -622,8 +795,6 @@ describe('Resolvers', () => {
           name: 'function1',
           dataSource: 'myLambdaFunction',
           description: 'Function1 Pipeline Resolver',
-          request: false,
-          response: false,
         });
       }).toThrowErrorMatchingInlineSnapshot(
         `"Pipeline Function 'function1' references unknown DataSource 'myLambdaFunction'"`,
@@ -681,8 +852,6 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -747,8 +916,6 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
-              "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
-              "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",

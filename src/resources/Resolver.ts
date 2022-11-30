@@ -8,6 +8,18 @@ import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
 import { SyncConfig } from './SyncConfig';
+import fs from 'fs';
+
+// A decent default for pipeline JS resolvers
+const DEFAULT_JS_RESOLVERS = `
+export function request() {
+  return {};
+}
+
+export function response(ctx) {
+  return ctx.prev.result;
+}
+`;
 
 export class Resolver {
   constructor(private api: Api, private config: ResolverConfig) {}
@@ -19,14 +31,22 @@ export class Resolver {
       FieldName: this.config.field,
     };
 
-    const requestMappingTemplates = this.resolveMappingTemplate('request');
-    if (requestMappingTemplates) {
-      Properties.RequestMappingTemplate = requestMappingTemplates;
-    }
+    const isJsResolver = !(
+      this.config.kind === 'UNIT' ||
+      'request' in this.config ||
+      'response' in this.config
+    );
 
-    const responseMappingTemplate = this.resolveMappingTemplate('response');
-    if (responseMappingTemplate) {
-      Properties.ResponseMappingTemplate = responseMappingTemplate;
+    if (!isJsResolver) {
+      const requestMappingTemplates = this.resolveMappingTemplate('request');
+      if (requestMappingTemplates) {
+        Properties.RequestMappingTemplate = requestMappingTemplates;
+      }
+
+      const responseMappingTemplate = this.resolveMappingTemplate('response');
+      if (responseMappingTemplate) {
+        Properties.ResponseMappingTemplate = responseMappingTemplate;
+      }
     }
 
     if (this.config.caching) {
@@ -48,7 +68,35 @@ export class Resolver {
       Properties.SyncConfig = asyncConfig.compile();
     }
 
-    if (this.config.kind === 'PIPELINE') {
+    if (this.config.kind === 'UNIT') {
+      const { dataSource } = this.config;
+      if (!this.api.hasDataSource(dataSource)) {
+        throw new this.api.plugin.serverless.classes.Error(
+          `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
+        );
+      }
+
+      const logicalIdDataSource =
+        this.api.naming.getDataSourceLogicalId(dataSource);
+      Properties = {
+        ...Properties,
+        Kind: 'UNIT',
+        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+        MaxBatchSize: this.config.maxBatchSize,
+      };
+    } else {
+      if (isJsResolver) {
+        if (this.config.code) {
+          Properties.Code = this.resolveJsCode(this.config.code);
+        } else if (!this.config.code) {
+          Properties.Code = DEFAULT_JS_RESOLVERS;
+        }
+        Properties.Runtime = {
+          Name: 'APPSYNC_JS',
+          RuntimeVersion: '1.0.0',
+        };
+      }
+
       Properties = {
         ...Properties,
         Kind: 'PIPELINE',
@@ -65,22 +113,6 @@ export class Resolver {
             return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
           }),
         },
-      };
-    } else {
-      const { dataSource } = this.config;
-      if (!this.api.hasDataSource(dataSource)) {
-        throw new this.api.plugin.serverless.classes.Error(
-          `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
-        );
-      }
-
-      const logicalIdDataSource =
-        this.api.naming.getDataSourceLogicalId(dataSource);
-      Properties = {
-        ...Properties,
-        Kind: 'UNIT',
-        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
-        MaxBatchSize: this.config.maxBatchSize,
       };
     }
 
@@ -99,19 +131,30 @@ export class Resolver {
     };
   }
 
+  resolveJsCode = (filePath: string): string => {
+    const codePath = path.join(
+      this.api.plugin.serverless.config.servicePath,
+      filePath,
+    );
+
+    if (!fs.existsSync(codePath)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `The resolver handler file '${codePath}' does not exist`,
+      );
+    }
+
+    return fs.readFileSync(codePath, 'utf8');
+  };
+
   resolveMappingTemplate(
     type: 'request' | 'response',
   ): string | IntrinsicFunction | undefined {
-    const templateName =
-      type in this.config
-        ? this.config[type]
-        : this.api.config.defaultMappingTemplates?.[type];
+    const templateName = this.config[type];
 
-    if (templateName !== false) {
+    if (templateName) {
       const templatePath = path.join(
         this.api.plugin.serverless.config.servicePath,
-        this.api.config.mappingTemplatesLocation.resolvers,
-        templateName || `${this.config.type}.${this.config.field}.${type}.vtl`,
+        templateName,
       );
       const template = new MappingTemplate(this.api, {
         path: templatePath,

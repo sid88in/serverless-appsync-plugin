@@ -14,12 +14,18 @@ describe('Basic', () => {
             },
             'Query.getPost': {
               kind: 'PIPELINE',
-              functions: ['function1', 'function2'],
+              functions: [
+                'function1',
+                {
+                  dataSource: 'function2',
+                  code: 'function2.js',
+                },
+              ],
             },
             'Query.getBlog': {
+              kind: 'UNIT',
               dataSource: 'myDs',
             },
-            'Query.getComment': 'myDs',
             getUsers: {
               type: 'Query',
               field: 'getUsers',
@@ -35,15 +41,27 @@ describe('Basic', () => {
             getPosts: {
               type: 'Query',
               field: 'getPosts',
-              kind: 'PIPELINE',
-              functions: ['function1', 'function2'],
+              functions: [
+                'function1',
+                {
+                  dataSource: {
+                    type: 'AWS_LAMBDA',
+                    config: {
+                      functionName: 'function3',
+                    },
+                  },
+                  code: 'function2.js',
+                },
+              ],
             },
             getBlogs: {
+              kind: 'UNIT',
               type: 'Query',
               field: 'getUsers',
               dataSource: 'myDs',
             },
             getComments: {
+              kind: 'UNIT',
               type: 'Query',
               field: 'getComments',
               dataSource: {
@@ -71,9 +89,9 @@ describe('Basic', () => {
                 functions: ['function1', 'function2'],
               },
               'Query.getBlog': {
+                kind: 'UNIT',
                 dataSource: 'myDs',
               },
-              'Query.getComment': 'myDs',
             },
             {
               getUsers: {
@@ -93,6 +111,7 @@ describe('Basic', () => {
                 functions: ['function1', 'function2'],
               },
               'Query.getComment': {
+                kind: 'UNIT',
                 dataSource: {
                   type: 'AWS_LAMBDA',
                   name: 'getComment',
@@ -122,7 +141,7 @@ describe('Basic', () => {
           resolvers: {
             myResolver: {
               kind: 'FOO',
-              dataSource: 999,
+              functions: 999,
               type: 123,
               field: 456,
               request: 123,
@@ -172,10 +191,10 @@ describe('Basic', () => {
         },
       },
       {
-        name: 'Invalid inline datasource',
+        name: 'Invalid datasource',
         config: {
           resolvers: {
-            'Query.getUser': 1234,
+            'Query.getUser': 'foo',
           },
         },
       },
@@ -184,6 +203,7 @@ describe('Basic', () => {
         config: {
           resolvers: {
             'Query.getUser': {
+              kind: 'UNIT',
               dataSource: {
                 type: 'AWS_LAMBDA',
                 config: {},

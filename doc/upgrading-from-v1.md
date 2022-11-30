@@ -35,6 +35,33 @@ custom:
 
 Place your APIs into defferent stacks. Unfortunately, this WILL require **the replacement of the APIs**. You can probably use [custom domains](custom-domain.md) to workaround that, if that's an option.
 
+### Defaults to PIPELINE and JavaScript resolvers
+
+The new default runtime is JavaScript.
+
+The new default `KIND` for resolvers is `PIPELINE`. For several reasons:
+
+- The JavaScript runtime, is only supportsed with PIPELINE resolvers
+- It makes migrations easier later, if you need to add functions to your resolvers.
+
+> 💡 To simulate a UNIT resolver, use a PIPELINE with only one function.
+
+```yml
+resolvers:
+  Query.getPost:
+    functions:
+      - dataSource: posts
+        code: resolvers/getPost.js
+```
+
+### No more defaults for resolver handler paths.
+
+In `v1`, if you did not specify a path to your mapping templates, a default based on the type, field or function name was used. (e.g. `Query.getPost.request.vtl`).
+
+To avoid unexpected behaviours, you are now required to explicitely specify the path to your resolver handlers. i.e. use `code` for Pipeline JS resolvers or `request`/`response` for VTL.
+
+There is also no more `mappingTemplatesLocation` option. Paths must be relative to the `serverless.yml`. This aligns more with how Serverless Framework handles Lambda function handlers' paths.
+
 ### Graphiql "playground"
 
 The `graphql-playground` command which started a graphiql server pointing to the AppSync API has been removed.
