@@ -1862,15 +1862,19 @@ class ServerlessAppsyncPlugin {
     let api = undefined;
     do {
       resp = await this.provider.request(
-        'CloudFormation', 
-        'listStackResources', 
+        'CloudFormation',
+        'listStackResources',
         {
           StackName: this.provider.naming.getStackName(),
-          NextToken: nextToken 
-        }
+          NextToken: nextToken,
+        },
       );
       nextToken = resp.NextToken;
-      api = resp.StackResourceSummaries.find(r => r.ResourceType === 'AWS::AppSync::GraphQLApi' && r.PhysicalResourceId !== null);
+      api = resp.StackResourceSummaries.find(
+        (r) =>
+          r.ResourceType === 'AWS::AppSync::GraphQLApi' &&
+          r.PhysicalResourceId !== null,
+      );
     } while (nextToken && !api);
 
     if (!api) {
