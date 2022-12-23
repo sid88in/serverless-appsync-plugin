@@ -85,6 +85,7 @@ class ServerlessAppsyncPlugin {
   public readonly commands?: CommandsDefinition;
   public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private api?: Api;
+  private naming?: Naming;
 
   constructor(
     public serverless: Serverless,
@@ -344,11 +345,20 @@ class ServerlessAppsyncPlugin {
   }
 
   async getApiId() {
+    if (!this.naming) {
+      throw new this.serverless.classes.Error(
+        'Could not find the naming service. This should not happen.',
+      );
+    }
+
+    const logicalIdGraphQLApi = this.naming.getApiLogicalId();
+
     const { StackResources } = await this.provider.request<
       DescribeStackResourcesInput,
       DescribeStackResourcesOutput
     >('CloudFormation', 'describeStackResources', {
       StackName: this.provider.naming.getStackName(),
+      LogicalResourceId: logicalIdGraphQLApi,
     });
 
     const apiId = last(
@@ -950,6 +960,7 @@ class ServerlessAppsyncPlugin {
       }
     }
     const config = getAppSyncConfig(appSync);
+    this.naming = new Naming(appSync.name);
     this.api = new Api(config, this);
   }
 
@@ -992,31 +1003,35 @@ class ServerlessAppsyncPlugin {
   }
 
   public resolveVariable: VariableSourceResolver = ({ address }) => {
-    const naming = new Naming(this.serverless.configurationInput.appSync.name);
+    if (!this.naming) {
+      throw new this.serverless.classes.Error(
+        'Could not find the naming service. This should not happen.',
+      );
+    }
 
     if (address === 'id') {
       return {
         value: {
-          'Fn::GetAtt': [naming.getApiLogicalId(), 'ApiId'],
+          'Fn::GetAtt': [this.naming.getApiLogicalId(), 'ApiId'],
         },
       };
     } else if (address === 'arn') {
       return {
         value: {
-          'Fn::GetAtt': [naming.getApiLogicalId(), 'Arn'],
+          'Fn::GetAtt': [this.naming.getApiLogicalId(), 'Arn'],
         },
       };
     } else if (address === 'url') {
       return {
         value: {
-          'Fn::GetAtt': [naming.getApiLogicalId(), 'GraphQLUrl'],
+          'Fn::GetAtt': [this.naming.getApiLogicalId(), 'GraphQLUrl'],
         },
       };
     } else if (address.startsWith('apiKey.')) {
       const [, name] = address.split('.');
       return {
         value: {
-          'Fn::GetAtt': [naming.getApiKeyLogicalId(name), 'ApiKey'],
+          'Fn::GetAtt': [this.naming.getApiKeyLogicalId(name), 'ApiKey'],
         },
       };
     } else {
