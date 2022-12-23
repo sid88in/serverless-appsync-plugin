@@ -363,11 +363,7 @@ class ServerlessAppsyncPlugin {
       LogicalResourceId: logicalIdGraphQLApi,
     });
 
-    const apiId = last(
-      StackResources?.find(
-        (resource) => resource.ResourceType === 'AWS::AppSync::GraphQLApi',
-      )?.PhysicalResourceId?.split('/'),
-    );
+    const apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/'));
 
     if (!apiId) {
       throw new this.serverless.classes.Error(
