@@ -8,7 +8,7 @@ import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
 import { SyncConfig } from './SyncConfig';
-import fs from 'fs';
+import { JsResolver } from './JsResolver';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
@@ -68,19 +68,18 @@ export class PipelineFunction {
     };
   }
 
-  resolveJsCode = (filePath: string): string => {
+  resolveJsCode = (filePath: string): string | IntrinsicFunction => {
     const codePath = path.join(
       this.api.plugin.serverless.config.servicePath,
       filePath,
     );
 
-    if (!fs.existsSync(codePath)) {
-      throw new this.api.plugin.serverless.classes.Error(
-        `The resolver handler file '${codePath}' does not exist`,
-      );
-    }
+    const template = new JsResolver(this.api, {
+      path: codePath,
+      substitutions: this.config.substitutions,
+    });
 
-    return fs.readFileSync(codePath, 'utf8');
+    return template.compile();
   };
 
   resolveMappingTemplate(
