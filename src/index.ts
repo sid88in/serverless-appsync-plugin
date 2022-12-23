@@ -345,6 +345,8 @@ class ServerlessAppsyncPlugin {
   }
 
   async getApiId() {
+    this.loadConfig();
+
     if (!this.naming) {
       throw new this.serverless.classes.Error(
         'Could not find the naming service. This should not happen.',
