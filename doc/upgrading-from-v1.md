@@ -136,7 +136,7 @@ Some attributes have been renamed for clarity. Here are the most important ones.
 
 - rename `mappingTemplates` to `resolvers`
 - rename `functionConfigurations` to `pipelineFunctions`
-- rename `logConfig` to `log`
+- rename `logConfig` to `logging`
 - rename `wafConfig` to `waf`
 
 **DataSources**
