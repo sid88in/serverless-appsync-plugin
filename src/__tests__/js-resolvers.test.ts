@@ -1,5 +1,5 @@
 import { Api } from '../resources/Api';
-import { MappingTemplate } from '../resources/MappingTemplate';
+import { JsResolver } from '../resources/JsResolver';
 import * as given from './given';
 import fs from 'fs';
 
@@ -25,22 +25,23 @@ describe('Mapping Templates', () => {
 
   it('should substitute variables', () => {
     const api = new Api(given.appSyncConfig(), plugin);
-    const mapping = new MappingTemplate(api, {
+    const mapping = new JsResolver(api, {
       path: 'foo.vtl',
       substitutions: {
         foo: 'bar',
         var: { Ref: 'MyReference' },
       },
     });
-    const template =
-      'Foo: ${foo}, Var: ${var}, Context: ${ctx.args.id}, Unknonw: ${unknown}';
+    const template = `const foo = '#foo#';
+       const var = '#var#';
+       const unknonw = '#unknown#'`;
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
       Object {
         "Fn::Join": Array [
           "",
           Array [
-            "Foo: ",
+            "const foo = '",
             Object {
               "Fn::Sub": Array [
                 "\${foo}",
@@ -49,7 +50,8 @@ describe('Mapping Templates', () => {
                 },
               ],
             },
-            ", Var: ",
+            "';
+             const var = '",
             Object {
               "Fn::Sub": Array [
                 "\${var}",
@@ -60,7 +62,8 @@ describe('Mapping Templates', () => {
                 },
               ],
             },
-            ", Context: \${ctx.args.id}, Unknonw: \${unknown}",
+            "';
+             const unknonw = '#unknown#'",
           ],
         ],
       }
@@ -77,20 +80,21 @@ describe('Mapping Templates', () => {
       }),
       plugin,
     );
-    const mapping = new MappingTemplate(api, {
+    const mapping = new JsResolver(api, {
       path: 'foo.vtl',
       substitutions: {
         foo: 'fuzz',
       },
     });
-    const template = 'Foo: ${foo}, Var: ${var}';
+    const template = `const foo = '#foo#';
+    const var = '#var#';`;
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
       Object {
         "Fn::Join": Array [
           "",
           Array [
-            "Foo: ",
+            "const foo = '",
             Object {
               "Fn::Sub": Array [
                 "\${foo}",
@@ -99,7 +103,8 @@ describe('Mapping Templates', () => {
                 },
               ],
             },
-            ", Var: ",
+            "';
+          const var = '",
             Object {
               "Fn::Sub": Array [
                 "\${var}",
@@ -108,6 +113,7 @@ describe('Mapping Templates', () => {
                 },
               ],
             },
+            "';",
           ],
         ],
       }
@@ -117,7 +123,7 @@ describe('Mapping Templates', () => {
   it('should fail if template is missing', () => {
     mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(false);
     const api = new Api(given.appSyncConfig(), plugin);
-    const mapping = new MappingTemplate(api, {
+    const mapping = new JsResolver(api, {
       path: 'foo.vtl',
       substitutions: {
         foo: 'bar',
@@ -128,7 +134,7 @@ describe('Mapping Templates', () => {
     expect(function () {
       mapping.compile();
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Mapping tempalte file 'foo.vtl' does not exist"`,
+      `"The resolver handler file 'foo.vtl' does not exist"`,
     );
   });
 });
