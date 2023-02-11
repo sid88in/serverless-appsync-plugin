@@ -74,6 +74,14 @@ describe('Api', () => {
     it('should compile the Api Resource with additional auths', () => {
       const api = new Api(
         given.appSyncConfig({
+          authentication: {
+            type: 'AMAZON_COGNITO_USER_POOLS',
+            config: {
+              userPoolId: 'pool123',
+              awsRegion: 'us-east-1',
+              appIdClientRegex: '[a-z]',
+            },
+          },
           additionalAuthentications: [
             {
               type: 'AMAZON_COGNITO_USER_POOLS',
@@ -117,7 +125,6 @@ describe('Api', () => {
                   "UserPoolConfig": Object {
                     "AppIdClientRegex": "[a-z]",
                     "AwsRegion": "us-east-1",
-                    "DefaultAction": "ALLOW",
                     "UserPoolId": "pool123",
                   },
                 },
@@ -147,7 +154,7 @@ describe('Api', () => {
                   },
                 },
               ],
-              "AuthenticationType": "API_KEY",
+              "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
               "Name": "MyApi",
               "Tags": Array [
                 Object {
@@ -155,6 +162,12 @@ describe('Api', () => {
                   "Value": "Dev",
                 },
               ],
+              "UserPoolConfig": Object {
+                "AppIdClientRegex": "[a-z]",
+                "AwsRegion": "us-east-1",
+                "DefaultAction": "ALLOW",
+                "UserPoolId": "pool123",
+              },
               "XrayEnabled": false,
             },
             "Type": "AWS::AppSync::GraphQLApi",

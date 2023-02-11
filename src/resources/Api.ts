@@ -88,7 +88,7 @@ export class Api {
       merge(endpointResource.Properties, {
         AdditionalAuthenticationProviders:
           this.config.additionalAuthentications?.map((provider) =>
-            this.compileAuthenticationProvider(provider),
+            this.compileAuthenticationProvider(provider, true),
           ),
       });
     }
@@ -411,14 +411,18 @@ export class Api {
     };
   }
 
-  getUserPoolConfig(auth: CognitoAuth) {
+  getUserPoolConfig(auth: CognitoAuth, isAdditionalAuth = false) {
     const userPoolConfig = {
       AwsRegion: auth.config.awsRegion || { 'Fn::Sub': '${AWS::Region}' },
       UserPoolId: auth.config.userPoolId,
       AppIdClientRegex: auth.config.appIdClientRegex,
-      // Default action is the one passed in the config
-      // or 'ALLOW'
-      DefaultAction: auth.config.defaultAction || 'ALLOW',
+      ...(!isAdditionalAuth
+        ? {
+            // Default action is the one passed in the config
+            // or 'ALLOW'
+            DefaultAction: auth.config.defaultAction || 'ALLOW',
+          }
+        : {}),
     };
 
     return userPoolConfig;
@@ -468,14 +472,16 @@ export class Api {
     }));
   }
 
-  compileAuthenticationProvider(provider: Auth) {
+  compileAuthenticationProvider(provider: Auth, isAdditionalAuth = false) {
     const { type } = provider;
     const authPrivider = {
       AuthenticationType: type,
     };
 
     if (type === 'AMAZON_COGNITO_USER_POOLS') {
-      merge(authPrivider, { UserPoolConfig: this.getUserPoolConfig(provider) });
+      merge(authPrivider, {
+        UserPoolConfig: this.getUserPoolConfig(provider, isAdditionalAuth),
+      });
     } else if (type === 'OPENID_CONNECT') {
       merge(authPrivider, {
         OpenIDConnectConfig: this.getOpenIDConnectConfig(provider),
