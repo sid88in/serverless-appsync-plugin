@@ -58,7 +58,7 @@ appSync:
 - `userPoolId`: The user pool id to use.
 - `awsRegion`: The region where the user pool is located. Defaults to the stack's region.
 - `appIdClientRegex`: An optional regular expression for validating the incoming Amazon Cognito user pool app client ID.
-- `defaultAction`: `ALLOW` or `DENY`. The action that you want your GraphQL API to take when a request that uses Amazon Cognito user pool authentication doesn't match the Amazon Cognito user pool configuration. When specifying Amazon Cognito user pools as the default authentication, you must set the value for DefaultAction to ALLOW if specifying AdditionalAuthenticationProviders. Default: `ALLOW`. This field is only available for the default auth config.
+- `defaultAction`: `ALLOW` or `DENY`. The action that you want your GraphQL API to take when a request that uses Amazon Cognito user pool authentication doesn't match the Amazon Cognito user pool configuration. When specifying Amazon Cognito user pools as the default authentication, you must set this value to `ALLOW` if specifying additionalAuthentications. Default: `ALLOW`. This field is only available for the default `authorization` configuration.
 
 ### OIDC
 
