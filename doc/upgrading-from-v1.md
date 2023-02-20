@@ -4,6 +4,8 @@
 
 This page will guide you through the process of migrating existing stacks to the newer version.
 
+The v1 is still available on the [v1](https://github.com/sid88in/serverless-appsync-plugin/tree/v1) branch
+
 ## Breaking changes and dropped features
 
 There are a few breaking changes that you need to be aware of.

@@ -91,7 +91,7 @@ appSync:
 
 # Upgrading from v1
 
-To upgrade form v1 of this plugin, [follow this guide](doc/upgrading-from-v1.md)
+To upgrade form [v1](https://github.com/sid88in/serverless-appsync-plugin/tree/v1) of this plugin, [follow this guide](doc/upgrading-from-v1.md)
 
 # Contributing
 
