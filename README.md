@@ -7,7 +7,7 @@ Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Se
 
 # Minimum requirements
 
-- [Node.js v14 or higher](https://nodejs.org)
+- [Node.js v16 or higher](https://nodejs.org)
 - [Serverless v3.0.0 or higher](https://github.com/serverless/serverless)
 
 # Installation
