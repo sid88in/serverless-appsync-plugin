@@ -101,10 +101,11 @@ You are also very welcome to open a PR and we will gladely review it.
 
 # Resources
 
-## VSCode extensions
+## Tools
 
-- [AppSync Utils](https://marketplace.visualstudio.com/items?itemName=bboure.vscode-appsync-utils): A collection of snippets that make AppSync development easier
-- [AppSync Resolver Autocomplete](https://marketplace.visualstudio.com/items?itemName=theBenForce.appsync-resolver-autocomplete): Autocomplete support for VTL template files.
+- [Mapping Tool](https://mappingtool.dev/): Quickly Build and Debug AppSync & API Gateway Mapping Templates
+- [GraphBolt](http://graphbolt.dev/?utm_source=serverless-appsync-plugin&utm_medium=Referral): A professional desktop app solution for building, testing, and debugging AppSync APIs.
+- [AppSync Resolver Autocomplete](https://marketplace.visualstudio.com/items?itemName=theBenForce.appsync-resolver-autocomplete): VSCode extension. Autocomplete support for VTL template files.
 
 ## Video tutorials
 
