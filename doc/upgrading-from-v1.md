@@ -12,14 +12,14 @@ There are a few breaking changes that you need to be aware of.
 
 ### Support for Serverless Framework v3 only
 
-`v2` only supports the new [Serverless Frmework v3](https://www.serverless.com/blog/serverless-framework-v3-is-live). You will need to upgrade to [SF v3 first](https://www.serverless.com/framework/docs/guides/upgrading-v3).
+`v2` only supports the new [Serverless Framework v3](https://www.serverless.com/blog/serverless-framework-v3-is-live). You will need to upgrade to [SF v3 first](https://www.serverless.com/framework/docs/guides/upgrading-v3).
 
 ### Single API only
 
 Support for multiple APIs has been dropped in v2. There are several reasons for this:
 
 - **It was an edge case**: Most users would only have one API per Stack
-- **It is probably bad practice**: Different APIs should be considered different micro-services and be deplopyed separately.
+- **It is probably bad practice**: Different APIs should be considered different micro-services and be deployed separately.
 - **It is not supported by the Serverless Framework for API Gateway**: SF does not support multiple API Gateways in a single Stack. Why should this plugin do for AppSync?
 
 If you only have one API in your current stack, you should not worry about this change. You do need to make sure that you do not define your `appSync` API as an array (even with one element only), though.
@@ -35,7 +35,7 @@ custom:
 
 **Workaround**
 
-Place your APIs into defferent stacks. Unfortunately, this WILL require **the replacement of the APIs**. You can probably use [custom domains](custom-domain.md) to workaround that, if that's an option.
+Place your APIs into different stacks. Unfortunately, this WILL require **the replacement of the APIs**. You can probably use [custom domains](custom-domain.md) to workaround that, if that's an option.
 
 ### Defaults to PIPELINE and JavaScript resolvers
 
@@ -43,7 +43,7 @@ The new default runtime is JavaScript.
 
 The new default `KIND` for resolvers is `PIPELINE`. For several reasons:
 
-- The JavaScript runtime, is only supportsed with PIPELINE resolvers
+- The JavaScript runtime, is only supported with PIPELINE resolvers
 - It makes migrations easier later, if you need to add functions to your resolvers.
 
 > 💡 To simulate a UNIT resolver, use a PIPELINE with only one function.
@@ -60,11 +60,11 @@ resolvers:
 
 In `v1`, if you did not specify a path to your mapping templates, a default based on the type, field or function name was used. (e.g. `Query.getPost.request.vtl`).
 
-To avoid unexpected behaviours, you are now required to explicitely specify the path to your resolver handlers. i.e. use `code` for Pipeline JS resolvers or `request`/`response` for VTL.
+To avoid unexpected behaviours, you are now required to explicitly specify the path to your resolver handlers. i.e. use `code` for Pipeline JS resolvers or `request`/`response` for VTL.
 
 There is also no more `mappingTemplatesLocation` option. Paths must be relative to the `serverless.yml`. This aligns more with how Serverless Framework handles Lambda function handlers' paths.
 
-### Graphiql "playground"
+### Graphql "playground"
 
 The `graphql-playground` command which started a graphiql server pointing to the AppSync API has been removed.
 
@@ -74,7 +74,7 @@ Use other solutions such as [Insomnia](https://insomnia.rest/), or [Postman](htt
 
 ### Support for existing APIs
 
-`v1` offered a way to define some resoruce such as DataSources, Resolvers, etc. on an existing API (that was previously created using other mechanisms, for example manually). `v2` does no longer offer that possibility. It adds complexity, can behave unexpectidly and is probably a bad practice too. Prefer defining your whole API under the same stack.
+`v1` offered a way to define some resource such as DataSources, Resolvers, etc. on an existing API (that was previously created using other mechanisms, for example manually). `v2` does no longer offer that possibility. It adds complexity, can behave unexpectedly and is probably a bad practice too. Prefer defining your whole API under the same stack.
 
 **Workaround**
 
@@ -86,7 +86,7 @@ Define your API completely in the same stack. This might require **the replaceme
 
 **Workaround**
 
-You still can export those values if you want but you'll have to doit explicitely yourself:
+You still can export those values if you want but you'll have to do it explicitly yourself:
 
 ```yaml
 resources:
@@ -177,7 +177,7 @@ Example:
 mappingTemplates:
   - type: Query
     field: getUser
-    dataSource: myDaaSource
+    dataSource: myDataSource
 ```
 
 becomes
@@ -185,7 +185,7 @@ becomes
 ```yaml
 resolvers:
   Query.getUser:
-    dataSource: myDaaSource
+    dataSource: myDataSource
 ```
 
 **Pipeline functions**
