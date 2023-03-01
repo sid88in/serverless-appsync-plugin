@@ -14,14 +14,14 @@ appSync:
       code: myFunction.js
 ```
 
-## Configutation
+## Configuration
 
 - `dataSource`: The name of the dataSource to use.
 - `description`: An optional description for this pipeline function.
 - `code`: The path to the JS resolver handler file, relative to `serverless.yml`.
 - `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
 - `response`: The path to the VTL response mapping template file, relative to `serverless.yml`.
-- `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataAources)
+- `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataSources)
 - `substitutions`: See [VTL template substitutions](substitutions.md)
 - `sync`: [See SyncConfig](syncConfig.md)
 

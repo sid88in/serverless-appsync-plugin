@@ -80,7 +80,7 @@ appSync:
 
 ### Lambda
 
-Allows custom authentication thoguht Lambda.
+Allows custom authentication through Lambda.
 
 ```yaml
 appSync:

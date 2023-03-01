@@ -102,7 +102,7 @@ class ServerlessAppsyncPlugin {
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
-    // field (ie: `appSync`). Actual valiation will be handled by this plugin
+    // field (ie: `appSync`). Actual validation will be handled by this plugin
     // later in `validateConfig()`
     this.serverless.configSchemaHandler.defineTopLevelProperty('appSync', {
       type: 'object',

@@ -97,7 +97,7 @@ To upgrade form [v1](https://github.com/sid88in/serverless-appsync-plugin/tree/v
 
 If you have any questions, issue, feature request, please feel free to [open an issue](/issues/new).
 
-You are also very welcome to open a PR and we will gladely review it.
+You are also very welcome to open a PR and we will gladly review it.
 
 # Resources
 

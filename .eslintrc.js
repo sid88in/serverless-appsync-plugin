@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 2018,
   },
   rules: {
-    // used for tests until all erros aget fixed
+    // used for tests until all errors get fixed
     '@typescript-eslint/ban-ts-comment': 'off',
     // already handled by ts/no-unused
     'no-unused-vars': 'off',
