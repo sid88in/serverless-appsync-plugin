@@ -76,7 +76,7 @@ Before associating a domain to an API, you must first create it. You can do so u
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain create
+sls appsync domain create
 ```
 
 ## Delete the domain
@@ -90,7 +90,7 @@ Deletes a domain from AppSync.
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain delete
+sls appsync domain delete
 ```
 
 If an API is associated to it, you will need to [disassociate](#disassociate-the-api-from-the-domain) it first.
@@ -103,7 +103,7 @@ If you use Route53 for your hosted zone, you can also create the required CNAME 
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain create-record
+sls appsync domain create-record
 ```
 
 ## Delete the route53 record
@@ -113,7 +113,7 @@ sls appsync-domain create-record
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain delete-record
+sls appsync domain delete-record
 ```
 
 ## Associate the API to the domain
@@ -124,7 +124,7 @@ Associate the API in this stack to the domain.
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain assoc --stage dev
+sls appsync domain assoc --stage dev
 ```
 
 You can associate an API to a domain that already has another API attached to it. The old API will be replaced by the new one.
@@ -136,5 +136,5 @@ You can associate an API to a domain that already has another API attached to it
 - `--stage`: The stage to use
 
 ```bash
-sls appsync-domain disassoc --stage dev
+sls appsync domain disassoc --stage dev
 ```
