@@ -28,17 +28,17 @@ exports[`DynamoDB Invalid should validate: Missing config 1`] = `
 /dataSources: contains invalid data source definitions"
 `;
 
-exports[`EventBridge Invalid should validate: Empty config 1`] = `
+exports[`EventBridge Invalid should not validate: Empty config 1`] = `
 "/dataSources/myEventBridgeSource1/config: must have required property 'eventBusArn'
 /dataSources: contains invalid data source definitions"
 `;
 
-exports[`EventBridge Invalid should validate: Invalid config 1`] = `
+exports[`EventBridge Invalid should not validate: Invalid config 1`] = `
 "/dataSources/myEventBridgeSource1/config/eventBusArn: must be a string or a CloudFormation intrinsic function
 /dataSources: contains invalid data source definitions"
 `;
 
-exports[`EventBridge Invalid should validate: Missing config 1`] = `
+exports[`EventBridge Invalid should not validate: Missing config 1`] = `
 "/dataSources/myEventBridgeSource1: must have required property 'config'
 /dataSources: contains invalid data source definitions"
 `;

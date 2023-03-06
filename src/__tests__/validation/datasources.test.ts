@@ -280,7 +280,7 @@ describe('EventBridge', () => {
     ];
 
     assertions.forEach((config) => {
-      it(`should validate: ${config.name}`, () => {
+      it(`should not validate: ${config.name}`, () => {
         expect(function () {
           validateConfig({
             ...basicConfig,
