@@ -39,7 +39,8 @@ export type CfnDataSource = {
       | 'AMAZON_OPENSEARCH_SERVICE'
       | 'NONE'
       | 'HTTP'
-      | 'RELATIONAL_DATABASE';
+      | 'RELATIONAL_DATABASE'
+      | 'AMAZON_EVENTBRIDGE';
     ServiceRoleArn?: string | IntrinsicFunction;
     LambdaConfig?: {
       LambdaFunctionArn: string | IntrinsicFunction;
@@ -74,6 +75,9 @@ export type CfnDataSource = {
           SigningServiceName?: string | IntrinsicFunction;
         };
       };
+    };
+    EventBridgeConfig?: {
+      EventBusArn: string | IntrinsicFunction;
     };
   };
 };

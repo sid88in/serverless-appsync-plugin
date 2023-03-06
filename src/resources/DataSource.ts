@@ -11,6 +11,7 @@ import {
   DsHttpConfig,
   DsRelationalDbConfig,
   IamStatement,
+  DsEventBridgeConfig,
 } from '../types/plugin';
 import { Api } from './Api';
 
@@ -47,6 +48,10 @@ export class DataSource {
       );
     } else if (this.config.type === 'HTTP') {
       resource.Properties.HttpConfig = this.getHttpConfig(this.config);
+    } else if (this.config.type === 'AMAZON_EVENTBRIDGE') {
+      resource.Properties.EventBridgeConfig = this.getEventBridgeConfig(
+        this.config,
+      );
     }
 
     const logicalId = this.api.naming.getDataSourceLogicalId(this.config.name);
@@ -96,6 +101,14 @@ export class DataSource {
         },
       };
     }
+  }
+
+  getEventBridgeConfig(
+    config: DsEventBridgeConfig,
+  ): CfnDataSource['Properties']['EventBridgeConfig'] {
+    return {
+      EventBusArn: config.config.eventBusArn,
+    };
   }
 
   getOpenSearchConfig(
@@ -403,6 +416,16 @@ export class DataSource {
         };
 
         return [defaultESStatement];
+      }
+      case 'AMAZON_EVENTBRIDGE': {
+        // Allow PutEvents on the EventBridge bus
+        const defaultEventBridgeStatement: IamStatement = {
+          Action: ['events:PutEvents'],
+          Effect: 'Allow',
+          Resource: [this.config.config.eventBusArn],
+        };
+
+        return [defaultEventBridgeStatement];
       }
     }
   }

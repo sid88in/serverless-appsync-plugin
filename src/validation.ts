@@ -19,6 +19,7 @@ const DATASOURCE_TYPES = [
   'HTTP',
   'NONE',
   'RELATIONAL_DATABASE',
+  'AMAZON_EVENTBRIDGE',
 ] as const;
 
 export const appSyncSchema = {
@@ -462,6 +463,17 @@ export const appSyncSchema = {
                 },
                 required: ['config'],
               },
+              else: {
+                if: { properties: { type: { const: 'AMAZON_EVENTBRIDGE' } } },
+                then: {
+                  properties: {
+                    config: {
+                      $ref: '#/definitions/datasourceEventBridgeConfig',
+                    },
+                  },
+                  required: ['config'],
+                },
+              },
             },
           },
         },
@@ -602,6 +614,13 @@ export const appSyncSchema = {
         iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
       },
       required: [],
+    },
+    datasourceEventBridgeConfig: {
+      type: 'object',
+      properties: {
+        eventBusArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+      },
+      required: ['eventBusArn'],
     },
   },
   properties: {

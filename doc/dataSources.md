@@ -105,7 +105,7 @@ appSync:
 ```yaml
 appSync:
   dataSources:
-    api:
+    myDatabase:
       type: 'RELATIONAL_DATABASE'
       config:
         databaseName: myDatabase
@@ -123,6 +123,21 @@ appSync:
 - `schema`: Logical schema name.
 - `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
+
+## EventBridge
+
+```yaml
+appSync:
+  dataSources:
+    myEventBus:
+      type: 'AMAZON_EVENTBRIDGE'
+      confing:
+        eventBusArn: arn:aws:events:us-east-1:123456789012:event-bus/my-event-bus
+```
+
+### config
+
+- `eventBusArn`: The ARN of the event bus
 
 ## NONE
 

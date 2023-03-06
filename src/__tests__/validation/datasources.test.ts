@@ -199,6 +199,98 @@ describe('DynamoDB', () => {
     });
   });
 });
+describe('EventBridge', () => {
+  describe('Valid', () => {
+    const assertions = [
+      {
+        name: 'Valid config',
+        config: {
+          dataSources: {
+            myDynamoSource1: {
+              type: 'AMAZON_EVENTBRIDGE',
+              config: {
+                eventBusArn:
+                  'arn:aws:events:us-east-1:123456789012:event-bus/my-event-bus',
+              },
+            },
+          },
+        },
+      },
+      {
+        name: 'Valid config, as array of maps',
+        config: {
+          dataSources: [
+            {
+              myDynamoSource1: {
+                type: 'AMAZON_EVENTBRIDGE',
+                config: {
+                  eventBusArn:
+                    'arn:aws:events:us-east-1:123456789012:event-bus/my-event-bus',
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    assertions.forEach((config) => {
+      it(`should validate a ${config.name}`, () => {
+        expect(validateConfig({ ...basicConfig, ...config.config })).toBe(true);
+      });
+    });
+  });
+
+  describe('Invalid', () => {
+    const assertions = [
+      {
+        name: 'Missing config',
+        config: {
+          dataSources: {
+            myEventBridgeSource1: {
+              type: 'AMAZON_EVENTBRIDGE',
+            },
+          },
+        },
+      },
+      {
+        name: 'Empty config',
+        config: {
+          dataSources: {
+            myEventBridgeSource1: {
+              type: 'AMAZON_EVENTBRIDGE',
+              config: {},
+            },
+          },
+        },
+      },
+      {
+        name: 'Invalid config',
+        config: {
+          dataSources: {
+            myEventBridgeSource1: {
+              type: 'AMAZON_EVENTBRIDGE',
+              config: {
+                eventBusArn: 1234,
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    assertions.forEach((config) => {
+      it(`should validate: ${config.name}`, () => {
+        expect(function () {
+          validateConfig({
+            ...basicConfig,
+            ...config.config,
+          });
+        }).toThrowErrorMatchingSnapshot();
+      });
+    });
+  });
+});
 
 describe('Lambda', () => {
   describe('Valid', () => {

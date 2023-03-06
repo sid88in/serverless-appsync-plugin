@@ -204,6 +204,15 @@ export type DsDynamoDBConfig = {
   };
 };
 
+export type DsEventBridgeConfig = {
+  type: 'AMAZON_EVENTBRIDGE';
+  config: {
+    serviceRoleArn?: string | IntrinsicFunction;
+    iamRoleStatements?: IamStatement[];
+    eventBusArn: string | IntrinsicFunction;
+  };
+};
+
 export type DsRelationalDbConfig = {
   type: 'RELATIONAL_DATABASE';
   config: {
@@ -278,6 +287,7 @@ export type DataSourceConfig = {
   | DsRelationalDbConfig
   | DsOpenSearchConfig
   | DsLambdaConfig
+  | DsEventBridgeConfig
   | DsNone
 );
 
