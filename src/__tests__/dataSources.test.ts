@@ -112,7 +112,7 @@ describe('DataSource', () => {
       const dataSource = new DataSource(api, {
         type: 'AMAZON_EVENTBRIDGE',
         name: 'eventBridge',
-        description: 'My eventBridge table',
+        description: 'My eventBridge bus',
         config: {
           eventBusArn:
             'arn:aws:events:us-east-1:123456789012:event-bus/default',
@@ -127,7 +127,7 @@ describe('DataSource', () => {
       const dataSource = new DataSource(api, {
         type: 'AMAZON_EVENTBRIDGE',
         name: 'eventBridge',
-        description: 'My eventBridge table',
+        description: 'My eventBridge bus',
         config: {
           eventBusArn: { 'Fn::GetAtt': ['MyEventBus', 'Arn'] },
         },
@@ -141,7 +141,7 @@ describe('DataSource', () => {
       const dataSource = new DataSource(api, {
         type: 'AMAZON_EVENTBRIDGE',
         name: 'eventBridge',
-        description: 'My eventBridge table',
+        description: 'My eventBridge bus',
         config: {
           eventBusArn:
             'arn:aws:events:us-east-1:123456789012:event-bus/default',
@@ -165,7 +165,7 @@ describe('DataSource', () => {
       const dataSource = new DataSource(api, {
         type: 'AMAZON_EVENTBRIDGE',
         name: 'eventBridge',
-        description: 'My eventBridge table',
+        description: 'My eventBridge bus',
         config: {
           eventBusArn:
             'arn:aws:events:us-east-1:123456789012:event-bus/default',
