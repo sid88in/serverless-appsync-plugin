@@ -117,7 +117,7 @@ appSync:
 ### config
 
 - `databaseName`: The name of the database
-- `region`: The region of the RDS HTTP ednpoint. Defaults to the region of the stack.
+- `region`: The region of the RDS HTTP endpoint. Defaults to the region of the stack.
 - `awsSecretStoreArn`: The ARN for database credentials stored in AWS Secrets Manager.
 - `dbClusterIdentifier`: Amazon RDS cluster Amazon Resource Name (ARN).
 - `schema`: Logical schema name.

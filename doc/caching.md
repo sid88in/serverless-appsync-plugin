@@ -22,11 +22,11 @@ appSync:
 - `ttl`: The default TTL of the cache in seconds. Defaults to `3600`. Maximum is `3600`
 - `enabled`: Boolean. Whether caching is enabled. Defaults to `true` when the `caching` definition is present.
 - `atRestEncryption`: Boolean. Whether to encrypt the data at rest. Defaults to `false`
-- `transitEncryption`: Boolean. Whether to encrypt the data in transit. Detaults to `false`
+- `transitEncryption`: Boolean. Whether to encrypt the data in transit. Defaults to `false`
 
 ## Per resolver caching
 
-See [Resolver cacing](resolvers.md#caching)
+See [Resolver caching](resolvers.md#caching)
 
 ## Flushing the cache
 

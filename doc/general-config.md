@@ -128,7 +128,7 @@ type Post {
 }
 ```
 
-This will result into the folowing schema:
+This will result into the following schema:
 
 ```graphql
 type Query {
@@ -164,11 +164,11 @@ This plugin intends to use modern schemas for future-proofing. Incompatibilities
 
 Old-style descriptions (using `#`) are supported by AppSync but will be removed by the [stitching procedure](#schema-stitching) which does not support them\*. Comments are also not supported on [enums](https://spec.graphql.org/October2021/#sec-Enums) by AppSync.
 
-\* If you want to retain `#` comments, the workwround is to skip schema stiching by putting your whole schema into one single file.
+\* If you want to retain `#` comments, the workaround is to skip schema stitching by putting your whole schema into one single file.
 
 **Multiple interfaces**
 
-Types can implement multiple [interfaces](https://spec.graphql.org/October2021/#sec-Interfaces) using an ampersand `&` in GraphQL, but AppSync uses the old comma (`,`) separator. `&` is the only separator suported by this plugin, but it will automatically be replaced with a `,`.
+Types can implement multiple [interfaces](https://spec.graphql.org/October2021/#sec-Interfaces) using an ampersand `&` in GraphQL, but AppSync uses the old comma (`,`) separator. `&` is the only separator supported by this plugin, but it will automatically be replaced with a `,`.
 
 ## Logging
 

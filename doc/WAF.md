@@ -119,7 +119,7 @@ apiKeys:
       - disableIntrospection # disables introspection for this API key
 ```
 
-Adding a rule to an API key without any _statement_ will add a _match-all_ rule for that key (all requests will match that rule). This is usefull for example to exclude API keys from global rules. In that case, you need to make sure to attribute a higher priority to that rule.
+Adding a rule to an API key without any _statement_ will add a _match-all_ rule for that key (all requests will match that rule). This is useful for example to exclude API keys from global rules. In that case, you need to make sure to attribute a higher priority to that rule.
 
 Example:
 

@@ -37,9 +37,9 @@ appSync:
 
 ## Usage
 
-Substutitions are defined as key-value pairs under the `appSync.substitutions`, `appSync.resolvers.[resolverName].substitutions` or `appSync.pipelineFunctions.[functionName].substitutions` attributes.
+Substitutions are defined as key-value pairs under the `appSync.substitutions`, `appSync.resolvers.[resolverName].substitutions` or `appSync.pipelineFunctions.[functionName].substitutions` attributes.
 
-Global substitutions are available globally to all mapping templates. Resovler and Pipeline function substitutions are only available where they are defined. Resolver and Pipeline function substitutions take precedence over global substitutions (values will be overwritten).
+Global substitutions are available globally to all mapping templates. Resolver and Pipeline function substitutions are only available where they are defined. Resolver and Pipeline function substitutions take precedence over global substitutions (values will be overwritten).
 
 Once defined, you can then use them within the mapping templates as if they were VTL variables. At deployment time, variables will be substituted with their corresponding value.
 
