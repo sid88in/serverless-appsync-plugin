@@ -106,6 +106,78 @@ describe('DataSource', () => {
     });
   });
 
+  describe('EventBridge', () => {
+    it('should generate Resource with default role', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_EVENTBRIDGE',
+        name: 'eventBridge',
+        description: 'My eventBridge bus',
+        config: {
+          eventBusArn:
+            'arn:aws:events:us-east-1:123456789012:event-bus/default',
+        },
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+    });
+
+    it('should generate default role with a Ref for the bus ARN', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_EVENTBRIDGE',
+        name: 'eventBridge',
+        description: 'My eventBridge bus',
+        config: {
+          eventBusArn: { 'Fn::GetAtt': ['MyEventBus', 'Arn'] },
+        },
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+    });
+
+    it('should generate default role with custom statement', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_EVENTBRIDGE',
+        name: 'eventBridge',
+        description: 'My eventBridge bus',
+        config: {
+          eventBusArn:
+            'arn:aws:events:us-east-1:123456789012:event-bus/default',
+          iamRoleStatements: [
+            {
+              Effect: 'Allow',
+              Action: ['events:PutEvents'],
+              Resource: [
+                'arn:aws:events:us-east-1:123456789012:event-bus/default',
+                'arn:aws:events:us-east-1:123456789012:event-bus/other',
+              ],
+            },
+          ],
+        },
+      });
+
+      expect(dataSource.compileDataSourceIamRole()).toMatchSnapshot();
+    });
+
+    it('should not generate default role when a service role arn is passed', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_EVENTBRIDGE',
+        name: 'eventBridge',
+        description: 'My eventBridge bus',
+        config: {
+          eventBusArn:
+            'arn:aws:events:us-east-1:123456789012:event-bus/default',
+          serviceRoleArn: 'arn:aws:iam:',
+        },
+      });
+
+      expect(dataSource.compileDataSourceIamRole()).toBeUndefined();
+    });
+  });
+
   describe('AWS Lambda', () => {
     it('should generate Resource with default role', () => {
       const api = new Api(given.appSyncConfig(), plugin);
