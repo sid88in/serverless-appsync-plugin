@@ -1,6 +1,6 @@
 # Authentication
 
-[Authentication](https://docs.aws.amazon.com/appsync/latest/devguide/security-authz.html) definitions are found under the `appSync.authentication` (for the default authentication method) and `appSync.additionalAuthentication` (as an array) for additional ones
+[Authentication](https://docs.aws.amazon.com/appsync/latest/devguide/security-authz.html) definitions are found under the `appSync.authentication` (for the default authentication method) and `appSync.additionalAuthentications` (as an array) for additional ones
 
 ## Quick start
 
@@ -8,7 +8,7 @@
 appSync:
   authentication:
     type: 'API_KEY'
-  additionalAuthentication:
+  additionalAuthentications:
     - type: 'AMAZON_COGNITO_USER_POOLS'
       config:
         userPoolId: '123456789'
