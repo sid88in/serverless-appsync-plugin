@@ -26,11 +26,12 @@ export type IamStatement = {
 
 export type WafConfig = {
   enabled?: boolean;
+  arn?: string;
   name?: string;
   defaultAction?: WafAction;
   description?: string;
   visibilityConfig?: VisibilityConfig;
-  rules: WafRule[];
+  rules?: WafRule[];
 };
 
 export type WafThrottleConfig =
