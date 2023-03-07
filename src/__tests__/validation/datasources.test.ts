@@ -217,6 +217,21 @@ describe('EventBridge', () => {
         },
       },
       {
+        name: 'EventBusArn as Ref',
+        config: {
+          dataSources: {
+            myDynamoSource1: {
+              type: 'AMAZON_EVENTBRIDGE',
+              config: {
+                eventBusArn: {
+                  'Fn::GetAtt': ['MyEventBus', 'Arn'],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
         name: 'Valid config, as array of maps',
         config: {
           dataSources: [
