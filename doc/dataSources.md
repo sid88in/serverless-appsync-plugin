@@ -132,7 +132,7 @@ appSync:
     myEventBus:
       type: 'AMAZON_EVENTBRIDGE'
       confing:
-        eventBusArn: arn:aws:events:us-east-1:123456789012:event-bus/my-event-bus
+        eventBusArn: !GetAtt MyEventBus.Arn
 ```
 
 ### config

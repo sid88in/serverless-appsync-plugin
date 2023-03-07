@@ -987,6 +987,7 @@ Object {
                 "Effect": "Allow",
                 "Resource": Array [
                   "arn:aws:events:us-east-1:123456789012:event-bus/default",
+                  "arn:aws:events:us-east-1:123456789012:event-bus/other",
                 ],
               },
             ],

@@ -151,6 +151,7 @@ describe('DataSource', () => {
               Action: ['events:PutEvents'],
               Resource: [
                 'arn:aws:events:us-east-1:123456789012:event-bus/default',
+                'arn:aws:events:us-east-1:123456789012:event-bus/other',
               ],
             },
           ],
@@ -160,7 +161,7 @@ describe('DataSource', () => {
       expect(dataSource.compileDataSourceIamRole()).toMatchSnapshot();
     });
 
-    it('should not generate default role when arn is passed', () => {
+    it('should not generate default role when a service role arn is passed', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
         type: 'AMAZON_EVENTBRIDGE',
