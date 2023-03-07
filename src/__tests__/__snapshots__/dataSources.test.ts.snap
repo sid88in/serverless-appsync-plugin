@@ -820,7 +820,7 @@ Object {
           "ApiId",
         ],
       },
-      "Description": "My eventBridge table",
+      "Description": "My eventBridge bus",
       "EventBridgeConfig": Object {
         "EventBusArn": "arn:aws:events:us-east-1:123456789012:event-bus/default",
       },
@@ -888,7 +888,7 @@ Object {
           "ApiId",
         ],
       },
-      "Description": "My eventBridge table",
+      "Description": "My eventBridge bus",
       "EventBridgeConfig": Object {
         "EventBusArn": Object {
           "Fn::GetAtt": Array [
