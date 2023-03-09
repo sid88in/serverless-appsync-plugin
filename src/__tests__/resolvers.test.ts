@@ -1,24 +1,68 @@
+import * as esbuild from 'esbuild';
 import fs from 'fs';
 import { Api } from '../resources/Api';
 import * as given from './given';
 
 const plugin = given.plugin();
 
+jest.mock('esbuild', () => ({
+  buildSync: jest.fn().mockImplementation((config) => {
+    return {
+      errors: [],
+      warnings: [],
+      metafile: undefined,
+      mangleCache: undefined,
+      outputFiles: [
+        {
+          path: 'path/to/file',
+          contents: Uint8Array.from([]),
+          text: `Bundled content of ${`${config.entryPoints?.[0]}`.replace(
+            /\\/g,
+            '/',
+          )}`,
+        },
+      ],
+    };
+  }),
+}));
+
 describe('Resolvers', () => {
   let mock: jest.SpyInstance;
-  let mockEists: jest.SpyInstance;
+  let mockExists: jest.SpyInstance;
+  let mockEsbuild: jest.SpyInstance;
   beforeEach(() => {
     mock = jest
       .spyOn(fs, 'readFileSync')
       .mockImplementation(
         (path) => `Content of ${`${path}`.replace(/\\/g, '/')}`,
       );
-    mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    mockExists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    mockEsbuild = jest
+      .spyOn(esbuild, 'buildSync')
+      .mockImplementation((config) => {
+        return {
+          errors: [],
+          warnings: [],
+          metafile: undefined,
+          mangleCache: undefined,
+          outputFiles: [
+            {
+              path: 'path/to/file',
+              contents: Uint8Array.from([]),
+              text: `Bundled content of ${`${config.entryPoints?.[0]}`.replace(
+                /\\/g,
+                '/',
+              )}`,
+            },
+          ],
+        };
+      });
   });
 
   afterEach(() => {
     mock.mockRestore();
-    mockEists.mockRestore();
+    mockExists.mockRestore();
+    mockEsbuild.mockRestore();
   });
 
   describe('Unit Resolvers', () => {
@@ -275,7 +319,7 @@ describe('Resolvers', () => {
 
   describe('Pipeline Resovlers', () => {
     it('should generate JS Resources with default empty resolver', () => {
-      mockEists.mockReturnValue(false);
+      mockExists.mockReturnValue(false);
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -458,7 +502,7 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "Code": "Content of resolvers/getUserFunction.js",
+              "Code": "Bundled content of resolvers/getUserFunction.js",
               "FieldName": "user",
               "Kind": "PIPELINE",
               "PipelineConfig": Object {
@@ -546,7 +590,7 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "Code": "Content of funciton1.js",
+              "Code": "Bundled content of funciton1.js",
               "DataSourceName": Object {
                 "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
