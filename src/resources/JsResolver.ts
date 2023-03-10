@@ -30,6 +30,7 @@ export class JsResolver {
       write: false,
       external: ['@aws-appsync/utils'],
       format: 'esm',
+      target: 'es2020',
     });
 
     if (buildResult.errors.length > 0) {
