@@ -168,6 +168,27 @@ describe('Waf', () => {
         ),
       ).toMatchSnapshot();
     });
+
+    it('should generate a custom rule with ManagedRuleGroup', () => {
+      expect(
+        waf.buildWafRule(
+          {
+            name: 'MyRule1',
+            priority: 200,
+            overrideAction: {
+              None: {},
+            },
+            statement: {
+              ManagedRuleGroupStatement: {
+                Name: 'AWSManagedRulesCommonRuleSet',
+                VendorName: 'AWS',
+              },
+            },
+          },
+          'Base',
+        ),
+      ).toMatchSnapshot();
+    });
   });
 
   describe('ApiKey rules', () => {

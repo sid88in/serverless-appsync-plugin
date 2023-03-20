@@ -14,6 +14,7 @@ import {
   WafThrottleConfig,
 } from '../types/plugin';
 import { Api } from './Api';
+import { toCfnKeys } from '../utils';
 
 export class Waf {
   constructor(private api: Api, private config: WafConfig) {}
@@ -106,10 +107,10 @@ export class Waf {
     }
 
     const action: WafRuleAction = rule.action || 'Allow';
+    const overrideAction = rule.overrideAction;
 
     const result: CfnWafRule = {
       Name: rule.name,
-      Action: { [action]: {} },
       Priority: rule.priority,
       Statement: rule.statement,
       VisibilityConfig: this.getWafVisibilityConfig(
@@ -117,6 +118,12 @@ export class Waf {
         rule.name,
       ),
     };
+
+    if (overrideAction) {
+      result.OverrideAction = toCfnKeys(overrideAction);
+    } else {
+      result.Action = { [action]: {} };
+    }
 
     return result;
   }
