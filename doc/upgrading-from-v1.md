@@ -6,9 +6,18 @@ This page will guide you through the process of migrating existing stacks to the
 
 The v1 is still available on the [v1](https://github.com/sid88in/serverless-appsync-plugin/tree/v1) branch
 
+⚠️ Using the AppSync API keys? Read about the [API keys rotation issue](#api-keys-rotation-issue)
+
 ## Breaking changes and dropped features
 
 There are a few breaking changes that you need to be aware of.
+
+### API keys rotation issue
+
+Due to a [backwards-compatibility issue](https://github.com/sid88in/serverless-appsync-plugin/issues/584) your API keys will get rotated
+(changed) upon the first deployment with the `v2` version of this plugin. If left unresolved, this will cause your clients that use the keys
+to break, until you are able to update them with the newly generated API keys. 
+Make sure to read about [mitigating the API key rotation issue](#mitigate-the-api-key-rotation-issue)
 
 ### Support for Serverless Framework v3 only
 
@@ -111,7 +120,7 @@ configValidationMode: error
 
 🙋‍♂️ If you find information that is inaccurate or incomplete in this guide, please [open a PR](https://github.com/sid88in/serverless-appsync-plugin/compare) to fix it 🙏.
 
-**Path of the appSync configuration**
+#### Path of the appSync configuration
 
 The first significant change is that you must now define your API under the `appSync` attribute directly at the root of your `serverless.yml` file, as opposed to placing it under `custom` in `v1`.
 
@@ -132,7 +141,7 @@ appSync:
   name: my-api
 ```
 
-**Renamed attributes**
+#### Renamed attributes
 
 Some attributes have been renamed for clarity. Here are the most important ones.
 
@@ -141,7 +150,7 @@ Some attributes have been renamed for clarity. Here are the most important ones.
 - rename `logConfig` to `logging`
 - rename `wafConfig` to `waf`
 
-**DataSources**
+#### DataSources
 
 [DataSources](dataSources.md) are now defined as a key-value pair object. In `v1`, you passed them as an array. Replace the array with a key-value pair object where the key is what you used to have under `name`.
 
@@ -165,7 +174,7 @@ dataSources:
       tableName: my-table
 ```
 
-**Resolvers**
+#### Resolvers
 
 [Resolvers](resolvers.md) are now defined as a key-value pair object. In `v1` you passed them as an array. Replace the array with a key-value pair object. You can use any value as the key, or use the [`Type.field` shortcut](resolvers.md).
 
@@ -188,7 +197,7 @@ resolvers:
     dataSource: myDataSource
 ```
 
-**Pipeline functions**
+#### Pipeline functions
 
 [Pipeline functions](pipeline-functions.md) have moved from `functionConfigurations` to `pipelineFunctions`. Just like Resolvers and datasources, `pipelineFunction` expects a key-value pair object. Use the name of the function (`name`) as the key.
 
@@ -208,7 +217,7 @@ pipelineFunctions:
     dataSource: myDataSource
 ```
 
-**Authentication**
+#### Authentication
 
 In `v1` you would define the principal [authentication](authentication.md) provider directly under the `appSync` attribute. In `v2` it has moved under `authentication`.
 
@@ -255,7 +264,7 @@ additionalAuthentications:
       userPoolId: # user pool ID
 ```
 
-**Schema**
+#### Schema
 
 If you split your schema into several files, you must use [Object extensions](https://spec.graphql.org/October2021/#sec-Object-Extensions) on the types that have already been defined. This will often be the case for the `Query`, `Mutation` and `Subscription` types.
 
@@ -297,7 +306,7 @@ extend type Query {
 }
 ```
 
-**ElasticSearch**
+#### ElasticSearch
 
 As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch Service. DataSources of type `AMAZON_ELASTICSEARCH` should now use `AMAZON_OPENSEARCH_SERVICE` instead.
 
@@ -320,3 +329,28 @@ dataSources:
     config:
       endpoint: https://abcdefgh.us-east-1.es.amazonaws.com
 ```
+
+#### Mitigate the API key rotation issue
+
+Due to a [backwards-compatibility issue](https://github.com/sid88in/serverless-appsync-plugin/issues/584) your API keys will get rotated
+(changed) upon the first deployment with the `v2` version of this plugin. If left unresolved, this will cause your clients that use the keys
+to break, until you are able to update them with the newly generated API keys. 
+
+If some down time isn't acceptable, there's two ways to mitigate this:
+
+##### Option A: Add a temporary key
+
+1. Add a new temporary API key throught the settings in AWS AppSync Console
+2. Update all your clients to use this new temporary key
+3. Deploy your API using the `v2` version of this plugin. The old API keys will get replaced by new ones, but the temporary key will get 
+   retained since it's not part of the CloudFormattion stack.
+5. After deployment, take the newly generated keys, and update the clients again.
+6. Manually delete the temporary key from the AWS AppSync Console
+
+##### Option B: Add an entry to `Resources` key in the `serverless.yml`
+
+1. Find the CloudFormattion resource name of the existing API key(s). You can find the name in the *Resources* tab of your stack in the CloudFormattion AWS console.
+2. Add an entry to `Resources.resources` part of the `serverless.yml` file, making sure to keep all the configuration (especially the logical ID), exactly the same.
+3. Deploy your API using the `v2` version of this plugin. The old API keys will now get retained because they were manually referenced in the `Resources` part.
+4. Migrate your clients to the new API keys created by the `v2` plugin
+5. Delete the key from the `Resources` 
