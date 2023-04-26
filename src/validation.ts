@@ -833,8 +833,9 @@ export const appSyncSchema = {
       ],
       errorMessage: 'contains invalid pipeline function definitions',
     },
+    apiId: { $ref: '#/definitions/stringOrIntrinsicFunction' },
   },
-  required: ['name', 'authentication'],
+  required: ['name'],
   additionalProperties: {
     not: true,
     errorMessage: 'invalid (unknown) property',

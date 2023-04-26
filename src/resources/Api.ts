@@ -25,6 +25,7 @@ import { Resolver } from './Resolver';
 import { PipelineFunction } from './PipelineFunction';
 import { Schema } from './Schema';
 import { Waf } from './Waf';
+import { log } from '@serverless/utils/log';
 
 export class Api {
   public naming: Naming;
@@ -40,6 +41,23 @@ export class Api {
   compile() {
     const resources: CfnResources = {};
 
+    if (this.config.apiId) {
+      log.info(`
+          Updating an existing Graphql API.
+          The following configuration options are ignored:
+            - name
+            - authentication
+            - additionalAuthentications
+            - schema
+            - domain
+            - apiKeys
+            - xrayEnabled
+            - logging
+            - waf
+            - tags
+        `);
+    }
+
     merge(resources, this.compileEndpoint());
     merge(resources, this.compileSchema());
     merge(resources, this.compileCustomDomain());
@@ -47,7 +65,6 @@ export class Api {
     merge(resources, this.compileLambdaAuthorizerPermission());
     merge(resources, this.compileWafRules());
     merge(resources, this.compileCachingResources());
-
     forEach(this.config.apiKeys, (key) => {
       merge(resources, this.compileApiKey(key));
     });
@@ -68,6 +85,9 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
+    if (this.config.apiId) {
+      return {};
+    }
     const logicalId = this.naming.getApiLogicalId();
 
     const endpointResource: CfnResource = {
@@ -78,16 +98,17 @@ export class Api {
         Tags: this.getTagsConfig(),
       },
     };
-
-    merge(
-      endpointResource.Properties,
-      this.compileAuthenticationProvider(this.config.authentication),
-    );
+    if (this.config.authentication) {
+      merge(
+        endpointResource.Properties,
+        this.compileAuthenticationProvider(this.config.authentication),
+      );
+    }
 
     if (this.config.additionalAuthentications.length > 0) {
       merge(endpointResource.Properties, {
         AdditionalAuthenticationProviders:
-          this.config.additionalAuthentications?.map((provider) =>
+          this.config.additionalAuthentications.map((provider) =>
             this.compileAuthenticationProvider(provider, true),
           ),
       });
@@ -113,7 +134,11 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.logging || this.config.logging.enabled === false) {
+    if (
+      !this.config.logging ||
+      this.config.logging.enabled === false ||
+      this.config.apiId
+    ) {
       return {};
     }
 
@@ -183,6 +208,9 @@ export class Api {
   }
 
   compileSchema() {
+    if (!this.config.schema || this.config.apiId) {
+      return {};
+    }
     const schema = new Schema(this, this.config.schema);
     return schema.compile();
   }
@@ -193,7 +221,8 @@ export class Api {
     if (
       !domain ||
       domain.enabled === false ||
-      domain.useCloudFormation === false
+      domain.useCloudFormation === false ||
+      this.config.apiId
     ) {
       return {};
     }
@@ -279,6 +308,10 @@ export class Api {
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
+    if (!this.config.authentication || this.config.apiId) {
+      return {};
+    }
+
     const lambdaAuth = [
       ...this.config.additionalAuthentications,
       this.config.authentication,
@@ -308,6 +341,9 @@ export class Api {
   }
 
   compileApiKey(config: ApiKeyConfig) {
+    if (this.config.apiId) {
+      return {};
+    }
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
@@ -356,26 +392,36 @@ export class Api {
   }
 
   compileCachingResources(): CfnResources {
-    if (this.config.caching && this.config.caching.enabled !== false) {
-      const cacheConfig = this.config.caching;
-      const logicalId = this.naming.getCachingLogicalId();
-
-      return {
-        [logicalId]: {
-          Type: 'AWS::AppSync::ApiCache',
-          Properties: {
-            ApiCachingBehavior: cacheConfig.behavior,
-            ApiId: this.getApiId(),
-            AtRestEncryptionEnabled: cacheConfig.atRestEncryption || false,
-            TransitEncryptionEnabled: cacheConfig.transitEncryption || false,
-            Ttl: cacheConfig.ttl || 3600,
-            Type: cacheConfig.type || 'T2_SMALL',
-          },
-        },
-      };
+    if (
+      !this.config.caching ||
+      this.config.caching?.enabled === false ||
+      this.config.apiId
+    ) {
+      return {};
     }
+    //   if (
+    //   !this.config.caching ||
+    //   !this.config.caching?.enabled ||
+    //   this.config.apiId
+    // ) {
+    //   return {};
+    // }
+    const cacheConfig = this.config.caching;
+    const logicalId = this.naming.getCachingLogicalId();
 
-    return {};
+    return {
+      [logicalId]: {
+        Type: 'AWS::AppSync::ApiCache',
+        Properties: {
+          ApiCachingBehavior: cacheConfig.behavior,
+          ApiId: this.getApiId(),
+          AtRestEncryptionEnabled: cacheConfig.atRestEncryption || false,
+          TransitEncryptionEnabled: cacheConfig.transitEncryption || false,
+          Ttl: cacheConfig.ttl || 3600,
+          Type: cacheConfig.type || 'T2_SMALL',
+        },
+      },
+    };
   }
 
   compileDataSource(dsConfig: DataSourceConfig): CfnResources {
@@ -396,7 +442,11 @@ export class Api {
   }
 
   compileWafRules() {
-    if (!this.config.waf || this.config.waf.enabled === false) {
+    if (
+      !this.config.waf ||
+      this.config.waf.enabled === false ||
+      this.config.apiId
+    ) {
       return {};
     }
 
@@ -405,6 +455,9 @@ export class Api {
   }
 
   getApiId() {
+    if (this.config.apiId) {
+      return this.config.apiId;
+    }
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
     return {
       'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
@@ -525,10 +578,10 @@ export class Api {
   }
 
   hasDataSource(name: string) {
-    return name in this.config.dataSources;
+    return name in (this.config.dataSources || {});
   }
 
   hasPipelineFunction(name: string) {
-    return name in this.config.pipelineFunctions;
+    return name in (this.config.pipelineFunctions || {});
   }
 }

@@ -213,6 +213,10 @@ describe('Api', () => {
       expect(api.compileEndpoint()).toMatchSnapshot();
       expect(api.functions).toMatchSnapshot();
     });
+    it('should not compile the Api Resource when apiId is provided', () => {
+      const api = new Api(given.appSyncConfig({ apiId: '123' }), plugin);
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`Object {}`);
+    });
   });
 
   describe('Logs', () => {
@@ -234,6 +238,13 @@ describe('Api', () => {
         }),
         plugin,
       );
+      expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(
+        `Object {}`,
+      );
+    });
+
+    it('should not compile CloudWatch Resources when apiId is provided', () => {
+      const api = new Api(given.appSyncConfig({ apiId: '1234' }), plugin);
       expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(
         `Object {}`,
       );
@@ -465,6 +476,20 @@ describe('Api', () => {
         }
       `);
     });
+    it('should not generate an api key resources when apiId is provided', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          apiId: '1234',
+        }),
+        plugin,
+      );
+      expect(
+        api.compileApiKey({
+          name: 'Default',
+          description: 'Default Key',
+        }),
+      ).toMatchInlineSnapshot(`Object {}`);
+    });
   });
 
   describe('LambdaAuthorizer', () => {
@@ -474,6 +499,18 @@ describe('Api', () => {
           authentication: {
             type: 'API_KEY',
           },
+        }),
+        plugin,
+      );
+      expect(api.compileLambdaAuthorizerPermission()).toMatchInlineSnapshot(
+        `Object {}`,
+      );
+    });
+
+    it('should not generate the Lambda Authorizer Resources when apiId is provided', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          apiId: '123',
         }),
         plugin,
       );
@@ -557,6 +594,11 @@ describe('Caching', () => {
       }),
       plugin,
     );
+    expect(api.compileCachingResources()).toEqual({});
+  });
+
+  it('should not generate Resources when apiId is provided', () => {
+    const api = new Api(given.appSyncConfig({ apiId: '1234' }), plugin);
     expect(api.compileCachingResources()).toEqual({});
   });
 
@@ -722,5 +764,15 @@ describe('Domains', () => {
       plugin,
     );
     expect(api.compileCustomDomain()).toMatchSnapshot();
+  });
+
+  it('should not generate domain resources when apiId is provided', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        apiId: '123',
+      }),
+      plugin,
+    );
+    expect(api.compileCustomDomain()).toMatchInlineSnapshot(`Object {}`);
   });
 });
