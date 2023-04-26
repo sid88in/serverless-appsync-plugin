@@ -399,13 +399,7 @@ export class Api {
     ) {
       return {};
     }
-    //   if (
-    //   !this.config.caching ||
-    //   !this.config.caching?.enabled ||
-    //   this.config.apiId
-    // ) {
-    //   return {};
-    // }
+
     const cacheConfig = this.config.caching;
     const logicalId = this.naming.getCachingLogicalId();
 
@@ -444,7 +438,7 @@ export class Api {
   compileWafRules() {
     if (
       !this.config.waf ||
-      this.config.waf.enabled === false ||
+      this.config.waf?.enabled === false ||
       this.config.apiId
     ) {
       return {};
