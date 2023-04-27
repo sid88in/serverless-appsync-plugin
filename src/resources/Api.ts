@@ -41,7 +41,7 @@ export class Api {
   compile() {
     const resources: CfnResources = {};
 
-    if (this.config.apiId) {
+    if (this.isExistingApi()) {
       log.info(`
           Updating an existing Graphql API.
           The following configuration options are ignored:
@@ -85,7 +85,7 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
-    if (this.config.apiId) {
+    if (this.isExistingApi()) {
       return {};
     }
     const logicalId = this.naming.getApiLogicalId();
@@ -137,7 +137,7 @@ export class Api {
     if (
       !this.config.logging ||
       this.config.logging.enabled === false ||
-      this.config.apiId
+      this.isExistingApi()
     ) {
       return {};
     }
@@ -208,7 +208,7 @@ export class Api {
   }
 
   compileSchema() {
-    if (!this.config.schema || this.config.apiId) {
+    if (!this.config.schema || this.isExistingApi()) {
       return {};
     }
     const schema = new Schema(this, this.config.schema);
@@ -222,7 +222,7 @@ export class Api {
       !domain ||
       domain.enabled === false ||
       domain.useCloudFormation === false ||
-      this.config.apiId
+      this.isExistingApi()
     ) {
       return {};
     }
@@ -308,7 +308,7 @@ export class Api {
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
-    if (!this.config.authentication || this.config.apiId) {
+    if (!this.config.authentication || this.isExistingApi()) {
       return {};
     }
 
@@ -341,7 +341,7 @@ export class Api {
   }
 
   compileApiKey(config: ApiKeyConfig) {
-    if (this.config.apiId) {
+    if (this.isExistingApi()) {
       return {};
     }
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
@@ -395,7 +395,7 @@ export class Api {
     if (
       !this.config.caching ||
       this.config.caching?.enabled === false ||
-      this.config.apiId
+      this.isExistingApi()
     ) {
       return {};
     }
@@ -439,7 +439,7 @@ export class Api {
     if (
       !this.config.waf ||
       this.config.waf?.enabled === false ||
-      this.config.apiId
+      this.isExistingApi()
     ) {
       return {};
     }
@@ -456,6 +456,10 @@ export class Api {
     return {
       'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
     };
+  }
+
+  isExistingApi() {
+    return !!this.config?.apiId;
   }
 
   getUserPoolConfig(auth: CognitoAuth, isAdditionalAuth = false) {
