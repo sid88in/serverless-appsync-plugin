@@ -133,7 +133,7 @@ export const appSyncSchema = {
         iatTTL: { type: 'number' },
         authTTL: { type: 'number' },
       },
-      required: ['issuer', 'clientId'],
+      required: ['issuer'],
     },
     iamAuth: {
       type: 'object',
