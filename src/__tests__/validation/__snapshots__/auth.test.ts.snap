@@ -32,10 +32,7 @@ exports[`Valdiation Invalid should validate a Lambda with invalid functionName a
 
 exports[`Valdiation Invalid should validate a Lambda with missing config 1`] = `"/authentication: must have required property 'config'"`;
 
-exports[`Valdiation Invalid should validate a OIDC with empty config 1`] = `
-"/authentication/config: must have required property 'issuer'
-/authentication/config: must have required property 'clientId'"
-`;
+exports[`Valdiation Invalid should validate a OIDC with empty config 1`] = `"/authentication/config: must have required property 'issuer'"`;
 
 exports[`Valdiation Invalid should validate a OIDC with invalid config 1`] = `
 "/authentication/config/issuer: must be string
