@@ -50,6 +50,7 @@ appSync:
 - `logging`: See [Logging](#Logging)
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
 - `tags`: A key-value pair for tagging this AppSync API
+- `apiId`: See [ApiId](#ApiId)
 
 ## Schema
 
@@ -185,3 +186,33 @@ appSync:
 - `excludeVerboseContent`: Boolean, Optional. Exclude or not verbose content (headers, response headers, context, and evaluated mapping templates), regardless of field logging level. Defaults to `false`.
 - `retentionInDays`: Optional. Number of days to retain the logs. Defaults to [`provider.logRetentionInDays`](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml#general-function-settings).
 - `roleArn`: Optional. The role ARN to use for AppSync to write into CloudWatch. If not specified, a new role is created by default.
+
+
+## ApiId
+If you want to manage your existing AppSync Api through the serverless, you can specify `apiId.`
+This is handy if you
+- defined your API in the AWS console
+- defined your API through the cloudformation in the current or another stack
+
+To point your resources into existing AppSync API, you must provide apiId, which can be a string or imported value from another stack.
+```yaml
+appSync:
+  name: my-api
+  apiId: "existing api id"
+```
+
+The following configuration options are only associated with the creation of a new AppSync endpoint and will be ignored if you provide the apiId parameter:
+- name
+- authentication
+- additionalAuthentications
+- schema
+- domain
+- apiKeys
+- xrayEnabled
+- logging
+- waf
+- Tags
+> Note: you should never specify this parameter if you're managing your AppSync through this plugin since it results in removing your API.
+
+### Schema
+After specifying this parameter, you need to manually keep your schema up to date or from the main stack where your root AppSync API is defined. The plugin is not taking into account schema property due to AppSync limitation and inability to merge schemas across multiple stacks

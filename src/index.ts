@@ -65,6 +65,7 @@ import {
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
 import terminalLink from 'terminal-link';
+import { AppSyncConfig } from './types/plugin';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -86,6 +87,7 @@ class ServerlessAppsyncPlugin {
   public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private api?: Api;
   private naming?: Naming;
+  private config?: AppSyncConfig;
 
   constructor(
     public serverless: Serverless,
@@ -347,6 +349,11 @@ class ServerlessAppsyncPlugin {
   async getApiId() {
     this.loadConfig();
 
+    if (this.config?.apiId) {
+      return this.config.apiId;
+    }
+
+
     if (!this.naming) {
       throw new this.serverless.classes.Error(
         'Could not find the naming service. This should not happen.',
@@ -376,6 +383,10 @@ class ServerlessAppsyncPlugin {
 
   async gatherData() {
     const apiId = await this.getApiId();
+
+    if (typeof apiId !== 'string') {
+      return;
+    }
 
     const { graphqlApi } = await this.provider.request<
       GetGraphqlApiRequest,
@@ -409,6 +420,10 @@ class ServerlessAppsyncPlugin {
 
   async getIntrospection() {
     const apiId = await this.getApiId();
+
+    if (typeof apiId !== 'string') {
+      return;
+    }
 
     const { schema } = await this.provider.request<
       GetIntrospectionSchemaRequest,
@@ -673,9 +688,15 @@ class ServerlessAppsyncPlugin {
   }
 
   async assocDomain() {
-    const domain = this.getDomain();
     const apiId = await this.getApiId();
+
+    if (typeof apiId !== 'string') {
+      return;
+    }
+
+    const domain = this.getDomain();
     const assoc = await this.getApiAssocStatus(domain.name);
+
 
     if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
       log.warning(
@@ -957,9 +978,9 @@ class ServerlessAppsyncPlugin {
         throw error;
       }
     }
-    const config = getAppSyncConfig(appSync);
+    this.config = getAppSyncConfig(appSync);
     this.naming = new Naming(appSync.name);
-    this.api = new Api(config, this);
+    this.api = new Api(this.config, this);
   }
 
   validateSchemas() {

@@ -82,6 +82,7 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
   const dataSources: Record<string, DataSourceConfig> = {};
   const resolvers: Record<string, ResolverConfig> = {};
   const pipelineFunctions: Record<string, PipelineFunctionConfig> = {};
+  const additionalAuthentications = config.additionalAuthentications || [];
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources[name] = {
@@ -163,11 +164,10 @@ export const getAppSyncConfig = (config: AppSyncConfigInput): AppSyncConfig => {
     };
   });
 
-  const additionalAuthentications = config.additionalAuthentications || [];
 
   let apiKeys: Record<string, ApiKeyConfig> | undefined;
   if (
-    config.authentication.type === 'API_KEY' ||
+    config.authentication?.type === 'API_KEY' ||
     additionalAuthentications.some((auth) => auth.type === 'API_KEY')
   ) {
     const inputKeys = config.apiKeys || [];
