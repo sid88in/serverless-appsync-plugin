@@ -23,6 +23,7 @@ describe('Api', () => {
                 },
               ],
               "XrayEnabled": false,
+              "Visibility": true,
             },
             "Type": "AWS::AppSync::GraphQLApi",
           },

@@ -22,6 +22,11 @@ const DATASOURCE_TYPES = [
   'AMAZON_EVENTBRIDGE',
 ] as const;
 
+const VISIBILITY = [
+  'GLOBAL',
+  'PRIVATE',
+] as const;
+
 export const appSyncSchema = {
   type: 'object',
   definitions: {
@@ -678,6 +683,11 @@ export const appSyncSchema = {
       },
     },
     xrayEnabled: { type: 'boolean' },
+    visibility: {
+      type: 'string',
+      enum: ['GLOBAL', 'PRIVATE'],
+      errorMessage: 'must be "GLOBAL" or "PRIVATE"',
+    },
     substitutions: { $ref: '#/definitions/substitutions' },
     waf: {
       type: 'object',
