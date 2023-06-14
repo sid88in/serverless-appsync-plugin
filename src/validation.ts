@@ -22,11 +22,6 @@ const DATASOURCE_TYPES = [
   'AMAZON_EVENTBRIDGE',
 ] as const;
 
-const VISIBILITY = [
-  'GLOBAL',
-  'PRIVATE',
-] as const;
-
 export const appSyncSchema = {
   type: 'object',
   definitions: {
