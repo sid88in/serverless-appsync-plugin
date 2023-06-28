@@ -22,8 +22,36 @@ describe('Api', () => {
                   "Value": "Dev",
                 },
               ],
+              "Visibility": undefined,
               "XrayEnabled": false,
+            },
+            "Type": "AWS::AppSync::GraphQLApi",
+          },
+        }
+      `);
+    });
+
+    it('should compile the Api Resource for a private endpoint', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          visibility: 'PRIVATE',
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApi": Object {
+            "Properties": Object {
+              "AuthenticationType": "API_KEY",
+              "Name": "MyApi",
+              "Tags": Array [
+                Object {
+                  "Key": "stage",
+                  "Value": "Dev",
+                },
+              ],
               "Visibility": "PRIVATE",
+              "XrayEnabled": false,
             },
             "Type": "AWS::AppSync::GraphQLApi",
           },
@@ -64,6 +92,7 @@ describe('Api', () => {
                   "Value": "Dev",
                 },
               ],
+              "Visibility": undefined,
               "XrayEnabled": false,
             },
             "Type": "AWS::AppSync::GraphQLApi",
@@ -169,6 +198,7 @@ describe('Api', () => {
                 "DefaultAction": "ALLOW",
                 "UserPoolId": "pool123",
               },
+              "Visibility": undefined,
               "XrayEnabled": false,
             },
             "Type": "AWS::AppSync::GraphQLApi",
