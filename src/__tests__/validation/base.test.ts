@@ -17,6 +17,8 @@ describe('Valdiation', () => {
 
     expect(function () {
       validateConfig({
+        visibility: 'FOO',
+        xrayEnabled: 'BAR',
         unknownPorp: 'foo',
       });
     }).toThrowErrorMatchingSnapshot();
