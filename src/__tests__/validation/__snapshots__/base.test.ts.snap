@@ -54,5 +54,7 @@ exports[`Valdiation Waf Invalid should validate a Throttle limit 1`] = `
 exports[`Valdiation should validate  1`] = `
 ": must have required property 'name'
 : must have required property 'authentication'
-/unknownPorp: invalid (unknown) property"
+/unknownPorp: invalid (unknown) property
+/xrayEnabled: must be boolean
+/visibility: must be \\"GLOBAL\\" or \\"PRIVATE\\""
 `;

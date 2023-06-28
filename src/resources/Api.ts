@@ -74,6 +74,7 @@ export class Api {
       Type: 'AWS::AppSync::GraphQLApi',
       Properties: {
         Name: this.config.name,
+        Visibility: this.config.visibility || 'GLOBAL',
         XrayEnabled: this.config.xrayEnabled || false,
         Tags: this.getTagsConfig(),
       },

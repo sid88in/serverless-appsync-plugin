@@ -16,6 +16,7 @@ export type AppSyncConfig = {
   caching?: CachingConfig;
   waf?: WafConfig;
   tags?: Record<string, string>;
+  visibility?: 'GLOBAL' | 'PRIVATE';
 };
 
 export type IamStatement = {

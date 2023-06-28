@@ -678,6 +678,11 @@ export const appSyncSchema = {
       },
     },
     xrayEnabled: { type: 'boolean' },
+    visibility: {
+      type: 'string',
+      enum: ['GLOBAL', 'PRIVATE'],
+      errorMessage: 'must be "GLOBAL" or "PRIVATE"',
+    },
     substitutions: { $ref: '#/definitions/substitutions' },
     waf: {
       type: 'object',
