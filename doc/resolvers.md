@@ -24,6 +24,7 @@ appSync:
 - `field`: The Field in the schema this resolver is attached to. Optional if specified in the configuration key.
 - `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `PIPELINE`
 - `dataSource`: The name of the [dataSource](dataSources.md) this resolver uses.
+- `functions`: For pipeline resolvers ([see below](#PIPELINE-resolvers)) the array of functions to run in sequence
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataSources)
 - `code`: The path of the JavaScript resolver handler file, relative to `serverless.yml`. If not specified, a [minimalistic default](#javascript-vs-vtl) is used.
 - `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
@@ -64,7 +65,6 @@ appSync:
 
   resolvers:
     Query.user:
-      dataSource: my-table
       functions:
         - function1
         - function2
