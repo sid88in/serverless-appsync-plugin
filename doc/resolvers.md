@@ -28,7 +28,7 @@ appSync:
 - `code`: The path of the JavaScript resolver handler file, relative to `serverless.yml`. If not specified, a [minimalistic default](#javascript-vs-vtl) is used.
 - `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
 - `response`: The path to the VTL response mapping template file, relative to `serverless.yml`.
-- `substitutions`: See [VTL template substitutions](substitutions.md)
+- `substitutions`: See [Variable Substitutions](substitutions.md)
 - `caching`: [See below](#Caching)
 - `sync`: [See SyncConfig](syncConfig.md)
 

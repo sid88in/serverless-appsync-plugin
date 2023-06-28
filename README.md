@@ -52,7 +52,7 @@ appSync:
 - [Authentication](doc/authentication.md)
 - [API keys](doc/API-keys.md)
 - [Custom Domain](doc/custom-domain.md)
-- [VTL Template Substitutions](doc/substitutions.md)
+- [Variable Substitutions](doc/substitutions.md)
 - [Caching](doc/caching.md)
 - [Web Application Firewall (WAF)](doc/WAF.md)
 

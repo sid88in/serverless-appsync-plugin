@@ -22,7 +22,7 @@ appSync:
 - `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
 - `response`: The path to the VTL response mapping template file, relative to `serverless.yml`.
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataSources)
-- `substitutions`: See [VTL template substitutions](substitutions.md)
+- `substitutions`: See [Variable Substitutions](substitutions.md)
 - `sync`: [See SyncConfig](syncConfig.md)
 
 ## JavaScript vs VTL vs Direct Lambda
