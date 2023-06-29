@@ -86,9 +86,11 @@ export function response(ctx: Context) {
 }
 ```
 
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
+
 ## TypeScript support
 
-You can write JS resolver ins TypeScript. Resolver files with the `.ts` extension are automatically transpiled and bundled using esbuild.
+You can write JS resolver in TypeScript. Resolver files with the `.ts` extension are automatically transpiled and bundled using esbuild.
 
 ```yaml
 resolvers:
@@ -116,6 +118,8 @@ export function response(ctx: Context) {
   return ctx.result;
 }
 ```
+
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
 
 ## PIPELINE resolvers
 

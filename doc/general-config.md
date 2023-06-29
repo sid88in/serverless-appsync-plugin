@@ -190,18 +190,19 @@ appSync:
 
 ## Esbuild
 
-By default, this plugin will use esbuild in order to transpile and bundle Javascript resolvers. This option allows you to pass custom options that must be passed to esbuild.
+By default, this plugin uses esbuild in order to bundle Javascript resolvers. TypeSCript fiels are also transpiled into compatible JavaScript. This option allows you to pass custom options that must be passed to the esbuild command.
 
-Use these options carefully. Some options are not compatible with AWS AppSync. For more details about using esbuild with AppSync, see the [official guidelines](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-overview-js.html#additional-utilities)
+⚠️ Use these options carefully. Some options are not compatible with AWS AppSync. For more details about using esbuild with AppSync, see the [official guidelines](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-overview-js.html#additional-utilities)
 
-Set this option to `false` to disable esbuild.
+Set this option to `false` to disable esbuild completely. You code will be sent as-is to AppSync.
 
 Example:
 
 Override the target and disable sourcemap.
 
 ```yml
-esbuild:
-  target: 'es2020',
-  sourcemap: false
+appSync:
+  esbuild:
+    target: 'es2020',
+    sourcemap: false
 ```

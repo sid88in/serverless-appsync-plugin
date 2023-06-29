@@ -65,6 +65,60 @@ describe('Resolvers', () => {
     mockEsbuild.mockRestore();
   });
 
+  describe('esbuild', () => {
+    it('should skip esbuild when disabled', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          esbuild: false,
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          dataSource: 'myTable',
+          code: 'path/to/my-resolver.js',
+          name: 'my-function',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationmyfunction": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Content of path/to/my-resolver.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "Description": undefined,
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "my-function",
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
+  });
+
   describe('Unit Resolvers', () => {
     it('should generate Resources with VTL mapping templates', () => {
       const api = new Api(
