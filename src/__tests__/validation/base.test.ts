@@ -4,8 +4,21 @@ import { basicConfig } from '../basicConfig';
 
 describe('Valdiation', () => {
   it('should validate ', () => {
+    expect(
+      validateConfig({
+        ...basicConfig,
+        visibility: 'GLOBAL',
+        xrayEnabled: true,
+        tags: {
+          foo: 'bar',
+        },
+      }),
+    ).toBe(true);
+
     expect(function () {
       validateConfig({
+        visibility: 'FOO',
+        xrayEnabled: 'BAR',
         unknownPorp: 'foo',
       });
     }).toThrowErrorMatchingSnapshot();
@@ -55,6 +68,7 @@ describe('Valdiation', () => {
               retentionInDays: 'bar',
               excludeVerboseContent: 'buzz',
               loggingRoleArn: 123,
+              visibility: 'FOO',
             },
           },
         },

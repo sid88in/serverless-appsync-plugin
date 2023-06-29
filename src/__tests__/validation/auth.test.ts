@@ -62,6 +62,20 @@ describe('Valdiation', () => {
         } as AppSyncConfigInput,
       },
       {
+        name: 'OIDC without a clientId',
+        config: {
+          ...basicConfig,
+          authentication: {
+            type: 'OPENID_CONNECT',
+            config: {
+              issuer: 'https://auth.example.com',
+              iatTTL: 3600,
+              authTTL: 3600,
+            },
+          },
+        } as AppSyncConfigInput,
+      },
+      {
         name: 'IAM',
         config: {
           ...basicConfig,

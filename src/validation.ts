@@ -133,7 +133,7 @@ export const appSyncSchema = {
         iatTTL: { type: 'number' },
         authTTL: { type: 'number' },
       },
-      required: ['issuer', 'clientId'],
+      required: ['issuer'],
     },
     iamAuth: {
       type: 'object',
@@ -678,6 +678,11 @@ export const appSyncSchema = {
       },
     },
     xrayEnabled: { type: 'boolean' },
+    visibility: {
+      type: 'string',
+      enum: ['GLOBAL', 'PRIVATE'],
+      errorMessage: 'must be "GLOBAL" or "PRIVATE"',
+    },
     substitutions: { $ref: '#/definitions/substitutions' },
     waf: {
       type: 'object',
