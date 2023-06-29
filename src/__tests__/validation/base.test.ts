@@ -12,6 +12,11 @@ describe('Valdiation', () => {
         tags: {
           foo: 'bar',
         },
+        esbuild: {
+          target: 'es2020',
+          sourcemap: false,
+          treeShaking: false,
+        },
       }),
     ).toBe(true);
 
@@ -20,6 +25,7 @@ describe('Valdiation', () => {
         visibility: 'FOO',
         xrayEnabled: 'BAR',
         unknownPorp: 'foo',
+        esbuild: 'bad',
       });
     }).toThrowErrorMatchingSnapshot();
   });

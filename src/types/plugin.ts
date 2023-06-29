@@ -1,4 +1,5 @@
 import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
+import { BuildOptions } from 'esbuild';
 
 export type AppSyncConfig = {
   name: string;
@@ -17,6 +18,7 @@ export type AppSyncConfig = {
   waf?: WafConfig;
   tags?: Record<string, string>;
   visibility?: 'GLOBAL' | 'PRIVATE';
+  esbuild?: BuildOptions | false;
 };
 
 export type IamStatement = {

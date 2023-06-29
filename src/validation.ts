@@ -838,6 +838,15 @@ export const appSyncSchema = {
       ],
       errorMessage: 'contains invalid pipeline function definitions',
     },
+    esbuild: {
+      oneOf: [
+        {
+          type: 'object',
+        },
+        { const: false },
+      ],
+      errorMessage: 'must be an esbuild config object or false',
+    },
   },
   required: ['name', 'authentication'],
   additionalProperties: {

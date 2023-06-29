@@ -19,18 +19,33 @@ export class JsResolver {
       );
     }
 
+    return this.processTemplateSubstitutions(this.getResolverContent());
+  }
+
+  getResolverContent(): string {
+    if (this.api.config.esbuild === false) {
+      return fs.readFileSync(this.config.path, 'utf8');
+    }
+
     // process with esbuild
     // this will:
     // - Bundle the code into one file if necessary
     // - Transpile typescript to javascript if necessary
-
     const buildResult = buildSync({
+      target: 'esnext',
+      sourcemap: 'inline',
+      treeShaking: true,
+      minifyWhitespace: true,
+      minifyIdentifiers: true,
+      // custom config overrides
+      ...this.api.config.esbuild,
+      // These options are required and can't be changed
+      platform: 'node',
+      format: 'esm',
       entryPoints: [this.config.path],
       bundle: true,
       write: false,
       external: ['@aws-appsync/utils'],
-      format: 'esm',
-      target: 'es2020',
     });
 
     if (buildResult.errors.length > 0) {
@@ -45,7 +60,7 @@ export class JsResolver {
       );
     }
 
-    return this.processTemplateSubstitutions(buildResult.outputFiles[0].text);
+    return buildResult.outputFiles[0].text;
   }
 
   processTemplateSubstitutions(template: string): string | IntrinsicFunction {
