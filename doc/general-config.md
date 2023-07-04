@@ -49,7 +49,7 @@ appSync:
 - `waf`: See [Web Application Firefall](WAF.md)
 - `logging`: See [Logging](#Logging)
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
-- `visibility`: Optional. `GLOBAL` or `PRIVATE`. Defaults to `GLOBAL`. **Changing this value requires replacement of the API.**
+- `visibility`: Optional. `GLOBAL` or `PRIVATE`. **Changing this value requires the replacement of the API.**
 - `tags`: A key-value pair for tagging this AppSync API
 
 ## Schema
