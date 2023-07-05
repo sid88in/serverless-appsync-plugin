@@ -3,6 +3,7 @@
   "version": "0.0.0-development",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "lib/index.js",
+  "types": "lib/types/plugin.d.ts",
   "repository": "https://github.com/sid88in/serverless-appsync-plugin",
   "license": "MIT",
   "files": [
