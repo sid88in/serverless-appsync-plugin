@@ -131,7 +131,7 @@ appSync:
   dataSources:
     myEventBus:
       type: 'AMAZON_EVENTBRIDGE'
-      confing:
+      config:
         eventBusArn: !GetAtt MyEventBus.Arn
 ```
 
