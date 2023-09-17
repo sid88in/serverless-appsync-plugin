@@ -31,16 +31,9 @@ export class Resolver {
       FieldName: this.config.field,
     };
 
-    const isUnitJsResolver =
-      this.config.kind === 'UNIT' && 'code' in this.config;
+    const isVTLResolver = 'request' in this.config || 'response' in this.config;
 
-    const isPipelineJsResolver = !(
-      this.config.kind === 'UNIT' ||
-      'request' in this.config ||
-      'response' in this.config
-    );
-
-    if (!isUnitJsResolver && !isPipelineJsResolver) {
+    if (isVTLResolver) {
       const requestMappingTemplates = this.resolveMappingTemplate('request');
       if (requestMappingTemplates) {
         Properties.RequestMappingTemplate = requestMappingTemplates;
@@ -50,10 +43,15 @@ export class Resolver {
       if (responseMappingTemplate) {
         Properties.ResponseMappingTemplate = responseMappingTemplate;
       }
-    } else {
+    }
+
+    const isUnitJsResolver = this.config.kind === 'UNIT' && 'code' in this.config;
+    const isPipelineJsResolver = this.config.kind !== 'UNIT' && !isVTLResolver;
+    
+    if(isUnitJsResolver || isPipelineJsResolver) {
       if (this.config.code) {
         Properties.Code = this.resolveJsCode(this.config.code);
-      } else if (!this.config.code) {
+      } else {
         Properties.Code = DEFAULT_JS_RESOLVERS;
       }
       Properties.Runtime = {
