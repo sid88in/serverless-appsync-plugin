@@ -49,7 +49,18 @@ export function response(ctx) {
 }
 ```
 
-To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request` and `response` (only works with Lambda function data sources).
+If you want to use a UNIT JavaScript resolver, you must specify `code` (the minimalistic resolver handler cannot be used for UNIT resolver).
+
+```yaml
+appSync:
+  resolvers:
+    Query.user:
+      kind: UNIT
+      dataSource: myDataSource
+      code: getUser.js
+```
+
+To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request`, `response` or `code` (only works with Lambda function data sources).
 
 ## PIPELINE resolvers
 
