@@ -58,7 +58,7 @@ export class Resolver {
       } else if (typeof this.config.caching === 'object') {
         Properties.CachingConfig = {
           CachingKeys: this.config.caching.keys,
-          Ttl: this.config.caching.ttl || this.config.caching.ttl || 3600,
+          Ttl: this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
         };
       }
     }
