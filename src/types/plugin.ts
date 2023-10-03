@@ -2,7 +2,6 @@ import { CfnWafRuleStatement, IntrinsicFunction } from './cloudFormation';
 
 export type AppSyncConfig = {
   name: string;
-  logicalId?: string;
   schema: string[];
   authentication: Auth;
   additionalAuthentications: Auth[];
@@ -13,6 +12,7 @@ export type AppSyncConfig = {
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
+  logicalId?: string;
   logging?: LoggingConfig;
   caching?: CachingConfig;
   waf?: WafConfig;
