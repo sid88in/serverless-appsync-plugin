@@ -15,8 +15,8 @@ export class Naming {
     return this.getCfnName(name);
   }
 
-  getApiLogicalId() {
-    return this.getLogicalId(`GraphQlApi`);
+  getApiLogicalId(logicalIdOverride?: string) {
+    return this.getLogicalId(logicalIdOverride || `GraphQlApi`);
   }
 
   getSchemaLogicalId() {

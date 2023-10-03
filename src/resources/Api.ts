@@ -68,7 +68,7 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
-    const logicalId = this.naming.getApiLogicalId();
+    const logicalId = this.naming.getApiLogicalId(this.config.logicalId);
 
     const endpointResource: CfnResource = {
       Type: 'AWS::AppSync::GraphQLApi',
