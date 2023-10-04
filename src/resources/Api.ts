@@ -34,7 +34,7 @@ export class Api {
     public config: AppSyncConfig,
     public plugin: ServerlessAppsyncPlugin,
   ) {
-    this.naming = new Naming(this.config.name);
+    this.naming = new Naming(this.config);
   }
 
   compile() {
@@ -68,7 +68,7 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
-    const logicalId = this.naming.getApiLogicalId(this.config.logicalId);
+    const logicalId = this.naming.getApiLogicalId();
 
     const endpointResource: CfnResource = {
       Type: 'AWS::AppSync::GraphQLApi',

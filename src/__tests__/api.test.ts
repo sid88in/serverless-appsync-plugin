@@ -31,17 +31,17 @@ describe('Api', () => {
     });
 
     describe('logicalId', () => {
-      const logicalIdOverride = 'Customlogicalid';
+      const logicalIdPrefix = 'Logicalidprefix';
       it('should override the logical ID if provided', () => {
         const api = new Api(
           given.appSyncConfig({
-            logicalId: logicalIdOverride,
+            logicalIdPrefix,
           }),
           plugin,
         );
         expect(api.compileEndpoint()).toMatchInlineSnapshot(`
         Object {
-          "${logicalIdOverride}": Object {
+          "${logicalIdPrefix}GraphQlApi": Object {
             "Properties": Object {
               "AuthenticationType": "API_KEY",
               "Name": "MyApi",

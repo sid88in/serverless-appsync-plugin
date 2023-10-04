@@ -677,6 +677,7 @@ export const appSyncSchema = {
           'when using CloudFormation, you must provide either certificateArn or hostedZoneId.',
       },
     },
+    logicalIdPrefix: { type: 'string' },
     xrayEnabled: { type: 'boolean' },
     visibility: {
       type: 'string',

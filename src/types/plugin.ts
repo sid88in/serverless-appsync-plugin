@@ -12,7 +12,7 @@ export type AppSyncConfig = {
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
   xrayEnabled?: boolean;
-  logicalId?: string;
+  logicalIdPrefix?: string;
   logging?: LoggingConfig;
   caching?: CachingConfig;
   waf?: WafConfig;
