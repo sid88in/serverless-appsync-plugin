@@ -86,12 +86,6 @@ describe('Resolvers', () => {
               config: { tableName: 'data' },
             },
           },
-          pipelineFunctions: {
-            getUser: {
-              name: 'getUser',
-              dataSource: 'myTable',
-            },
-          },
         }),
         plugin,
       );
