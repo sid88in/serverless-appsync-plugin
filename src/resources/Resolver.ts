@@ -33,7 +33,7 @@ export class Resolver {
 
     const isVTLResolver = 'request' in this.config || 'response' in this.config;
     const isJsResolver =
-      !isVTLResolver && (this.config.kind !== 'UNIT' || 'code' in this.config);
+      'code' in this.config || (!isVTLResolver && this.config.kind !== 'UNIT');
 
     if (isJsResolver) {
       if (this.config.code) {
