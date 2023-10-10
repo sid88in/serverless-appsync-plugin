@@ -35,17 +35,7 @@ export class Resolver {
     const isJsResolver =
       !isVTLResolver && (this.config.kind !== 'UNIT' || 'code' in this.config);
 
-    if (isVTLResolver) {
-      const requestMappingTemplates = this.resolveMappingTemplate('request');
-      if (requestMappingTemplates) {
-        Properties.RequestMappingTemplate = requestMappingTemplates;
-      }
-
-      const responseMappingTemplate = this.resolveMappingTemplate('response');
-      if (responseMappingTemplate) {
-        Properties.ResponseMappingTemplate = responseMappingTemplate;
-      }
-    } else if (isJsResolver) {
+    if (isJsResolver) {
       if (this.config.code) {
         Properties.Code = this.resolveJsCode(this.config.code);
       } else {
@@ -56,6 +46,16 @@ export class Resolver {
         Name: 'APPSYNC_JS',
         RuntimeVersion: '1.0.0',
       };
+    } else if (isVTLResolver) {
+      const requestMappingTemplates = this.resolveMappingTemplate('request');
+      if (requestMappingTemplates) {
+        Properties.RequestMappingTemplate = requestMappingTemplates;
+      }
+
+      const responseMappingTemplate = this.resolveMappingTemplate('response');
+      if (responseMappingTemplate) {
+        Properties.ResponseMappingTemplate = responseMappingTemplate;
+      }
     }
 
     if (this.config.caching) {

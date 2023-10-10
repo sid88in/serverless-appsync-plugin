@@ -35,11 +35,13 @@ appSync:
 
 ## JavaScript, VTL, or Direct Lambda
 
-When `code` is specified, the JavaScript runtime is used. When `request` and/or `response` are specified, the VTL runtime is used.
+When `code` is specified, the JavaScript runtime is used.
+
+When `request` and/or `response` are specified, the VTL runtime is used.
 
 For [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request`, `response` or `code`. This only works with Lambda function data sources.
 
-If nothing specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic resolver handler is used.
+If nothing is specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic code is used for the `before` and `after` handlers.
 
 ```js
 export function request() {
