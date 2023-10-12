@@ -174,6 +174,62 @@ describe('Resolvers', () => {
       `);
     });
 
+    it('should generate JS Resources with specific code', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compileResolver({
+          type: 'Query',
+          kind: 'UNIT',
+          field: 'user',
+          dataSource: 'myTable',
+          code: 'resolvers/getUserFunction.js',
+        }),
+      ).toMatchInlineSnapshot(`
+      Object {
+        "GraphQlResolverQueryuser": Object {
+          "DependsOn": Array [
+            "GraphQlSchema",
+          ],
+          "Properties": Object {
+            "ApiId": Object {
+              "Fn::GetAtt": Array [
+                "GraphQlApi",
+                "ApiId",
+              ],
+            },
+            "Code": "Content of resolvers/getUserFunction.js",
+            "DataSourceName": Object {
+              "Fn::GetAtt": Array [
+                "GraphQlDsmyTable",
+                "Name",
+              ],
+            },
+            "FieldName": "user",
+            "Kind": "UNIT",
+            "MaxBatchSize": undefined,
+            "Runtime": Object {
+              "Name": "APPSYNC_JS",
+              "RuntimeVersion": "1.0.0",
+            },
+            "TypeName": "Query",
+          },
+          "Type": "AWS::AppSync::Resolver",
+        },
+      }
+      `);
+    });
+
     it('should generate Resources with direct Lambda', () => {
       const api = new Api(
         given.appSyncConfig({

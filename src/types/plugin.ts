@@ -153,6 +153,7 @@ export type BaseResolverConfig = {
   type: string;
   request?: string | false;
   response?: string | false;
+  code?: string;
   caching?:
     | {
         ttl?: number;
@@ -173,7 +174,6 @@ export type UnitResolverConfig = BaseResolverConfig & {
 
 export type PipelineResolverConfig = BaseResolverConfig & {
   kind?: 'PIPELINE';
-  code?: string;
   functions: string[];
 };
 

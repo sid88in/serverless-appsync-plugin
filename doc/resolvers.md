@@ -33,11 +33,15 @@ appSync:
 - `caching`: [See below](#Caching)
 - `sync`: [See SyncConfig](syncConfig.md)
 
-## JavaScript vs VTL
+## JavaScript, VTL, or Direct Lambda
 
-When `code` is specified, the JavaScript runtime is used. When `request` and/or `response` are specified, the VTL runtime is used.
+When `code` is specified, the JavaScript runtime is used.
 
-If neither are specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic resolver handler is used.
+When `request` and/or `response` are specified, the VTL runtime is used.
+
+For [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request`, `response` or `code`. This only works with Lambda function data sources.
+
+If nothing is specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic code is used for the `before` and `after` handlers.
 
 ```js
 export function request() {
@@ -49,7 +53,16 @@ export function response(ctx) {
 }
 ```
 
-To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request` and `response` (only works with Lambda function data sources).
+Example of a UNIT JavaScript resolver.
+
+```yaml
+appSync:
+  resolvers:
+    Query.user:
+      kind: UNIT
+      dataSource: myDataSource
+      code: getUser.js
+```
 
 ## Bundling
 
