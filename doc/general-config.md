@@ -190,7 +190,7 @@ appSync:
 
 ## Esbuild
 
-By default, this plugin uses esbuild in order to bundle Javascript resolvers. TypeScript fields are also transpiled into compatible JavaScript. This option allows you to pass custom options that must be passed to the esbuild command.
+By default, this plugin uses esbuild in order to bundle Javascript resolvers. TypeScript files are also transpiled into compatible JavaScript. This option allows you to pass custom options that must be passed to the esbuild command.
 
 ⚠️ Use these options carefully. Some options are not compatible with AWS AppSync. For more details about using esbuild with AppSync, see the [official guidelines](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-overview-js.html#additional-utilities)
 
