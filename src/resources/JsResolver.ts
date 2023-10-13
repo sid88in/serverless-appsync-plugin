@@ -34,6 +34,7 @@ export class JsResolver {
     const buildResult = buildSync({
       target: 'esnext',
       sourcemap: 'inline',
+      sourcesContent: false,
       treeShaking: true,
       minifyWhitespace: true,
       minifyIdentifiers: true,
