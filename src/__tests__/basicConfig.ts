@@ -1,6 +1,6 @@
-import { AppSyncConfigInput } from '../getAppSyncConfig';
+import { AppSyncConfig } from '../types';
 
-export const basicConfig: AppSyncConfigInput = {
+export const basicConfig: AppSyncConfig = {
   name: 'My Api',
   authentication: {
     type: 'API_KEY',

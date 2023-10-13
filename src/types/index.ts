@@ -22,7 +22,7 @@ export type PipelineFunctionConfig = Replace<
   O.Omit<InternalPipelineFunctionConfig, 'name'>
 >;
 
-export type ResolverConfigInput = O.Update<
+export type ResolverConfig = O.Update<
   O.Update<
     O.Optional<InternalResolverConfig, 'type' | 'field'>,
     'dataSource',
@@ -37,8 +37,8 @@ export type AppSyncConfig = Replace<
     schema?: string | string[];
     apiKeys?: (ApiKeyConfig | string)[];
     resolvers?:
-      | Record<string, ResolverConfigInput>[]
-      | Record<string, ResolverConfigInput>;
+      | Record<string, ResolverConfig>[]
+      | Record<string, ResolverConfig>;
     pipelineFunctions?:
       | Record<string, PipelineFunctionConfig>[]
       | Record<string, PipelineFunctionConfig>;

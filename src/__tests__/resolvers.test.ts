@@ -196,37 +196,37 @@ describe('Resolvers', () => {
           code: 'resolvers/getUserFunction.js',
         }),
       ).toMatchInlineSnapshot(`
-      Object {
-        "GraphQlResolverQueryuser": Object {
-          "DependsOn": Array [
-            "GraphQlSchema",
-          ],
-          "Properties": Object {
-            "ApiId": Object {
-              "Fn::GetAtt": Array [
-                "GraphQlApi",
-                "ApiId",
-              ],
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Bundled content of resolvers/getUserFunction.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": undefined,
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+              "TypeName": "Query",
             },
-            "Code": "Content of resolvers/getUserFunction.js",
-            "DataSourceName": Object {
-              "Fn::GetAtt": Array [
-                "GraphQlDsmyTable",
-                "Name",
-              ],
-            },
-            "FieldName": "user",
-            "Kind": "UNIT",
-            "MaxBatchSize": undefined,
-            "Runtime": Object {
-              "Name": "APPSYNC_JS",
-              "RuntimeVersion": "1.0.0",
-            },
-            "TypeName": "Query",
+            "Type": "AWS::AppSync::Resolver",
           },
-          "Type": "AWS::AppSync::Resolver",
-        },
-      }
+        }
       `);
     });
 
