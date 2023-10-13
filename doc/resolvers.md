@@ -108,9 +108,9 @@ You can write JS resolver in TypeScript. Resolver files with the `.ts` extension
 ```yaml
 resolvers:
   Query.user:
-    functions:
-      - dataSource: 'users'
-        code: 'getUser.ts'
+    kind: UNIT
+    dataSource: 'users'
+    code: 'getUser.ts'
 ```
 
 ```ts
