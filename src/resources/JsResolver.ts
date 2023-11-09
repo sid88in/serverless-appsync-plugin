@@ -36,8 +36,6 @@ export class JsResolver {
       sourcemap: 'inline',
       sourcesContent: false,
       treeShaking: true,
-      minifyWhitespace: true,
-      minifyIdentifiers: true,
       // custom config overrides
       ...this.api.config.esbuild,
       // These options are required and can't be changed
