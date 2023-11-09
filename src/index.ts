@@ -326,6 +326,11 @@ class ServerlessAppsyncPlugin {
       'before:appsync:domain:delete-record:run': async () =>
         this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
+      finalize: () => {
+        writeText(
+          '\nLooking for a better AppSync development experience? Have you tried GraphBolt? https://graphbolt.dev',
+        );
+      },
     };
 
     // These hooks need the config to be loaded and

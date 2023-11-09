@@ -51,6 +51,7 @@ appSync:
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
 - `visibility`: Optional. `GLOBAL` or `PRIVATE`. **Changing this value requires the replacement of the API.**
 - `tags`: A key-value pair for tagging this AppSync API
+- `esbuild`: Custom esbuild options, or `false` See [Esbuild](#Esbuild)
 
 ## Schema
 
@@ -186,3 +187,22 @@ appSync:
 - `excludeVerboseContent`: Boolean, Optional. Exclude or not verbose content (headers, response headers, context, and evaluated mapping templates), regardless of field logging level. Defaults to `false`.
 - `retentionInDays`: Optional. Number of days to retain the logs. Defaults to [`provider.logRetentionInDays`](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml#general-function-settings).
 - `roleArn`: Optional. The role ARN to use for AppSync to write into CloudWatch. If not specified, a new role is created by default.
+
+## Esbuild
+
+By default, this plugin uses esbuild in order to bundle Javascript resolvers. TypeScript files are also transpiled into compatible JavaScript. This option allows you to pass custom options that must be passed to the esbuild command.
+
+⚠️ Use these options carefully. Some options are not compatible with AWS AppSync. For more details about using esbuild with AppSync, see the [official guidelines](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-overview-js.html#additional-utilities)
+
+Set this option to `false` to disable esbuild completely. You code will be sent as-is to AppSync.
+
+Example:
+
+Override the target and disable sourcemap.
+
+```yml
+appSync:
+  esbuild:
+    target: 'es2020',
+    sourcemap: false
+```

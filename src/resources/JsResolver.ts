@@ -2,6 +2,7 @@ import { IntrinsicFunction } from '../types/cloudFormation';
 import fs from 'fs';
 import { Substitutions } from '../types/plugin';
 import { Api } from './Api';
+import { buildSync } from 'esbuild';
 
 type JsResolverConfig = {
   path: string;
@@ -18,8 +19,47 @@ export class JsResolver {
       );
     }
 
-    const requestTemplateContent = fs.readFileSync(this.config.path, 'utf8');
-    return this.processTemplateSubstitutions(requestTemplateContent);
+    return this.processTemplateSubstitutions(this.getResolverContent());
+  }
+
+  getResolverContent(): string {
+    if (this.api.config.esbuild === false) {
+      return fs.readFileSync(this.config.path, 'utf8');
+    }
+
+    // process with esbuild
+    // this will:
+    // - Bundle the code into one file if necessary
+    // - Transpile typescript to javascript if necessary
+    const buildResult = buildSync({
+      target: 'esnext',
+      sourcemap: 'inline',
+      sourcesContent: false,
+      treeShaking: true,
+      // custom config overrides
+      ...this.api.config.esbuild,
+      // These options are required and can't be changed
+      platform: 'node',
+      format: 'esm',
+      entryPoints: [this.config.path],
+      bundle: true,
+      write: false,
+      external: ['@aws-appsync/utils'],
+    });
+
+    if (buildResult.errors.length > 0) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `Failed to compile resolver handler file '${this.config.path}': ${buildResult.errors[0].text}`,
+      );
+    }
+
+    if (buildResult.outputFiles.length === 0) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `Failed to compile resolver handler file '${this.config.path}': No output files`,
+      );
+    }
+
+    return buildResult.outputFiles[0].text;
   }
 
   processTemplateSubstitutions(template: string): string | IntrinsicFunction {

@@ -3,6 +3,7 @@
   "version": "0.0.0-development",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
   "repository": "https://github.com/sid88in/serverless-appsync-plugin",
   "license": "MIT",
   "files": [
@@ -45,6 +46,7 @@
     "ajv-merge-patch": "^5.0.1",
     "aws-sdk": "^2.1265.0",
     "chalk": "^4.1.2",
+    "esbuild": "^0.17.11",
     "globby": "^11.1.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",

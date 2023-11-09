@@ -1,4 +1,4 @@
-import { AppSyncConfigInput } from '../../getAppSyncConfig';
+import { AppSyncConfig } from '../../types';
 import { validateConfig } from '../../validation';
 import { basicConfig } from '../basicConfig';
 
@@ -12,6 +12,11 @@ describe('Valdiation', () => {
         tags: {
           foo: 'bar',
         },
+        esbuild: {
+          target: 'es2020',
+          sourcemap: false,
+          treeShaking: false,
+        },
       }),
     ).toBe(true);
 
@@ -20,6 +25,7 @@ describe('Valdiation', () => {
         visibility: 'FOO',
         xrayEnabled: 'BAR',
         unknownPorp: 'foo',
+        esbuild: 'bad',
       });
     }).toThrowErrorMatchingSnapshot();
   });
@@ -34,7 +40,7 @@ describe('Valdiation', () => {
             logging: {
               level: 'ALL',
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'Full',
@@ -46,7 +52,7 @@ describe('Valdiation', () => {
               excludeVerboseContent: true,
               loggingRoleArn: { Ref: 'MyLogGorupArn' },
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
       ];
 
@@ -94,7 +100,7 @@ describe('Valdiation', () => {
             waf: {
               rules: [],
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'Full',
@@ -164,7 +170,7 @@ describe('Valdiation', () => {
                 },
               ],
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'Using arn',
@@ -260,7 +266,7 @@ describe('Valdiation', () => {
               name: 'api.example.com',
               certificateArn: 'arn:aws:',
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'Full',
@@ -274,7 +280,7 @@ describe('Valdiation', () => {
               hostedZoneName: 'example.com.',
               route53: true,
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'useCloudFormation: false, missing certificateArn',
@@ -284,7 +290,7 @@ describe('Valdiation', () => {
               name: 'api.example.com',
               useCloudFormation: false,
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
       ];
 
@@ -364,7 +370,7 @@ describe('Valdiation', () => {
             caching: {
               behavior: 'PER_RESOLVER_CACHING',
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
         {
           name: 'Full',
@@ -378,7 +384,7 @@ describe('Valdiation', () => {
               atRestEncryption: true,
               transitEncryption: true,
             },
-          } as AppSyncConfigInput,
+          } as AppSyncConfig,
         },
       ];
 

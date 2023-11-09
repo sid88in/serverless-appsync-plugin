@@ -64,6 +64,76 @@ appSync:
       code: getUser.js
 ```
 
+## Bundling
+
+AppSync requires resolvers to be bundled in one single file. By default, this plugin bundles your code with [esbuild](https://esbuild.github.io/), using the given path as the entry point.
+
+This means that you can import external libraries and utilities. e.g.
+
+```js
+import { Context, util } from '@aws-appsync/utils';
+import { generateUpdateExpressions, updateItem } from '../lib/helpers';
+
+export function request(ctx) {
+  const { id, ...post } = ctx.args.post;
+
+  const item = updateItem(post);
+
+  return {
+    operation: 'UpdateItem',
+    key: {
+      id: util.dynamodb.toDynamoDB(id),
+    },
+    update: generateUpdateExpressions(item),
+    condition: {
+      expression: 'attribute_exists(#id)',
+      expressionNames: {
+        '#id': 'id',
+      },
+    },
+  };
+}
+
+export function response(ctx: Context) {
+  return ctx.result;
+}
+```
+
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
+
+## TypeScript support
+
+You can write JS resolver in TypeScript. Resolver files with the `.ts` extension are automatically transpiled and bundled using esbuild.
+
+```yaml
+resolvers:
+  Query.user:
+    kind: UNIT
+    dataSource: 'users'
+    code: 'getUser.ts'
+```
+
+```ts
+// getUser.ts
+import { Context, util } from '@aws-appsync/utils';
+
+export function request(ctx: Context) {
+  const {
+    args: { id },
+  } = ctx;
+  return {
+    operation: 'GetItem',
+    key: util.dynamodb.toMapValues({ id }),
+  };
+}
+
+export function response(ctx: Context) {
+  return ctx.result;
+}
+```
+
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
+
 ## PIPELINE resolvers
 
 When `kind` is `PIPELINE`, you can specify the [pipeline function](pipeline-functions.md) names to use:

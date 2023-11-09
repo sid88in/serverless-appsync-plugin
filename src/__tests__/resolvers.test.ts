@@ -1,24 +1,122 @@
+import * as esbuild from 'esbuild';
 import fs from 'fs';
 import { Api } from '../resources/Api';
 import * as given from './given';
 
 const plugin = given.plugin();
 
+jest.mock('esbuild', () => ({
+  buildSync: jest.fn().mockImplementation((config) => {
+    return {
+      errors: [],
+      warnings: [],
+      metafile: undefined,
+      mangleCache: undefined,
+      outputFiles: [
+        {
+          path: 'path/to/file',
+          contents: Uint8Array.from([]),
+          text: `Bundled content of ${`${config.entryPoints?.[0]}`.replace(
+            /\\/g,
+            '/',
+          )}`,
+        },
+      ],
+    };
+  }),
+}));
+
 describe('Resolvers', () => {
   let mock: jest.SpyInstance;
-  let mockEists: jest.SpyInstance;
+  let mockExists: jest.SpyInstance;
+  let mockEsbuild: jest.SpyInstance;
   beforeEach(() => {
     mock = jest
       .spyOn(fs, 'readFileSync')
       .mockImplementation(
         (path) => `Content of ${`${path}`.replace(/\\/g, '/')}`,
       );
-    mockEists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    mockExists = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    mockEsbuild = jest
+      .spyOn(esbuild, 'buildSync')
+      .mockImplementation((config) => {
+        return {
+          errors: [],
+          warnings: [],
+          metafile: undefined,
+          mangleCache: undefined,
+          outputFiles: [
+            {
+              path: 'path/to/file',
+              contents: Uint8Array.from([]),
+              text: `Bundled content of ${`${config.entryPoints?.[0]}`.replace(
+                /\\/g,
+                '/',
+              )}`,
+            },
+          ],
+        };
+      });
   });
 
   afterEach(() => {
     mock.mockRestore();
-    mockEists.mockRestore();
+    mockExists.mockRestore();
+    mockEsbuild.mockRestore();
+  });
+
+  describe('esbuild', () => {
+    it('should skip esbuild when disabled', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          esbuild: false,
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compilePipelineFunctionResource({
+          dataSource: 'myTable',
+          code: 'path/to/my-resolver.js',
+          name: 'my-function',
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlFunctionConfigurationmyfunction": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Content of path/to/my-resolver.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "Description": undefined,
+              "FunctionVersion": "2018-05-29",
+              "MaxBatchSize": undefined,
+              "Name": "my-function",
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+            },
+            "Type": "AWS::AppSync::FunctionConfiguration",
+          },
+        }
+      `);
+    });
   });
 
   describe('Unit Resolvers', () => {
@@ -98,37 +196,37 @@ describe('Resolvers', () => {
           code: 'resolvers/getUserFunction.js',
         }),
       ).toMatchInlineSnapshot(`
-      Object {
-        "GraphQlResolverQueryuser": Object {
-          "DependsOn": Array [
-            "GraphQlSchema",
-          ],
-          "Properties": Object {
-            "ApiId": Object {
-              "Fn::GetAtt": Array [
-                "GraphQlApi",
-                "ApiId",
-              ],
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "Code": "Bundled content of resolvers/getUserFunction.js",
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": undefined,
+              "Runtime": Object {
+                "Name": "APPSYNC_JS",
+                "RuntimeVersion": "1.0.0",
+              },
+              "TypeName": "Query",
             },
-            "Code": "Content of resolvers/getUserFunction.js",
-            "DataSourceName": Object {
-              "Fn::GetAtt": Array [
-                "GraphQlDsmyTable",
-                "Name",
-              ],
-            },
-            "FieldName": "user",
-            "Kind": "UNIT",
-            "MaxBatchSize": undefined,
-            "Runtime": Object {
-              "Name": "APPSYNC_JS",
-              "RuntimeVersion": "1.0.0",
-            },
-            "TypeName": "Query",
+            "Type": "AWS::AppSync::Resolver",
           },
-          "Type": "AWS::AppSync::Resolver",
-        },
-      }
+        }
       `);
     });
 
@@ -331,7 +429,7 @@ describe('Resolvers', () => {
 
   describe('Pipeline Resovlers', () => {
     it('should generate JS Resources with default empty resolver', () => {
-      mockEists.mockReturnValue(false);
+      mockExists.mockReturnValue(false);
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
@@ -514,7 +612,7 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "Code": "Content of resolvers/getUserFunction.js",
+              "Code": "Bundled content of resolvers/getUserFunction.js",
               "FieldName": "user",
               "Kind": "PIPELINE",
               "PipelineConfig": Object {
@@ -602,7 +700,7 @@ describe('Resolvers', () => {
                   "ApiId",
                 ],
               },
-              "Code": "Content of funciton1.js",
+              "Code": "Bundled content of funciton1.js",
               "DataSourceName": Object {
                 "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
