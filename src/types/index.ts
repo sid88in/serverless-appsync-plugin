@@ -1,50 +1,95 @@
-import { A, O } from 'ts-toolbelt';
+import { BuildOptions } from 'esbuild';
 import {
-  DataSourceConfig as InternalDataSourceConfig,
-  ResolverConfig as InternalResolverConfig,
-  PipelineFunctionConfig as InternalPipelineFunctionConfig,
   ApiKeyConfig,
-  AppSyncConfig as InternalAppSyncConfig,
-} from './plugin';
+  Auth,
+  Substitutions,
+  CachingConfig,
+  DomainConfig,
+  LoggingConfig,
+  WafConfig,
+  DsDynamoDBConfig,
+  DsEventBridgeConfig,
+  DsHttpConfig,
+  DsLambdaConfig,
+  DsNone,
+  DsOpenSearchConfig,
+  DsRelationalDbConfig,
+  SyncConfig,
+} from './common';
+export * from './common';
 
-/* Completely replaces keys of O1 with those of O */
-type Replace<O extends object, O1 extends object> = O.Merge<
-  O,
-  O.Omit<O1, A.Keys<O>>
->;
+export type AppSyncConfig = {
+  name: string;
+  schema?: string | string[];
+  authentication: Auth;
+  additionalAuthentications?: Auth[];
+  domain?: DomainConfig;
+  apiKeys?: (ApiKeyConfig | string)[];
+  resolvers?: Record<string, ResolverConfig>[] | Record<string, ResolverConfig>;
+  pipelineFunctions?:
+    | Record<string, PipelineFunctionConfig>[]
+    | Record<string, PipelineFunctionConfig>;
+  dataSources:
+    | Record<string, DataSourceConfig>[]
+    | Record<string, DataSourceConfig>;
+  substitutions?: Substitutions;
+  xrayEnabled?: boolean;
+  logging?: LoggingConfig;
+  caching?: CachingConfig;
+  waf?: WafConfig;
+  tags?: Record<string, string>;
+  visibility?: 'GLOBAL' | 'PRIVATE';
+  esbuild?: BuildOptions | false;
+};
 
-export * from './plugin';
+export type BaseResolverConfig = {
+  field?: string;
+  type?: string;
+  request?: string | false;
+  response?: string | false;
+  code?: string;
+  caching?:
+    | {
+        ttl?: number;
+        keys?: string[];
+      }
+    | boolean;
+  sync?: SyncConfig;
+  substitutions?: Substitutions;
+};
 
-export type DataSourceConfig = O.Omit<InternalDataSourceConfig, 'name'>;
+export type ResolverConfig = UnitResolverConfig | PipelineResolverConfig;
 
-export type PipelineFunctionConfig = Replace<
-  { dataSource: string | DataSourceConfig },
-  O.Omit<InternalPipelineFunctionConfig, 'name'>
->;
+export type UnitResolverConfig = BaseResolverConfig & {
+  kind: 'UNIT';
+  dataSource: string | DataSourceConfig;
+  maxBatchSize?: number;
+};
 
-export type ResolverConfig = O.Update<
-  O.Update<
-    O.Optional<InternalResolverConfig, 'type' | 'field'>,
-    'dataSource',
-    string | DataSourceConfig
-  >,
-  'functions',
-  (string | PipelineFunctionConfig)[]
->;
+export type PipelineResolverConfig = BaseResolverConfig & {
+  kind?: 'PIPELINE';
+  functions: (string | PipelineFunctionConfig)[];
+};
 
-export type AppSyncConfig = Replace<
-  {
-    schema?: string | string[];
-    apiKeys?: (ApiKeyConfig | string)[];
-    resolvers?:
-      | Record<string, ResolverConfig>[]
-      | Record<string, ResolverConfig>;
-    pipelineFunctions?:
-      | Record<string, PipelineFunctionConfig>[]
-      | Record<string, PipelineFunctionConfig>;
-    dataSources:
-      | Record<string, DataSourceConfig>[]
-      | Record<string, DataSourceConfig>;
-  },
-  O.Optional<InternalAppSyncConfig, 'additionalAuthentications'>
->;
+export type DataSourceConfig = {
+  description?: string;
+} & (
+  | DsHttpConfig
+  | DsDynamoDBConfig
+  | DsRelationalDbConfig
+  | DsOpenSearchConfig
+  | DsLambdaConfig
+  | DsEventBridgeConfig
+  | DsNone
+);
+
+export type PipelineFunctionConfig = {
+  dataSource: string | DataSourceConfig;
+  description?: string;
+  code?: string;
+  request?: string;
+  response?: string;
+  maxBatchSize?: number;
+  substitutions?: Substitutions;
+  sync?: SyncConfig;
+};
