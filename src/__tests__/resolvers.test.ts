@@ -1077,5 +1077,69 @@ describe('Resolvers', () => {
         }
       `);
     });
+
+    it('should fallback to global caching TTL', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          caching: {
+            behavior: 'PER_RESOLVER_CACHING',
+            ttl: 300,
+          },
+          dataSources: {
+            myTable: {
+              name: 'myTable',
+              type: 'AMAZON_DYNAMODB',
+              config: { tableName: 'data' },
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(
+        api.compileResolver({
+          dataSource: 'myTable',
+          kind: 'UNIT',
+          type: 'Query',
+          field: 'user',
+          caching: {
+            keys: ['$context.identity.sub', '$context.arguments.id'],
+          },
+        }),
+      ).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
+              "GraphQlSchema",
+            ],
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "CachingConfig": Object {
+                "CachingKeys": Array [
+                  "$context.identity.sub",
+                  "$context.arguments.id",
+                ],
+                "Ttl": 300,
+              },
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
+                  "GraphQlDsmyTable",
+                  "Name",
+                ],
+              },
+              "FieldName": "user",
+              "Kind": "UNIT",
+              "MaxBatchSize": undefined,
+              "TypeName": "Query",
+            },
+            "Type": "AWS::AppSync::Resolver",
+          },
+        }
+      `);
+    });
   });
 });
