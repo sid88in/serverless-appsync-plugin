@@ -163,6 +163,7 @@ You can even also define the Lambda function definition inline under the dataSou
 appSync:
   resolvers:
     Query.user:
+      kind: UNIT
       dataSource:
         type: 'AWS_LAMBDA'
         config:
