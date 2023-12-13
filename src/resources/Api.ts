@@ -131,7 +131,7 @@ export class Api {
             ],
           },
           RetentionInDays:
-            this.config.logging.retentionInDays ??
+            this.config.logging.retentionInDays ||
             this.plugin.serverless.service.provider.logRetentionInDays,
         },
       },
