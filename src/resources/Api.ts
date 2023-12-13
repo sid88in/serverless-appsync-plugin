@@ -425,10 +425,10 @@ export class Api {
       AppIdClientRegex: auth.config.appIdClientRegex,
       ...(!isAdditionalAuth
         ? {
-          // Default action is the one passed in the config
-          // or 'ALLOW'
-          DefaultAction: auth.config.defaultAction || 'ALLOW',
-        }
+            // Default action is the one passed in the config
+            // or 'ALLOW'
+            DefaultAction: auth.config.defaultAction || 'ALLOW',
+          }
         : {}),
     };
 
