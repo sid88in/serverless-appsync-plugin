@@ -118,11 +118,9 @@ export class Api {
     }
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
-    const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
-    const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
 
-    return {
+    const logGroupCF = {
       [logGroupLogicalId]: {
         Type: 'AWS::Logs::LogGroup',
         Properties: {
@@ -133,10 +131,19 @@ export class Api {
             ],
           },
           RetentionInDays:
-            this.config.logging.retentionInDays ||
+            this.config.logging.retentionInDays ??
             this.plugin.serverless.service.provider.logRetentionInDays,
         },
       },
+    };
+
+    if (this.config.logging.roleArn) return logGroupCF;
+
+    const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
+    const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
+
+    return {
+      ...logGroupCF,
       [policyLogicalId]: {
         Type: 'AWS::IAM::Policy',
         Properties: {
@@ -418,10 +425,10 @@ export class Api {
       AppIdClientRegex: auth.config.appIdClientRegex,
       ...(!isAdditionalAuth
         ? {
-            // Default action is the one passed in the config
-            // or 'ALLOW'
-            DefaultAction: auth.config.defaultAction || 'ALLOW',
-          }
+          // Default action is the one passed in the config
+          // or 'ALLOW'
+          DefaultAction: auth.config.defaultAction || 'ALLOW',
+        }
         : {}),
     };
 

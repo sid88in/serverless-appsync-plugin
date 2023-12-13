@@ -327,6 +327,45 @@ describe('Api', () => {
         }
       `);
     });
+
+    it('should compile CloudWatch Resources without additional IAM Role when logging roleARN is provided', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          logging: {
+            level: 'ERROR',
+            retentionInDays: 14,
+            enabled: true,
+            roleArn: 'arn:',
+          },
+        }),
+        plugin,
+      );
+
+      expect(api.compileCloudWatchLogGroup()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApiLogGroup": Object {
+            "Properties": Object {
+              "LogGroupName": Object {
+                "Fn::Join": Array [
+                  "/",
+                  Array [
+                    "/aws/appsync/apis",
+                    Object {
+                      "Fn::GetAtt": Array [
+                        "GraphQlApi",
+                        "ApiId",
+                      ],
+                    },
+                  ],
+                ],
+              },
+              "RetentionInDays": 14,
+            },
+            "Type": "AWS::Logs::LogGroup",
+          },
+        }
+      `);
+    });
   });
 
   describe('apiKeys', () => {
