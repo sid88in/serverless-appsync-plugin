@@ -50,6 +50,9 @@ appSync:
 - `logging`: See [Logging](#Logging)
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
 - `visibility`: Optional. `GLOBAL` or `PRIVATE`. **Changing this value requires the replacement of the API.**
+- `introspection`: Boolean. Whether to enable introspection or not. Defaults to `true`.
+- `queryDepthLimit`: Optional. The maximum amount of nested level allowed per query. Must be between 1 and 75. If not specified: unlimited.
+- `resolverCountLimit`: Optional. The maximum number of resolvers a query can process. Must be between 1 and 1000. If not specified: unlimited.
 - `tags`: A key-value pair for tagging this AppSync API
 - `esbuild`: Custom esbuild options, or `false` See [Esbuild](#Esbuild)
 
