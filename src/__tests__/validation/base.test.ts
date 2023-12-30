@@ -8,6 +8,9 @@ describe('Valdiation', () => {
       validateConfig({
         ...basicConfig,
         visibility: 'GLOBAL',
+        introspection: true,
+        queryDepthLimit: 10,
+        resolverCountLimit: 10,
         xrayEnabled: true,
         tags: {
           foo: 'bar',
@@ -23,9 +26,20 @@ describe('Valdiation', () => {
     expect(function () {
       validateConfig({
         visibility: 'FOO',
+        introspection: 10,
+        queryDepthLimit: 'foo',
+        resolverCountLimit: 'bar',
         xrayEnabled: 'BAR',
         unknownPorp: 'foo',
         esbuild: 'bad',
+      });
+    }).toThrowErrorMatchingSnapshot();
+
+    expect(function () {
+      validateConfig({
+        ...basicConfig,
+        queryDepthLimit: 76,
+        resolverCountLimit: 1001,
       });
     }).toThrowErrorMatchingSnapshot();
   });

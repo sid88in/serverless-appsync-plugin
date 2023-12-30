@@ -40,6 +40,9 @@ export type AppSyncConfig = {
   tags?: Record<string, string>;
   visibility?: 'GLOBAL' | 'PRIVATE';
   esbuild?: BuildOptions | false;
+  introspection?: boolean;
+  queryDepthLimit?: number;
+  resolverCountLimit?: number;
 };
 
 export type BaseResolverConfig = {
