@@ -111,6 +111,24 @@ export class Api {
       });
     }
 
+    if (this.config.introspection !== undefined) {
+      merge(endpointResource.Properties, {
+        IntrospectionConfig: this.config.introspection ? 'ENABLED' : 'DISABLED',
+      });
+    }
+
+    if (this.config.queryDepthLimit !== undefined) {
+      merge(endpointResource.Properties, {
+        QueryDepthLimit: this.config.queryDepthLimit,
+      });
+    }
+
+    if (this.config.resolverCountLimit !== undefined) {
+      merge(endpointResource.Properties, {
+        ResolverCountLimit: this.config.resolverCountLimit,
+      });
+    }
+
     const resources = {
       [logicalId]: endpointResource,
     };

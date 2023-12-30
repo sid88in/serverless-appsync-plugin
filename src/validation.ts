@@ -683,6 +683,9 @@ export const appSyncSchema = {
       enum: ['GLOBAL', 'PRIVATE'],
       errorMessage: 'must be "GLOBAL" or "PRIVATE"',
     },
+    introspection: { type: 'boolean' },
+    queryDepthLimit: { type: 'integer', minimum: 1, maximum: 75 },
+    resolverCountLimit: { type: 'integer', minimum: 1, maximum: 1000 },
     substitutions: { $ref: '#/definitions/substitutions' },
     waf: {
       type: 'object',

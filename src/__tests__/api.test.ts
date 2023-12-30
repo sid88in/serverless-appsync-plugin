@@ -58,6 +58,38 @@ describe('Api', () => {
       `);
     });
 
+    it('should compile the Api Resource with config', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          introspection: false,
+          queryDepthLimit: 10,
+          resolverCountLimit: 20,
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApi": Object {
+            "Properties": Object {
+              "AuthenticationType": "API_KEY",
+              "IntrospectionConfig": "DISABLED",
+              "Name": "MyApi",
+              "QueryDepthLimit": 10,
+              "ResolverCountLimit": 20,
+              "Tags": Array [
+                Object {
+                  "Key": "stage",
+                  "Value": "Dev",
+                },
+              ],
+              "XrayEnabled": false,
+            },
+            "Type": "AWS::AppSync::GraphQLApi",
+          },
+        }
+      `);
+    });
+
     it('should compile the Api Resource with logs enabled', () => {
       const api = new Api(
         given.appSyncConfig({
