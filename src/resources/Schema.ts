@@ -30,10 +30,10 @@ directive @manyToMany on FIELD_DEFINITION
 directive @manyToMany on FIELD_DEFINITION
 directive @function on FIELD_DEFINITION
 directive @predictions on FIELD_DEFINITION
-directive @searchable on FIELD_DEFINITION
-directive @mapsTo on FIELD_DEFINITION
+directive @searchable on OBJECT
+directive @mapsTo on OBJECT
 
-scalar AWSDate
+dscalar AWSDate
 scalar AWSTime
 scalar AWSDateTime
 scalar AWSTimestamp
