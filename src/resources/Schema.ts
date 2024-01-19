@@ -19,6 +19,20 @@ directive @aws_cognito_user_pools(
   cognito_groups: [String]
 ) on FIELD_DEFINITION | OBJECT
 directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
+directive @model on OBJECT
+directive @primaryKey on FIELD_DEFINITION
+directive @index on FIELD_DEFINITION
+directive @auth on FIELD_DEFINITION | OBJECT
+directive @hasOne on FIELD_DEFINITION
+directive @hasMany on FIELD_DEFINITION
+directive @belongsTo on FIELD_DEFINITION
+directive @manyToMany on FIELD_DEFINITION
+directive @manyToMany on FIELD_DEFINITION
+directive @function on FIELD_DEFINITION
+directive @predictions on FIELD_DEFINITION
+directive @searchable on FIELD_DEFINITION
+directive @mapsTo on FIELD_DEFINITION
+
 scalar AWSDate
 scalar AWSTime
 scalar AWSDateTime
