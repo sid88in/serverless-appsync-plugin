@@ -76,6 +76,7 @@ export class Api {
         Name: this.config.name,
         XrayEnabled: this.config.xrayEnabled || false,
         Tags: this.getTagsConfig(),
+        EnvironmentVariables: this.config.environment,
       },
     };
 

@@ -128,6 +128,7 @@ export type SyncConfig = {
 } & LambdaConfig;
 
 export type Substitutions = Record<string, string | IntrinsicFunction>;
+export type EnvironmentVariables = Record<string, string | IntrinsicFunction>;
 
 export type DsDynamoDBConfig = {
   type: 'AMAZON_DYNAMODB';

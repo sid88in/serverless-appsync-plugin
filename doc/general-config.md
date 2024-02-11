@@ -44,7 +44,8 @@ appSync:
 - `dataSources`: See [DataSources](dataSources.md)
 - `resolvers`: See [Resolvers](resolvers.md)
 - `pipelineFunctions`: See [Pipeline functions](pipeline-functions.md)
-- `substitutions`: See [Substitutions](substitutions.md)
+- `substitutions`: See [Substitutions](substitutions.md). Deprecated: Use environment variables.
+- `environment`: A list of environment variables for the API. See [Official Documentation](https://docs.aws.amazon.com/appsync/latest/devguide/environmental-variables.html)
 - `caching`: See [Cacing](caching.md)
 - `waf`: See [Web Application Firefall](WAF.md)
 - `logging`: See [Logging](#Logging)

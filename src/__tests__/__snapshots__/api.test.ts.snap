@@ -20,6 +20,7 @@ Object {
         },
       ],
       "AuthenticationType": "API_KEY",
+      "EnvironmentVariables": undefined,
       "Name": "MyApi",
       "Tags": Array [
         Object {
@@ -47,6 +48,7 @@ Object {
   "GraphQlApi": Object {
     "Properties": Object {
       "AuthenticationType": "AWS_LAMBDA",
+      "EnvironmentVariables": undefined,
       "LambdaAuthorizerConfig": Object {
         "AuthorizerResultTtlInSeconds": undefined,
         "AuthorizerUri": Object {

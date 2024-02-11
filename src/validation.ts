@@ -255,6 +255,14 @@ export const appSyncSchema = {
       required: [],
       errorMessage: 'must be a valid substitutions definition',
     },
+    environment: {
+      type: 'object',
+      additionalProperties: {
+        $ref: '#/definitions/stringOrIntrinsicFunction',
+      },
+      required: [],
+      errorMessage: 'must be a valid environment definition',
+    },
     dataSource: {
       if: { type: 'object' },
       then: { $ref: '#/definitions/dataSourceConfig' },
@@ -687,6 +695,7 @@ export const appSyncSchema = {
     queryDepthLimit: { type: 'integer', minimum: 1, maximum: 75 },
     resolverCountLimit: { type: 'integer', minimum: 1, maximum: 1000 },
     substitutions: { $ref: '#/definitions/substitutions' },
+    environment: { $ref: '#/definitions/environment' },
     waf: {
       type: 'object',
       properties: {
