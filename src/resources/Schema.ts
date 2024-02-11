@@ -19,6 +19,9 @@ directive @aws_cognito_user_pools(
   cognito_groups: [String]
 ) on FIELD_DEFINITION | OBJECT
 directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
+directive @canonical on OBJECT
+directive @hidden on OBJECT
+directive @renamed on OBJECT
 scalar AWSDate
 scalar AWSTime
 scalar AWSDateTime
