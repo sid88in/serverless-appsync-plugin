@@ -12,6 +12,10 @@ describe('Valdiation', () => {
         queryDepthLimit: 10,
         resolverCountLimit: 10,
         xrayEnabled: true,
+        environment: {
+          MY_TABLE: 'my-table',
+          MY_OTHER_TABLE: { Ref: 'MyOtherTable' },
+        },
         tags: {
           foo: 'bar',
         },
@@ -32,6 +36,7 @@ describe('Valdiation', () => {
         xrayEnabled: 'BAR',
         unknownPorp: 'foo',
         esbuild: 'bad',
+        environment: 'Bad',
       });
     }).toThrowErrorMatchingSnapshot();
 

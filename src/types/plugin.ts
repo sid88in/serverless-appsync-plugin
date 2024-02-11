@@ -15,6 +15,7 @@ import {
   DsEventBridgeConfig,
   DsNone,
   Substitutions,
+  EnvironmentVariables,
 } from './common';
 export * from './common';
 
@@ -29,6 +30,7 @@ export type AppSyncConfig = {
   resolvers: Record<string, ResolverConfig>;
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
+  environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
   caching?: CachingConfig;

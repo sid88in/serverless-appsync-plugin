@@ -15,6 +15,7 @@ import {
   DsOpenSearchConfig,
   DsRelationalDbConfig,
   SyncConfig,
+  EnvironmentVariables,
 } from './common';
 export * from './common';
 
@@ -33,6 +34,7 @@ export type AppSyncConfig = {
     | Record<string, DataSourceConfig>[]
     | Record<string, DataSourceConfig>;
   substitutions?: Substitutions;
+  environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
   caching?: CachingConfig;

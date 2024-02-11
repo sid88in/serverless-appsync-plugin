@@ -1,3 +1,5 @@
+> ⚠️ Substitutions are deprecated. Use [Environment Variables](./general-config.md) instead.
+
 # Substitutions
 
 `Substitutions` is a feature that allows you to replace some variables in your VTL mapping templates or JS resolvers with dynamic values.
@@ -30,27 +32,29 @@ appSync:
 <details open>
   <summary>VTL mapping template</summary>
 
-  ```vtl
-  {
-      "version" : "2018-05-29",
-      "operation" : "BatchPutItem",
-      "tables" : {
-          "${postsTable}": [...]
-      }
-  }
-  ```
+```vtl
+{
+    "version" : "2018-05-29",
+    "operation" : "BatchPutItem",
+    "tables" : {
+        "${postsTable}": [...]
+    }
+}
+```
+
 </details>
 
 <details open>
   <summary>JS Resolvers</summary>
-  
-  ```js
-  const tableName = '#postsTable#';
-  return {
-    operation: "BatchGetItem",
-    tables: {
-      [tableName]: { keys },
-    },
-  };
-  ```
+
+```js
+const tableName = '#postsTable#';
+return {
+  operation: 'BatchGetItem',
+  tables: {
+    [tableName]: { keys },
+  },
+};
+```
+
 </details>
