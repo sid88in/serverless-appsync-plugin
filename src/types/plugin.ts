@@ -32,6 +32,7 @@ export type AppSyncConfig = {
   substitutions?: Substitutions;
   environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
+  logicalIdPrefix?: string;
   logging?: LoggingConfig;
   caching?: CachingConfig;
   waf?: WafConfig;

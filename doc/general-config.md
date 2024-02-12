@@ -49,6 +49,7 @@ appSync:
 - `caching`: See [Cacing](caching.md)
 - `waf`: See [Web Application Firefall](WAF.md)
 - `logging`: See [Logging](#Logging)
+- `logicalIdPrefix`: Optional string. Used to prefix the generated CloudFormation Logical ID for the `AWS::AppSync::GraphQLApi` and related resources
 - `xrayEnabled`: Boolean. Enable or disable X-Ray tracing.
 - `visibility`: Optional. `GLOBAL` or `PRIVATE`. **Changing this value requires the replacement of the API.**
 - `introspection`: Boolean. Whether to enable introspection or not. Defaults to `true`.
