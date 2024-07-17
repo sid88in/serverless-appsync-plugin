@@ -810,6 +810,21 @@ export const appSyncSchema = {
       },
       required: ['level'],
     },
+    enhancedMetrics: {
+      type: 'object',
+      properties: {
+        DataSourceLevelMetricsBehavior: {
+          type: 'string',
+          enum: ['FULL_REQUEST_DATA_SOURCE_METRICS', 'PER_DATA_SOURCE_METRICS'],
+          errorMessage: "must be 'FULL_REQUEST_DATA_SOURCE_METRICS' or 'PER_DATA_SOURCE_METRICS'",
+        },
+        OperationLevelMetricsConfig: {
+          type: 'string',
+          enum: ['ENABLED', ' DISABLED'],
+          errorMessage: "must be 'ENABLED' or ' DISABLED'",
+        },
+      }
+    },
     dataSources: {
       oneOf: [
         {
