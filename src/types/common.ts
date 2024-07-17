@@ -46,6 +46,7 @@ export type WafRuleThrottle = {
 };
 
 export type WafRuleCustom = {
+  overrideAction?: any;
   name: string;
   priority?: number;
   action?: WafRuleAction;
@@ -129,6 +130,11 @@ export type SyncConfig = {
 
 export type Substitutions = Record<string, string | IntrinsicFunction>;
 export type EnvironmentVariables = Record<string, string | IntrinsicFunction>;
+export type EnhancedMetricsConfig = {
+  "DataSourceLevelMetricsBehavior" : 'FULL_REQUEST_DATA_SOURCE_METRICS'| 'PER_DATA_SOURCE_METRICS';
+  "OperationLevelMetricsConfig" : 'ENABLED' | ' DISABLED';
+  "ResolverLevelMetricsBehavior" : 'FULL_REQUEST_RESOLVER_METRICS' | 'PER_RESOLVER_METRICS' ;
+};
 
 export type DsDynamoDBConfig = {
   type: 'AMAZON_DYNAMODB';
