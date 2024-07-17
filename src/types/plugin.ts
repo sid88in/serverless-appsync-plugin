@@ -16,6 +16,7 @@ import {
   DsNone,
   Substitutions,
   EnvironmentVariables,
+  EnhancedMetricsConfig
 } from './common';
 export * from './common';
 
@@ -31,6 +32,7 @@ export type AppSyncConfig = {
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
   environment?: EnvironmentVariables;
+  enhancedMetrics?: EnhancedMetricsConfig;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
   caching?: CachingConfig;

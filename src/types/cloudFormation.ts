@@ -117,6 +117,7 @@ export type CfnResolver = {
       };
     };
     MaxBatchSize?: number;
+    MetricsConfig? : 'ENABLED' | 'DISABLED';
   };
 };
 
