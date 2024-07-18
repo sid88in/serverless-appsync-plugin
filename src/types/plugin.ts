@@ -16,7 +16,7 @@ import {
   DsNone,
   Substitutions,
   EnvironmentVariables,
-  EnhancedMetricsConfig
+  EnhancedMetricsConfig,
 } from './common';
 export * from './common';
 
