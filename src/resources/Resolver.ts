@@ -29,7 +29,7 @@ export class Resolver {
       ApiId: this.api.getApiId(),
       TypeName: this.config.type,
       FieldName: this.config.field,
-      MetricsConfig: 'DISABLED'
+      MetricsConfig: 'DISABLED',
     };
 
     const isVTLResolver = 'request' in this.config || 'response' in this.config;
