@@ -22,7 +22,20 @@ export const plugin = () => {
     stage: 'dev',
     region: 'us-east-1',
   };
-  return new ServerlessAppsyncPlugin(createServerless(), options);
+  return new ServerlessAppsyncPlugin(createServerless(), options, {
+    log: {
+      error: jest.fn(),
+      warning: jest.fn(),
+      info: jest.fn(),
+      success: jest.fn(),
+    },
+    progress: {
+      create: () => ({
+        remove: jest.fn(),
+      }),
+    },
+    writeText: jest.fn(),
+  });
 };
 
 export const appSyncConfig = (partial?: Partial<AppSyncConfig>) => {

@@ -4,33 +4,6 @@ import ServerlessError from 'serverless/lib/serverless-error';
 
 jest.setTimeout(30000);
 
-jest.mock('@serverless/utils/log', () => {
-  const dummyProgress = {
-    update: jest.fn(),
-    remove: jest.fn(),
-  };
-  const logger = {
-    error: jest.fn(),
-    warning: jest.fn(),
-    notice: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    success: jest.fn(),
-  };
-  return {
-    writeText: jest.fn(),
-    progress: {
-      get: () => dummyProgress,
-      create: () => dummyProgress,
-    },
-    log: {
-      get: () => logger,
-      ...logger,
-    },
-    getPluginWriters: jest.fn(),
-  };
-});
-
 const confirmSpy = jest.spyOn(utils, 'confirmAction');
 const describeStackResources = jest.fn().mockResolvedValue({
   StackResources: [
