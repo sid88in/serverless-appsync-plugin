@@ -51,6 +51,7 @@ export type WafRuleCustom = {
   action?: WafRuleAction;
   statement: CfnWafRuleStatement;
   visibilityConfig?: VisibilityConfig;
+  overrideAction?: Record<string, unknown>;
 };
 
 export type WafRuleDisableIntrospection = {

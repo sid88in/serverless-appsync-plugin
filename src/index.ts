@@ -1,4 +1,3 @@
-import { writeText, log, progress } from '@serverless/utils/log';
 import Serverless from 'serverless/lib/Serverless';
 import Provider from 'serverless/lib/plugins/aws/provider.js';
 import { forEach, last, merge } from 'lodash';
@@ -68,6 +67,23 @@ import terminalLink from 'terminal-link';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
+type Progress = {
+  remove: () => void;
+};
+
+type ServerlessPluginUtils = {
+  log: {
+    success: (message: string) => void;
+    warning: (message: string) => void;
+    error: (message: string) => void;
+    info: (message: string) => void;
+  };
+  progress: {
+    create: (params: { name?: string; message: string }) => Progress;
+  };
+  writeText: (message: string) => void;
+};
+
 class ServerlessAppsyncPlugin {
   private provider: Provider;
   private gatheredData: {
@@ -90,6 +106,7 @@ class ServerlessAppsyncPlugin {
   constructor(
     public serverless: Serverless,
     private options: Record<string, string>,
+    public utils: ServerlessPluginUtils,
   ) {
     this.gatheredData = {
       apis: [],
@@ -98,7 +115,7 @@ class ServerlessAppsyncPlugin {
     this.serverless = serverless;
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
-
+    this.utils = utils;
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
@@ -304,7 +321,7 @@ class ServerlessAppsyncPlugin {
       'appsync:validate-schema:run': () => {
         this.loadConfig();
         this.validateSchemas();
-        log.success('AppSync schema valid');
+        this.utils.log.success('AppSync schema valid');
       },
       'appsync:get-introspection:run': () => this.getIntrospection(),
       'appsync:flush-cache:run': () => this.flushCache(),
@@ -327,7 +344,7 @@ class ServerlessAppsyncPlugin {
         this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
       finalize: () => {
-        writeText(
+        this.utils.writeText(
           '\nLooking for a better AppSync development experience? Have you tried GraphBolt? https://graphbolt.dev',
         );
       },
@@ -431,20 +448,22 @@ class ServerlessAppsyncPlugin {
       try {
         const filePath = path.resolve(this.options.output);
         fs.writeFileSync(filePath, schema.toString());
-        log.success(`Introspection schema exported to ${filePath}`);
+        this.utils.log.success(`Introspection schema exported to ${filePath}`);
       } catch (error) {
-        log.error(`Could not save to file: ${(error as Error).message}`);
+        this.utils.log.error(
+          `Could not save to file: ${(error as Error).message}`,
+        );
       }
       return;
     }
 
-    writeText(schema.toString());
+    this.utils.writeText(schema.toString());
   }
 
   async flushCache() {
     const apiId = await this.getApiId();
     await this.provider.request('AppSync', 'flushApiCache', { apiId });
-    log.success('Cache flushed successfully');
+    this.utils.log.success('Cache flushed successfully');
   }
 
   async openConsole() {
@@ -486,7 +505,7 @@ class ServerlessAppsyncPlugin {
 
     events?.forEach((event) => {
       const { timestamp, message } = event;
-      writeText(
+      this.utils.writeText(
         `${chalk.gray(
           DateTime.fromMillis(timestamp || 0).toISO(),
         )}\t${message}`,
@@ -512,7 +531,7 @@ class ServerlessAppsyncPlugin {
     const domain = this.getDomain();
 
     if (domain.useCloudFormation !== false) {
-      log.warning(
+      this.utils.log.warning(
         'You are using the CloudFormation integration for domain configuration.\n' +
           'To avoid CloudFormation drifts, you should not use it in combination with this command.\n' +
           'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
@@ -568,7 +587,7 @@ class ServerlessAppsyncPlugin {
         ({ DomainName }) => DomainName === match,
       );
       if (cert) {
-        log.info(
+        this.utils.log.info(
           `Found matching certificate for ${match}: ${cert.CertificateArn}`,
         );
         return cert.CertificateArn;
@@ -595,13 +614,13 @@ class ServerlessAppsyncPlugin {
         domainName: domain.name,
         certificateArn,
       });
-      log.success(`Domain '${domain.name}' created successfully`);
+      this.utils.log.success(`Domain '${domain.name}' created successfully`);
     } catch (error) {
       if (
         error instanceof this.serverless.classes.Error &&
         this.options.quiet
       ) {
-        log.error(error.message);
+        this.utils.log.error(error.message);
       } else {
         throw error;
       }
@@ -611,7 +630,7 @@ class ServerlessAppsyncPlugin {
   async deleteDomain() {
     try {
       const domain = this.getDomain();
-      log.warning(`The domain '${domain.name} will be deleted.`);
+      this.utils.log.warning(`The domain '${domain.name} will be deleted.`);
       if (!this.options.yes && !(await confirmAction())) {
         return;
       }
@@ -621,13 +640,13 @@ class ServerlessAppsyncPlugin {
       >('AppSync', 'deleteDomainName', {
         domainName: domain.name,
       });
-      log.success(`Domain '${domain.name}' deleted successfully`);
+      this.utils.log.success(`Domain '${domain.name}' deleted successfully`);
     } catch (error) {
       if (
         error instanceof this.serverless.classes.Error &&
         this.options.quiet
       ) {
-        log.error(error.message);
+        this.utils.log.error(error.message);
       } else {
         throw error;
       }
@@ -663,8 +682,7 @@ class ServerlessAppsyncPlugin {
     message: string;
     desiredStatus: 'SUCCESS' | 'NOT_FOUND';
   }) {
-    const progressInstance = progress.create({ message });
-
+    const progressInstance = this.utils.progress.create({ message });
     let status: string;
     do {
       status =
@@ -683,14 +701,14 @@ class ServerlessAppsyncPlugin {
     const assoc = await this.getApiAssocStatus(domain.name);
 
     if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
-      log.warning(
+      this.utils.log.warning(
         `The domain ${domain.name} is currently associated to another API (${assoc?.apiId})`,
       );
       if (!this.options.yes && !(await confirmAction())) {
         return;
       }
     } else if (assoc?.apiId === apiId) {
-      log.success('The domain is already associated to this API');
+      this.utils.log.success('The domain is already associated to this API');
       return;
     }
 
@@ -709,7 +727,9 @@ class ServerlessAppsyncPlugin {
       message,
       desiredStatus: 'SUCCESS',
     });
-    log.success(`API successfully associated to domain '${domain.name}'`);
+    this.utils.log.success(
+      `API successfully associated to domain '${domain.name}'`,
+    );
   }
 
   async disassocDomain() {
@@ -718,7 +738,7 @@ class ServerlessAppsyncPlugin {
     const assoc = await this.getApiAssocStatus(domain.name);
 
     if (assoc?.associationStatus === 'NOT_FOUND') {
-      log.warning(
+      this.utils.log.warning(
         `The domain ${domain.name} is currently not associated to any API`,
       );
       return;
@@ -730,7 +750,7 @@ class ServerlessAppsyncPlugin {
           `Try running this command from that API's stack or stage, or use the --force / -f flag`,
       );
     }
-    log.warning(
+    this.utils.log.warning(
       `The domain ${domain.name} will be disassociated from API '${apiId}'`,
     );
 
@@ -752,7 +772,9 @@ class ServerlessAppsyncPlugin {
       desiredStatus: 'NOT_FOUND',
     });
 
-    log.success(`API successfully disassociated from domain '${domain.name}'`);
+    this.utils.log.success(
+      `API successfully disassociated from domain '${domain.name}'`,
+    );
   }
 
   async getHostedZoneId() {
@@ -798,7 +820,7 @@ class ServerlessAppsyncPlugin {
   }
 
   async createRecord() {
-    const progressInstance = progress.create({
+    const progressInstance = this.utils.progress.create({
       message: 'Creating route53 record',
     });
 
@@ -813,10 +835,10 @@ class ServerlessAppsyncPlugin {
     if (changeId) {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
-      log.info(
+      this.utils.log.info(
         `Alias record for '${domain.name}' was created in Hosted Zone '${hostedZoneId}'`,
       );
-      log.success('Route53 record created successfuly');
+      this.utils.log.success('Route53 record created successfuly');
     }
   }
 
@@ -825,14 +847,14 @@ class ServerlessAppsyncPlugin {
     const appsyncDomainName = await this.getAppSyncDomainName();
     const hostedZoneId = await this.getHostedZoneId();
 
-    log.warning(
+    this.utils.log.warning(
       `Alias record for '${domain.name}' will be deleted from Hosted Zone '${hostedZoneId}'`,
     );
     if (!this.options.yes && !(await confirmAction())) {
       return;
     }
 
-    const progressInstance = progress.create({
+    const progressInstance = this.utils.progress.create({
       message: 'Deleting route53 record',
     });
 
@@ -844,10 +866,10 @@ class ServerlessAppsyncPlugin {
     if (changeId) {
       await this.checkRoute53RecordStatus(changeId);
       progressInstance.remove();
-      log.info(
+      this.utils.log.info(
         `Alias record for '${domain.name}' was deleted from Hosted Zone '${hostedZoneId}'`,
       );
-      log.success('Route53 record deleted successfuly');
+      this.utils.log.success('Route53 record deleted successfuly');
     }
   }
 
@@ -905,7 +927,7 @@ class ServerlessAppsyncPlugin {
         error instanceof this.serverless.classes.Error &&
         this.options.quiet
       ) {
-        log.error(error.message);
+        this.utils.log.error(error.message);
       } else {
         throw error;
       }
@@ -949,7 +971,7 @@ class ServerlessAppsyncPlugin {
   }
 
   loadConfig() {
-    log.info('Loading AppSync config');
+    this.utils.log.info('Loading AppSync config');
 
     const { appSync } = this.serverless.configurationInput;
 
@@ -969,7 +991,7 @@ class ServerlessAppsyncPlugin {
 
   validateSchemas() {
     try {
-      log.info('Validating AppSync schema');
+      this.utils.log.info('Validating AppSync schema');
       if (!this.api) {
         throw new this.serverless.classes.Error(
           'Could not load the API. This should not happen.',
@@ -977,7 +999,7 @@ class ServerlessAppsyncPlugin {
       }
       this.api.compileSchema();
     } catch (error) {
-      log.info('Error');
+      this.utils.log.info('Error');
       if (error instanceof GraphQLError) {
         this.handleError(error.message);
       }
@@ -1057,7 +1079,7 @@ class ServerlessAppsyncPlugin {
     if (configValidationMode === 'error') {
       throw new this.serverless.classes.Error(message);
     } else if (configValidationMode === 'warn') {
-      log.warning(message);
+      this.utils.log.warning(message);
     }
   }
 }
