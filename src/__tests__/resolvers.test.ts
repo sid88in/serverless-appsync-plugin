@@ -164,6 +164,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "RequestMappingTemplate": "Content of path/to/mappingTemplates/Query.user.request.vtl",
               "ResponseMappingTemplate": "Content of path/to/mappingTemplates/Query.user.response.vtl",
               "TypeName": "Query",
@@ -218,6 +219,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
@@ -272,6 +274,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -323,6 +326,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": 200,
+              "MetricsConfig": "DISABLED",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -380,6 +384,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "SyncConfig": Object {
                 "ConflictDetection": "VERSION",
                 "ConflictHandler": "LAMBDA",
@@ -478,6 +483,7 @@ describe('Resolvers', () => {
         ",
               "FieldName": "user",
               "Kind": "PIPELINE",
+              "MetricsConfig": "DISABLED",
               "PipelineConfig": Object {
                 "Functions": Array [
                   Object {
@@ -547,6 +553,7 @@ describe('Resolvers', () => {
               },
               "FieldName": "user",
               "Kind": "PIPELINE",
+              "MetricsConfig": "DISABLED",
               "PipelineConfig": Object {
                 "Functions": Array [
                   Object {
@@ -615,6 +622,7 @@ describe('Resolvers', () => {
               "Code": "Bundled content of resolvers/getUserFunction.js",
               "FieldName": "user",
               "Kind": "PIPELINE",
+              "MetricsConfig": "DISABLED",
               "PipelineConfig": Object {
                 "Functions": Array [
                   Object {
@@ -1006,6 +1014,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -1070,6 +1079,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
@@ -1134,6 +1144,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
+              "MetricsConfig": "DISABLED",
               "TypeName": "Query",
             },
             "Type": "AWS::AppSync::Resolver",
