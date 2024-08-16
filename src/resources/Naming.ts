@@ -36,7 +36,7 @@ export class Naming {
   }
 
   getDomainReoute53RecordLogicalId() {
-    return this.getLogicalId(`GraphQlDomainRoute53Record`);
+    return this.getLogicalId(`GraphQlDomainRoute53Records`);
   }
 
   getLogGroupLogicalId() {

@@ -278,23 +278,25 @@ export class Api {
 
       merge(resources, {
         [domainRoute53Record]: {
-          Type: 'AWS::Route53::RecordSet',
+          Type: 'AWS::Route53::RecordSetGroup',
           DeletionPolicy: domain.retain ? 'Retain' : 'Delete',
           Properties: {
             ...(domain.hostedZoneId
               ? { HostedZoneId: domain.hostedZoneId }
               : { HostedZoneName: hostedZoneName }),
-            Name: domain.name,
-            Type: 'A',
-            AliasTarget: {
-              HostedZoneId: {
-                'Fn::GetAtt': [domainNameLogicalId, 'HostedZoneId'],
-              },
-              DNSName: {
-                'Fn::GetAtt': [domainNameLogicalId, 'AppSyncDomainName'],
-              },
-              EvaluateTargetHealth: false,
-            },
+            RecordSets: ['A', 'AAAA'].map(Type => ({
+              Name: domain.name,
+              Type,
+              AliasTarget: {
+                HostedZoneId: {
+                  'Fn::GetAtt': [domainNameLogicalId, 'HostedZoneId'],
+                },
+                DNSName: {
+                  'Fn::GetAtt': [domainNameLogicalId, 'AppSyncDomainName'],
+                },
+                EvaluateTargetHealth: false,
+              }
+            }))
           },
         },
       });
