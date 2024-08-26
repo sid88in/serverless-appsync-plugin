@@ -1,8 +1,15 @@
 extend type Query {
-  getPost(id: ID!): Post!
+  getPost(
+    "This is an inline description"
+    id: ID!
+  ): Post!
 }
 
 extend type Mutation {
+  """
+  This is a description
+  that includes multiple lines
+  """
   createPost(post: PostInput!): Post!
 }
 
