@@ -1,6 +1,5 @@
 {
-  "name": "@collaborne/serverless-appsync-plugin",
-  "version": "0.0.0",
+  "name": "serverless-appsync-plugin",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
