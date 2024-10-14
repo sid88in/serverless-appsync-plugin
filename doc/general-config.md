@@ -186,7 +186,7 @@ appSync:
     retentionInDays: 14
 ```
 
-- `level`: `ERROR`, `NONE`, or `ALL`
+- `level`: `ERROR`, `NONE`, `INFO`, `DEBUG` or `ALL`
 - `enabled`: Boolean, Optional. Defaults to `true` when `logging` is present.
 - `excludeVerboseContent`: Boolean, Optional. Exclude or not verbose content (headers, response headers, context, and evaluated mapping templates), regardless of field logging level. Defaults to `false`.
 - `retentionInDays`: Optional. Number of days to retain the logs. Defaults to [`provider.logRetentionInDays`](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml#general-function-settings).
