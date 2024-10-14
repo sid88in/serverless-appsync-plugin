@@ -229,7 +229,7 @@ export type VisibilityConfig = {
 };
 
 export type LoggingConfig = {
-  level: 'ERROR' | 'NONE' | 'ALL';
+  level: 'ERROR' | 'NONE' | 'ALL' | 'DEBUG' | 'INFO';
   enabled?: boolean;
   excludeVerboseContent?: boolean;
   retentionInDays?: number;
