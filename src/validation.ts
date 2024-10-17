@@ -801,8 +801,9 @@ export const appSyncSchema = {
         roleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         level: {
           type: 'string',
-          enum: ['ALL', 'ERROR', 'NONE'],
-          errorMessage: "must be one of 'ALL', 'ERROR' or 'NONE'",
+          enum: ['ALL', 'INFO', 'DEBUG', 'ERROR', 'NONE'],
+          errorMessage:
+            "must be one of 'ALL', 'INFO', 'DEBUG', 'ERROR' or 'NONE'",
         },
         retentionInDays: { type: 'integer' },
         excludeVerboseContent: { type: 'boolean' },
