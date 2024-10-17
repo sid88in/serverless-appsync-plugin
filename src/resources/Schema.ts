@@ -5,7 +5,6 @@ import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { flatten } from 'lodash';
 import { parse, print } from 'graphql';
-import ServerlessError from 'serverless/lib/serverless-error';
 import { validateSDL } from 'graphql/validation/validate';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 
