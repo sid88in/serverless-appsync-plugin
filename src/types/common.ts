@@ -46,7 +46,6 @@ export type WafRuleThrottle = {
 };
 
 export type WafRuleCustom = {
-  overrideAction?: any;
   name: string;
   priority?: number;
   action?: WafRuleAction;
