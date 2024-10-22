@@ -119,7 +119,7 @@ export const appSyncSchema = {
         // Note: functionName and functionArn are already defined in #/definitions/lambdaFunctionConfig
         // But if not also defined here, TypeScript shows an error.
         functionName: { type: 'string' },
-        functionArn: { type: 'string' },
+        functionArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         identityValidationExpression: { type: 'string' },
         authorizerResultTtlInSeconds: { type: 'number' },
       },

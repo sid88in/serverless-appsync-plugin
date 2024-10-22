@@ -16,7 +16,7 @@ exports[`Valdiation Invalid should validate a Lambda with empty config 1`] = `"/
 exports[`Valdiation Invalid should validate a Lambda with invalid config functionnArn 1`] = `
 "/authentication/config/functionArn: must be a string or a CloudFormation intrinsic function
 /authentication/config: must specify functionName, functionArn or function (all exclusives)
-/authentication/config/functionArn: must be string
+/authentication/config/functionArn: must be a string or a CloudFormation intrinsic function
 /authentication/config/identityValidationExpression: must be string
 /authentication/config/authorizerResultTtlInSeconds: must be number"
 `;
