@@ -128,7 +128,7 @@ export const appSyncSchema = {
     oidcAuth: {
       type: 'object',
       properties: {
-        issuer: { type: 'string' },
+        issuer: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         clientId: { type: 'string' },
         iatTTL: { type: 'number' },
         authTTL: { type: 'number' },
@@ -630,6 +630,9 @@ export const appSyncSchema = {
       },
       required: ['eventBusArn'],
     },
+    xrayEnabledConfig: {
+      $ref: '#/definitions/lambdaFunctionConfig',
+    },
   },
   properties: {
     name: { type: 'string' },
@@ -685,7 +688,13 @@ export const appSyncSchema = {
           'when using CloudFormation, you must provide either certificateArn or hostedZoneId.',
       },
     },
-    xrayEnabled: { type: 'boolean' },
+    xrayEnabled: {
+      oneOf: [
+        { type: 'boolean' },
+        { $ref: '#/definitions/stringOrIntrinsicFunction' },
+      ],
+      errorMessage: 'must be a boolean or a CloudFormation intrinsic function',
+    },
     visibility: {
       type: 'string',
       enum: ['GLOBAL', 'PRIVATE'],
@@ -699,7 +708,12 @@ export const appSyncSchema = {
     waf: {
       type: 'object',
       properties: {
-        enabled: { type: 'boolean' },
+        enabled: {
+          oneOf: [
+            { type: 'boolean' },
+            { $ref: '#/definitions/stringOrIntrinsicFunction' },
+          ],
+        },
       },
       if: {
         required: ['arn'],
@@ -806,7 +820,12 @@ export const appSyncSchema = {
             "must be one of 'ALL', 'INFO', 'DEBUG', 'ERROR' or 'NONE'",
         },
         retentionInDays: { type: 'integer' },
-        excludeVerboseContent: { type: 'boolean' },
+        excludeVerboseContent: {
+          oneOf: [
+            { type: 'boolean' },
+            { $ref: '#/definitions/stringOrIntrinsicFunction' },
+          ],
+        },
         enabled: { type: 'boolean' },
       },
       required: ['level'],
