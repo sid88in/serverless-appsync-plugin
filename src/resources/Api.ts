@@ -41,6 +41,7 @@ export class Api {
   compile() {
     const resources: CfnResources = {};
 
+    // TODO : Use the validator
     if (this.isExistingApi()) {
       log.info(`
           Updating an existing Graphql API.
@@ -99,12 +100,13 @@ export class Api {
         EnvironmentVariables: this.config.environment,
       },
     };
-    if (this.config.authentication) {
-      merge(
-        endpointResource.Properties,
-        this.compileAuthenticationProvider(this.config.authentication),
-      );
-    }
+    // TODO : Handle the type properly
+    //! authentication is always required in this context
+    if (!this.config.authentication) return;
+    merge(
+      endpointResource.Properties,
+      this.compileAuthenticationProvider(this.config.authentication),
+    );
 
     if (this.config.additionalAuthentications.length > 0) {
       merge(endpointResource.Properties, {
@@ -600,6 +602,7 @@ export class Api {
       : lambdaArn;
   }
 
+  // TODO : Make those required (remove || {})
   hasDataSource(name: string) {
     return name in (this.config.dataSources || {});
   }
@@ -607,4 +610,9 @@ export class Api {
   hasPipelineFunction(name: string) {
     return name in (this.config.pipelineFunctions || {});
   }
+
+  //? I understand why you made those optional, but I'd rather keep them as required.
+  //? If you look here, those are actually already optional from a config point of view.
+  //? Then, getAppSyncConfig() makes sure to fill them with empty {}
+  //? if needed for when it's injected in the compiler.
 }

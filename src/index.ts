@@ -375,7 +375,6 @@ class ServerlessAppsyncPlugin {
       return this.config.apiId;
     }
 
-
     if (!this.naming) {
       throw new this.serverless.classes.Error(
         'Could not find the naming service. This should not happen.',
@@ -406,8 +405,16 @@ class ServerlessAppsyncPlugin {
   async gatherData() {
     const apiId = await this.getApiId();
 
-    if (typeof apiId !== 'string') {
-      return;
+    // TODO : Check if the api key was provided from the config
+    //! This function should not be run from a child service stacck
+    if (!apiId) {
+      throw new this.serverless.classes.Error('Unable to get AppSync Api Id');
+    }
+    if (apiId !== 'string') {
+      // TODO : Handle IntrinsicFunction ?
+      throw new this.serverless.classes.Error(
+        'AppSync apiId cannot be an IntrinsicFunction',
+      );
     }
 
     const { graphqlApi } = await this.provider.request<
@@ -443,6 +450,8 @@ class ServerlessAppsyncPlugin {
   async getIntrospection() {
     const apiId = await this.getApiId();
 
+    // TODO : Check if the api key was provided from the config
+    //! This function should not be run from a child service stacck
     if (typeof apiId !== 'string') {
       return;
     }
@@ -713,13 +722,14 @@ class ServerlessAppsyncPlugin {
   async assocDomain() {
     const apiId = await this.getApiId();
 
+    // TODO : Check if the api key was provided from the config
+    //! This function should not be run from a child service stacck
     if (typeof apiId !== 'string') {
       return;
     }
 
     const domain = this.getDomain();
     const assoc = await this.getApiAssocStatus(domain.name);
-
 
     if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
       this.utils.log.warning(
