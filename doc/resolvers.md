@@ -24,19 +24,24 @@ appSync:
 - `field`: The Field in the schema this resolver is attached to. Optional if specified in the configuration key.
 - `kind`: The kind of resolver. Can be `UNIT` or `PIPELINE` ([see below](#PIPELINE-resolvers)). Defaults to `PIPELINE`
 - `dataSource`: The name of the [dataSource](dataSources.md) this resolver uses.
+- `functions`: For pipeline resolvers ([see below](#PIPELINE-resolvers)) the array of functions to run in sequence
 - `maxBatchSize`: The maximum [batch size](https://aws.amazon.com/blogs/mobile/introducing-configurable-batching-size-for-aws-appsync-lambda-resolvers/) to use (only available for AWS Lambda DataSources)
 - `code`: The path of the JavaScript resolver handler file, relative to `serverless.yml`. If not specified, a [minimalistic default](#javascript-vs-vtl) is used.
 - `request`: The path to the VTL request mapping template file, relative to `serverless.yml`.
 - `response`: The path to the VTL response mapping template file, relative to `serverless.yml`.
-- `substitutions`: See [VTL template substitutions](substitutions.md)
+- `substitutions`: See [Variable Substitutions](substitutions.md). Deprecated: Use [environment variables](./general-config.md) instead.
 - `caching`: [See below](#Caching)
 - `sync`: [See SyncConfig](syncConfig.md)
 
-## JavaScript vs VTL
+## JavaScript, VTL, or Direct Lambda
 
-When `code` is specified, the JavaScript runtime is used. When `request` and/or `response` are specified, the VTL runtime is used.
+When `code` is specified, the JavaScript runtime is used.
 
-If neither are specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic resolver handler is used.
+When `request` and/or `response` are specified, the VTL runtime is used.
+
+For [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request`, `response` or `code`. This only works with Lambda function data sources.
+
+If nothing is specified, by default, the resolver is a PIPELINE JavaScript resolver, and the following minimalistic code is used for the `before` and `after` handlers.
 
 ```js
 export function request() {
@@ -48,7 +53,86 @@ export function response(ctx) {
 }
 ```
 
-To use [direct lambda](https://docs.aws.amazon.com/appsync/latest/devguide/direct-lambda-reference.html), set `kind` to `UNIT` and don't specify `request` and `response` (only works with Lambda function data sources).
+Example of a UNIT JavaScript resolver.
+
+```yaml
+appSync:
+  resolvers:
+    Query.user:
+      kind: UNIT
+      dataSource: myDataSource
+      code: getUser.js
+```
+
+## Bundling
+
+AppSync requires resolvers to be bundled in one single file. By default, this plugin bundles your code with [esbuild](https://esbuild.github.io/), using the given path as the entry point.
+
+This means that you can import external libraries and utilities. e.g.
+
+```js
+import { Context, util } from '@aws-appsync/utils';
+import { generateUpdateExpressions, updateItem } from '../lib/helpers';
+
+export function request(ctx) {
+  const { id, ...post } = ctx.args.post;
+
+  const item = updateItem(post);
+
+  return {
+    operation: 'UpdateItem',
+    key: {
+      id: util.dynamodb.toDynamoDB(id),
+    },
+    update: generateUpdateExpressions(item),
+    condition: {
+      expression: 'attribute_exists(#id)',
+      expressionNames: {
+        '#id': 'id',
+      },
+    },
+  };
+}
+
+export function response(ctx: Context) {
+  return ctx.result;
+}
+```
+
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
+
+## TypeScript support
+
+You can write JS resolver in TypeScript. Resolver files with the `.ts` extension are automatically transpiled and bundled using esbuild.
+
+```yaml
+resolvers:
+  Query.user:
+    kind: UNIT
+    dataSource: 'users'
+    code: 'getUser.ts'
+```
+
+```ts
+// getUser.ts
+import { Context, util } from '@aws-appsync/utils';
+
+export function request(ctx: Context) {
+  const {
+    args: { id },
+  } = ctx;
+  return {
+    operation: 'GetItem',
+    key: util.dynamodb.toMapValues({ id }),
+  };
+}
+
+export function response(ctx: Context) {
+  return ctx.result;
+}
+```
+
+For more information, also see the [esbuild option](./general-config.md#Esbuild).
 
 ## PIPELINE resolvers
 
@@ -64,7 +148,6 @@ appSync:
 
   resolvers:
     Query.user:
-      dataSource: my-table
       functions:
         - function1
         - function2
@@ -80,6 +163,7 @@ You can even also define the Lambda function definition inline under the dataSou
 appSync:
   resolvers:
     Query.user:
+      kind: UNIT
       dataSource:
         type: 'AWS_LAMBDA'
         config:

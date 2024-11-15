@@ -24,7 +24,7 @@ declare module '@serverless/utils/log' {
 }
 
 declare module 'serverless/lib/Serverless' {
-  import { AppSyncConfigInput } from 'plugin';
+  import { AppSyncConfig } from 'plugin';
   import Provider from 'serverless/lib/plugins/aws/provider.js';
   import type { AWS } from '@serverless/typescript';
 
@@ -59,7 +59,7 @@ declare module 'serverless/lib/Serverless' {
       options: Record<string, unknown>;
     };
     configurationInput: AWS & {
-      appSync: AppSyncConfigInput;
+      appSync: AppSyncConfig;
     };
     service: AWS & {
       setFunctionNames(rawOptions: Record<string, unknown>): void;

@@ -133,7 +133,7 @@ export const appSyncSchema = {
         iatTTL: { type: 'number' },
         authTTL: { type: 'number' },
       },
-      required: ['issuer', 'clientId'],
+      required: ['issuer'],
     },
     iamAuth: {
       type: 'object',
@@ -254,6 +254,14 @@ export const appSyncSchema = {
       },
       required: [],
       errorMessage: 'must be a valid substitutions definition',
+    },
+    environment: {
+      type: 'object',
+      additionalProperties: {
+        $ref: '#/definitions/stringOrIntrinsicFunction',
+      },
+      required: [],
+      errorMessage: 'must be a valid environment definition',
     },
     dataSource: {
       if: { type: 'object' },
@@ -678,7 +686,16 @@ export const appSyncSchema = {
       },
     },
     xrayEnabled: { type: 'boolean' },
+    visibility: {
+      type: 'string',
+      enum: ['GLOBAL', 'PRIVATE'],
+      errorMessage: 'must be "GLOBAL" or "PRIVATE"',
+    },
+    introspection: { type: 'boolean' },
+    queryDepthLimit: { type: 'integer', minimum: 1, maximum: 75 },
+    resolverCountLimit: { type: 'integer', minimum: 1, maximum: 1000 },
     substitutions: { $ref: '#/definitions/substitutions' },
+    environment: { $ref: '#/definitions/environment' },
     waf: {
       type: 'object',
       properties: {
@@ -784,8 +801,9 @@ export const appSyncSchema = {
         roleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
         level: {
           type: 'string',
-          enum: ['ALL', 'ERROR', 'NONE'],
-          errorMessage: "must be one of 'ALL', 'ERROR' or 'NONE'",
+          enum: ['ALL', 'INFO', 'DEBUG', 'ERROR', 'NONE'],
+          errorMessage:
+            "must be one of 'ALL', 'INFO', 'DEBUG', 'ERROR' or 'NONE'",
         },
         retentionInDays: { type: 'integer' },
         excludeVerboseContent: { type: 'boolean' },
@@ -832,6 +850,15 @@ export const appSyncSchema = {
         },
       ],
       errorMessage: 'contains invalid pipeline function definitions',
+    },
+    esbuild: {
+      oneOf: [
+        {
+          type: 'object',
+        },
+        { const: false },
+      ],
+      errorMessage: 'must be an esbuild config object or false',
     },
   },
   required: ['name', 'authentication'],

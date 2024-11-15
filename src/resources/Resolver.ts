@@ -31,13 +31,22 @@ export class Resolver {
       FieldName: this.config.field,
     };
 
-    const isJsResolver = !(
-      this.config.kind === 'UNIT' ||
-      'request' in this.config ||
-      'response' in this.config
-    );
+    const isVTLResolver = 'request' in this.config || 'response' in this.config;
+    const isJsResolver =
+      'code' in this.config || (!isVTLResolver && this.config.kind !== 'UNIT');
 
-    if (!isJsResolver) {
+    if (isJsResolver) {
+      if (this.config.code) {
+        Properties.Code = this.resolveJsCode(this.config.code);
+      } else {
+        // default for pipeline JS resolvers
+        Properties.Code = DEFAULT_JS_RESOLVERS;
+      }
+      Properties.Runtime = {
+        Name: 'APPSYNC_JS',
+        RuntimeVersion: '1.0.0',
+      };
+    } else if (isVTLResolver) {
       const requestMappingTemplates = this.resolveMappingTemplate('request');
       if (requestMappingTemplates) {
         Properties.RequestMappingTemplate = requestMappingTemplates;
@@ -58,7 +67,7 @@ export class Resolver {
       } else if (typeof this.config.caching === 'object') {
         Properties.CachingConfig = {
           CachingKeys: this.config.caching.keys,
-          Ttl: this.config.caching.ttl || this.config.caching.ttl || 3600,
+          Ttl: this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
         };
       }
     }
@@ -85,18 +94,6 @@ export class Resolver {
         MaxBatchSize: this.config.maxBatchSize,
       };
     } else {
-      if (isJsResolver) {
-        if (this.config.code) {
-          Properties.Code = this.resolveJsCode(this.config.code);
-        } else if (!this.config.code) {
-          Properties.Code = DEFAULT_JS_RESOLVERS;
-        }
-        Properties.Runtime = {
-          Name: 'APPSYNC_JS',
-          RuntimeVersion: '1.0.0',
-        };
-      }
-
       Properties = {
         ...Properties,
         Kind: 'PIPELINE',
