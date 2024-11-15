@@ -22,6 +22,11 @@ const DATASOURCE_TYPES = [
   'AMAZON_EVENTBRIDGE',
 ] as const;
 
+// TODO: Split in 2 schemas
+//? as mentioned above, we should have 2 schemas: one for a usual appsync config (main api or single stack)
+//? and one for "external API" which only accepts supporters fields.
+//? This way, authentication can remain required in single stack scenarios
+//? or for main stack and be "forbidden" for sub stacks
 export const appSyncSchema = {
   type: 'object',
   definitions: {

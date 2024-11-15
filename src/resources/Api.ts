@@ -556,4 +556,8 @@ export class Api {
   hasPipelineFunction(name: string) {
     return name in this.config.pipelineFunctions;
   }
+  //? I understand why you made those optional, but I'd rather keep them as required.
+  //? If you look here, those are actually already optional from a config point of view.
+  //? Then, getAppSyncConfig() makes sure to fill them with empty {} if needed for when it's injected in the compiler.
+  // https://github.com/sid88in/serverless-appsync-plugin/blob/05164d8847a554d56bb73590fdc35bf0bda5198e/src/getAppSyncConfig.ts#L36-L46
 }
