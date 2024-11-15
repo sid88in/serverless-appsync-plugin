@@ -1,4 +1,4 @@
-import { FunctionConfigInput } from '../../getAppSyncConfig';
+import { PipelineFunctionConfig } from '../../types';
 import { validateConfig } from '../../validation';
 import { basicConfig } from '../basicConfig';
 
@@ -19,7 +19,7 @@ describe('Basic', () => {
               request: 'request.vtl',
               response: 'response.vtl',
             },
-          } as Record<string, FunctionConfigInput>,
+          } as Record<string, PipelineFunctionConfig>,
         },
       },
       {
@@ -51,7 +51,7 @@ describe('Basic', () => {
               },
               function4: 'ds1',
             },
-          ] as Record<string, FunctionConfigInput>[],
+          ] as Record<string, PipelineFunctionConfig>[],
         },
       },
     ];

@@ -15,6 +15,107 @@ describe('Api', () => {
           "GraphQlApi": Object {
             "Properties": Object {
               "AuthenticationType": "API_KEY",
+              "EnvironmentVariables": undefined,
+              "Name": "MyApi",
+              "Tags": Array [
+                Object {
+                  "Key": "stage",
+                  "Value": "Dev",
+                },
+              ],
+              "XrayEnabled": false,
+            },
+            "Type": "AWS::AppSync::GraphQLApi",
+          },
+        }
+      `);
+    });
+
+    it('should compile the Api Resource for a private endpoint', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          visibility: 'PRIVATE',
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApi": Object {
+            "Properties": Object {
+              "AuthenticationType": "API_KEY",
+              "EnvironmentVariables": undefined,
+              "Name": "MyApi",
+              "Tags": Array [
+                Object {
+                  "Key": "stage",
+                  "Value": "Dev",
+                },
+              ],
+              "Visibility": "PRIVATE",
+              "XrayEnabled": false,
+            },
+            "Type": "AWS::AppSync::GraphQLApi",
+          },
+        }
+      `);
+    });
+
+    it('should compile the Api Resource with config', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          introspection: false,
+          queryDepthLimit: 10,
+          resolverCountLimit: 20,
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApi": Object {
+            "Properties": Object {
+              "AuthenticationType": "API_KEY",
+              "EnvironmentVariables": undefined,
+              "IntrospectionConfig": "DISABLED",
+              "Name": "MyApi",
+              "QueryDepthLimit": 10,
+              "ResolverCountLimit": 20,
+              "Tags": Array [
+                Object {
+                  "Key": "stage",
+                  "Value": "Dev",
+                },
+              ],
+              "XrayEnabled": false,
+            },
+            "Type": "AWS::AppSync::GraphQLApi",
+          },
+        }
+      `);
+    });
+
+    it('should compile the Api Resource with Environments', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          environment: {
+            TABLE_NAME: 'MyTable',
+            OTHER_TABLE: {
+              Ref: 'OtherTable',
+            },
+          },
+        }),
+        plugin,
+      );
+      expect(api.compileEndpoint()).toMatchInlineSnapshot(`
+        Object {
+          "GraphQlApi": Object {
+            "Properties": Object {
+              "AuthenticationType": "API_KEY",
+              "EnvironmentVariables": Object {
+                "OTHER_TABLE": Object {
+                  "Ref": "OtherTable",
+                },
+                "TABLE_NAME": "MyTable",
+              },
               "Name": "MyApi",
               "Tags": Array [
                 Object {
@@ -46,6 +147,7 @@ describe('Api', () => {
           "GraphQlApi": Object {
             "Properties": Object {
               "AuthenticationType": "API_KEY",
+              "EnvironmentVariables": undefined,
               "LogConfig": Object {
                 "CloudWatchLogsRoleArn": Object {
                   "Fn::GetAtt": Array [
@@ -155,6 +257,7 @@ describe('Api', () => {
                 },
               ],
               "AuthenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "EnvironmentVariables": undefined,
               "Name": "MyApi",
               "Tags": Array [
                 Object {

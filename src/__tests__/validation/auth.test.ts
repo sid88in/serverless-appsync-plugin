@@ -1,4 +1,4 @@
-import { AppSyncConfigInput } from '../../getAppSyncConfig';
+import { AppSyncConfig } from '../../types';
 import { validateConfig } from '../../validation';
 import { basicConfig } from '../basicConfig';
 
@@ -12,7 +12,7 @@ describe('Valdiation', () => {
           authentication: {
             type: 'API_KEY',
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
       {
         name: 'Cognito',
@@ -27,7 +27,7 @@ describe('Valdiation', () => {
               appIdClientRegex: '.*',
             },
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
       {
         name: 'Cognito with Refs',
@@ -44,7 +44,7 @@ describe('Valdiation', () => {
               },
             },
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
       {
         name: 'OIDC',
@@ -59,7 +59,21 @@ describe('Valdiation', () => {
               authTTL: 3600,
             },
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
+      },
+      {
+        name: 'OIDC without a clientId',
+        config: {
+          ...basicConfig,
+          authentication: {
+            type: 'OPENID_CONNECT',
+            config: {
+              issuer: 'https://auth.example.com',
+              iatTTL: 3600,
+              authTTL: 3600,
+            },
+          },
+        } as AppSyncConfig,
       },
       {
         name: 'IAM',
@@ -68,7 +82,7 @@ describe('Valdiation', () => {
           authentication: {
             type: 'AWS_IAM',
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
       {
         name: 'Lambda with functionName',
@@ -82,7 +96,7 @@ describe('Valdiation', () => {
               authorizerResultTtlInSeconds: 600,
             },
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
       {
         name: 'Lambda with functionArn',
@@ -94,7 +108,7 @@ describe('Valdiation', () => {
               functionArn: 'arn:aws:lambda:...',
             },
           },
-        } as AppSyncConfigInput,
+        } as AppSyncConfig,
       },
     ];
 

@@ -411,6 +411,27 @@ Object {
 }
 `;
 
+exports[`Waf Custom rules should generate a custom rule with ManagedRuleGroup 1`] = `
+Object {
+  "Name": "MyRule1",
+  "OverrideAction": Object {
+    "None": Object {},
+  },
+  "Priority": 200,
+  "Statement": Object {
+    "ManagedRuleGroupStatement": Object {
+      "Name": "AWSManagedRulesCommonRuleSet",
+      "VendorName": "AWS",
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "MyRule1",
+    "SampledRequestsEnabled": true,
+  },
+}
+`;
+
 exports[`Waf Disable introspection should generate a preset rule 1`] = `
 Object {
   "Action": Object {

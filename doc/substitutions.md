@@ -1,10 +1,18 @@
+> ⚠️ Substitutions are deprecated. Use [Environment Variables](./general-config.md) instead.
+
 # Substitutions
 
-Substitutions is a feature that allows you to replace some variables in your VTL mapping templates with dynamic values.
+`Substitutions` is a feature that allows you to replace some variables in your VTL mapping templates or JS resolvers with dynamic values.
 
 They are usually useful to replace parts of the template with resource names or ARNs coming from your IaC, such as a DynamoDB table names, for example; or the stage name, region name, etc.
 
-## Quick start
+## Usage
+
+Substitutions are defined as key-value pairs under the `appSync.substitutions`, `appSync.resolvers.[resolverName].substitutions` or `appSync.pipelineFunctions.[functionName].substitutions` attributes.
+
+Global substitutions are available globally to all mapping templates. Resolver and Pipeline function substitutions are only available where they are defined. Resolver and Pipeline function substitutions take precedence over global substitutions (values will be overwritten).
+
+Once defined, you can then use them within the mapping templates as if they were VTL variables. For JS resolvers you'll need to add the variable name as a string padded by `#`. At deployment time, variables will be substituted with their corresponding value.
 
 ```yaml
 appSync:
@@ -21,36 +29,8 @@ appSync:
         someVariable: someValue
 ```
 
-```vtl
-#set($postsdata = [])
-#foreach($item in ${ctx.args.posts})
-    $util.qr($postsdata.add($util.dynamodb.toMapValues($item)))
-#end
-{
-    "version" : "2018-05-29",
-    "operation" : "BatchPutItem",
-    "tables" : {
-        "${postsTable}": $utils.toJson($postsdata)
-    }
-}
-```
-
-## Usage
-
-Substitutions are defined as key-value pairs under the `appSync.substitutions`, `appSync.resolvers.[resolverName].substitutions` or `appSync.pipelineFunctions.[functionName].substitutions` attributes.
-
-Global substitutions are available globally to all mapping templates. Resolver and Pipeline function substitutions are only available where they are defined. Resolver and Pipeline function substitutions take precedence over global substitutions (values will be overwritten).
-
-Once defined, you can then use them within the mapping templates as if they were VTL variables. At deployment time, variables will be substituted with their corresponding value.
-
-```yaml
-appSync:
-  name: my-api
-  substitutions:
-    postsTable: !Ref Posts
-```
-
-In the mapping template:
+<details open>
+  <summary>VTL mapping template</summary>
 
 ```vtl
 {
@@ -61,3 +41,20 @@ In the mapping template:
     }
 }
 ```
+
+</details>
+
+<details open>
+  <summary>JS Resolvers</summary>
+
+```js
+const tableName = '#postsTable#';
+return {
+  operation: 'BatchGetItem',
+  tables: {
+    [tableName]: { keys },
+  },
+};
+```
+
+</details>

@@ -96,6 +96,7 @@ export class Api {
         Name: this.config.name,
         XrayEnabled: this.config.xrayEnabled || false,
         Tags: this.getTagsConfig(),
+        EnvironmentVariables: this.config.environment,
       },
     };
     if (this.config.authentication) {
@@ -123,6 +124,30 @@ export class Api {
         },
         FieldLogLevel: this.config.logging.level,
         ExcludeVerboseContent: this.config.logging.excludeVerboseContent,
+      });
+    }
+
+    if (this.config.visibility) {
+      merge(endpointResource.Properties, {
+        Visibility: this.config.visibility,
+      });
+    }
+
+    if (this.config.introspection !== undefined) {
+      merge(endpointResource.Properties, {
+        IntrospectionConfig: this.config.introspection ? 'ENABLED' : 'DISABLED',
+      });
+    }
+
+    if (this.config.queryDepthLimit !== undefined) {
+      merge(endpointResource.Properties, {
+        QueryDepthLimit: this.config.queryDepthLimit,
+      });
+    }
+
+    if (this.config.resolverCountLimit !== undefined) {
+      merge(endpointResource.Properties, {
+        ResolverCountLimit: this.config.resolverCountLimit,
       });
     }
 

@@ -119,6 +119,22 @@ waf:
             - US
 ```
 
+```yml
+waf:
+  enabled: true
+  defaultAction: Block
+  rules:
+    # using ManagedRuleGroup
+    - name: "AWSManagedRulesCommonRuleSet"
+      priority: 20
+      overrideAction:
+        None: {}
+      statement:
+        ManagedRuleGroupStatement:
+          VendorName: "AWS"
+          Name: "AWSManagedRulesCommonRuleSet"
+```
+
 ### Per API Key rules
 
 In some cases, you might want to enable a rule for a given API key only. You can specify `wafRules` under the `appSync.apiKeys` attribute. The rules will apply only to that API key.

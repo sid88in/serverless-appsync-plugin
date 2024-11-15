@@ -30,7 +30,7 @@ exports[`Valdiation Domain Invalid should validate a useCloudFormation: not pres
 exports[`Valdiation Domain Invalid should validate a useCloudFormation: true, certificateArn or hostedZoneId is required 1`] = `"/domain: when using CloudFormation, you must provide either certificateArn or hostedZoneId."`;
 
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
-"/logging/level: must be one of 'ALL', 'ERROR' or 'NONE'
+"/logging/level: must be one of 'ALL', 'INFO', 'DEBUG', 'ERROR' or 'NONE'
 /logging/retentionInDays: must be integer
 /logging/excludeVerboseContent: must be boolean"
 `;
@@ -53,5 +53,18 @@ exports[`Valdiation Waf Invalid should validate a Throttle limit 1`] = `
 
 exports[`Valdiation should validate  1`] = `
 ": must have required property 'name'
-/unknownPorp: invalid (unknown) property"
+: must have required property 'authentication'
+/unknownPorp: invalid (unknown) property
+/xrayEnabled: must be boolean
+/visibility: must be \\"GLOBAL\\" or \\"PRIVATE\\"
+/introspection: must be boolean
+/queryDepthLimit: must be integer
+/resolverCountLimit: must be integer
+/environment: must be a valid environment definition
+/esbuild: must be an esbuild config object or false"
+`;
+
+exports[`Valdiation should validate  2`] = `
+"/queryDepthLimit: must be <= 75
+/resolverCountLimit: must be <= 1000"
 `;
