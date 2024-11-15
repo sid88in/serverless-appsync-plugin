@@ -1,5 +1,5 @@
-import { BuildOptions } from 'esbuild';
-import {
+import type { BuildOptions } from 'esbuild';
+import type {
   Auth,
   DomainConfig,
   ApiKeyConfig,
@@ -17,6 +17,7 @@ import {
   Substitutions,
   EnvironmentVariables,
 } from './common';
+import type { IntrinsicFunction } from './cloudFormation';
 export * from './common';
 
 export type AppSyncConfig = {
