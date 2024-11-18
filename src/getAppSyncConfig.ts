@@ -1,11 +1,11 @@
 import { AppSyncConfig } from './types';
-import {
+import type {
   ApiKeyConfig,
   AppSyncConfig as PluginAppSyncConfig,
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
-  isSharedApiConfig,
+  BaseAppSyncConfig,
   SharedAppSyncConfig,
   FullAppSyncConfig,
 } from './types/plugin';
@@ -40,14 +40,57 @@ const toResourceName = (name: string) => {
 export const getAppSyncConfig = (
   config: AppSyncConfig,
 ): PluginAppSyncConfig => {
+  const baseConfig = getBaseAppsyncConfig(config);
+
+  // handle shared appsync config
+  if ('apiId' in config && config.apiId) {
+    // Todo : check after editing the validator
+    //? config: AppSyncConfig & Record<"apiId", unknown>
+    const apiId: string = config.apiId;
+    return {
+      ...baseConfig,
+      apiId,
+    } satisfies SharedAppSyncConfig;
+  }
+
+  // Handle full appsync config
   const schema = Array.isArray(config.schema)
     ? config.schema
     : [config.schema || 'schema.graphql'];
 
+  const additionalAuthentications = config.additionalAuthentications || [];
+
+  let apiKeys: Record<string, ApiKeyConfig> | undefined;
+  if (
+    config.authentication?.type === 'API_KEY' ||
+    additionalAuthentications.some((auth) => auth.type === 'API_KEY')
+  ) {
+    const inputKeys = config.apiKeys || [];
+
+    apiKeys = inputKeys.reduce((acc, key) => {
+      if (typeof key === 'string') {
+        acc[key] = { name: key };
+      } else {
+        acc[key.name] = key;
+      }
+
+      return acc;
+    }, {});
+  }
+
+  return {
+    ...config,
+    ...baseConfig,
+    additionalAuthentications,
+    apiKeys,
+    schema,
+  } satisfies FullAppSyncConfig;
+};
+
+function getBaseAppsyncConfig(config: AppSyncConfig): BaseAppSyncConfig {
   const dataSources: Record<string, DataSourceConfig> = {};
   const resolvers: Record<string, ResolverConfig> = {};
   const pipelineFunctions: Record<string, PipelineFunctionConfig> = {};
-  const additionalAuthentications = config.additionalAuthentications || [];
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources[name] = {
@@ -130,35 +173,9 @@ export const getAppSyncConfig = (
     };
   });
 
-  let apiKeys: Record<string, ApiKeyConfig> | undefined;
-  if (
-    config.authentication?.type === 'API_KEY' ||
-    additionalAuthentications.some((auth) => auth.type === 'API_KEY')
-  ) {
-    const inputKeys = config.apiKeys || [];
-
-    apiKeys = inputKeys.reduce((acc, key) => {
-      if (typeof key === 'string') {
-        acc[key] = { name: key };
-      } else {
-        acc[key.name] = key;
-      }
-
-      return acc;
-    }, {});
-  }
-
-  const appSyncConfig = {
-    ...config,
-    additionalAuthentications,
-    apiKeys,
-    schema,
+  return {
     dataSources,
     resolvers,
     pipelineFunctions,
   };
-
-  return isSharedApiConfig(appSyncConfig)
-    ? (appSyncConfig satisfies SharedAppSyncConfig)
-    : (appSyncConfig satisfies FullAppSyncConfig);
-};
+}
