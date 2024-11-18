@@ -1,4 +1,4 @@
-import Ajv from 'ajv';
+import Ajv, { type ValidateFunction } from 'ajv';
 import ajvErrors from 'ajv-errors';
 import ajvMergePatch from 'ajv-merge-patch';
 import addFormats from 'ajv-formats';
@@ -12,8 +12,41 @@ const commonProperties = {
   pipelineFunctions: prop.pipelineFunctions,
 };
 
+const definitions = {
+  stringOrIntrinsicFunction: def.stringOrIntrinsicFunction,
+  substitutions: def.substitutions,
+  lambdaFunctionConfig: def.lambdaFunctionConfig,
+  dataSource: def.dataSource,
+  resolverConfig: def.resolverConfig,
+  resolverConfigMap: def.resolverConfigMap,
+  pipelineFunctionConfig: def.pipelineFunctionConfig,
+  pipelineFunction: def.pipelineFunction,
+  pipelineFunctionConfigMap: def.pipelineFunctionConfigMap,
+  resolverCachingConfig: def.resolverCachingConfig,
+  iamRoleStatements: def.iamRoleStatements,
+  dataSourceConfig: def.dataSourceConfig,
+  dataSourceHttpConfig: def.dataSourceHttpConfig,
+  dataSourceDynamoDb: def.dataSourceDynamoDb,
+  datasourceRelationalDbConfig: def.datasourceRelationalDbConfig,
+  datasourceLambdaConfig: def.datasourceLambdaConfig,
+  datasourceEsConfig: def.datasourceEsConfig,
+  datasourceEventBridgeConfig: def.datasourceEventBridgeConfig,
+  auth: def.auth,
+  cognitoAuth: def.cognitoAuth,
+  lambdaAuth: def.lambdaAuth,
+  oidcAuth: def.oidcAuth,
+  iamAuth: def.iamAuth,
+  apiKeyAuth: def.apiKeyAuth,
+  visibilityConfig: def.visibilityConfig,
+  wafRule: def.wafRule,
+  customWafRule: def.customWafRule,
+  environment: def.environment,
+  syncConfig: def.syncConfig,
+};
+
 export const sharedAppSyncSchema = {
   type: 'object',
+  definitions,
   properties: {
     ...commonProperties,
     apiId: { type: 'string' }, // properties.apiId, // TODO: Handle intrinsic function
@@ -27,6 +60,7 @@ export const sharedAppSyncSchema = {
 
 export const fullAppSyncSchema = {
   type: 'object',
+  definitions,
   properties: {
     ...commonProperties,
     name: prop.name,
@@ -47,56 +81,45 @@ export const fullAppSyncSchema = {
     logging: prop.logging,
     esbuild: prop.esbuild,
   },
-  required: ['name'],
+  required: ['name', 'authentication'],
   additionalProperties: {
     not: true,
     errorMessage: 'invalid (unknown) property',
   },
 };
 
-const appSyncSchema = {
-  definitions: {
-    stringOrIntrinsicFunction: def.stringOrIntrinsicFunction,
-    substitutions: def.substitutions,
-    lambdaFunctionConfig: def.lambdaFunctionConfig,
-    dataSource: def.dataSource,
-    resolverConfig: def.resolverConfig,
-    resolverConfigMap: def.resolverConfigMap,
-    pipelineFunctionConfig: def.pipelineFunctionConfig,
-    pipelineFunction: def.pipelineFunction,
-    pipelineFunctionConfigMap: def.pipelineFunctionConfigMap,
-    resolverCachingConfig: def.resolverCachingConfig,
-    iamRoleStatements: def.iamRoleStatements,
-    dataSourceConfig: def.dataSourceConfig,
-    dataSourceHttpConfig: def.dataSourceHttpConfig,
-    dataSourceDynamoDb: def.dataSourceDynamoDb,
-    datasourceRelationalDbConfig: def.datasourceRelationalDbConfig,
-    datasourceLambdaConfig: def.datasourceLambdaConfig,
-    datasourceEsConfig: def.datasourceEsConfig,
-    datasourceEventBridgeConfig: def.datasourceEventBridgeConfig,
-    auth: def.auth,
-    cognitoAuth: def.cognitoAuth,
-    lambdaAuth: def.lambdaAuth,
-    oidcAuth: def.oidcAuth,
-    iamAuth: def.iamAuth,
-    apiKeyAuth: def.apiKeyAuth,
-    visibilityConfig: def.visibilityConfig,
-    wafRule: def.wafRule,
-    customWafRule: def.customWafRule,
-    environment: def.environment,
-    syncConfig: def.syncConfig,
-  },
-  oneOf: [sharedAppSyncSchema, fullAppSyncSchema],
+// const appSyncSchema = {
+
+//   oneOf: [sharedAppSyncSchema, fullAppSyncSchema],
+// };
+
+const createValidator = (schema: object) => {
+  const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
+  ajvMergePatch(ajv);
+  ajvErrors(ajv);
+  addFormats(ajv);
+  return ajv.compile(schema);
 };
 
-const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
-ajvMergePatch(ajv);
-ajvErrors(ajv);
-addFormats(ajv);
+const sharedValidator = createValidator(sharedAppSyncSchema);
+const fullValidator = createValidator(fullAppSyncSchema);
 
-const validator = ajv.compile(appSyncSchema);
 export const validateConfig = (data: Record<string, unknown>) => {
-  const isValid = validator(data);
+  let isValid: boolean;
+  let validator: ValidateFunction;
+
+  if ('apiId' in data) {
+    isValid = sharedValidator(data);
+    validator = sharedValidator;
+  } else if ('name' in data) {
+    isValid = fullValidator(data);
+    validator = fullValidator;
+  } else {
+    throw new Error(
+      'Invalid configuration: must contain either "apiId" or "name"',
+    );
+  }
+
   if (isValid === false && validator.errors) {
     throw new AppSyncValidationError(
       validator.errors

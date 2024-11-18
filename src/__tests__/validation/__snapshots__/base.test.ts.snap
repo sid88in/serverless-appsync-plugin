@@ -52,8 +52,7 @@ exports[`Valdiation Waf Invalid should validate a Throttle limit 1`] = `
 `;
 
 exports[`Valdiation should validate  1`] = `
-": must have required property 'name'
-: must have required property 'authentication'
+": must have required property 'authentication'
 /unknownPorp: invalid (unknown) property
 /xrayEnabled: must be boolean
 /visibility: must be \\"GLOBAL\\" or \\"PRIVATE\\"
@@ -68,3 +67,5 @@ exports[`Valdiation should validate  2`] = `
 "/queryDepthLimit: must be <= 75
 /resolverCountLimit: must be <= 1000"
 `;
+
+exports[`Valdiation should validate  3`] = `"Invalid configuration: must contain either \\\"apiId\\\" or \\\"name\\\""`;

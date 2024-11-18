@@ -39,7 +39,7 @@ describe('Api Keys', () => {
       ...basicConfig,
       authentication: { type: 'AWS_IAM' },
     });
-    const apiKeys = 'apiKeys' in config ? config.schema : undefined;
+    const apiKeys = 'apiKeys' in config ? config.apiKeys : undefined;
     expect(apiKeys).toBeUndefined();
   });
 
@@ -59,7 +59,7 @@ describe('Api Keys', () => {
         'InlineKey',
       ],
     });
-    const apiKeys = 'apiKeys' in config ? config.schema : undefined;
+    const apiKeys = 'apiKeys' in config ? config.apiKeys : undefined;
 
     expect(apiKeys).toMatchInlineSnapshot(`
       Object {
