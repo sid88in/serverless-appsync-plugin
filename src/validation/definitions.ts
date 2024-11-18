@@ -1,3 +1,24 @@
+export const stringOrIntrinsicFunction = {
+  oneOf: [
+    { type: 'string' },
+    {
+      type: 'object',
+      required: [],
+      additionalProperties: true,
+    },
+  ],
+  errorMessage: 'must be a string or a CloudFormation intrinsic function',
+};
+// Depends on stringOrIntrinsicFunction
+export const substitutions = {
+  type: 'object',
+  additionalProperties: {
+    $ref: '#/definitions/stringOrIntrinsicFunction',
+  },
+  required: [],
+  errorMessage: 'must be a valid substitutions definition',
+};
+
 export const AUTH_TYPES = [
   'AMAZON_COGNITO_USER_POOLS',
   'AWS_LAMBDA',
@@ -16,17 +37,6 @@ export const DATASOURCE_TYPES = [
   'AMAZON_EVENTBRIDGE',
 ] as const;
 
-export const stringOrIntrinsicFunction = {
-  oneOf: [
-    { type: 'string' },
-    {
-      type: 'object',
-      required: [],
-      additionalProperties: true,
-    },
-  ],
-  errorMessage: 'must be a string or a CloudFormation intrinsic function',
-};
 // Depends on stringOrIntrinsicFunction
 export const lambdaFunctionConfig = {
   oneOf: [
@@ -253,15 +263,6 @@ export const customWafRule = {
   required: ['name', 'statement'],
 };
 
-// Depends on stringOrIntrinsicFunction
-export const substitutions = {
-  type: 'object',
-  additionalProperties: {
-    $ref: '#/definitions/stringOrIntrinsicFunction',
-  },
-  required: [],
-  errorMessage: 'must be a valid substitutions definition',
-};
 // Depends on stringOrIntrinsicFunction
 export const environment = {
   type: 'object',
