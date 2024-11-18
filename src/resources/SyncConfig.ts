@@ -1,4 +1,4 @@
-import { PipelineFunctionConfig, ResolverConfig } from '../types/plugin';
+import { isSharedApiConfig, PipelineFunctionConfig, ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 
 export class SyncConfig {
@@ -7,8 +7,10 @@ export class SyncConfig {
     private config: ResolverConfig | PipelineFunctionConfig,
   ) {}
 
-  // Todo : handle sync naming
   compile() {
+    if (isSharedApiConfig(this.api.config)) {
+      throw Error('Unable to set the sync config for a Shared AppsyncApi');
+    }
     if (!this.config.sync) {
       return undefined;
     }

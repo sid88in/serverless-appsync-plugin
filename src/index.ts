@@ -413,12 +413,6 @@ class ServerlessAppsyncPlugin {
     if (!apiId) {
       throw new this.serverless.classes.Error('Unable to get AppSync Api Id');
     }
-    if (apiId !== 'string') {
-      // TODO : Handle IntrinsicFunction ?
-      throw new this.serverless.classes.Error(
-        'AppSync apiId cannot be an IntrinsicFunction',
-      );
-    }
 
     const { graphqlApi } = await this.provider.request<
       GetGraphqlApiRequest,
@@ -455,9 +449,6 @@ class ServerlessAppsyncPlugin {
 
     // TODO : Check if the api key was provided from the config
     //! This function should not be run from a child service stacck
-    if (typeof apiId !== 'string') {
-      return;
-    }
 
     const { schema } = await this.provider.request<
       GetIntrospectionSchemaRequest,

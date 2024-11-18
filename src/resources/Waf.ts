@@ -20,7 +20,6 @@ import { toCfnKeys } from '../utils';
 export class Waf {
   constructor(private api: Api, private config: WafConfig) {}
 
-  // Todo: Handle Waf
   compile(): CfnResources {
     const wafConfig = this.config;
     if (wafConfig.enabled === false) return {};

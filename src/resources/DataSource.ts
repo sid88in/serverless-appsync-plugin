@@ -33,7 +33,10 @@ export class DataSource {
       resource.Properties.LambdaConfig = {
         LambdaFunctionArn: this.api.getLambdaArn(
           this.config.config,
-          // TODOD: Handle datasource from existing API
+          // TODO: Handle datasource from existing API 
+          //! Naming module should not be impacted here :
+          //! this is the datasource config, not the appsync config
+          //? Change why is this an object if we use it as static class ?
           this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         ),
       };

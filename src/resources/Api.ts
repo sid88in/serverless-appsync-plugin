@@ -32,16 +32,14 @@ import { log } from '@serverless/utils/log';
 
 export class Api {
   public naming?: Naming;
-  public config: AppSyncConfig;
   public functions: Record<string, Record<string, unknown>> = {};
 
-  constructor(config: AppSyncConfig, public plugin: ServerlessAppsyncPlugin) {
-    if ('apiId' in config) {
-      this.config = config satisfies SharedAppSyncConfig;
-      // Todo: check if naming is required here
-    } else {
-      this.config = config satisfies FullAppSyncConfig;
-      this.naming = new Naming(this.config.name);
+  constructor(
+    public config: AppSyncConfig,
+    public plugin: ServerlessAppsyncPlugin,
+  ) {
+    if ('name' in config) {
+      this.naming = new Naming(config.name);
     }
   }
 
@@ -77,7 +75,7 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
-    // as config is public, the type needs to be cheked every time
+    // in a class, the type needs to be cheked every time
     if (isSharedApiConfig(this.config)) return {};
     if (!this.naming) throw new Error('Unable to load naming');
     const logicalId = this.naming.getApiLogicalId();
@@ -588,16 +586,12 @@ export class Api {
       : lambdaArn;
   }
 
-  // TODO : Make those required (remove || {})
+  // Todo: Same syntax for apiId ?
   hasDataSource(name: string) {
-    return name in (this.config.dataSources || {});
+    return name in this.config.dataSources;
   }
 
   hasPipelineFunction(name: string) {
-    return name in (this.config.pipelineFunctions || {});
+    return name in this.config.pipelineFunctions;
   }
-  //? I understand why you made those optional, but I'd rather keep them as required.
-  //? If you look here, those are actually already optional from a config point of view.
-  //? Then, getAppSyncConfig() makes sure to fill them with empty {} if needed for when it's injected in the compiler.
-  // https://github.com/sid88in/serverless-appsync-plugin/blob/05164d8847a554d56bb73590fdc35bf0bda5198e/src/getAppSyncConfig.ts#L36-L46
 }

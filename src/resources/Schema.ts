@@ -7,6 +7,7 @@ import { flatten } from 'lodash';
 import { parse, print } from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { mergeTypeDefs } from '@graphql-tools/merge';
+import { isSharedApiConfig } from '../types/plugin';
 
 const AWS_TYPES = `
 directive @aws_iam on FIELD_DEFINITION | OBJECT
@@ -34,6 +35,12 @@ export class Schema {
 
   // Todo : handle schema
   compile(): CfnResources {
+    if (isSharedApiConfig(this.api.config)) {
+      throw Error('Unable to override shared api schemas');
+    }
+    if (!this.api.naming) {
+      throw Error('Unable to load the naming module');
+    }
     const logicalId = this.api.naming.getSchemaLogicalId();
 
     return {

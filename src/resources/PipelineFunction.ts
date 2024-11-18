@@ -21,7 +21,10 @@ export class PipelineFunction {
       );
     }
 
-    // Todo: HAndle Pipeline naming
+    // Todo: HAndle Pipeline naming from existing API
+    //! Naming module should not be impacted here :
+    //! this is the datasource config, not the appsync config
+    //? Change why is this an object if we use it as static class ?
     const logicalId = this.api.naming.getPipelineFunctionLogicalId(
       this.config.name,
     );

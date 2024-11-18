@@ -3,7 +3,7 @@ import {
   CfnResources,
   IntrinsicFunction,
 } from '../types/cloudFormation';
-import { ResolverConfig } from '../types/plugin';
+import { isSharedApiConfig, ResolverConfig } from '../types/plugin';
 import { Api } from './Api';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
@@ -58,24 +58,29 @@ export class Resolver {
       }
     }
 
-    // Todo: Handle cache config from parent resource
-    if (this.config.caching) {
-      if (this.config.caching === true) {
-        // Use defaults
-        Properties.CachingConfig = {
-          Ttl: this.api.config.caching?.ttl || 3600,
-        };
-      } else if (typeof this.config.caching === 'object') {
-        Properties.CachingConfig = {
-          CachingKeys: this.config.caching.keys,
-          Ttl: this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
-        };
+    if (isSharedApiConfig(this.api.config)) {
+      // Todo : handle resolvers caching & sync with config from the parent stack
+      console.warn('caching and sync config are ignored for shared appsync');
+    } else {
+      if (this.config.caching) {
+        if (this.config.caching === true) {
+          // Use defaults
+          Properties.CachingConfig = {
+            Ttl: this.api.config.caching?.ttl || 3600,
+          };
+        } else if (typeof this.config.caching === 'object') {
+          Properties.CachingConfig = {
+            CachingKeys: this.config.caching.keys,
+            Ttl:
+              this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
+          };
+        }
       }
-    }
 
-    if (this.config.sync) {
-      const asyncConfig = new SyncConfig(this.api, this.config);
-      Properties.SyncConfig = asyncConfig.compile();
+      if (this.config.sync) {
+        const asyncConfig = new SyncConfig(this.api, this.config);
+        Properties.SyncConfig = asyncConfig.compile();
+      }
     }
 
     if (this.config.kind === 'UNIT') {
@@ -86,7 +91,10 @@ export class Resolver {
         );
       }
 
-      // TODO: handle resolver naming
+      // TODO: handle resolver naming from existing API
+      //! Naming module should not be impacted here :
+      //! this is the datasource config, not the appsync config
+      //? Change why is this an object if we use it as static class ?
       const logicalIdDataSource =
         this.api.naming.getDataSourceLogicalId(dataSource);
       Properties = {
