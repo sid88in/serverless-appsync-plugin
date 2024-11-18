@@ -1,4 +1,4 @@
-import { AppSyncConfig } from './types';
+import { AppSyncConfig, isSharedApiConfig } from './types';
 import type {
   ApiKeyConfig,
   AppSyncConfig as PluginAppSyncConfig,
@@ -43,9 +43,7 @@ export const getAppSyncConfig = (
   const baseConfig = getBaseAppsyncConfig(config);
 
   // handle shared appsync config
-  if ('apiId' in config && config.apiId) {
-    // Todo : check after editing the validator
-    //? config: AppSyncConfig & Record<"apiId", unknown>
+  if (isSharedApiConfig(config)) {
     const apiId: string = config.apiId;
     return {
       ...baseConfig,

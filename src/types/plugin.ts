@@ -1,23 +1,23 @@
+//* Internal typing : Used in the plugin exclusively
 import type { BuildOptions } from 'esbuild';
 import type {
-  Auth,
-  DomainConfig,
   ApiKeyConfig,
-  LoggingConfig,
-  CachingConfig,
-  WafConfig,
-  SyncConfig,
-  DsHttpConfig,
-  DsDynamoDBConfig,
-  DsRelationalDbConfig,
-  DsOpenSearchConfig,
-  DsLambdaConfig,
-  DsEventBridgeConfig,
-  DsNone,
+  Auth,
   Substitutions,
+  CachingConfig,
+  DomainConfig,
+  LoggingConfig,
+  WafConfig,
+  DsDynamoDBConfig,
+  DsEventBridgeConfig,
+  DsHttpConfig,
+  DsLambdaConfig,
+  DsOpenSearchConfig,
+  DsNone,
+  DsRelationalDbConfig,
+  SyncConfig,
   EnvironmentVariables,
 } from './common';
-// import type { IntrinsicFunction } from './cloudFormation';
 export * from './common';
 
 // TODO: The same should happen in the validation json schema.
@@ -34,13 +34,12 @@ export type FullAppSyncConfig = BaseAppSyncConfig & {
   additionalAuthentications: Auth[];
   domain?: DomainConfig;
   apiKeys?: Record<string, ApiKeyConfig>;
+  environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
+  caching?: CachingConfig;
   waf?: WafConfig;
   tags?: Record<string, string>;
-  // TODO : Check that they can't be overriden in Shared AppSync
-  caching?: CachingConfig;
-  environment?: EnvironmentVariables;
   visibility?: 'GLOBAL' | 'PRIVATE';
   esbuild?: BuildOptions | false;
   introspection?: boolean;
@@ -48,8 +47,6 @@ export type FullAppSyncConfig = BaseAppSyncConfig & {
   resolverCountLimit?: number;
 };
 export type SharedAppSyncConfig = BaseAppSyncConfig & {
-  // TODO: Handle IntrinsicFunction
-  // apiId?: string | IntrinsicFunction;
   apiId: string;
 };
 export type AppSyncConfig = FullAppSyncConfig | SharedAppSyncConfig;
@@ -90,7 +87,7 @@ export type PipelineResolverConfig = BaseResolverConfig & {
 };
 
 export type DataSourceConfig = {
-  name: string;
+  name: string; // Not avalible in external types (index.ts)
   description?: string;
 } & (
   | DsHttpConfig
@@ -103,7 +100,7 @@ export type DataSourceConfig = {
 );
 
 export type PipelineFunctionConfig = {
-  name: string;
+  name: string; // Not avalible in external types (index.ts)
   dataSource: string;
   description?: string;
   code?: string;

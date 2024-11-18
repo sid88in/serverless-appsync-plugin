@@ -1118,4 +1118,4 @@ class ServerlessAppsyncPlugin {
   }
 }
 
-export = ServerlessAppsyncPlugin;
+export default ServerlessAppsyncPlugin;

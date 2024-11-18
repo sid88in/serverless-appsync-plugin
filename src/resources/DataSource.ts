@@ -14,6 +14,7 @@ import {
   DsEventBridgeConfig,
 } from '../types/plugin';
 import { Api } from './Api';
+import { Naming } from './Naming';
 
 export class DataSource {
   constructor(private api: Api, private config: DataSourceConfig) {}
@@ -33,11 +34,7 @@ export class DataSource {
       resource.Properties.LambdaConfig = {
         LambdaFunctionArn: this.api.getLambdaArn(
           this.config.config,
-          // TODO: Handle datasource from existing API 
-          //! Naming module should not be impacted here :
-          //! this is the datasource config, not the appsync config
-          //? Change why is this an object if we use it as static class ?
-          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+          Naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         ),
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
@@ -58,7 +55,7 @@ export class DataSource {
       );
     }
 
-    const logicalId = this.api.naming.getDataSourceLogicalId(this.config.name);
+    const logicalId = Naming.getDataSourceLogicalId(this.config.name);
 
     const resources = {
       [logicalId]: resource,
@@ -69,7 +66,7 @@ export class DataSource {
     } else {
       const role = this.compileDataSourceIamRole();
       if (role) {
-        const roleLogicalId = this.api.naming.getDataSourceRoleLogicalId(
+        const roleLogicalId = Naming.getDataSourceRoleLogicalId(
           this.config.name,
         );
         resource.Properties.ServiceRoleArn = {
@@ -224,9 +221,7 @@ export class DataSource {
       return;
     }
 
-    const logicalId = this.api.naming.getDataSourceRoleLogicalId(
-      this.config.name,
-    );
+    const logicalId = Naming.getDataSourceRoleLogicalId(this.config.name);
 
     return {
       [logicalId]: {
@@ -263,7 +258,7 @@ export class DataSource {
       case 'AWS_LAMBDA': {
         const lambdaArn = this.api.getLambdaArn(
           this.config.config,
-          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+          Naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         );
 
         // Allow "invoke" for the Datasource's function and its aliases/versions

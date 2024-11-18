@@ -1,4 +1,8 @@
-import { isSharedApiConfig, PipelineFunctionConfig, ResolverConfig } from '../types/plugin';
+import {
+  isSharedApiConfig,
+  PipelineFunctionConfig,
+  ResolverConfig,
+} from '../types/plugin';
 import { Api } from './Api';
 
 export class SyncConfig {
@@ -10,6 +14,9 @@ export class SyncConfig {
   compile() {
     if (isSharedApiConfig(this.api.config)) {
       throw Error('Unable to set the sync config for a Shared AppsyncApi');
+    }
+    if (!this.api.naming) {
+      throw Error('Unable to Load the naming module');
     }
     if (!this.config.sync) {
       return undefined;

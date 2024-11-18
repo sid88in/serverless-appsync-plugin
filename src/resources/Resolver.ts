@@ -1,5 +1,6 @@
 import {
   CfnResolver,
+  CfnResource,
   CfnResources,
   IntrinsicFunction,
 } from '../types/cloudFormation';
@@ -9,6 +10,7 @@ import path from 'path';
 import { MappingTemplate } from './MappingTemplate';
 import { SyncConfig } from './SyncConfig';
 import { JsResolver } from './JsResolver';
+import { Naming } from './Naming';
 
 // A decent default for pipeline JS resolvers
 const DEFAULT_JS_RESOLVERS = `
@@ -91,12 +93,7 @@ export class Resolver {
         );
       }
 
-      // TODO: handle resolver naming from existing API
-      //! Naming module should not be impacted here :
-      //! this is the datasource config, not the appsync config
-      //? Change why is this an object if we use it as static class ?
-      const logicalIdDataSource =
-        this.api.naming.getDataSourceLogicalId(dataSource);
+      const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
       Properties = {
         ...Properties,
         Kind: 'UNIT',
@@ -116,27 +113,31 @@ export class Resolver {
             }
 
             const logicalIdDataSource =
-              this.api.naming.getPipelineFunctionLogicalId(name);
+              Naming.getPipelineFunctionLogicalId(name);
             return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
           }),
         },
       };
     }
 
-    const logicalIdResolver = this.api.naming.getResolverLogicalId(
+    const logicalResolver: CfnResource = {
+      Type: 'AWS::AppSync::Resolver',
+      Properties,
+    };
+
+    // Add dependacy to the schema for the full appsync configs
+    if (!isSharedApiConfig(this.api.config)) {
+      if (!this.api.naming) throw Error('Unable to load the naming module');
+      logicalResolver.DependsOn = [this.api.naming.getSchemaLogicalId()];
+    }
+
+    const logicalIdResolver = Naming.getResolverLogicalId(
       this.config.type,
       this.config.field,
     );
-    const logicalIdGraphQLSchema = this.api.naming.getSchemaLogicalId();
 
     return {
-      [logicalIdResolver]: {
-        Type: 'AWS::AppSync::Resolver',
-        ...(!this.api.isExistingApi() && {
-          DependsOn: [logicalIdGraphQLSchema],
-        }),
-        Properties,
-      },
+      [logicalIdResolver]: logicalResolver,
     };
   }
 

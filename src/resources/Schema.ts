@@ -33,7 +33,6 @@ scalar AWSIPAddress
 export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
 
-  // Todo : handle schema
   compile(): CfnResources {
     if (isSharedApiConfig(this.api.config)) {
       throw Error('Unable to override shared api schemas');
