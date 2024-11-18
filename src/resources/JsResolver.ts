@@ -23,6 +23,7 @@ export class JsResolver {
   }
 
   getResolverContent(): string {
+    // Todod : handle js resolvers with config from the parent stack
     if (this.api.config.esbuild === false) {
       return fs.readFileSync(this.config.path, 'utf8');
     }

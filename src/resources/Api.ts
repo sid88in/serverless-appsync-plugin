@@ -16,6 +16,9 @@ import {
   LambdaConfig,
   OidcAuth,
   ResolverConfig,
+  FullAppSyncConfig,
+  SharedAppSyncConfig,
+  isSharedApiConfig,
 } from '../types/plugin';
 import { getHostedZoneName, parseDuration } from '../utils';
 import { DateTime, Duration } from 'luxon';
@@ -28,47 +31,35 @@ import { Waf } from './Waf';
 import { log } from '@serverless/utils/log';
 
 export class Api {
-  public naming: Naming;
+  public naming?: Naming;
+  public config: AppSyncConfig;
   public functions: Record<string, Record<string, unknown>> = {};
 
-  constructor(
-    public config: AppSyncConfig,
-    public plugin: ServerlessAppsyncPlugin,
-  ) {
-    this.naming = new Naming(this.config.name);
+  constructor(config: AppSyncConfig, public plugin: ServerlessAppsyncPlugin) {
+    if ('apiId' in config) {
+      this.config = config satisfies SharedAppSyncConfig;
+      // Todo: check if naming is required here
+    } else {
+      this.config = config satisfies FullAppSyncConfig;
+      this.naming = new Naming(this.config.name);
+    }
   }
 
   compile() {
     const resources: CfnResources = {};
 
-    // TODO : Use the validator
-    if (this.isExistingApi()) {
-      log.info(`
-          Updating an existing Graphql API.
-          The following configuration options are ignored:
-            - name
-            - authentication
-            - additionalAuthentications
-            - schema
-            - domain
-            - apiKeys
-            - xrayEnabled
-            - logging
-            - waf
-            - tags
-        `);
+    if (!isSharedApiConfig(this.config)) {
+      merge(resources, this.compileEndpoint());
+      merge(resources, this.compileSchema());
+      merge(resources, this.compileCustomDomain());
+      merge(resources, this.compileCloudWatchLogGroup());
+      merge(resources, this.compileLambdaAuthorizerPermission());
+      merge(resources, this.compileWafRules());
+      merge(resources, this.compileCachingResources()); //! requires naming
+      forEach(this.config.apiKeys, (key) => {
+        merge(resources, this.compileApiKey(key));
+      });
     }
-
-    merge(resources, this.compileEndpoint());
-    merge(resources, this.compileSchema());
-    merge(resources, this.compileCustomDomain());
-    merge(resources, this.compileCloudWatchLogGroup());
-    merge(resources, this.compileLambdaAuthorizerPermission());
-    merge(resources, this.compileWafRules());
-    merge(resources, this.compileCachingResources());
-    forEach(this.config.apiKeys, (key) => {
-      merge(resources, this.compileApiKey(key));
-    });
 
     forEach(this.config.dataSources, (ds) => {
       merge(resources, this.compileDataSource(ds));
@@ -86,9 +77,9 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
-    if (this.isExistingApi()) {
-      return {};
-    }
+    // as config is public, the type needs to be cheked every time
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming) throw new Error('Unable to load naming');
     const logicalId = this.naming.getApiLogicalId();
 
     const endpointResource: CfnResource = {
@@ -100,9 +91,7 @@ export class Api {
         EnvironmentVariables: this.config.environment,
       },
     };
-    // TODO : Handle the type properly
-    //! authentication is always required in this context
-    if (!this.config.authentication) return;
+
     merge(
       endpointResource.Properties,
       this.compileAuthenticationProvider(this.config.authentication),
@@ -162,12 +151,13 @@ export class Api {
 
   compileCloudWatchLogGroup(): CfnResources {
     if (
+      isSharedApiConfig(this.config) ||
       !this.config.logging ||
-      this.config.logging.enabled === false ||
-      this.isExistingApi()
+      this.config.logging.enabled === false
     ) {
       return {};
     }
+    if (!this.naming) throw new Error('Unable to load naming');
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
@@ -235,21 +225,22 @@ export class Api {
   }
 
   compileSchema() {
-    if (!this.config.schema || this.isExistingApi()) {
-      return {};
-    }
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.config.schema) return {}; // is this the expected behaviour ?
+
     const schema = new Schema(this, this.config.schema);
     return schema.compile();
   }
 
   compileCustomDomain(): CfnResources {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming) throw new Error('Unable to load naming');
     const { domain } = this.config;
 
     if (
       !domain ||
       domain.enabled === false ||
-      domain.useCloudFormation === false ||
-      this.isExistingApi()
+      domain.useCloudFormation === false
     ) {
       return {};
     }
@@ -335,9 +326,10 @@ export class Api {
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
-    if (!this.config.authentication || this.isExistingApi()) {
-      return {};
-    }
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming) throw new Error('Unable to load naming');
+
+    if (!this.config.authentication) return {};
 
     const lambdaAuth = [
       ...this.config.additionalAuthentications,
@@ -368,9 +360,9 @@ export class Api {
   }
 
   compileApiKey(config: ApiKeyConfig) {
-    if (this.isExistingApi()) {
-      return {};
-    }
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming) throw new Error('Unable to load naming');
+
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
@@ -419,11 +411,10 @@ export class Api {
   }
 
   compileCachingResources(): CfnResources {
-    if (
-      !this.config.caching ||
-      this.config.caching?.enabled === false ||
-      this.isExistingApi()
-    ) {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming) throw new Error('Unable to load naming');
+
+    if (!this.config.caching || this.config.caching?.enabled === false) {
       return {};
     }
 
@@ -463,11 +454,9 @@ export class Api {
   }
 
   compileWafRules() {
-    if (
-      !this.config.waf ||
-      this.config.waf?.enabled === false ||
-      this.isExistingApi()
-    ) {
+    if (isSharedApiConfig(this.config)) return {};
+
+    if (!this.config.waf || this.config.waf?.enabled === false) {
       return {};
     }
 
@@ -476,17 +465,14 @@ export class Api {
   }
 
   getApiId() {
-    if (this.config.apiId) {
+    if (isSharedApiConfig(this.config) && this.config.apiId) {
       return this.config.apiId;
     }
+    if (!this.naming) throw new Error('Unable to load naming');
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
     return {
       'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
     };
-  }
-
-  isExistingApi() {
-    return !!this.config?.apiId;
   }
 
   getUserPoolConfig(auth: CognitoAuth, isAdditionalAuth = false) {
@@ -522,6 +508,7 @@ export class Api {
   }
 
   getLambdaAuthorizerConfig(auth: LambdaAuth) {
+    if (!this.naming) throw new Error('Unable to load naming');
     if (!auth.config) {
       return;
     }
@@ -539,9 +526,8 @@ export class Api {
   }
 
   getTagsConfig() {
-    if (!this.config.tags || isEmpty(this.config.tags)) {
-      return undefined;
-    }
+    if (isSharedApiConfig(this.config)) return;
+    if (!this.config.tags || isEmpty(this.config.tags)) return;
 
     const tags = this.config.tags;
     return Object.keys(this.config.tags).map((key) => ({

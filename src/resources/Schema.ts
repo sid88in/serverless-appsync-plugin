@@ -32,6 +32,7 @@ scalar AWSIPAddress
 export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
 
+  // Todo : handle schema
   compile(): CfnResources {
     const logicalId = this.api.naming.getSchemaLogicalId();
 

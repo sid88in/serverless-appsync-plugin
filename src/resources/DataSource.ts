@@ -33,6 +33,7 @@ export class DataSource {
       resource.Properties.LambdaConfig = {
         LambdaFunctionArn: this.api.getLambdaArn(
           this.config.config,
+          // TODOD: Handle datasource from existing API
           this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         ),
       };

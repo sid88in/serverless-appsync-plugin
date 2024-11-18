@@ -58,6 +58,7 @@ export class Resolver {
       }
     }
 
+    // Todo: Handle cache config from parent resource
     if (this.config.caching) {
       if (this.config.caching === true) {
         // Use defaults
@@ -85,6 +86,7 @@ export class Resolver {
         );
       }
 
+      // TODO: handle resolver naming
       const logicalIdDataSource =
         this.api.naming.getDataSourceLogicalId(dataSource);
       Properties = {

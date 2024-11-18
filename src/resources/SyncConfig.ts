@@ -7,6 +7,7 @@ export class SyncConfig {
     private config: ResolverConfig | PipelineFunctionConfig,
   ) {}
 
+  // Todo : handle sync naming
   compile() {
     if (!this.config.sync) {
       return undefined;

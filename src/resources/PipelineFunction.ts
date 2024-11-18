@@ -21,6 +21,7 @@ export class PipelineFunction {
       );
     }
 
+    // Todo: HAndle Pipeline naming
     const logicalId = this.api.naming.getPipelineFunctionLogicalId(
       this.config.name,
     );

@@ -64,7 +64,7 @@ import {
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
 import terminalLink from 'terminal-link';
-import { AppSyncConfig } from './types/plugin';
+import { AppSyncConfig, isSharedApiConfig } from './types/plugin';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -370,8 +370,11 @@ class ServerlessAppsyncPlugin {
 
   async getApiId() {
     this.loadConfig();
+    if (!this.config) {
+      throw new this.serverless.classes.Error('Unable to load the config');
+    }
 
-    if (this.config?.apiId) {
+    if (isSharedApiConfig(this.config) && this.config?.apiId) {
       return this.config.apiId;
     }
 
@@ -575,6 +578,12 @@ class ServerlessAppsyncPlugin {
 
   getDomain() {
     if (!this.api) {
+      throw new this.serverless.classes.Error(
+        'AppSync configuration not found',
+      );
+    }
+
+    if (isSharedApiConfig(this.api.config)) {
       throw new this.serverless.classes.Error(
         'AppSync configuration not found',
       );
@@ -966,15 +975,18 @@ class ServerlessAppsyncPlugin {
   }
 
   displayEndpoints() {
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) {
+      throw this.serverless.classes.Error(
+        'Impossible to display endpoints from a Shared Appsync',
+      );
+    }
     const endpoints = this.gatheredData.apis.map(
       ({ type, uri }) => `${type}: ${uri}`,
     );
 
-    if (endpoints.length === 0) {
-      return;
-    }
+    if (endpoints.length === 0) return;
 
-    const { name } = this.api?.config?.domain || {};
+    const { name } = this.api.config?.domain || {};
     if (name) {
       endpoints.push(`graphql: https://${name}/graphql`);
       endpoints.push(`realtime: wss://${name}/graphql/realtime`);

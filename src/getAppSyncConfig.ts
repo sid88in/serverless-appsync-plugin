@@ -5,6 +5,9 @@ import {
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
+  isSharedApiConfig,
+  SharedAppSyncConfig,
+  FullAppSyncConfig,
 } from './types/plugin';
 import { forEach, merge } from 'lodash';
 
@@ -127,7 +130,6 @@ export const getAppSyncConfig = (
     };
   });
 
-
   let apiKeys: Record<string, ApiKeyConfig> | undefined;
   if (
     config.authentication?.type === 'API_KEY' ||
@@ -146,7 +148,7 @@ export const getAppSyncConfig = (
     }, {});
   }
 
-  return {
+  const appSyncConfig = {
     ...config,
     additionalAuthentications,
     apiKeys,
@@ -155,4 +157,8 @@ export const getAppSyncConfig = (
     resolvers,
     pipelineFunctions,
   };
+
+  return isSharedApiConfig(appSyncConfig)
+    ? (appSyncConfig satisfies SharedAppSyncConfig)
+    : (appSyncConfig satisfies FullAppSyncConfig);
 };

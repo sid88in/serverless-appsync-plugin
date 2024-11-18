@@ -17,98 +17,48 @@ import type {
   Substitutions,
   EnvironmentVariables,
 } from './common';
-import type { IntrinsicFunction } from './cloudFormation';
+// import type { IntrinsicFunction } from './cloudFormation';
 export * from './common';
 
-// TODO: Split into multiple configs
-//? If most of the parameters are ignored when using apiId 
-//? you should define type like this to avoid misusage of the config, 
-//? it can be nice for those who use this type in their serverless.ts:
-/* ts */ `
-  export type BaseAppSyncConfig = {
-    dataSources: Record<string, DataSourceConfig>;
-    resolvers: Record<string, ResolverConfig>;
-    pipelineFunctions: Record<string, PipelineFunctionConfig>;
-    substitutions?: Substitutions;
-    caching?: CachingConfig;
-  };
-
-  export  type NewAppSyncConfig = BaseAppSyncConfig & {
-    name: string;
-    schema: string[];
-    authentication: Auth;
-    additionalAuthentications: Auth[];
-    domain?: DomainConfig;
-    apiKeys?: Record<string, ApiKeyConfig>;
-    xrayEnabled?: boolean;
-    logging?: LoggingConfig;
-    waf?: WafConfig;
-    tags?: Record<string, string>;
-  };
-
-  export type ExistingAppSyncConfig = BaseAppSyncConfig & {
-    apiId: string | IntrinsicFunction;
-  };
-
-  export type AppSyncConfig = NewAppSyncConfig | ExistingAppSyncConfig;
-`;
-
-//? I agree on this and it joins what I commented earlier.
-//? The same should happen in the validation json schema.
-//? I would use something like a union.
-/* ts */ `
-  export type BaseAppSyncConfig = {
-    dataSources: Record<string, DataSourceConfig>;
-    resolvers: Record<string, ResolverConfig>;
-    pipelineFunctions: Record<string, PipelineFunctionConfig>;
-    substitutions?: Substitutions;
-    caching?: CachingConfig;
-  };
-
-  export  type FullAppSyncConfig = BaseAppSyncConfig & {
-    name: string;
-    schema: string[];
-    authentication: Auth;
-    additionalAuthentications: Auth[];
-    domain?: DomainConfig;
-    apiKeys?: Record<string, ApiKeyConfig>;
-    xrayEnabled?: boolean;
-    logging?: LoggingConfig;
-    waf?: WafConfig;
-    tags?: Record<string, string>;
-  };
-
-  export  type SharedAppSyncConfig = BaseAppSyncConfig & {
-    apiId: string;
-  };
-
-  export type AppSyncConfig = FullAppSyncConfig | SharedAppSyncConfig
-`; //! (not tested, might need adjustments)
-
-export type AppSyncConfig = {
-  name: string;
-  authentication?: Auth;
-  additionalAuthentications: Auth[];
-  schema?: string[];
-  domain?: DomainConfig;
-  apiKeys?: Record<string, ApiKeyConfig>;
+// TODO: The same should happen in the validation json schema.
+export type BaseAppSyncConfig = {
   dataSources: Record<string, DataSourceConfig>;
   resolvers: Record<string, ResolverConfig>;
   pipelineFunctions: Record<string, PipelineFunctionConfig>;
   substitutions?: Substitutions;
-  environment?: EnvironmentVariables;
+};
+export type FullAppSyncConfig = BaseAppSyncConfig & {
+  name: string;
+  schema?: string[];
+  authentication: Auth;
+  additionalAuthentications: Auth[];
+  domain?: DomainConfig;
+  apiKeys?: Record<string, ApiKeyConfig>;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
-  caching?: CachingConfig;
   waf?: WafConfig;
   tags?: Record<string, string>;
-  apiId?: string | IntrinsicFunction;
+  // TODO : Check that they can't be overriden in Shared AppSync
+  caching?: CachingConfig;
+  environment?: EnvironmentVariables;
   visibility?: 'GLOBAL' | 'PRIVATE';
   esbuild?: BuildOptions | false;
   introspection?: boolean;
   queryDepthLimit?: number;
   resolverCountLimit?: number;
 };
+export type SharedAppSyncConfig = BaseAppSyncConfig & {
+  // TODO: Handle IntrinsicFunction
+  // apiId?: string | IntrinsicFunction;
+  apiId: string;
+};
+export type AppSyncConfig = FullAppSyncConfig | SharedAppSyncConfig;
+
+export function isSharedApiConfig(
+  config: AppSyncConfig,
+): config is SharedAppSyncConfig {
+  return 'apiId' in config;
+}
 
 export type BaseResolverConfig = {
   field: string;

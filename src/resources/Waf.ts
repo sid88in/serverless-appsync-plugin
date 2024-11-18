@@ -7,6 +7,7 @@ import {
 } from '../types/cloudFormation';
 import {
   ApiKeyConfig,
+  isSharedApiConfig,
   WafConfig,
   WafRule,
   WafRuleAction,
@@ -19,10 +20,15 @@ import { toCfnKeys } from '../utils';
 export class Waf {
   constructor(private api: Api, private config: WafConfig) {}
 
+  // Todo: Handle Waf
   compile(): CfnResources {
     const wafConfig = this.config;
-    if (wafConfig.enabled === false) {
-      return {};
+    if (wafConfig.enabled === false) return {};
+    if (isSharedApiConfig(this.api.config)) {
+      throw Error('WAF cannot be specified on existing appsync apis');
+    }
+    if (!this.api.naming) {
+      throw Error('Unable to load the naming module');
     }
     const apiLogicalId = this.api.naming.getApiLogicalId();
     const wafAssocLogicalId = this.api.naming.getWafAssociationLogicalId();
@@ -129,6 +135,9 @@ export class Waf {
   }
 
   buildApiKeysWafRules(): CfnWafRule[] {
+    if (isSharedApiConfig(this.api.config)) {
+      throw Error('WAF cannot be specified on existing appsync apis');
+    }
     return (
       reduce(
         this.api.config.apiKeys,
@@ -139,11 +148,18 @@ export class Waf {
   }
 
   buildApiKeyRules(key: ApiKeyConfig) {
-    const rules = key.wafRules;
+    if (isSharedApiConfig(this.api.config)) {
+      throw Error('WAF cannot be specified on existing appsync apis');
+    }
+    if (!this.api.naming) {
+      // I needed to change the loop to a forof loop to avoid making this check at every loop cycle
+      throw Error('Unable to load the naming module');
+    }
+    const rules = key.wafRules ?? [];
     // Build the rule and add a matching rule for the X-Api-Key header
     // for the given api key
     const allRules: CfnWafRule[] = [];
-    rules?.forEach((keyRule) => {
+    for (const keyRule of rules) {
       const builtRule = this.buildWafRule(keyRule, key.name);
       const logicalIdApiKey = this.api.naming.getApiKeyLogicalId(key.name);
       const { Statement: baseStatement } = builtRule;
@@ -198,7 +214,7 @@ export class Waf {
         ...builtRule,
         Statement: statement,
       });
-    });
+    }
 
     return allRules;
   }
