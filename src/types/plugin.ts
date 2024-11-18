@@ -20,7 +20,6 @@ import type {
 } from './common';
 export * from './common';
 
-// TODO: The same should happen in the validation json schema.
 export type BaseAppSyncConfig = {
   dataSources: Record<string, DataSourceConfig>;
   resolvers: Record<string, ResolverConfig>;

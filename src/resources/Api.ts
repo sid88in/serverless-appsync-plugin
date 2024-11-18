@@ -224,7 +224,7 @@ export class Api {
 
   compileSchema() {
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.config.schema) return {}; // is this the expected behaviour ?
+    if (!this.config.schema) return {};
 
     const schema = new Schema(this, this.config.schema);
     return schema.compile();
