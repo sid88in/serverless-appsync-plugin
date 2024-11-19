@@ -11,8 +11,7 @@
     "skipLibCheck": true,
     "outDir": "lib",
     "noImplicitAny": false,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true
+    "declaration": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/__tests__"]
