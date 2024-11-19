@@ -968,22 +968,26 @@ class ServerlessAppsyncPlugin {
     // Don't display endpoints for shared api endpoints
     if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
     
+    
     const endpoints = this.gatheredData.apis.map(
       ({ type, uri }) => `${type}: ${uri}`,
     );
-
+    
     if (endpoints.length === 0) return;
-
+    
     const { name } = this.api.config?.domain || {};
     if (name) {
       endpoints.push(`graphql: https://${name}/graphql`);
       endpoints.push(`realtime: wss://${name}/graphql/realtime`);
     }
+    
 
-    this.serverless.addServiceOutputSection(
-      'appsync endpoints',
-      endpoints.sort(),
-    );
+    this.utils.writeText('appsync endpoints:')
+    for (const uri of endpoints.sort()) {
+      this.utils.writeText('    '+uri)
+    }
+    this.utils.writeText('')
+
   }
 
   displayApiKeys() {
@@ -1000,7 +1004,11 @@ class ServerlessAppsyncPlugin {
     }
 
     if (!conceal) {
-      this.serverless.addServiceOutputSection('appsync api keys', apiKeys);
+      this.utils.writeText('appsync api keys')
+      for (const key of apiKeys) {
+        this.utils.writeText('    '+key)
+      }
+      this.utils.writeText('')
     }
   }
 
