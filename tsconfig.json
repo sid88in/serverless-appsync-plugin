@@ -3,7 +3,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "target": "es2018",
-    "module": "commonjs",
+    "module": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
@@ -12,7 +12,6 @@
     "outDir": "lib",
     "noImplicitAny": false,
     "declaration": true,
-    "lib": ["es2018"],
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"],

@@ -64,7 +64,7 @@ import {
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
 import terminalLink from 'terminal-link';
-import { AppSyncConfig, isSharedApiConfig } from './types/plugin';
+import { type AppSyncConfig, isSharedApiConfig } from './types/plugin';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
