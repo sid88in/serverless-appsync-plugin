@@ -2,7 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
+    "target": "es2018",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -11,7 +11,9 @@
     "skipLibCheck": true,
     "outDir": "lib",
     "noImplicitAny": false,
-    "declaration": true
+    "declaration": true,
+    "lib": ["es2018"],
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/__tests__"]
