@@ -1,21 +1,21 @@
 //* Internal typing : Used in the plugin exclusively
 import type { BuildOptions } from 'esbuild';
 import type {
-  ApiKeyConfig,
   Auth,
-  Substitutions,
-  CachingConfig,
   DomainConfig,
+  ApiKeyConfig,
   LoggingConfig,
+  CachingConfig,
   WafConfig,
-  DsDynamoDBConfig,
-  DsEventBridgeConfig,
-  DsHttpConfig,
-  DsLambdaConfig,
-  DsOpenSearchConfig,
-  DsNone,
-  DsRelationalDbConfig,
   SyncConfig,
+  DsHttpConfig,
+  DsDynamoDBConfig,
+  DsRelationalDbConfig,
+  DsOpenSearchConfig,
+  DsLambdaConfig,
+  DsEventBridgeConfig,
+  DsNone,
+  Substitutions,
   EnvironmentVariables,
 } from './common.js';
 export * from './common.js';
@@ -28,7 +28,7 @@ export type BaseAppSyncConfig = {
 };
 export type FullAppSyncConfig = BaseAppSyncConfig & {
   name: string;
-  schema?: string[];
+  schema: string[];
   authentication: Auth;
   additionalAuthentications: Auth[];
   domain?: DomainConfig;
@@ -86,7 +86,7 @@ export type PipelineResolverConfig = BaseResolverConfig & {
 };
 
 export type DataSourceConfig = {
-  name: string; // Not avalible in external types (index.ts)
+  name: string;
   description?: string;
 } & (
   | DsHttpConfig
@@ -99,7 +99,7 @@ export type DataSourceConfig = {
 );
 
 export type PipelineFunctionConfig = {
-  name: string; // Not avalible in external types (index.ts)
+  name: string;
   dataSource: string;
   description?: string;
   code?: string;
