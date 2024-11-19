@@ -17,8 +17,8 @@ import type {
   DsRelationalDbConfig,
   SyncConfig,
   EnvironmentVariables,
-} from './common';
-export * from './common';
+} from './common.js';
+export * from './common.js';
 
 type BaseAppSyncConfig = {
   dataSources:

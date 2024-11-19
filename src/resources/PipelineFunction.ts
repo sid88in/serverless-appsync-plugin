@@ -2,14 +2,14 @@ import {
   CfnFunctionResolver,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
-import { PipelineFunctionConfig } from '../types/plugin';
-import { Api } from './Api';
+} from '../types/cloudFormation.js';
+import { PipelineFunctionConfig } from '../types/plugin.js';
+import { Api } from './Api.js';
 import path from 'path';
-import { MappingTemplate } from './MappingTemplate';
-import { SyncConfig } from './SyncConfig';
-import { JsResolver } from './JsResolver';
-import { Naming } from './Naming';
+import { MappingTemplate } from './MappingTemplate.js';
+import { SyncConfig } from './SyncConfig.js';
+import { JsResolver } from './JsResolver.js';
+import { Naming } from './Naming.js';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}

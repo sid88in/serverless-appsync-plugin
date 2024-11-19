@@ -1,9 +1,9 @@
-import { merge } from 'lodash';
+import { merge } from 'lodash-es';
 import {
   CfnDataSource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
@@ -12,9 +12,9 @@ import {
   DsRelationalDbConfig,
   IamStatement,
   DsEventBridgeConfig,
-} from '../types/plugin';
-import { Api } from './Api';
-import { Naming } from './Naming';
+} from '../types/plugin.js';
+import { Api } from './Api.js';
+import { Naming } from './Naming.js';
 
 export class DataSource {
   constructor(private api: Api, private config: DataSourceConfig) {}

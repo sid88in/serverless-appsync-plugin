@@ -1,4 +1,4 @@
-import { timeUnits } from '../utils';
+import { timeUnits } from '../utils.js';
 
 export const name = { type: 'string' };
 // Depends on auth

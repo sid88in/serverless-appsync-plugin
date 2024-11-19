@@ -1,7 +1,7 @@
-import { set } from 'lodash';
+import { set } from 'lodash-es';
 import Serverless from 'serverless/lib/serverless';
 import AwsProvider from 'serverless/lib/plugins/aws/provider.js';
-import { AppSyncConfig } from '../types/plugin';
+import { AppSyncConfig } from '../types/plugin.js';
 import ServerlessAppsyncPlugin from '..';
 
 export const createServerless = (): Serverless => {

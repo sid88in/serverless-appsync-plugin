@@ -1,7 +1,7 @@
-import { IntrinsicFunction } from '../types/cloudFormation';
+import { IntrinsicFunction } from '../types/cloudFormation.js';
 import fs from 'fs';
-import { isSharedApiConfig, Substitutions } from '../types/plugin';
-import { Api } from './Api';
+import { isSharedApiConfig, Substitutions } from '../types/plugin.js';
+import { Api } from './Api.js';
 import { buildSync } from 'esbuild';
 
 type JsResolverConfig = {

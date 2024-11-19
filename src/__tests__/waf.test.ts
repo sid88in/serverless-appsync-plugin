@@ -1,8 +1,8 @@
-import { Api } from '../resources/Api';
-import { ApiKeyConfig, WafRule } from '../types/plugin';
-import { each } from 'lodash';
-import { Waf } from '../resources/Waf';
-import * as given from './given';
+import { Api } from '../resources/Api.js';
+import { ApiKeyConfig, WafRule } from '../types/plugin.js';
+import { each } from 'lodash-es';
+import { Waf } from '../resources/Waf.js';
+import * as given from './given.js';
 
 const plugin = given.plugin();
 

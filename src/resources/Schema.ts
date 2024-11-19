@@ -1,13 +1,13 @@
 import globby from 'globby';
 import fs from 'fs';
 import path from 'path';
-import { CfnResources } from '../types/cloudFormation';
-import { Api } from './Api';
-import { flatten } from 'lodash';
+import { CfnResources } from '../types/cloudFormation.js';
+import { Api } from './Api.js';
+import { flatten } from 'lodash-es';
 import { parse, print } from 'graphql';
-import { validateSDL } from 'graphql/validation/validate';
+import { validateSDL } from 'graphql/validation/validate.js';
 import { mergeTypeDefs } from '@graphql-tools/merge';
-import { isSharedApiConfig } from '../types/plugin';
+import { isSharedApiConfig } from '../types/plugin.js';
 
 const AWS_TYPES = `
 directive @aws_iam on FIELD_DEFINITION | OBJECT

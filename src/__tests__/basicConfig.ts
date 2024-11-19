@@ -1,4 +1,4 @@
-import { AppSyncConfig } from '../types';
+import { AppSyncConfig } from '../types/index.js';
 
 export const basicConfig: AppSyncConfig = {
   name: 'My Api',

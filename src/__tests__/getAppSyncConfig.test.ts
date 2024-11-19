@@ -1,7 +1,7 @@
-import { pick } from 'lodash';
-import { getAppSyncConfig } from '../getAppSyncConfig';
-import { basicConfig } from './basicConfig';
-import { ResolverConfig } from '../types';
+import { pick } from 'lodash-es';
+import { getAppSyncConfig } from '../getAppSyncConfig.js';
+import { basicConfig } from './basicConfig.js';
+import { ResolverConfig } from '../types/index.js';
 
 test('returns basic config', async () => {
   expect(getAppSyncConfig(basicConfig)).toMatchSnapshot();
@@ -235,7 +235,7 @@ describe('Resolvers', () => {
             field: 'getUsers',
           },
         },
-      ] as Record<string, ResolverConfig>[],
+      ] satisfies Record<string, ResolverConfig>[],
     });
     expect(config.resolvers).toMatchSnapshot();
   });

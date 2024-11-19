@@ -1,10 +1,10 @@
 import ServerlessAppsyncPlugin from '..';
-import { forEach, isEmpty, merge, set } from 'lodash';
+import { forEach, isEmpty, merge, set } from 'lodash-es';
 import {
   CfnResource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   ApiKeyConfig,
   AppSyncConfig,
@@ -16,18 +16,16 @@ import {
   LambdaConfig,
   OidcAuth,
   ResolverConfig,
-  FullAppSyncConfig,
-  SharedAppSyncConfig,
   isSharedApiConfig,
-} from '../types/plugin';
-import { getHostedZoneName, parseDuration } from '../utils';
+} from '../types/plugin.js';
+import { getHostedZoneName, parseDuration } from '../utils.js';
 import { DateTime, Duration } from 'luxon';
-import { Naming } from './Naming';
-import { DataSource } from './DataSource';
-import { Resolver } from './Resolver';
-import { PipelineFunction } from './PipelineFunction';
-import { Schema } from './Schema';
-import { Waf } from './Waf';
+import { Naming } from './Naming.js';
+import { DataSource } from './DataSource.js';
+import { Resolver } from './Resolver.js';
+import { PipelineFunction } from './PipelineFunction.js';
+import { Schema } from './Schema.js';
+import { Waf } from './Waf.js';
 import { log } from '@serverless/utils/log';
 
 export class Api {

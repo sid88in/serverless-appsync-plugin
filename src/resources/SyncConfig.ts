@@ -2,8 +2,8 @@ import {
   isSharedApiConfig,
   PipelineFunctionConfig,
   ResolverConfig,
-} from '../types/plugin';
-import { Api } from './Api';
+} from '../types/plugin.js';
+import { Api } from './Api.js';
 
 export class SyncConfig {
   constructor(

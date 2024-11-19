@@ -1,4 +1,10 @@
-import { AppSyncConfig, isSharedApiConfig } from './types';
+import {
+  AppSyncConfig,
+  isSharedApiConfig,
+  PipelineResolverConfig,
+  UnitResolverConfig,
+} from './types/index.js';
+
 import type {
   ApiKeyConfig,
   AppSyncConfig as PluginAppSyncConfig,
@@ -8,8 +14,8 @@ import type {
   BaseAppSyncConfig,
   SharedAppSyncConfig,
   FullAppSyncConfig,
-} from './types/plugin';
-import { forEach, merge } from 'lodash';
+} from './types/plugin.js';
+import { forEach, merge } from 'lodash-es';
 
 const flattenMaps = <T>(
   input?: Record<string, T> | Record<string, T>[],
@@ -23,13 +29,13 @@ const flattenMaps = <T>(
 
 export const isUnitResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
-}): resolver is { kind: 'UNIT' } => {
+}): resolver is UnitResolverConfig => {
   return resolver.kind === 'UNIT';
 };
 
 export const isPipelineResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
-}): resolver is { kind: 'PIPELINE' } => {
+}): resolver is PipelineResolverConfig => {
   return !resolver.kind || resolver.kind === 'PIPELINE';
 };
 

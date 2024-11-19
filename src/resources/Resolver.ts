@@ -3,14 +3,14 @@ import {
   CfnResource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
-import { isSharedApiConfig, ResolverConfig } from '../types/plugin';
-import { Api } from './Api';
+} from '../types/cloudFormation.js';
+import { isSharedApiConfig, ResolverConfig } from '../types/plugin.js';
+import { Api } from './Api.js';
 import path from 'path';
-import { MappingTemplate } from './MappingTemplate';
-import { SyncConfig } from './SyncConfig';
-import { JsResolver } from './JsResolver';
-import { Naming } from './Naming';
+import { MappingTemplate } from './MappingTemplate.js';
+import { SyncConfig } from './SyncConfig.js';
+import { JsResolver } from './JsResolver.js';
+import { Naming } from './Naming.js';
 
 // A decent default for pipeline JS resolvers
 const DEFAULT_JS_RESOLVERS = `

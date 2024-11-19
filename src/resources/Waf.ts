@@ -1,10 +1,10 @@
-import { isEmpty, reduce } from 'lodash';
+import { isEmpty, reduce } from 'lodash-es';
 import {
   CfnResources,
   CfnWafAction,
   CfnWafRule,
   CfnWafRuleStatement,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   ApiKeyConfig,
   isSharedApiConfig,
@@ -13,9 +13,9 @@ import {
   WafRuleAction,
   WafRuleDisableIntrospection,
   WafThrottleConfig,
-} from '../types/plugin';
-import { Api } from './Api';
-import { toCfnKeys } from '../utils';
+} from '../types/plugin.js';
+import { Api } from './Api.js';
+import { toCfnKeys } from '../utils.js';
 
 export class Waf {
   constructor(private api: Api, private config: WafConfig) {}

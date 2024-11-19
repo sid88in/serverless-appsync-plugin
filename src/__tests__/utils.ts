@@ -1,7 +1,7 @@
 import runServerlessFixtureEngine from '@serverless/test/setup-run-serverless-fixtures-engine';
-import { merge } from 'lodash';
+import { merge } from 'lodash-es';
 import path from 'path';
-import Serverless from 'serverless/lib/Serverless';
+import Serverless from 'serverless';
 
 type RunSlsOptions = {
   fixture: 'appsync';

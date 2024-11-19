@@ -1,7 +1,7 @@
 import Serverless from 'serverless/lib/Serverless';
 import Provider from 'serverless/lib/plugins/aws/provider.js';
-import { forEach, last, merge } from 'lodash';
-import { getAppSyncConfig } from './getAppSyncConfig';
+import { forEach, last, merge } from 'lodash-es';
+import { getAppSyncConfig } from './getAppSyncConfig.js';
 import { GraphQLError } from 'graphql';
 import { DateTime } from 'luxon';
 import chalk from 'chalk';
@@ -41,16 +41,16 @@ import {
   FilterLogEventsResponse,
   FilterLogEventsRequest,
 } from 'aws-sdk/clients/cloudwatchlogs';
-import { AppSyncValidationError, validateConfig } from './validation';
+import { AppSyncValidationError, validateConfig } from './validation.js';
 import {
   confirmAction,
   getHostedZoneName,
   getWildCardDomainName,
   parseDateTimeOrDuration,
   wait,
-} from './utils';
-import { Api } from './resources/Api';
-import { Naming } from './resources/Naming';
+} from './utils.js';
+import { Api } from './resources/Api.js';
+import { Naming } from './resources/Naming.js';
 import {
   ChangeResourceRecordSetsRequest,
   ChangeResourceRecordSetsResponse,
@@ -64,7 +64,7 @@ import {
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
 import terminalLink from 'terminal-link';
-import { type AppSyncConfig, isSharedApiConfig } from './types/plugin';
+import { AppSyncConfig, isSharedApiConfig } from './types/plugin.js';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 

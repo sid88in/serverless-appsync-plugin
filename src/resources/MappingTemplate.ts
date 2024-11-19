@@ -1,7 +1,7 @@
-import { IntrinsicFunction } from '../types/cloudFormation';
+import { IntrinsicFunction } from '../types/cloudFormation.js';
 import fs from 'fs';
-import { Substitutions } from '../types/plugin';
-import { Api } from './Api';
+import { Substitutions } from '../types/plugin.js';
+import { Api } from './Api.js';
 
 type MappingTemplateConfig = {
   path: string;

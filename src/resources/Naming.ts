@@ -2,7 +2,7 @@ import {
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
-} from '../types/plugin';
+} from '../types/plugin.js';
 
 export class Naming {
   constructor(private apiName: string) {}

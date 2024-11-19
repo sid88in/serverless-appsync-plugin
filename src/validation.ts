@@ -2,8 +2,8 @@ import Ajv, { type ValidateFunction } from 'ajv';
 import ajvErrors from 'ajv-errors';
 import ajvMergePatch from 'ajv-merge-patch';
 import addFormats from 'ajv-formats';
-import * as def from './validation/definitions';
-import * as prop from './validation/properties';
+import * as def from './validation/definitions.js';
+import * as prop from './validation/properties.js';
 
 const commonProperties = {
   substitutions: prop.substitutions,
