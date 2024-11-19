@@ -406,10 +406,10 @@ class ServerlessAppsyncPlugin {
   }
 
   async gatherData() {
+    // Don't Gather any data for shared api
+    if(this.config && isSharedApiConfig(this.config)) return;
+    
     const apiId = await this.getApiId();
-
-    // TODO : Check if the api key was provided from the config
-    //! This function should not be run from a child service stacck
     if (!apiId) {
       throw new this.serverless.classes.Error('Unable to get AppSync Api Id');
     }
@@ -445,11 +445,10 @@ class ServerlessAppsyncPlugin {
   }
 
   async getIntrospection() {
+    // Never touch the schema for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     const apiId = await this.getApiId();
-
-    // TODO : Check if the api key was provided from the config
-    //! This function should not be run from a child service stacck
-
     const { schema } = await this.provider.request<
       GetIntrospectionSchemaRequest,
       GetIntrospectionSchemaResponse
@@ -720,10 +719,10 @@ class ServerlessAppsyncPlugin {
   }
 
   async assocDomain() {
+    if (this.api?.config && isSharedApiConfig(this.api.config)) 
+      throw new this.serverless.classes.Error('Inpossible to associate a domain to a shared api');
+    
     const apiId = await this.getApiId();
-
-    // TODO : Check if the api key was provided from the config
-    //! This function should not be run from a child service stacck
     if (typeof apiId !== 'string') {
       return;
     }
@@ -966,11 +965,9 @@ class ServerlessAppsyncPlugin {
   }
 
   displayEndpoints() {
-    if (!this.api?.config || isSharedApiConfig(this.api.config)) {
-      throw new this.serverless.classes.Error(
-        'Impossible to display endpoints from a Shared Appsync',
-      );
-    }
+    // Don't display endpoints for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     const endpoints = this.gatheredData.apis.map(
       ({ type, uri }) => `${type}: ${uri}`,
     );
@@ -990,6 +987,9 @@ class ServerlessAppsyncPlugin {
   }
 
   displayApiKeys() {
+    // Never show api keys shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     const { conceal } = this.options;
     const apiKeys = this.gatheredData.apiKeys.map(
       ({ description, value }) => `${value} (${description})`,
@@ -1024,6 +1024,9 @@ class ServerlessAppsyncPlugin {
   }
 
   validateSchemas() {
+    // Never validate schema for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     try {
       this.utils.log.info('Validating AppSync schema');
       if (!this.api) {

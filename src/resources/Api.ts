@@ -592,7 +592,7 @@ export class Api {
       : lambdaArn;
   }
 
-  // Todo: Same syntax for apiId ?
+  // Todo: [cleanup] Same syntax for apiId ?
   hasDataSource(name: string) {
     return name in this.config.dataSources;
   }

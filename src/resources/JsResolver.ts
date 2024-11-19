@@ -24,7 +24,7 @@ export class JsResolver {
 
   getResolverContent(): string {
     if (isSharedApiConfig(this.api.config)) {
-      // Todo : handle js resolvers with config from the parent stack
+      // Todo : [feature] handle js resolvers with config from the parent stack
       console.warn('esbuild config is ignored for shared appsync');
       return fs.readFileSync(this.config.path, 'utf8');
     }

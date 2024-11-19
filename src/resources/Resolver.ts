@@ -61,7 +61,7 @@ export class Resolver {
     }
 
     if (isSharedApiConfig(this.api.config)) {
-      // Todo : handle resolvers caching & sync with config from the parent stack
+      // Todo : [feature] handle resolvers caching & sync with config from the parent stack
       console.warn('caching and sync config are ignored for shared appsync');
     } else {
       if (this.config.caching) {

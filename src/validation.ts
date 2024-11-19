@@ -49,7 +49,7 @@ export const sharedAppSyncSchema = {
   definitions,
   properties: {
     ...commonProperties,
-    apiId: { type: 'string' }, // properties.apiId, // TODO: Handle intrinsic function
+    apiId: { type: 'string' },
   },
   required: ['apiId'],
   additionalProperties: {
