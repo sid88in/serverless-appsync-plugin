@@ -967,7 +967,7 @@ class ServerlessAppsyncPlugin {
 
   displayEndpoints() {
     if (!this.api?.config || isSharedApiConfig(this.api.config)) {
-      throw this.serverless.classes.Error(
+      throw new this.serverless.classes.Error(
         'Impossible to display endpoints from a Shared Appsync',
       );
     }

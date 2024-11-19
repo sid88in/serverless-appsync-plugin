@@ -35,10 +35,14 @@ export class Schema {
 
   compile(): CfnResources {
     if (isSharedApiConfig(this.api.config)) {
-      throw Error('Unable to override shared api schemas');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to override shared api schemas',
+      );
     }
     if (!this.api.naming) {
-      throw Error('Unable to load the naming module');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
     }
     const logicalId = this.api.naming.getSchemaLogicalId();
 

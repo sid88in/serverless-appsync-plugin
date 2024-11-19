@@ -24,10 +24,14 @@ export class Waf {
     const wafConfig = this.config;
     if (wafConfig.enabled === false) return {};
     if (isSharedApiConfig(this.api.config)) {
-      throw Error('WAF cannot be specified on existing appsync apis');
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
     }
     if (!this.api.naming) {
-      throw Error('Unable to load the naming module');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
     }
     const apiLogicalId = this.api.naming.getApiLogicalId();
     const wafAssocLogicalId = this.api.naming.getWafAssociationLogicalId();
@@ -135,7 +139,9 @@ export class Waf {
 
   buildApiKeysWafRules(): CfnWafRule[] {
     if (isSharedApiConfig(this.api.config)) {
-      throw Error('WAF cannot be specified on existing appsync apis');
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
     }
     return (
       reduce(
@@ -148,11 +154,15 @@ export class Waf {
 
   buildApiKeyRules(key: ApiKeyConfig) {
     if (isSharedApiConfig(this.api.config)) {
-      throw Error('WAF cannot be specified on existing appsync apis');
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
     }
     if (!this.api.naming) {
       // I needed to change the loop to a forof loop to avoid making this check at every loop cycle
-      throw Error('Unable to load the naming module');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
     }
     const rules = key.wafRules ?? [];
     // Build the rule and add a matching rule for the X-Api-Key header

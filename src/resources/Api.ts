@@ -75,7 +75,8 @@ export class Api {
   compileEndpoint(): CfnResources {
     // in a class, the type needs to be cheked every time
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const logicalId = this.naming.getApiLogicalId();
 
     const endpointResource: CfnResource = {
@@ -153,7 +154,8 @@ export class Api {
     ) {
       return {};
     }
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
@@ -230,7 +232,8 @@ export class Api {
 
   compileCustomDomain(): CfnResources {
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const { domain } = this.config;
 
     if (
@@ -323,7 +326,8 @@ export class Api {
 
   compileLambdaAuthorizerPermission(): CfnResources {
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
     if (!this.config.authentication) return {};
 
@@ -357,7 +361,8 @@ export class Api {
 
   compileApiKey(config: ApiKeyConfig) {
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
@@ -386,7 +391,7 @@ export class Api {
       expires < DateTime.now().plus({ day: 1 }) ||
       expires > DateTime.now().plus({ years: 365 })
     ) {
-      throw new Error(
+      throw new this.plugin.serverless.classes.Error(
         `Api Key ${name} must be valid for a minimum of 1 day and a maximum of 365 days.`,
       );
     }
@@ -408,7 +413,8 @@ export class Api {
 
   compileCachingResources(): CfnResources {
     if (isSharedApiConfig(this.config)) return {};
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
     if (!this.config.caching || this.config.caching?.enabled === false) {
       return {};
@@ -464,7 +470,8 @@ export class Api {
     if (isSharedApiConfig(this.config) && this.config.apiId) {
       return this.config.apiId;
     }
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
     return {
       'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
@@ -504,7 +511,8 @@ export class Api {
   }
 
   getLambdaAuthorizerConfig(auth: LambdaAuth) {
-    if (!this.naming) throw new Error('Unable to load naming');
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     if (!auth.config) {
       return;
     }
@@ -565,7 +573,7 @@ export class Api {
       return this.generateLambdaArn(embededFunctionName);
     }
 
-    throw new Error(
+    throw new this.plugin.serverless.classes.Error(
       'You must specify either `functionArn`, `functionName` or `function` for lambda definitions.',
     );
   }

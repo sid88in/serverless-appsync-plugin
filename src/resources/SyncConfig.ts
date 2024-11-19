@@ -13,10 +13,14 @@ export class SyncConfig {
 
   compile() {
     if (isSharedApiConfig(this.api.config)) {
-      throw Error('Unable to set the sync config for a Shared AppsyncApi');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to set the sync config for a Shared AppsyncApi',
+      );
     }
     if (!this.api.naming) {
-      throw Error('Unable to Load the naming module');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to Load the naming module',
+      );
     }
     if (!this.config.sync) {
       return undefined;

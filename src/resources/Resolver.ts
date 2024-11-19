@@ -127,7 +127,10 @@ export class Resolver {
 
     // Add dependacy to the schema for the full appsync configs
     if (!isSharedApiConfig(this.api.config)) {
-      if (!this.api.naming) throw Error('Unable to load the naming module');
+      if (!this.api.naming)
+        throw new this.api.plugin.serverless.classes.Error(
+          'Unable to load the naming module',
+        );
       logicalResolver.DependsOn = [this.api.naming.getSchemaLogicalId()];
     }
 
