@@ -71,10 +71,17 @@ export class Schema {
     const cwd = this.api.plugin.serverless.config.servicePath;
     const schemaFiles = flatten(globby.sync(this.schemas, { cwd }));
 
+    this.api.plugin.utils.log.info('loading schema from :')
+    this.api.plugin.utils.log.info(schemaFiles.join('\n'))
     const schemas = schemaFiles.map((file) => {
       return fs.readFileSync(path.join(cwd, file), 'utf8');
     });
 
+    if (schemas.join('\n').length < 1) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `AppSync schema should not be empty - cwd: ${cwd}`
+      )
+    }
     this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
 
     // Return single files as-is.
