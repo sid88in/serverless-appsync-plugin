@@ -62,7 +62,9 @@ export class Resolver {
 
     if (isSharedApiConfig(this.api.config)) {
       // Todo : [feature] handle resolvers caching & sync with config from the parent stack
-      this.api.plugin.utils.log.warning('caching and sync config are ignored for shared appsync')
+      this.api.plugin.utils.log.warning(
+        'caching and sync config are ignored for shared appsync',
+      );
     } else {
       if (this.config.caching) {
         if (this.config.caching === true) {
@@ -87,6 +89,7 @@ export class Resolver {
 
     if (this.config.kind === 'UNIT') {
       const { dataSource } = this.config;
+      // TODO: [feature] support existing datasource (by providing an id ?)
       if (!this.api.hasDataSource(dataSource)) {
         throw new this.api.plugin.serverless.classes.Error(
           `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
