@@ -89,18 +89,31 @@ export class Resolver {
 
     if (this.config.kind === 'UNIT') {
       const { dataSource } = this.config;
-      // TODO: [feature] support existing datasource (by providing an id ?)
-      if (!this.api.hasDataSource(dataSource)) {
+
+      if (
+        !isSharedApiConfig(this.api.config) &&
+        !this.api.hasDataSource(dataSource)
+      ) {
         throw new this.api.plugin.serverless.classes.Error(
           `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
         );
       }
 
-      const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
+      // Handle datasources defined in existing appsync config
+      // if the datasource is not found in the current config, use the datasource name instead of the logical id.
+      const dataSourceLogicalId = Naming.getDataSourceLogicalId(dataSource);
+      const dataSourceName =
+        isSharedApiConfig(this.api.config) &&
+        !this.api.hasDataSource(dataSource)
+          ? dataSource
+          : ({
+              'Fn::GetAtt': [dataSourceLogicalId, 'Name'],
+            } satisfies IntrinsicFunction);
+
       Properties = {
         ...Properties,
         Kind: 'UNIT',
-        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+        DataSourceName: dataSourceName,
         MaxBatchSize: this.config.maxBatchSize,
       };
     } else {
