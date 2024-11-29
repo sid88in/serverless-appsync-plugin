@@ -101,13 +101,13 @@ export class Resolver {
 
       // Handle datasources defined in existing appsync config
       // if the datasource is not found in the current config, use the datasource name instead of the logical id.
-      const dataSourceLogicalId = Naming.getDataSourceLogicalId(dataSource);
+      const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
       const dataSourceName =
         isSharedApiConfig(this.api.config) &&
         !this.api.hasDataSource(dataSource)
           ? dataSource
           : ({
-              'Fn::GetAtt': [dataSourceLogicalId, 'Name'],
+              'Fn::GetAtt': [logicalIdDataSource, 'Name'],
             } satisfies IntrinsicFunction);
 
       Properties = {

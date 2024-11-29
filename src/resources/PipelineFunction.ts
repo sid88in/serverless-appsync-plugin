@@ -3,7 +3,7 @@ import {
   CfnResources,
   IntrinsicFunction,
 } from '../types/cloudFormation.js';
-import { PipelineFunctionConfig } from '../types/plugin.js';
+import { isSharedApiConfig, PipelineFunctionConfig } from '../types/plugin.js';
 import { Api } from './Api.js';
 import path from 'path';
 import { MappingTemplate } from './MappingTemplate.js';
@@ -16,21 +16,29 @@ export class PipelineFunction {
 
   compile(): CfnResources {
     const { dataSource, code } = this.config;
-    if (!this.api.hasDataSource(dataSource)) {
+    if (
+      !isSharedApiConfig(this.api.config) &&
+      !this.api.hasDataSource(dataSource)
+    ) {
       throw new this.api.plugin.serverless.classes.Error(
         `Pipeline Function '${this.config.name}' references unknown DataSource '${dataSource}'`,
       );
     }
 
     const logicalId = Naming.getPipelineFunctionLogicalId(this.config.name);
-    const logicalIdDataSource = Naming.getDataSourceLogicalId(
-      this.config.dataSource,
-    );
+    const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
+
+    const dataSourceName =
+      isSharedApiConfig(this.api.config) && !this.api.hasDataSource(dataSource)
+        ? dataSource
+        : ({
+            'Fn::GetAtt': [logicalIdDataSource, 'Name'],
+          } satisfies IntrinsicFunction);
 
     const Properties: CfnFunctionResolver['Properties'] = {
       ApiId: this.api.getApiId(),
       Name: this.config.name,
-      DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+      DataSourceName: dataSourceName,
       Description: this.config.description,
       FunctionVersion: '2018-05-29',
       MaxBatchSize: this.config.maxBatchSize,
