@@ -1,10 +1,10 @@
 import ServerlessAppsyncPlugin from '..';
-import { forEach, isEmpty, merge, set } from 'lodash';
+import { forEach, isEmpty, merge, set } from 'lodash-es';
 import {
   CfnResource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   ApiKeyConfig,
   AppSyncConfig,
@@ -16,41 +16,46 @@ import {
   LambdaConfig,
   OidcAuth,
   ResolverConfig,
-} from '../types/plugin';
-import { getHostedZoneName, parseDuration } from '../utils';
+  isSharedApiConfig,
+} from '../types/plugin.js';
+import { getHostedZoneName, parseDuration } from '../utils.js';
 import { DateTime, Duration } from 'luxon';
-import { Naming } from './Naming';
-import { DataSource } from './DataSource';
-import { Resolver } from './Resolver';
-import { PipelineFunction } from './PipelineFunction';
-import { Schema } from './Schema';
-import { Waf } from './Waf';
+import { Naming } from './Naming.js';
+import { DataSource } from './DataSource.js';
+import { Resolver } from './Resolver.js';
+import { PipelineFunction } from './PipelineFunction.js';
+import { Schema } from './Schema.js';
+import { Waf } from './Waf.js';
+import { log } from '@serverless/utils/log';
 
 export class Api {
-  public naming: Naming;
+  public naming?: Naming;
   public functions: Record<string, Record<string, unknown>> = {};
 
   constructor(
     public config: AppSyncConfig,
     public plugin: ServerlessAppsyncPlugin,
   ) {
-    this.naming = new Naming(this.config.name);
+    if ('name' in config) {
+      this.naming = new Naming(config.name);
+    }
   }
 
   compile() {
     const resources: CfnResources = {};
 
-    merge(resources, this.compileEndpoint());
-    merge(resources, this.compileSchema());
-    merge(resources, this.compileCustomDomain());
-    merge(resources, this.compileCloudWatchLogGroup());
-    merge(resources, this.compileLambdaAuthorizerPermission());
-    merge(resources, this.compileWafRules());
-    merge(resources, this.compileCachingResources());
-
-    forEach(this.config.apiKeys, (key) => {
-      merge(resources, this.compileApiKey(key));
-    });
+    if (!isSharedApiConfig(this.config)) {
+      merge(resources, this.compileEndpoint());
+      merge(resources, this.compileSchema());
+      merge(resources, this.compileCustomDomain());
+      merge(resources, this.compileCloudWatchLogGroup());
+      merge(resources, this.compileLambdaAuthorizerPermission());
+      merge(resources, this.compileWafRules());
+      merge(resources, this.compileCachingResources()); //! requires naming
+      forEach(this.config.apiKeys, (key) => {
+        merge(resources, this.compileApiKey(key));
+      });
+    }
 
     forEach(this.config.dataSources, (ds) => {
       merge(resources, this.compileDataSource(ds));
@@ -68,6 +73,10 @@ export class Api {
   }
 
   compileEndpoint(): CfnResources {
+    // in a class, the type needs to be cheked every time
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const logicalId = this.naming.getApiLogicalId();
 
     const endpointResource: CfnResource = {
@@ -88,7 +97,7 @@ export class Api {
     if (this.config.additionalAuthentications.length > 0) {
       merge(endpointResource.Properties, {
         AdditionalAuthenticationProviders:
-          this.config.additionalAuthentications?.map((provider) =>
+          this.config.additionalAuthentications.map((provider) =>
             this.compileAuthenticationProvider(provider, true),
           ),
       });
@@ -138,9 +147,15 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.logging || this.config.logging.enabled === false) {
+    if (
+      isSharedApiConfig(this.config) ||
+      !this.config.logging ||
+      this.config.logging.enabled === false
+    ) {
       return {};
     }
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
     const logGroupLogicalId = this.naming.getLogGroupLogicalId();
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
@@ -208,11 +223,17 @@ export class Api {
   }
 
   compileSchema() {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.config.schema) return {};
+
     const schema = new Schema(this, this.config.schema);
     return schema.compile();
   }
 
   compileCustomDomain(): CfnResources {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const { domain } = this.config;
 
     if (
@@ -304,6 +325,12 @@ export class Api {
   }
 
   compileLambdaAuthorizerPermission(): CfnResources {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
+
+    if (!this.config.authentication) return {};
+
     const lambdaAuth = [
       ...this.config.additionalAuthentications,
       this.config.authentication,
@@ -333,6 +360,10 @@ export class Api {
   }
 
   compileApiKey(config: ApiKeyConfig) {
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
+
     const { name, expiresAt, expiresAfter, description, apiKeyId } = config;
 
     const startOfHour = DateTime.now().setZone('UTC').startOf('hour');
@@ -360,7 +391,7 @@ export class Api {
       expires < DateTime.now().plus({ day: 1 }) ||
       expires > DateTime.now().plus({ years: 365 })
     ) {
-      throw new Error(
+      throw new this.plugin.serverless.classes.Error(
         `Api Key ${name} must be valid for a minimum of 1 day and a maximum of 365 days.`,
       );
     }
@@ -381,26 +412,30 @@ export class Api {
   }
 
   compileCachingResources(): CfnResources {
-    if (this.config.caching && this.config.caching.enabled !== false) {
-      const cacheConfig = this.config.caching;
-      const logicalId = this.naming.getCachingLogicalId();
+    if (isSharedApiConfig(this.config)) return {};
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
 
-      return {
-        [logicalId]: {
-          Type: 'AWS::AppSync::ApiCache',
-          Properties: {
-            ApiCachingBehavior: cacheConfig.behavior,
-            ApiId: this.getApiId(),
-            AtRestEncryptionEnabled: cacheConfig.atRestEncryption || false,
-            TransitEncryptionEnabled: cacheConfig.transitEncryption || false,
-            Ttl: cacheConfig.ttl || 3600,
-            Type: cacheConfig.type || 'T2_SMALL',
-          },
-        },
-      };
+    if (!this.config.caching || this.config.caching?.enabled === false) {
+      return {};
     }
 
-    return {};
+    const cacheConfig = this.config.caching;
+    const logicalId = this.naming.getCachingLogicalId();
+
+    return {
+      [logicalId]: {
+        Type: 'AWS::AppSync::ApiCache',
+        Properties: {
+          ApiCachingBehavior: cacheConfig.behavior,
+          ApiId: this.getApiId(),
+          AtRestEncryptionEnabled: cacheConfig.atRestEncryption || false,
+          TransitEncryptionEnabled: cacheConfig.transitEncryption || false,
+          Ttl: cacheConfig.ttl || 3600,
+          Type: cacheConfig.type || 'T2_SMALL',
+        },
+      },
+    };
   }
 
   compileDataSource(dsConfig: DataSourceConfig): CfnResources {
@@ -421,7 +456,9 @@ export class Api {
   }
 
   compileWafRules() {
-    if (!this.config.waf || this.config.waf.enabled === false) {
+    if (isSharedApiConfig(this.config)) return {};
+
+    if (!this.config.waf || this.config.waf?.enabled === false) {
       return {};
     }
 
@@ -430,6 +467,11 @@ export class Api {
   }
 
   getApiId() {
+    if (isSharedApiConfig(this.config) && this.config.apiId) {
+      return this.config.apiId;
+    }
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
     return {
       'Fn::GetAtt': [logicalIdGraphQLApi, 'ApiId'],
@@ -469,6 +511,8 @@ export class Api {
   }
 
   getLambdaAuthorizerConfig(auth: LambdaAuth) {
+    if (!this.naming)
+      throw new this.plugin.serverless.classes.Error('Unable to load naming');
     if (!auth.config) {
       return;
     }
@@ -486,9 +530,8 @@ export class Api {
   }
 
   getTagsConfig() {
-    if (!this.config.tags || isEmpty(this.config.tags)) {
-      return undefined;
-    }
+    if (isSharedApiConfig(this.config)) return;
+    if (!this.config.tags || isEmpty(this.config.tags)) return;
 
     const tags = this.config.tags;
     return Object.keys(this.config.tags).map((key) => ({
@@ -530,7 +573,7 @@ export class Api {
       return this.generateLambdaArn(embededFunctionName);
     }
 
-    throw new Error(
+    throw new this.plugin.serverless.classes.Error(
       'You must specify either `functionArn`, `functionName` or `function` for lambda definitions.',
     );
   }
@@ -549,6 +592,7 @@ export class Api {
       : lambdaArn;
   }
 
+  // Todo: [cleanup] Same syntax for apiId ?
   hasDataSource(name: string) {
     return name in this.config.dataSources;
   }

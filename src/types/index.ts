@@ -1,5 +1,6 @@
-import { BuildOptions } from 'esbuild';
-import {
+//* External typing : Used in serverless.ts
+import type { BuildOptions } from 'esbuild';
+import type {
   ApiKeyConfig,
   Auth,
   Substitutions,
@@ -16,24 +17,26 @@ import {
   DsRelationalDbConfig,
   SyncConfig,
   EnvironmentVariables,
-} from './common';
-export * from './common';
+} from './common.js';
+export * from './common.js';
 
-export type AppSyncConfig = {
+type BaseAppSyncConfig = {
+  dataSources:
+    | Record<string, DataSourceConfig>[]
+    | Record<string, DataSourceConfig>;
+  resolvers?: Record<string, ResolverConfig>[] | Record<string, ResolverConfig>;
+  pipelineFunctions?:
+    | Record<string, PipelineFunctionConfig>[]
+    | Record<string, PipelineFunctionConfig>;
+  substitutions?: Substitutions;
+};
+export type FullAppSyncConfig = BaseAppSyncConfig & {
   name: string;
   schema?: string | string[];
   authentication: Auth;
   additionalAuthentications?: Auth[];
   domain?: DomainConfig;
   apiKeys?: (ApiKeyConfig | string)[];
-  resolvers?: Record<string, ResolverConfig>[] | Record<string, ResolverConfig>;
-  pipelineFunctions?:
-    | Record<string, PipelineFunctionConfig>[]
-    | Record<string, PipelineFunctionConfig>;
-  dataSources:
-    | Record<string, DataSourceConfig>[]
-    | Record<string, DataSourceConfig>;
-  substitutions?: Substitutions;
   environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
@@ -46,6 +49,18 @@ export type AppSyncConfig = {
   queryDepthLimit?: number;
   resolverCountLimit?: number;
 };
+
+export type SharedAppSyncConfig = BaseAppSyncConfig & {
+  apiId: string;
+};
+
+export function isSharedApiConfig(
+  config: AppSyncConfig,
+): config is SharedAppSyncConfig {
+  return 'apiId' in config;
+}
+
+export type AppSyncConfig = FullAppSyncConfig | SharedAppSyncConfig;
 
 export type BaseResolverConfig = {
   field?: string;

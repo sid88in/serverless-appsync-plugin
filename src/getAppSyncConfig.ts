@@ -1,12 +1,22 @@
-import { AppSyncConfig } from './types';
 import {
+  AppSyncConfig,
+  isSharedApiConfig,
+  PipelineResolverConfig,
+  UnitResolverConfig,
+} from './types/index.js';
+
+import type {
   ApiKeyConfig,
   AppSyncConfig as PluginAppSyncConfig,
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
-} from './types/plugin';
-import { forEach, merge } from 'lodash';
+  BaseAppSyncConfig,
+  SharedAppSyncConfig,
+  FullAppSyncConfig,
+  Substitutions,
+} from './types/plugin.js';
+import { forEach, merge } from 'lodash-es';
 
 const flattenMaps = <T>(
   input?: Record<string, T> | Record<string, T>[],
@@ -20,13 +30,13 @@ const flattenMaps = <T>(
 
 export const isUnitResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
-}): resolver is { kind: 'UNIT' } => {
+}): resolver is UnitResolverConfig => {
   return resolver.kind === 'UNIT';
 };
 
 export const isPipelineResolver = (resolver: {
   kind?: 'UNIT' | 'PIPELINE';
-}): resolver is { kind: 'PIPELINE' } => {
+}): resolver is PipelineResolverConfig => {
   return !resolver.kind || resolver.kind === 'PIPELINE';
 };
 
@@ -37,13 +47,56 @@ const toResourceName = (name: string) => {
 export const getAppSyncConfig = (
   config: AppSyncConfig,
 ): PluginAppSyncConfig => {
+  const baseConfig = getBaseAppsyncConfig(config);
+
+  // handle shared appsync config
+  if (isSharedApiConfig(config)) {
+    const apiId: string = config.apiId;
+    return {
+      ...baseConfig,
+      apiId,
+    } satisfies SharedAppSyncConfig;
+  }
+
+  // Handle full appsync config
   const schema = Array.isArray(config.schema)
     ? config.schema
     : [config.schema || 'schema.graphql'];
 
+  const additionalAuthentications = config.additionalAuthentications || [];
+
+  let apiKeys: Record<string, ApiKeyConfig> | undefined;
+  if (
+    config.authentication?.type === 'API_KEY' ||
+    additionalAuthentications.some((auth) => auth.type === 'API_KEY')
+  ) {
+    const inputKeys = config.apiKeys || [];
+
+    apiKeys = inputKeys.reduce((acc, key) => {
+      if (typeof key === 'string') {
+        acc[key] = { name: key };
+      } else {
+        acc[key.name] = key;
+      }
+
+      return acc;
+    }, {});
+  }
+
+  return {
+    ...config,
+    ...baseConfig,
+    additionalAuthentications,
+    apiKeys,
+    schema,
+  } satisfies FullAppSyncConfig;
+};
+
+function getBaseAppsyncConfig(config: AppSyncConfig): BaseAppSyncConfig {
   const dataSources: Record<string, DataSourceConfig> = {};
   const resolvers: Record<string, ResolverConfig> = {};
   const pipelineFunctions: Record<string, PipelineFunctionConfig> = {};
+  const substitutions: Substitutions = {};
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources[name] = {
@@ -126,33 +179,14 @@ export const getAppSyncConfig = (
     };
   });
 
-  const additionalAuthentications = config.additionalAuthentications || [];
-
-  let apiKeys: Record<string, ApiKeyConfig> | undefined;
-  if (
-    config.authentication.type === 'API_KEY' ||
-    additionalAuthentications.some((auth) => auth.type === 'API_KEY')
-  ) {
-    const inputKeys = config.apiKeys || [];
-
-    apiKeys = inputKeys.reduce((acc, key) => {
-      if (typeof key === 'string') {
-        acc[key] = { name: key };
-      } else {
-        acc[key.name] = key;
-      }
-
-      return acc;
-    }, {});
+  if (config.substitutions) {
+    Object.assign(substitutions, config.substitutions);
   }
 
   return {
-    ...config,
-    additionalAuthentications,
-    apiKeys,
-    schema,
     dataSources,
     resolvers,
     pipelineFunctions,
+    substitutions,
   };
-};
+}

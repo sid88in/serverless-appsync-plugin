@@ -51,6 +51,17 @@ describe('schema', () => {
     `);
   });
 
+  it('should generate a schema resource if apiId is provided', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        apiId: '123',
+      }),
+      plugin,
+    );
+
+    expect(api.compileSchema()).toMatchInlineSnapshot(`Object {}`);
+  });
+
   it('should merge the schemas', () => {
     const api = new Api(given.appSyncConfig(), plugin);
     const schema = new Schema(api, [

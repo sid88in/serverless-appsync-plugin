@@ -1,14 +1,16 @@
 import {
   CfnResolver,
+  CfnResource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
-import { ResolverConfig } from '../types/plugin';
-import { Api } from './Api';
+} from '../types/cloudFormation.js';
+import { isSharedApiConfig, ResolverConfig } from '../types/plugin.js';
+import { Api } from './Api.js';
 import path from 'path';
-import { MappingTemplate } from './MappingTemplate';
-import { SyncConfig } from './SyncConfig';
-import { JsResolver } from './JsResolver';
+import { MappingTemplate } from './MappingTemplate.js';
+import { SyncConfig } from './SyncConfig.js';
+import { JsResolver } from './JsResolver.js';
+import { Naming } from './Naming.js';
 
 // A decent default for pipeline JS resolvers
 const DEFAULT_JS_RESOLVERS = `
@@ -58,39 +60,60 @@ export class Resolver {
       }
     }
 
-    if (this.config.caching) {
-      if (this.config.caching === true) {
-        // Use defaults
-        Properties.CachingConfig = {
-          Ttl: this.api.config.caching?.ttl || 3600,
-        };
-      } else if (typeof this.config.caching === 'object') {
-        Properties.CachingConfig = {
-          CachingKeys: this.config.caching.keys,
-          Ttl: this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
-        };
+    if (isSharedApiConfig(this.api.config)) {
+      // Todo : [feature] handle resolvers caching & sync with config from the parent stack
+      this.api.plugin.utils.log.warning(
+        'caching and sync config are ignored for shared appsync',
+      );
+    } else {
+      if (this.config.caching) {
+        if (this.config.caching === true) {
+          // Use defaults
+          Properties.CachingConfig = {
+            Ttl: this.api.config.caching?.ttl || 3600,
+          };
+        } else if (typeof this.config.caching === 'object') {
+          Properties.CachingConfig = {
+            CachingKeys: this.config.caching.keys,
+            Ttl:
+              this.config.caching.ttl || this.api.config.caching?.ttl || 3600,
+          };
+        }
       }
-    }
 
-    if (this.config.sync) {
-      const asyncConfig = new SyncConfig(this.api, this.config);
-      Properties.SyncConfig = asyncConfig.compile();
+      if (this.config.sync) {
+        const asyncConfig = new SyncConfig(this.api, this.config);
+        Properties.SyncConfig = asyncConfig.compile();
+      }
     }
 
     if (this.config.kind === 'UNIT') {
       const { dataSource } = this.config;
-      if (!this.api.hasDataSource(dataSource)) {
+
+      if (
+        !isSharedApiConfig(this.api.config) &&
+        !this.api.hasDataSource(dataSource)
+      ) {
         throw new this.api.plugin.serverless.classes.Error(
           `Resolver '${this.config.type}.${this.config.field}' references unknown DataSource '${dataSource}'`,
         );
       }
 
-      const logicalIdDataSource =
-        this.api.naming.getDataSourceLogicalId(dataSource);
+      // Handle datasources defined in existing appsync config
+      // if the datasource is not found in the current config, use the datasource name instead of the logical id.
+      const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
+      const dataSourceName =
+        isSharedApiConfig(this.api.config) &&
+        !this.api.hasDataSource(dataSource)
+          ? dataSource
+          : ({
+              'Fn::GetAtt': [logicalIdDataSource, 'Name'],
+            } satisfies IntrinsicFunction);
+
       Properties = {
         ...Properties,
         Kind: 'UNIT',
-        DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+        DataSourceName: dataSourceName,
         MaxBatchSize: this.config.maxBatchSize,
       };
     } else {
@@ -106,25 +129,34 @@ export class Resolver {
             }
 
             const logicalIdDataSource =
-              this.api.naming.getPipelineFunctionLogicalId(name);
+              Naming.getPipelineFunctionLogicalId(name);
             return { 'Fn::GetAtt': [logicalIdDataSource, 'FunctionId'] };
           }),
         },
       };
     }
 
-    const logicalIdResolver = this.api.naming.getResolverLogicalId(
+    const logicalResolver: CfnResource = {
+      Type: 'AWS::AppSync::Resolver',
+      Properties,
+    };
+
+    // Add dependacy to the schema for the full appsync configs
+    if (!isSharedApiConfig(this.api.config)) {
+      if (!this.api.naming)
+        throw new this.api.plugin.serverless.classes.Error(
+          'Unable to load the naming module',
+        );
+      logicalResolver.DependsOn = [this.api.naming.getSchemaLogicalId()];
+    }
+
+    const logicalIdResolver = Naming.getResolverLogicalId(
       this.config.type,
       this.config.field,
     );
-    const logicalIdGraphQLSchema = this.api.naming.getSchemaLogicalId();
 
     return {
-      [logicalIdResolver]: {
-        Type: 'AWS::AppSync::Resolver',
-        DependsOn: [logicalIdGraphQLSchema],
-        Properties,
-      },
+      [logicalIdResolver]: logicalResolver,
     };
   }
 

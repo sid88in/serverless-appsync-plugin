@@ -2,8 +2,8 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
-    "module": "commonjs",
+    "target": "es2018",
+    "module": "ESNext",
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,

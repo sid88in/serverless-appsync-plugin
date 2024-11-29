@@ -1,7 +1,7 @@
 import Serverless from 'serverless/lib/Serverless';
 import Provider from 'serverless/lib/plugins/aws/provider.js';
-import { forEach, last, merge } from 'lodash';
-import { getAppSyncConfig } from './getAppSyncConfig';
+import { forEach, last, merge } from 'lodash-es';
+import { getAppSyncConfig } from './getAppSyncConfig.js';
 import { GraphQLError } from 'graphql';
 import { DateTime } from 'luxon';
 import chalk from 'chalk';
@@ -41,16 +41,16 @@ import {
   FilterLogEventsResponse,
   FilterLogEventsRequest,
 } from 'aws-sdk/clients/cloudwatchlogs';
-import { AppSyncValidationError, validateConfig } from './validation';
+import { AppSyncValidationError, validateConfig } from './validation.js';
 import {
   confirmAction,
   getHostedZoneName,
   getWildCardDomainName,
   parseDateTimeOrDuration,
   wait,
-} from './utils';
-import { Api } from './resources/Api';
-import { Naming } from './resources/Naming';
+} from './utils.js';
+import { Api } from './resources/Api.js';
+import { Naming } from './resources/Naming.js';
 import {
   ChangeResourceRecordSetsRequest,
   ChangeResourceRecordSetsResponse,
@@ -64,6 +64,7 @@ import {
   ListCertificatesResponse,
 } from 'aws-sdk/clients/acm';
 import terminalLink from 'terminal-link';
+import { AppSyncConfig, isSharedApiConfig } from './types/plugin.js';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -102,6 +103,7 @@ class ServerlessAppsyncPlugin {
   public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private api?: Api;
   private naming?: Naming;
+  private config?: AppSyncConfig;
 
   constructor(
     public serverless: Serverless,
@@ -368,6 +370,13 @@ class ServerlessAppsyncPlugin {
 
   async getApiId() {
     this.loadConfig();
+    if (!this.config) {
+      throw new this.serverless.classes.Error('Unable to load the config');
+    }
+
+    if (isSharedApiConfig(this.config) && this.config?.apiId) {
+      return this.config.apiId;
+    }
 
     if (!this.naming) {
       throw new this.serverless.classes.Error(
@@ -397,7 +406,13 @@ class ServerlessAppsyncPlugin {
   }
 
   async gatherData() {
+    // Don't Gather any data for shared api
+    if(this.config && isSharedApiConfig(this.config)) return;
+    
     const apiId = await this.getApiId();
+    if (!apiId) {
+      throw new this.serverless.classes.Error('Unable to get AppSync Api Id');
+    }
 
     const { graphqlApi } = await this.provider.request<
       GetGraphqlApiRequest,
@@ -430,8 +445,10 @@ class ServerlessAppsyncPlugin {
   }
 
   async getIntrospection() {
+    // Never touch the schema for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     const apiId = await this.getApiId();
-
     const { schema } = await this.provider.request<
       GetIntrospectionSchemaRequest,
       GetIntrospectionSchemaResponse
@@ -551,6 +568,12 @@ class ServerlessAppsyncPlugin {
 
   getDomain() {
     if (!this.api) {
+      throw new this.serverless.classes.Error(
+        'AppSync configuration not found',
+      );
+    }
+
+    if (isSharedApiConfig(this.api.config)) {
       throw new this.serverless.classes.Error(
         'AppSync configuration not found',
       );
@@ -696,8 +719,15 @@ class ServerlessAppsyncPlugin {
   }
 
   async assocDomain() {
-    const domain = this.getDomain();
+    if (this.api?.config && isSharedApiConfig(this.api.config)) 
+      throw new this.serverless.classes.Error('Inpossible to associate a domain to a shared api');
+    
     const apiId = await this.getApiId();
+    if (typeof apiId !== 'string') {
+      return;
+    }
+
+    const domain = this.getDomain();
     const assoc = await this.getApiAssocStatus(domain.name);
 
     if (assoc?.associationStatus !== 'NOT_FOUND' && assoc?.apiId !== apiId) {
@@ -935,27 +965,35 @@ class ServerlessAppsyncPlugin {
   }
 
   displayEndpoints() {
+    // Don't display endpoints for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
+    
     const endpoints = this.gatheredData.apis.map(
       ({ type, uri }) => `${type}: ${uri}`,
     );
-
-    if (endpoints.length === 0) {
-      return;
-    }
-
-    const { name } = this.api?.config?.domain || {};
+    
+    if (endpoints.length === 0) return;
+    
+    const { name } = this.api.config?.domain || {};
     if (name) {
       endpoints.push(`graphql: https://${name}/graphql`);
       endpoints.push(`realtime: wss://${name}/graphql/realtime`);
     }
+    
 
-    this.serverless.addServiceOutputSection(
-      'appsync endpoints',
-      endpoints.sort(),
-    );
+    this.utils.writeText('appsync endpoints:')
+    for (const uri of endpoints.sort()) {
+      this.utils.writeText('    '+uri)
+    }
+    this.utils.writeText('')
+
   }
 
   displayApiKeys() {
+    // Never show api keys shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     const { conceal } = this.options;
     const apiKeys = this.gatheredData.apiKeys.map(
       ({ description, value }) => `${value} (${description})`,
@@ -966,7 +1004,11 @@ class ServerlessAppsyncPlugin {
     }
 
     if (!conceal) {
-      this.serverless.addServiceOutputSection('appsync api keys', apiKeys);
+      this.utils.writeText('appsync api keys')
+      for (const key of apiKeys) {
+        this.utils.writeText('    '+key)
+      }
+      this.utils.writeText('')
     }
   }
 
@@ -984,12 +1026,15 @@ class ServerlessAppsyncPlugin {
         throw error;
       }
     }
-    const config = getAppSyncConfig(appSync);
+    this.config = getAppSyncConfig(appSync);
     this.naming = new Naming(appSync.name);
-    this.api = new Api(config, this);
+    this.api = new Api(this.config, this);
   }
 
   validateSchemas() {
+    // Never validate schema for shared api endpoints
+    if (!this.api?.config || isSharedApiConfig(this.api.config)) return;
+    
     try {
       this.utils.log.info('Validating AppSync schema');
       if (!this.api) {
@@ -1084,4 +1129,4 @@ class ServerlessAppsyncPlugin {
   }
 }
 
-export = ServerlessAppsyncPlugin;
+export default ServerlessAppsyncPlugin;

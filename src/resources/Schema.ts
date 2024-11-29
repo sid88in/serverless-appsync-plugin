@@ -1,13 +1,13 @@
 import globby from 'globby';
 import fs from 'fs';
 import path from 'path';
-import { CfnResources } from '../types/cloudFormation';
-import { Api } from './Api';
-import { flatten } from 'lodash';
+import { CfnResources } from '../types/cloudFormation.js';
+import { Api } from './Api.js';
+import { flatten } from 'lodash-es';
 import { parse, print } from 'graphql';
-import ServerlessError from 'serverless/lib/serverless-error';
-import { validateSDL } from 'graphql/validation/validate';
+import { validateSDL } from 'graphql/validation/validate.js';
 import { mergeTypeDefs } from '@graphql-tools/merge';
+import { isSharedApiConfig } from '../types/plugin.js';
 
 const AWS_TYPES = `
 directive @aws_iam on FIELD_DEFINITION | OBJECT
@@ -34,6 +34,16 @@ export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
 
   compile(): CfnResources {
+    if (isSharedApiConfig(this.api.config)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to override shared api schemas',
+      );
+    }
+    if (!this.api.naming) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
+    }
     const logicalId = this.api.naming.getSchemaLogicalId();
 
     return {
@@ -58,15 +68,20 @@ export class Schema {
   }
 
   generateSchema() {
-    const schemaFiles = flatten(globby.sync(this.schemas));
+    const cwd = this.api.plugin.serverless.config.servicePath;
+    const schemaFiles = flatten(globby.sync(this.schemas, { cwd }));
 
+    this.api.plugin.utils.log.info('loading schema from :')
+    this.api.plugin.utils.log.info(schemaFiles.join('\n'))
     const schemas = schemaFiles.map((file) => {
-      return fs.readFileSync(
-        path.join(this.api.plugin.serverless.config.servicePath, file),
-        'utf8',
-      );
+      return fs.readFileSync(path.join(cwd, file), 'utf8');
     });
 
+    if (schemas.join('\n').length < 1) {
+      throw new this.api.plugin.serverless.classes.Error(
+        `AppSync schema should not be empty - cwd: ${cwd}`
+      )
+    }
     this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
 
     // Return single files as-is.

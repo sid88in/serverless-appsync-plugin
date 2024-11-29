@@ -1,9 +1,9 @@
-import { merge } from 'lodash';
+import { merge } from 'lodash-es';
 import {
   CfnDataSource,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   DataSourceConfig,
   DsDynamoDBConfig,
@@ -12,8 +12,9 @@ import {
   DsRelationalDbConfig,
   IamStatement,
   DsEventBridgeConfig,
-} from '../types/plugin';
-import { Api } from './Api';
+} from '../types/plugin.js';
+import { Api } from './Api.js';
+import { Naming } from './Naming.js';
 
 export class DataSource {
   constructor(private api: Api, private config: DataSourceConfig) {}
@@ -33,7 +34,7 @@ export class DataSource {
       resource.Properties.LambdaConfig = {
         LambdaFunctionArn: this.api.getLambdaArn(
           this.config.config,
-          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+          Naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         ),
       };
     } else if (this.config.type === 'AMAZON_DYNAMODB') {
@@ -54,7 +55,7 @@ export class DataSource {
       );
     }
 
-    const logicalId = this.api.naming.getDataSourceLogicalId(this.config.name);
+    const logicalId = Naming.getDataSourceLogicalId(this.config.name);
 
     const resources = {
       [logicalId]: resource,
@@ -65,7 +66,7 @@ export class DataSource {
     } else {
       const role = this.compileDataSourceIamRole();
       if (role) {
-        const roleLogicalId = this.api.naming.getDataSourceRoleLogicalId(
+        const roleLogicalId = Naming.getDataSourceRoleLogicalId(
           this.config.name,
         );
         resource.Properties.ServiceRoleArn = {
@@ -127,7 +128,9 @@ export class DataSource {
       });
     // FIXME: can we validate this and make TS infer mutually eclusive types?
     if (!endpoint) {
-      throw new Error('Specify eithe rendpoint or domain');
+      throw new this.api.plugin.serverless.classes.Error(
+        'Specify eithe rendpoint or domain',
+      );
     }
     return {
       AwsRegion: config.config.region || { Ref: 'AWS::Region' },
@@ -204,7 +207,7 @@ export class DataSource {
       this.config.config.authorizationConfig.authorizationType === 'AWS_IAM' &&
       !this.config.config.iamRoleStatements
     ) {
-      throw new Error(
+      throw new this.api.plugin.serverless.classes.Error(
         `${this.config.name}: When using AWS_IAM signature, you must also specify the required iamRoleStatements`,
       );
     }
@@ -220,9 +223,7 @@ export class DataSource {
       return;
     }
 
-    const logicalId = this.api.naming.getDataSourceRoleLogicalId(
-      this.config.name,
-    );
+    const logicalId = Naming.getDataSourceRoleLogicalId(this.config.name);
 
     return {
       [logicalId]: {
@@ -259,7 +260,7 @@ export class DataSource {
       case 'AWS_LAMBDA': {
         const lambdaArn = this.api.getLambdaArn(
           this.config.config,
-          this.api.naming.getDataSourceEmbeddedLambdaResolverName(this.config),
+          Naming.getDataSourceEmbeddedLambdaResolverName(this.config),
         );
 
         // Allow "invoke" for the Datasource's function and its aliases/versions
@@ -371,7 +372,7 @@ export class DataSource {
             /^https:\/\/([a-z0-9-]+\.(\w{2}-[a-z]+-\d)\.es\.amazonaws\.com)$/;
           const result = rx.exec(this.config.config.endpoint);
           if (!result) {
-            throw new Error(
+            throw new this.api.plugin.serverless.classes.Error(
               `Invalid AWS OpenSearch endpoint: '${this.config.config.endpoint}`,
             );
           }
@@ -396,7 +397,7 @@ export class DataSource {
             ],
           };
         } else {
-          throw new Error(
+          throw new this.api.plugin.serverless.classes.Error(
             `Could not determine the Arn for dataSource '${this.config.name}`,
           );
         }

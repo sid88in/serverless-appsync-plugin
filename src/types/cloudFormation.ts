@@ -16,7 +16,11 @@ export type FnSub = {
   'Fn::Sub': [string, Record<string, string | IntrinsicFunction>];
 };
 
-export type IntrinsicFunction = FnGetAtt | FnJoin | FnRef | FnSub;
+export type FnImportValue = {
+  'Fn::ImportValue': string;
+};
+
+export type IntrinsicFunction = FnGetAtt | FnJoin | FnRef | FnSub | FnImportValue;
 
 export type CfnDeltaSyncConfig = {
   BaseTableTTL: number;

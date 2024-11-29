@@ -1,7 +1,7 @@
-import { IntrinsicFunction } from '../types/cloudFormation';
+import { IntrinsicFunction } from '../types/cloudFormation.js';
 import fs from 'fs';
-import { Substitutions } from '../types/plugin';
-import { Api } from './Api';
+import { isSharedApiConfig, Substitutions } from '../types/plugin.js';
+import { Api } from './Api.js';
 import { buildSync } from 'esbuild';
 
 type JsResolverConfig = {
@@ -23,6 +23,11 @@ export class JsResolver {
   }
 
   getResolverContent(): string {
+    if (isSharedApiConfig(this.api.config)) {
+      // Todo : [feature] handle js resolvers with config from the parent stack
+      console.warn('esbuild config is ignored for shared appsync');
+      return fs.readFileSync(this.config.path, 'utf8');
+    }
     if (this.api.config.esbuild === false) {
       return fs.readFileSync(this.config.path, 'utf8');
     }

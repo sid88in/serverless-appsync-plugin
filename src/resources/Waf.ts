@@ -1,28 +1,37 @@
-import { isEmpty, reduce } from 'lodash';
+import { isEmpty, reduce } from 'lodash-es';
 import {
   CfnResources,
   CfnWafAction,
   CfnWafRule,
   CfnWafRuleStatement,
-} from '../types/cloudFormation';
+} from '../types/cloudFormation.js';
 import {
   ApiKeyConfig,
+  isSharedApiConfig,
   WafConfig,
   WafRule,
   WafRuleAction,
   WafRuleDisableIntrospection,
   WafThrottleConfig,
-} from '../types/plugin';
-import { Api } from './Api';
-import { toCfnKeys } from '../utils';
+} from '../types/plugin.js';
+import { Api } from './Api.js';
+import { toCfnKeys } from '../utils.js';
 
 export class Waf {
   constructor(private api: Api, private config: WafConfig) {}
 
   compile(): CfnResources {
     const wafConfig = this.config;
-    if (wafConfig.enabled === false) {
-      return {};
+    if (wafConfig.enabled === false) return {};
+    if (isSharedApiConfig(this.api.config)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
+    }
+    if (!this.api.naming) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
     }
     const apiLogicalId = this.api.naming.getApiLogicalId();
     const wafAssocLogicalId = this.api.naming.getWafAssociationLogicalId();
@@ -129,6 +138,11 @@ export class Waf {
   }
 
   buildApiKeysWafRules(): CfnWafRule[] {
+    if (isSharedApiConfig(this.api.config)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
+    }
     return (
       reduce(
         this.api.config.apiKeys,
@@ -139,11 +153,22 @@ export class Waf {
   }
 
   buildApiKeyRules(key: ApiKeyConfig) {
-    const rules = key.wafRules;
+    if (isSharedApiConfig(this.api.config)) {
+      throw new this.api.plugin.serverless.classes.Error(
+        'WAF cannot be specified on existing appsync apis',
+      );
+    }
+    if (!this.api.naming) {
+      // I needed to change the loop to a forof loop to avoid making this check at every loop cycle
+      throw new this.api.plugin.serverless.classes.Error(
+        'Unable to load the naming module',
+      );
+    }
+    const rules = key.wafRules ?? [];
     // Build the rule and add a matching rule for the X-Api-Key header
     // for the given api key
     const allRules: CfnWafRule[] = [];
-    rules?.forEach((keyRule) => {
+    for (const keyRule of rules) {
       const builtRule = this.buildWafRule(keyRule, key.name);
       const logicalIdApiKey = this.api.naming.getApiKeyLogicalId(key.name);
       const { Statement: baseStatement } = builtRule;
@@ -198,7 +223,7 @@ export class Waf {
         ...builtRule,
         Statement: statement,
       });
-    });
+    }
 
     return allRules;
   }

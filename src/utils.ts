@@ -1,5 +1,5 @@
-import { upperFirst, transform, values } from 'lodash';
-import { TransformKeysToCfnCase } from './typeHelpers';
+import { upperFirst, transform, values } from 'lodash-es';
+import { TransformKeysToCfnCase } from './typeHelpers.js';
 import { DateTime, Duration } from 'luxon';
 import { promisify } from 'util';
 import * as readline from 'readline';

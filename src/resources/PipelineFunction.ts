@@ -2,36 +2,43 @@ import {
   CfnFunctionResolver,
   CfnResources,
   IntrinsicFunction,
-} from '../types/cloudFormation';
-import { PipelineFunctionConfig } from '../types/plugin';
-import { Api } from './Api';
+} from '../types/cloudFormation.js';
+import { isSharedApiConfig, PipelineFunctionConfig } from '../types/plugin.js';
+import { Api } from './Api.js';
 import path from 'path';
-import { MappingTemplate } from './MappingTemplate';
-import { SyncConfig } from './SyncConfig';
-import { JsResolver } from './JsResolver';
+import { MappingTemplate } from './MappingTemplate.js';
+import { SyncConfig } from './SyncConfig.js';
+import { JsResolver } from './JsResolver.js';
+import { Naming } from './Naming.js';
 
 export class PipelineFunction {
   constructor(private api: Api, private config: PipelineFunctionConfig) {}
 
   compile(): CfnResources {
     const { dataSource, code } = this.config;
-    if (!this.api.hasDataSource(dataSource)) {
+    if (
+      !isSharedApiConfig(this.api.config) &&
+      !this.api.hasDataSource(dataSource)
+    ) {
       throw new this.api.plugin.serverless.classes.Error(
         `Pipeline Function '${this.config.name}' references unknown DataSource '${dataSource}'`,
       );
     }
 
-    const logicalId = this.api.naming.getPipelineFunctionLogicalId(
-      this.config.name,
-    );
-    const logicalIdDataSource = this.api.naming.getDataSourceLogicalId(
-      this.config.dataSource,
-    );
+    const logicalId = Naming.getPipelineFunctionLogicalId(this.config.name);
+    const logicalIdDataSource = Naming.getDataSourceLogicalId(dataSource);
+
+    const dataSourceName =
+      isSharedApiConfig(this.api.config) && !this.api.hasDataSource(dataSource)
+        ? dataSource
+        : ({
+            'Fn::GetAtt': [logicalIdDataSource, 'Name'],
+          } satisfies IntrinsicFunction);
 
     const Properties: CfnFunctionResolver['Properties'] = {
       ApiId: this.api.getApiId(),
       Name: this.config.name,
-      DataSourceName: { 'Fn::GetAtt': [logicalIdDataSource, 'Name'] },
+      DataSourceName: dataSourceName,
       Description: this.config.description,
       FunctionVersion: '2018-05-29',
       MaxBatchSize: this.config.maxBatchSize,

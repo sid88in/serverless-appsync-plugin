@@ -1,5 +1,6 @@
-import { BuildOptions } from 'esbuild';
-import {
+//* Internal typing : Used in the plugin exclusively
+import type { BuildOptions } from 'esbuild';
+import type {
   Auth,
   DomainConfig,
   ApiKeyConfig,
@@ -16,20 +17,22 @@ import {
   DsNone,
   Substitutions,
   EnvironmentVariables,
-} from './common';
-export * from './common';
+} from './common.js';
+export * from './common.js';
 
-export type AppSyncConfig = {
+export type BaseAppSyncConfig = {
+  dataSources: Record<string, DataSourceConfig>;
+  resolvers: Record<string, ResolverConfig>;
+  pipelineFunctions: Record<string, PipelineFunctionConfig>;
+  substitutions?: Substitutions;
+};
+export type FullAppSyncConfig = BaseAppSyncConfig & {
   name: string;
   schema: string[];
   authentication: Auth;
   additionalAuthentications: Auth[];
   domain?: DomainConfig;
   apiKeys?: Record<string, ApiKeyConfig>;
-  dataSources: Record<string, DataSourceConfig>;
-  resolvers: Record<string, ResolverConfig>;
-  pipelineFunctions: Record<string, PipelineFunctionConfig>;
-  substitutions?: Substitutions;
   environment?: EnvironmentVariables;
   xrayEnabled?: boolean;
   logging?: LoggingConfig;
@@ -42,6 +45,16 @@ export type AppSyncConfig = {
   queryDepthLimit?: number;
   resolverCountLimit?: number;
 };
+export type SharedAppSyncConfig = BaseAppSyncConfig & {
+  apiId: string;
+};
+export type AppSyncConfig = FullAppSyncConfig | SharedAppSyncConfig;
+
+export function isSharedApiConfig(
+  config: AppSyncConfig,
+): config is SharedAppSyncConfig {
+  return 'apiId' in config;
+}
 
 export type BaseResolverConfig = {
   field: string;

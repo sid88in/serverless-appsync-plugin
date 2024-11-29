@@ -2,94 +2,92 @@ import {
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
-} from '../types/plugin';
+} from '../types/plugin.js';
 
 export class Naming {
   constructor(private apiName: string) {}
 
-  getCfnName(name: string) {
+  static getCfnName(name: string) {
     return name.replace(/[^a-zA-Z0-9]/g, '');
   }
 
-  getLogicalId(name: string): string {
-    return this.getCfnName(name);
+  static getLogicalId(name: string): string {
+    return Naming.getCfnName(name);
   }
 
   getApiLogicalId() {
-    return this.getLogicalId(`GraphQlApi`);
+    return Naming.getLogicalId(`GraphQlApi`);
   }
 
   getSchemaLogicalId() {
-    return this.getLogicalId(`GraphQlSchema`);
+    return Naming.getLogicalId(`GraphQlSchema`);
   }
 
   getDomainNameLogicalId() {
-    return this.getLogicalId(`GraphQlDomainName`);
+    return Naming.getLogicalId(`GraphQlDomainName`);
   }
 
   getDomainCertificateLogicalId() {
-    return this.getLogicalId(`GraphQlDomainCertificate`);
+    return Naming.getLogicalId(`GraphQlDomainCertificate`);
   }
 
   getDomainAssociationLogicalId() {
-    return this.getLogicalId(`GraphQlDomainAssociation`);
+    return Naming.getLogicalId(`GraphQlDomainAssociation`);
   }
 
   getDomainReoute53RecordLogicalId() {
-    return this.getLogicalId(`GraphQlDomainRoute53Record`);
+    return Naming.getLogicalId(`GraphQlDomainRoute53Record`);
   }
 
   getLogGroupLogicalId() {
-    return this.getLogicalId(`GraphQlApiLogGroup`);
+    return Naming.getLogicalId(`GraphQlApiLogGroup`);
   }
 
   getLogGroupRoleLogicalId() {
-    return this.getLogicalId(`GraphQlApiLogGroupRole`);
+    return Naming.getLogicalId(`GraphQlApiLogGroupRole`);
   }
 
   getLogGroupPolicyLogicalId() {
-    return this.getLogicalId(`GraphQlApiLogGroupPolicy`);
+    return Naming.getLogicalId(`GraphQlApiLogGroupPolicy`);
   }
 
   getCachingLogicalId() {
-    return this.getLogicalId(`GraphQlCaching`);
+    return Naming.getLogicalId(`GraphQlCaching`);
   }
 
   getLambdaAuthLogicalId() {
-    return this.getLogicalId(`LambdaAuthorizerPermission`);
+    return Naming.getLogicalId(`LambdaAuthorizerPermission`);
   }
 
   getApiKeyLogicalId(name: string) {
-    return this.getLogicalId(`GraphQlApi${name}`);
+    return Naming.getLogicalId(`GraphQlApi${name}`);
   }
 
-  // Warning: breaking change.
-  // api name added
-  getDataSourceLogicalId(name: string) {
-    return `GraphQlDs${this.getLogicalId(name)}`;
+  static getDataSourceLogicalId(name: string) {
+    return `GraphQlDs${Naming.getLogicalId(name)}`;
   }
 
-  getDataSourceRoleLogicalId(name: string) {
-    return this.getDataSourceLogicalId(`${name}Role`);
+  static getDataSourceRoleLogicalId(name: string) {
+    return Naming.getDataSourceLogicalId(`${name}Role`);
   }
 
-  getResolverLogicalId(type: string, field: string) {
-    return this.getLogicalId(`GraphQlResolver${type}${field}`);
+  static getResolverLogicalId(type: string, field: string) {
+    return Naming.getLogicalId(`GraphQlResolver${type}${field}`);
   }
 
-  getPipelineFunctionLogicalId(name: string) {
-    return this.getLogicalId(`GraphQlFunctionConfiguration${name}`);
+  static getPipelineFunctionLogicalId(name: string) {
+    return Naming.getLogicalId(`GraphQlFunctionConfiguration${name}`);
   }
 
   getWafLogicalId() {
-    return this.getLogicalId('GraphQlWaf');
+    return Naming.getLogicalId('GraphQlWaf');
   }
 
   getWafAssociationLogicalId() {
-    return this.getLogicalId('GraphQlWafAssoc');
+    return Naming.getLogicalId('GraphQlWafAssoc');
   }
 
-  getDataSourceEmbeddedLambdaResolverName(config: DataSourceConfig) {
+  static getDataSourceEmbeddedLambdaResolverName(config: DataSourceConfig) {
     return config.name;
   }
 

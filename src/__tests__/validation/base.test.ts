@@ -29,6 +29,7 @@ describe('Valdiation', () => {
 
     expect(function () {
       validateConfig({
+        name: 'FOO',
         visibility: 'FOO',
         introspection: 10,
         queryDepthLimit: 'foo',
@@ -45,6 +46,19 @@ describe('Valdiation', () => {
         ...basicConfig,
         queryDepthLimit: 76,
         resolverCountLimit: 1001,
+      });
+    }).toThrowErrorMatchingSnapshot();
+
+    expect(function () {
+      validateConfig({
+        visibility: 'FOO',
+        introspection: 10,
+        queryDepthLimit: 'foo',
+        resolverCountLimit: 'bar',
+        xrayEnabled: 'BAR',
+        unknownPorp: 'foo',
+        esbuild: 'bad',
+        environment: 'Bad',
       });
     }).toThrowErrorMatchingSnapshot();
   });
@@ -69,7 +83,7 @@ describe('Valdiation', () => {
               level: 'ALL',
               retentionInDays: 14,
               excludeVerboseContent: true,
-              loggingRoleArn: { Ref: 'MyLogGorupArn' },
+              // loggingRoleArn: { Ref: 'MyLogGorupArn' }, // TODO : why was it only in the tests ?
             },
           } as AppSyncConfig,
         },

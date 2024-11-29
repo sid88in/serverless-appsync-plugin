@@ -1,8 +1,8 @@
-import { Api } from '../resources/Api';
-import { ApiKeyConfig, WafRule } from '../types/plugin';
-import { each } from 'lodash';
-import { Waf } from '../resources/Waf';
-import * as given from './given';
+import { Api } from '../resources/Api.js';
+import { ApiKeyConfig, WafRule } from '../types/plugin.js';
+import { each } from 'lodash-es';
+import { Waf } from '../resources/Waf.js';
+import * as given from './given.js';
 
 const plugin = given.plugin();
 
@@ -68,6 +68,20 @@ describe('Waf', () => {
         arn: 'arn:aws:wafv2:us-east-1:123456789012:regional/webacl/my-Waf/d7b694d2-4f7d-4dd6-a9a9-843dd1931330',
       });
       expect(waf.compile()).toMatchSnapshot();
+    });
+
+    it('should not generate waf Resources if api id is provided', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          waf: {
+            enabled: false,
+            name: 'Waf',
+            rules: [],
+          },
+        }),
+        plugin,
+      );
+      expect(api.compileWafRules()).toEqual({});
     });
   });
 
