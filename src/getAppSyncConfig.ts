@@ -14,6 +14,7 @@ import type {
   BaseAppSyncConfig,
   SharedAppSyncConfig,
   FullAppSyncConfig,
+  Substitutions,
 } from './types/plugin.js';
 import { forEach, merge } from 'lodash-es';
 
@@ -95,6 +96,7 @@ function getBaseAppsyncConfig(config: AppSyncConfig): BaseAppSyncConfig {
   const dataSources: Record<string, DataSourceConfig> = {};
   const resolvers: Record<string, ResolverConfig> = {};
   const pipelineFunctions: Record<string, PipelineFunctionConfig> = {};
+  const substitutions: Substitutions = {};
 
   forEach(flattenMaps(config.dataSources), (ds, name) => {
     dataSources[name] = {
@@ -177,9 +179,14 @@ function getBaseAppsyncConfig(config: AppSyncConfig): BaseAppSyncConfig {
     };
   });
 
+  if (config.substitutions) {
+    Object.assign(substitutions, config.substitutions);
+  }
+
   return {
     dataSources,
     resolvers,
     pipelineFunctions,
+    substitutions,
   };
 }
