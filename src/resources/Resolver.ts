@@ -17,6 +17,7 @@ export function request() {
 }
 
 export function response(ctx) {
+  util.http.addResponseHeader('cache-control', 'no-cache');
   return ctx.prev.result;
 }
 `;
