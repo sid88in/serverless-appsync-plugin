@@ -58,13 +58,16 @@ export class Schema {
   }
 
   generateSchema() {
-    const schemaFiles = flatten(globby.sync(this.schemas));
+    const schemaFiles = flatten(
+      globby.sync(
+        this.schemas.map((schema) =>
+          path.join(this.api.plugin.serverless.config.servicePath, schema),
+        ),
+      ),
+    );
 
     const schemas = schemaFiles.map((file) => {
-      return fs.readFileSync(
-        path.join(this.api.plugin.serverless.config.servicePath, file),
-        'utf8',
-      );
+      return fs.readFileSync(file, 'utf8');
     });
 
     this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
