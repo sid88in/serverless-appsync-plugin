@@ -11,6 +11,8 @@ import fs from 'fs';
 import {
   DescribeStackResourcesInput,
   DescribeStackResourcesOutput,
+  DescribeStacksInput,
+  DescribeStacksOutput,
 } from 'aws-sdk/clients/cloudformation';
 import {
   AssociateApiRequest,
@@ -102,7 +104,10 @@ class ServerlessAppsyncPlugin {
   public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private api?: Api;
   private naming?: Naming;
-
+  // this should instan
+  private cachedValues: {
+    apiId: string | null;
+  };
   constructor(
     public serverless: Serverless,
     private options: Record<string, string>,
@@ -116,6 +121,9 @@ class ServerlessAppsyncPlugin {
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
     this.utils = utils;
+    this.cachedValues = {
+      apiId: null,
+    };
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
@@ -374,6 +382,11 @@ class ServerlessAppsyncPlugin {
         'Could not find the naming service. This should not happen.',
       );
     }
+    // The loading is quite involved so caching is helpful
+    // And the ApiId shouldn't change during a class lifecycle
+    if(this.cachedValues.apiId) {
+      return this.cachedValues.apiId;
+    }
 
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
 
@@ -385,13 +398,46 @@ class ServerlessAppsyncPlugin {
       LogicalResourceId: logicalIdGraphQLApi,
     });
 
-    const apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/'));
+    let apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/'));
+
+    if (!apiId) {
+      // If the user has split the stacks automatically, the SAP logical id 
+      // will still apply and we can search the stack outputs for it
+      const stackPrefix = this.provider.naming.getStackName();
+      const stackOutputKey = `${logicalIdGraphQLApi}ApiId`
+
+      let NextToken: string | undefined = undefined;
+      let escapeCount = 10 // 10 pages of stacks is enough
+      do {
+        const stacksDescription = await this.provider.request<
+          DescribeStacksInput,
+          DescribeStacksOutput
+        >('CloudFormation', 'describeStacks', {
+          NextToken
+        });
+        NextToken = stacksDescription.NextToken;
+        escapeCount--;
+
+        // Try to extract the apiId from the outputs
+        // This works only when 1 GraphQL API is defined in the stack
+        // Which is fine as this is already a business rule.
+        const outputs = stacksDescription
+          .Stacks?.filter(({ StackName }) => StackName.startsWith(stackPrefix))
+          .flatMap(stack => stack.Outputs || []) || [];
+
+        apiId = outputs?.find(output => output.OutputKey === stackOutputKey)?.OutputValue
+
+      } while (NextToken && !apiId && escapeCount > 0);
+
+    }
 
     if (!apiId) {
       throw new this.serverless.classes.Error(
         'AppSync Api not found in stack. Did you forget to deploy?',
       );
     }
+
+    this.cachedValues.apiId = apiId;
 
     return apiId;
   }
@@ -533,14 +579,14 @@ class ServerlessAppsyncPlugin {
     if (domain.useCloudFormation !== false) {
       this.utils.log.warning(
         'You are using the CloudFormation integration for domain configuration.\n' +
-          'To avoid CloudFormation drifts, you should not use it in combination with this command.\n' +
-          'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
-          'If you have already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
-          terminalLink(
-            'eject from CloudFormation',
-            'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
-          ) +
-          ' first.',
+        'To avoid CloudFormation drifts, you should not use it in combination with this command.\n' +
+        'Set the `domain.useCloudFormation` attribute to false to use the CLI integration.\n' +
+        'If you have already deployed using CloudFormation and would like to switch to using the CLI, you can ' +
+        terminalLink(
+          'eject from CloudFormation',
+          'https://github.com/sid88in/serverless-appsync-plugin/blob/master/doc/custom-domain.md#ejecting-from-cloudformation',
+        ) +
+        ' first.',
       );
 
       if (!this.options.yes && !(await confirmAction())) {
@@ -747,7 +793,7 @@ class ServerlessAppsyncPlugin {
     if (assoc?.apiId !== apiId && !this.options.force) {
       throw new this.serverless.classes.Error(
         `The domain ${domain.name} is currently associated to another API (${assoc?.apiId})\n` +
-          `Try running this command from that API's stack or stage, or use the --force / -f flag`,
+        `Try running this command from that API's stack or stage, or use the --force / -f flag`,
       );
     }
     this.utils.log.warning(
