@@ -294,6 +294,7 @@ export class Waf {
   ): CfnWafRule {
     let Name = `${defaultNamePrefix || ''}Throttle`;
     let Limit = 100;
+    let EvaluationWindowSec = 300;
     let AggregateKeyType = 'IP';
     let ForwardedIPConfig;
     let Priority;
@@ -305,6 +306,7 @@ export class Waf {
       Name = config.name || Name;
       AggregateKeyType = config.aggregateKeyType || AggregateKeyType;
       Limit = config.limit || Limit;
+      EvaluationWindowSec = config.evaluationWindowSec || EvaluationWindowSec;
       Priority = config.priority;
       ScopeDownStatement = config.scopeDownStatement;
       if (AggregateKeyType === 'FORWARDED_IP') {
@@ -326,6 +328,7 @@ export class Waf {
         RateBasedStatement: {
           AggregateKeyType,
           Limit,
+          EvaluationWindowSec,
           ForwardedIPConfig,
           ScopeDownStatement,
         },
