@@ -69,6 +69,7 @@ waf:
     - throttle: 200 # limit to 200 requests per 5 minutes period
     - throttle:
         limit: 200
+        evaluationWindowSec: 300 # count requests in last 5 minutes, one of 60 | 120 | 300 | 600
         priority: 10
         aggregateKeyType: FORWARDED_IP
         forwardedIPConfig:

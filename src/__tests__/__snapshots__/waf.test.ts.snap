@@ -183,6 +183,7 @@ Array [
     "Statement": Object {
       "RateBasedStatement": Object {
         "AggregateKeyType": "IP",
+        "EvaluationWindowSec": 300,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": Object {
@@ -229,6 +230,7 @@ Array [
     "Statement": Object {
       "RateBasedStatement": Object {
         "AggregateKeyType": "IP",
+        "EvaluationWindowSec": 300,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": Object {
@@ -483,6 +485,57 @@ Object {
 }
 `;
 
+exports[`Waf Disable introspection should generate a preset rule with custom config 1`] = `
+Object {
+  "Action": Object {
+    "Block": Object {},
+  },
+  "Name": "BaseDisableIntrospection",
+  "Priority": 200,
+  "Statement": Object {
+    "OrStatement": Object {
+      "Statements": Array [
+        Object {
+          "SizeConstraintStatement": Object {
+            "ComparisonOperator": "GT",
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "Size": 8192,
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "NONE",
+              },
+            ],
+          },
+        },
+        Object {
+          "ByteMatchStatement": Object {
+            "FieldToMatch": Object {
+              "Body": Object {},
+            },
+            "PositionalConstraint": "CONTAINS",
+            "SearchString": "__schema",
+            "TextTransformations": Array [
+              Object {
+                "Priority": 0,
+                "Type": "COMPRESS_WHITE_SPACE",
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+  "VisibilityConfig": Object {
+    "CloudWatchMetricsEnabled": false,
+    "MetricName": "DisableIntrospection",
+    "SampledRequestsEnabled": false,
+  },
+}
+`;
+
 exports[`Waf Disable introspection should generate a preset rule with custon config 1`] = `
 Object {
   "Action": Object {
@@ -544,6 +597,7 @@ Object {
   "Statement": Object {
     "RateBasedStatement": Object {
       "AggregateKeyType": "IP",
+      "EvaluationWindowSec": 300,
       "ForwardedIPConfig": undefined,
       "Limit": 100,
       "ScopeDownStatement": undefined,
@@ -567,6 +621,7 @@ Object {
   "Statement": Object {
     "RateBasedStatement": Object {
       "AggregateKeyType": "FORWARDED_IP",
+      "EvaluationWindowSec": 60,
       "ForwardedIPConfig": Object {
         "FallbackBehavior": "MATCH",
         "HeaderName": "X-Forwarded-To",
@@ -593,6 +648,7 @@ Object {
   "Statement": Object {
     "RateBasedStatement": Object {
       "AggregateKeyType": "IP",
+      "EvaluationWindowSec": 300,
       "ForwardedIPConfig": undefined,
       "Limit": 500,
       "ScopeDownStatement": undefined,

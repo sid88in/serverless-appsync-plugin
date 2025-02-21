@@ -23,6 +23,7 @@ export type WafThrottleConfig =
       action?: WafAction;
       aggregateKeyType?: 'IP' | 'FORWARDED_IP';
       limit?: number;
+      evaluationWindowSec?: number;
       priority?: number;
       forwardedIPConfig?: {
         headerName: string;
