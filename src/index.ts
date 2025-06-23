@@ -9,14 +9,11 @@ import path from 'path';
 import open from 'open';
 import fs from 'fs';
 import {
-  DescribeStackInstanceInput,
-  DescribeStackInstanceOutput,
   DescribeStackResourcesInput,
   DescribeStackResourcesOutput,
   DescribeStacksInput,
   DescribeStacksOutput,
   Outputs,
-  Stack,
 } from 'aws-sdk/clients/cloudformation';
 import {
   AssociateApiRequest,
