@@ -13,6 +13,8 @@ import {
   DescribeStackResourcesOutput,
   DescribeStacksInput,
   DescribeStacksOutput,
+  ListStackResourcesInput,
+  ListStackResourcesOutput,
   Outputs,
 } from 'aws-sdk/clients/cloudformation';
 import {
@@ -391,55 +393,69 @@ class ServerlessAppsyncPlugin {
     }
 
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
+    const stackOutputKey = `${logicalIdGraphQLApi}ApiId`;
+    const mainStackName = this.provider.naming.getStackName();
 
-    let StackResources;
-
+    // First check the main stack resources directly for the API resource
     const mainStackApiCheck = await this.provider.request<
       DescribeStackResourcesInput,
       DescribeStackResourcesOutput
     >('CloudFormation', 'describeStackResources', {
-      StackName: this.provider.naming.getStackName(),
+      StackName: mainStackName,
       LogicalResourceId: logicalIdGraphQLApi,
     });
 
-    StackResources = mainStackApiCheck.StackResources || [];
-
+    const StackResources = mainStackApiCheck.StackResources || [];
     let apiId: string | undefined | null = last(
       StackResources?.[0]?.PhysicalResourceId?.split('/'),
     );
 
+    // If not found, we need to search through all stack resources (with pagination)
+    // and then check nested stacks
     if (!apiId) {
-      // If the user has split the stacks automatically, the SAP logical id
-      // will still apply and we can search the stack outputs for it
-      const stackOutputKey = `${logicalIdGraphQLApi}ApiId`;
+      let nextToken: string | undefined;
 
-      const mainStackResources = await this.provider.request<
-        DescribeStackResourcesInput,
-        DescribeStackResourcesOutput
-      >('CloudFormation', 'describeStackResources', {
-        StackName: this.provider.naming.getStackName(),
-      });
-      StackResources = mainStackResources.StackResources || [];
+      do {
+        const mainStackResources: ListStackResourcesOutput =
+          await this.provider.request<
+            ListStackResourcesInput,
+            ListStackResourcesOutput
+          >('CloudFormation', 'listStackResources', {
+            StackName: mainStackName,
+            NextToken: nextToken,
+          } as ListStackResourcesInput);
+        const resources = mainStackResources.StackResourceSummaries || [];
 
-      const nestedStacks = StackResources.filter(
-        (resource) => resource.ResourceType === 'AWS::CloudFormation::Stack',
-      );
-      for (const nestedStack of nestedStacks) {
-        const nestedStackResult = await this.provider.request<
-          DescribeStacksInput,
-          DescribeStacksOutput
-        >('CloudFormation', 'describeStacks', {
-          StackName: nestedStack.PhysicalResourceId,
-        });
+        const nestedStacks =
+          resources.filter(
+            (resource) =>
+              resource.ResourceType === 'AWS::CloudFormation::Stack',
+          ) || [];
+        // If not found in main stack resources, check each nested stack
+        if (!apiId && nestedStacks.length > 0) {
+          for (const nestedStack of nestedStacks) {
+            if (!nestedStack.PhysicalResourceId) continue;
 
-        const outputs: Outputs = nestedStackResult.Stacks?.[0]?.Outputs ?? [];
-        apiId = outputs.find(
-          (output) => output.OutputKey === stackOutputKey,
-        )?.OutputValue;
-        if (apiId) {
-          break;
+            const nestedStackResult = await this.provider.request<
+              DescribeStacksInput,
+              DescribeStacksOutput
+            >('CloudFormation', 'describeStacks', {
+              StackName: nestedStack.PhysicalResourceId,
+            });
+
+            const outputs: Outputs =
+              nestedStackResult.Stacks?.[0]?.Outputs ?? [];
+            apiId = outputs.find(
+              (output) => output.OutputKey === stackOutputKey,
+            )?.OutputValue;
+            if (apiId) {
+              break; // Found it, no need to check other nested stacks
+            }
+          }
         }
-      }
+
+        nextToken = mainStackResources.NextToken;
+      } while (nextToken && !apiId); // Stop pagination if we found the API ID
     }
 
     if (!apiId) {
