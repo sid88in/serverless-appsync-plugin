@@ -138,7 +138,7 @@ export class Api {
   }
 
   compileCloudWatchLogGroup(): CfnResources {
-    if (!this.config.logging || this.config.logging.enabled === false) {
+    if (!this.config.logging || this.config.logging.enabled === false || this.config.logging.roleArn) {
       return {};
     }
 
