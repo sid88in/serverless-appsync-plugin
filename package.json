@@ -16,6 +16,10 @@
     "lint": "eslint . && tsc --noEmit",
     "prepare": "rm -rf lib && npm run build"
   },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "devDependencies": {
     "@serverless/test": "^9.0.0",
     "@serverless/typescript": "^2.71.0",
