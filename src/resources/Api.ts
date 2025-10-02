@@ -147,6 +147,25 @@ export class Api {
     const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
 
+    if (this.config.logging.roleArn) {
+      return {
+        [logGroupLogicalId]: {
+          Type: 'AWS::Logs::LogGroup',
+          Properties: {
+            LogGroupName: {
+              'Fn::Join': [
+                '/',
+                ['/aws/appsync/apis', { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] }],
+              ],
+            },
+            RetentionInDays:
+              this.config.logging.retentionInDays ||
+              this.plugin.serverless.service.provider.logRetentionInDays,
+          },
+        },
+      };
+    };
+
     return {
       [logGroupLogicalId]: {
         Type: 'AWS::Logs::LogGroup',
