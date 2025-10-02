@@ -164,66 +164,66 @@ export class Api {
           },
         },
       };
-    } else {
-      return {
-        [logGroupLogicalId]: {
-          Type: 'AWS::Logs::LogGroup',
-          Properties: {
-            LogGroupName: {
-              'Fn::Join': [
-                '/',
-                ['/aws/appsync/apis', { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] }],
-              ],
-            },
-            RetentionInDays:
-              this.config.logging.retentionInDays ||
-              this.plugin.serverless.service.provider.logRetentionInDays,
+    };
+
+    return {
+      [logGroupLogicalId]: {
+        Type: 'AWS::Logs::LogGroup',
+        Properties: {
+          LogGroupName: {
+            'Fn::Join': [
+              '/',
+              ['/aws/appsync/apis', { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] }],
+            ],
           },
+          RetentionInDays:
+            this.config.logging.retentionInDays ||
+            this.plugin.serverless.service.provider.logRetentionInDays,
         },
-        [policyLogicalId]: {
-          Type: 'AWS::IAM::Policy',
-          Properties: {
-            PolicyName: `${policyLogicalId}`,
-            Roles: [{ Ref: roleLogicalId }],
-            PolicyDocument: {
-              Version: '2012-10-17',
-              Statement: [
-                {
-                  Effect: 'Allow',
-                  Action: [
-                    'logs:CreateLogGroup',
-                    'logs:CreateLogStream',
-                    'logs:PutLogEvents',
-                  ],
-                  Resource: [
-                    {
-                      'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        [roleLogicalId]: {
-          Type: 'AWS::IAM::Role',
-          Properties: {
-            AssumeRolePolicyDocument: {
-              Version: '2012-10-17',
-              Statement: [
-                {
-                  Effect: 'Allow',
-                  Principal: {
-                    Service: ['appsync.amazonaws.com'],
+      },
+      [policyLogicalId]: {
+        Type: 'AWS::IAM::Policy',
+        Properties: {
+          PolicyName: `${policyLogicalId}`,
+          Roles: [{ Ref: roleLogicalId }],
+          PolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Action: [
+                  'logs:CreateLogGroup',
+                  'logs:CreateLogStream',
+                  'logs:PutLogEvents',
+                ],
+                Resource: [
+                  {
+                    'Fn::GetAtt': [logGroupLogicalId, 'Arn'],
                   },
-                  Action: ['sts:AssumeRole'],
-                },
-              ],
-            },
+                ],
+              },
+            ],
           },
         },
-      };
-    }
+      },
+      [roleLogicalId]: {
+        Type: 'AWS::IAM::Role',
+        Properties: {
+          AssumeRolePolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Effect: 'Allow',
+                Principal: {
+                  Service: ['appsync.amazonaws.com'],
+                },
+                Action: ['sts:AssumeRole'],
+              },
+            ],
+          },
+        },
+      },
+    };
   }
 
   compileSchema() {
