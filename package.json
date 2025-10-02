@@ -21,7 +21,7 @@
     "npm": ">=8.0.0"
   },
   "devDependencies": {
-    "@serverless/test": "^9.0.0",
+    "@serverless/test": "^11.1.0",
     "@serverless/typescript": "^2.71.0",
     "@types/jest": "^27.5.2",
     "@types/luxon": "^2.4.0",
