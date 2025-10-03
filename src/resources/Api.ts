@@ -146,7 +146,6 @@ export class Api {
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
     const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
-    console.log(apiLogicalId);
 
     if (this.config.logging.roleArn) {
       return {
