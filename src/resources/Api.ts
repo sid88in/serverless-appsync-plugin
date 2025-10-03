@@ -155,7 +155,10 @@ export class Api {
             LogGroupName: {
               'Fn::Join': [
                 '/',
-                ['/aws/appsync/apis', { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] }],
+                [
+                  '/aws/appsync/apis',
+                  { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] },
+                ],
               ],
             },
             RetentionInDays:
@@ -164,7 +167,7 @@ export class Api {
           },
         },
       };
-    };
+    }
 
     return {
       [logGroupLogicalId]: {
