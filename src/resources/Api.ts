@@ -146,6 +146,7 @@ export class Api {
     const roleLogicalId = this.naming.getLogGroupRoleLogicalId();
     const policyLogicalId = this.naming.getLogGroupPolicyLogicalId();
     const apiLogicalId = this.naming.getApiLogicalId();
+    console.log(apiLogicalId);
 
     if (this.config.logging.roleArn) {
       return {
@@ -155,7 +156,10 @@ export class Api {
             LogGroupName: {
               'Fn::Join': [
                 '/',
-                ['/aws/appsync/apis', { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] }],
+                [
+                  '/aws/appsync/apis',
+                  { 'Fn::GetAtt': [apiLogicalId, 'ApiId'] },
+                ],
               ],
             },
             RetentionInDays:
@@ -164,7 +168,7 @@ export class Api {
           },
         },
       };
-    };
+    }
 
     return {
       [logGroupLogicalId]: {

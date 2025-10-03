@@ -14,7 +14,7 @@
     "test:watch": "jest src/__tests__/.*\\.test\\.ts --watch",
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
-    "prepare": "rm -rf lib && npm run build"
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=16.0.0",
@@ -32,6 +32,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^9.1.7",
     "jest": "^27.5.1",
     "prettier": "^2.8.0",
     "semantic-release": "^19.0.5",
