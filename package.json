@@ -35,6 +35,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^9.1.7",
     "jest": "^27.5.1",
+    "lint-staged": "^16.2.3",
     "prettier": "^2.8.0",
     "semantic-release": "^19.0.5",
     "serverless": "^3.25.1",
@@ -61,5 +62,14 @@
   },
   "peerDependencies": {
     "serverless": ">=3.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
