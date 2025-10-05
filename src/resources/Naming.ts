@@ -1,18 +1,20 @@
 import {
+  AppSyncConfig,
   DataSourceConfig,
   PipelineFunctionConfig,
   ResolverConfig,
 } from '../types/plugin';
 
 export class Naming {
-  constructor(private apiName: string) {}
+  constructor(private config: AppSyncConfig) {}
 
   getCfnName(name: string) {
     return name.replace(/[^a-zA-Z0-9]/g, '');
   }
 
   getLogicalId(name: string): string {
-    return this.getCfnName(name);
+    const logicalIdPrefix = this.config.logicalIdPrefix || '';
+    return this.getCfnName(`${logicalIdPrefix}${name}`);
   }
 
   getApiLogicalId() {
@@ -66,7 +68,7 @@ export class Naming {
   // Warning: breaking change.
   // api name added
   getDataSourceLogicalId(name: string) {
-    return `GraphQlDs${this.getLogicalId(name)}`;
+    return this.getLogicalId(`GraphQlDs${name}`);
   }
 
   getDataSourceRoleLogicalId(name: string) {
@@ -104,6 +106,6 @@ export class Naming {
   }
 
   getAuthenticationEmbeddedLamdbaName() {
-    return `${this.apiName}Authorizer`;
+    return `${this.config.name}Authorizer`;
   }
 }
