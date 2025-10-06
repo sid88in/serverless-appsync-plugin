@@ -52,7 +52,7 @@
     "ajv-merge-patch": "^5.0.1",
     "aws-sdk": "^2.1265.0",
     "chalk": "^4.1.2",
-    "esbuild": "^0.17.11",
+    "esbuild": "^0.25.0",
     "globby": "^11.1.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
