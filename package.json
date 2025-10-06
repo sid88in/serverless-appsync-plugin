@@ -15,7 +15,7 @@
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky && rm -rf lib & npm run build"
   },
   "engines": {
     "node": ">=16.0.0",
