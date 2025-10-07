@@ -28,3 +28,17 @@ jobs:
         run: npm run lint
       - name: Tests
         run: npm run test
+      - name: Run npm pack dry-run
+        run: npm pack --dry-run
+      - name: Check if lib directory exists
+        run: |
+          if [ ! -d "lib" ]; then
+            echo "Error: lib directory does not exist"
+            exit 1
+          fi
+      - name: Check if lib directory has files
+        run: |
+          if [ -z "$(ls -A lib)" ]; then
+            echo "Error: lib directory is empty"
+            exit 1
+          fi
