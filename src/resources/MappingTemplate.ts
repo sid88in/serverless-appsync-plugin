@@ -14,7 +14,7 @@ export class MappingTemplate {
   compile(): string | IntrinsicFunction {
     if (!fs.existsSync(this.config.path)) {
       throw new this.api.plugin.serverless.classes.Error(
-        `Mapping tempalte file '${this.config.path}' does not exist`,
+        `Mapping template file '${this.config.path}' does not exist`,
       );
     }
 
