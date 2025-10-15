@@ -128,7 +128,7 @@ describe('Mapping Templates', () => {
     expect(function () {
       mapping.compile();
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Mapping tempalte file 'foo.vtl' does not exist"`,
+      `"Mapping template file 'foo.vtl' does not exist"`,
     );
   });
 });
