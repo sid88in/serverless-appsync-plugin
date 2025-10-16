@@ -31,9 +31,7 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      \\"\\"\\"
-      A User
-      \\"\\"\\"
+      #A User
       type User {
         id: ID!
         name: String!
@@ -43,6 +41,7 @@ describe('schema', () => {
       input UserInput {
         name: String!
       }
+
       ",
           },
           "Type": "AWS::AppSync::GraphQLSchema",
@@ -60,6 +59,8 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Mutation {
+        #This is a description
+        #that includes multiple lines
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -71,13 +72,16 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      \\"\\"\\"This is a description\\"\\"\\"
+      #This is a description
       input PostInput {
         title: String!
       }
 
       type Query {
-        getPost(id: ID!): Post!
+        getPost(
+          #This is an inline description
+          id: ID!
+        ): Post!
         getUser: User!
       }
 
@@ -91,7 +95,8 @@ describe('schema', () => {
 
       input UserInput {
         name: String!
-      }"
+      }
+      "
     `);
   });
 
@@ -102,6 +107,8 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Mutation {
+        #This is a description
+        #that includes multiple lines
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -113,13 +120,16 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      \\"\\"\\"This is a description\\"\\"\\"
+      #This is a description
       input PostInput {
         title: String!
       }
 
       type Query {
-        getPost(id: ID!): Post!
+        getPost(
+          #This is an inline description
+          id: ID!
+        ): Post!
         getUser: User!
       }
 
@@ -133,7 +143,8 @@ describe('schema', () => {
 
       input UserInput {
         name: String!
-      }"
+      }
+      "
     `);
   });
 
@@ -153,7 +164,7 @@ describe('schema', () => {
     `);
   });
 
-  it('should return single files schemas as-is', () => {
+  it('should return single files schemas with converted descriptions', () => {
     const api = new Api(given.appSyncConfig(), plugin);
     const schema = new Schema(api, [
       'src/__tests__/fixtures/schemas/single/schema.graphql',
@@ -167,9 +178,7 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      \\"\\"\\"
-      A User
-      \\"\\"\\"
+      #A User
       type User {
         id: ID!
         name: String!
@@ -179,6 +188,7 @@ describe('schema', () => {
       input UserInput {
         name: String!
       }
+
       "
     `);
   });
