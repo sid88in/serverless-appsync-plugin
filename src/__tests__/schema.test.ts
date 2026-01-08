@@ -137,6 +137,48 @@ describe('schema', () => {
     `);
   });
 
+  it('should merge glob schemas with Windows paths', () => {
+    const api = new Api(given.appSyncConfig(), plugin);
+    const schema = new Schema(api, [
+      'src\\__tests__\\fixtures\\schemas\\multiple\\*.graphql',
+    ]);
+    expect(schema.generateSchema()).toMatchInlineSnapshot(`
+      "type Mutation {
+        createPost(post: PostInput!): Post!
+        createUser(post: UserInput!): User!
+      }
+
+      type Post @aws_oidc {
+        id: ID!
+        title: String!
+        createdAt: AWSDateTime!
+        updatedAt: AWSDateTime!
+      }
+
+      \\"\\"\\"This is a description\\"\\"\\"
+      input PostInput {
+        title: String!
+      }
+
+      type Query {
+        getPost(id: ID!): Post!
+        getUser: User!
+      }
+
+      type User {
+        id: ID!
+        name: String!
+        role: String! @aws_oidc
+        email: AWSEmail!
+        posts: [Post!]!
+      }
+
+      input UserInput {
+        name: String!
+      }"
+    `);
+  });
+
   it('should fail if schema is invalid', () => {
     const api = new Api(
       given.appSyncConfig({
