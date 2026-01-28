@@ -7,7 +7,7 @@ Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Se
 
 Contact me @[linkedin](https://www.linkedin.com/in/sid88in/)
 
-### Adoption **8M+ total downloads** on npm (see npm totals and charts):
+### Adoption **8M+ total downloads** on npm (see npm totals and charts below):
   - https://www.npmjs.com/package/serverless-appsync-plugin
   - https://npm-stat.com/charts.html?package=serverless-appsync-plugin&from=2018-01-27&to=2025-12-31
 
