@@ -49,7 +49,7 @@ export class Schema {
     };
   }
 
-  valdiateSchema(schema: string) {
+  validateSchema(schema: string) {
     const errors = validateSDL(parse(schema));
     if (errors.length > 0) {
       throw new this.api.plugin.serverless.classes.Error(
@@ -57,6 +57,47 @@ export class Schema {
           errors.map((error) => `     ${error.message}`).join('\n'),
       );
     }
+  }
+
+  // AppSync does not support descriptions from June 2018 spec
+  // https://spec.graphql.org/June2018/#sec-Descriptions
+  // so they need to be converted to comments, the space after the # will also be included
+  // by AppSync in the generated description so we remove it
+  convertDescriptions(schema: string): string {
+    const lines = schema.split('\n');
+    const singleLineComment = /^(?<indent> *)"(?<comment>[^"]+?)"$/;
+    const singleLineMultilineComment = /^(?<indent> *)"""(?<comment>.+?)"""$/;
+    const multilineCommentDelimiter = /^(?<indent> *)"""$/;
+
+    let inComment = false;
+    let result = '';
+
+    for (const line of lines) {
+      switch (true) {
+        case singleLineComment.test(line):
+          result += `${line.match(singleLineComment)?.groups?.indent}#${
+            line.match(singleLineComment)?.groups?.comment
+          }\n`;
+          break;
+        case singleLineMultilineComment.test(line):
+          result += `${
+            line.match(singleLineMultilineComment)?.groups?.indent
+          }#${line.match(singleLineMultilineComment)?.groups?.comment}\n`;
+          break;
+        case multilineCommentDelimiter.test(line):
+          inComment = !inComment;
+          break;
+        case inComment:
+          result += `${
+            line.match(/^(?<indent> *)/)?.groups?.indent
+          }#${line.trimStart()}\n`;
+          break;
+        default:
+          result += line + '\n';
+      }
+    }
+
+    return result;
   }
 
   generateSchema() {
@@ -72,23 +113,25 @@ export class Schema {
       return fs.readFileSync(file, 'utf8');
     });
 
-    this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
+    this.validateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
 
     // Return single files as-is.
     if (schemas.length === 1) {
-      return schemas[0];
+      return this.convertDescriptions(schemas[0]);
     }
 
     // AppSync does not support Object extensions
     // https://spec.graphql.org/October2021/#sec-Object-Extensions
     // Merge the schemas
-    return print(
-      mergeTypeDefs(schemas, {
-        forceSchemaDefinition: false,
-        useSchemaDefinition: false,
-        sort: true,
-        throwOnConflict: true,
-      }),
+    return this.convertDescriptions(
+      print(
+        mergeTypeDefs(schemas, {
+          forceSchemaDefinition: false,
+          useSchemaDefinition: false,
+          sort: true,
+          throwOnConflict: true,
+        }),
+      ),
     );
   }
 }
