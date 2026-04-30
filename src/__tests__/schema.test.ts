@@ -153,6 +153,18 @@ describe('schema', () => {
     `);
   });
 
+  it('should accept merged-API directives on OBJECT and FIELD_DEFINITION', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        schema: [
+          'src/__tests__/fixtures/schemas/merge-directives/schema.graphql',
+        ],
+      }),
+      plugin,
+    );
+    expect(() => api.compileSchema()).not.toThrow();
+  });
+
   it('should return single files schemas as-is', () => {
     const api = new Api(given.appSyncConfig(), plugin);
     const schema = new Schema(api, [
