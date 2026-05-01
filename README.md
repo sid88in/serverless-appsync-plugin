@@ -92,10 +92,24 @@ appSync:
 - [Variable Substitutions](doc/substitutions.md)
 - [Caching](doc/caching.md)
 - [Web Application Firewall (WAF)](doc/WAF.md)
+- [Testing Resolvers](doc/testing-resolvers.md)
 
 # CLI
 
 This plugin adds some useful CLI commands. See [CLI commands documentation](doc/commands.md)
+
+| Command                         | Description                                              |
+| ------------------------------- | -------------------------------------------------------- |
+| `sls appsync validate-schema`   | Validate the GraphQL schema                              |
+| `sls appsync get-introspection` | Export the introspection schema (JSON or SDL)            |
+| `sls appsync flush-cache`       | Flush the API cache                                      |
+| `sls appsync console`           | Open the AWS AppSync console                             |
+| `sls appsync cloudwatch`        | Open CloudWatch logs                                     |
+| `sls appsync logs`              | Stream logs to stdout                                    |
+| `sls appsync evaluate`          | Evaluate a JS resolver or VTL template without deploying |
+| `sls appsync env get`           | Get runtime environment variables of the deployed API    |
+| `sls appsync env set`           | Set a runtime environment variable on the deployed API   |
+| `sls appsync domain *`          | Manage custom domains                                    |
 
 # Variables
 

@@ -9,38 +9,11 @@ import path from 'path';
 import open from 'open';
 import fs from 'fs';
 import {
-  DescribeStackResourcesInput,
-  DescribeStackResourcesOutput,
-} from 'aws-sdk/clients/cloudformation';
-import {
-  AssociateApiRequest,
-  AssociateApiResponse,
-  CreateDomainNameRequest,
-  DeleteDomainNameRequest,
-  DeleteDomainNameResponse,
-  DisassociateApiRequest,
-  DisassociateApiResponse,
-  GetApiAssociationRequest,
-  GetApiAssociationResponse,
-  GetDomainNameRequest,
-  GetDomainNameResponse,
-  GetGraphqlApiRequest,
-  GetGraphqlApiResponse,
-  GetIntrospectionSchemaRequest,
-  GetIntrospectionSchemaResponse,
-  ListApiKeysRequest,
-  ListApiKeysResponse,
-} from 'aws-sdk/clients/appsync';
-import {
   CommandsDefinition,
   Hook,
   VariablesSourcesDefinition,
   VariableSourceResolver,
 } from 'serverless';
-import {
-  FilterLogEventsResponse,
-  FilterLogEventsRequest,
-} from 'aws-sdk/clients/cloudwatchlogs';
 import { AppSyncValidationError, validateConfig } from './validation';
 import {
   confirmAction,
@@ -51,19 +24,35 @@ import {
 } from './utils';
 import { Api } from './resources/Api';
 import { Naming } from './resources/Naming';
-import {
-  ChangeResourceRecordSetsRequest,
-  ChangeResourceRecordSetsResponse,
-  GetChangeRequest,
-  GetChangeResponse,
-  ListHostedZonesByNameRequest,
-  ListHostedZonesByNameResponse,
-} from 'aws-sdk/clients/route53';
-import {
-  ListCertificatesRequest,
-  ListCertificatesResponse,
-} from 'aws-sdk/clients/acm';
+import { buildSync } from 'esbuild';
 import terminalLink from 'terminal-link';
+import { AwsClientFactory } from './aws-client-factory';
+import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
+import {
+  GetGraphqlApiCommand,
+  ListApiKeysCommand,
+  GetIntrospectionSchemaCommand,
+  FlushApiCacheCommand,
+  CreateDomainNameCommand,
+  DeleteDomainNameCommand,
+  GetApiAssociationCommand,
+  AssociateApiCommand,
+  DisassociateApiCommand,
+  GetDomainNameCommand,
+  EvaluateCodeCommand,
+  EvaluateMappingTemplateCommand,
+  GetGraphqlApiEnvironmentVariablesCommand,
+  PutGraphqlApiEnvironmentVariablesCommand,
+  RuntimeName,
+} from '@aws-sdk/client-appsync';
+import { DescribeStackResourcesCommand } from '@aws-sdk/client-cloudformation';
+import { FilterLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
+import {
+  ListHostedZonesByNameCommand,
+  ChangeResourceRecordSetsCommand,
+  GetChangeCommand,
+} from '@aws-sdk/client-route-53';
+import { ListCertificatesCommand } from '@aws-sdk/client-acm';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
 
@@ -86,6 +75,7 @@ type ServerlessPluginUtils = {
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
+  private clientFactory: AwsClientFactory;
   private gatheredData: {
     apis: {
       id: string;
@@ -116,6 +106,10 @@ class ServerlessAppsyncPlugin {
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
     this.utils = utils;
+
+    const region = this.serverless.service.provider.region || 'us-east-1';
+    const credentials = fromNodeProviderChain();
+    this.clientFactory = new AwsClientFactory(region, credentials);
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
@@ -196,6 +190,69 @@ class ServerlessAppsyncPlugin {
                 shortcut: 'f',
                 required: false,
                 type: 'string',
+              },
+            },
+          },
+          evaluate: {
+            usage: 'Evaluate a resolver or mapping template against a context',
+            lifecycleEvents: ['run'],
+            options: {
+              type: {
+                usage: 'GraphQL type (e.g. Query)',
+                shortcut: 't',
+                required: false,
+                type: 'string',
+              },
+              field: {
+                usage: 'GraphQL field (e.g. getUser)',
+                shortcut: 'f',
+                required: false,
+                type: 'string',
+              },
+              function: {
+                usage: 'Function to evaluate: request or response',
+                required: false,
+                type: 'string',
+              },
+              template: {
+                usage: 'Path to a VTL mapping template file',
+                required: false,
+                type: 'string',
+              },
+              context: {
+                usage:
+                  'Path to a JSON file with the evaluation context, or inline JSON string',
+                shortcut: 'c',
+                required: false,
+                type: 'string',
+              },
+            },
+          },
+          env: {
+            usage: 'Manage AppSync API environment variables',
+            commands: {
+              get: {
+                usage: 'Get all environment variables of the deployed API',
+                lifecycleEvents: ['run'],
+              },
+              set: {
+                usage:
+                  'Set (replace all) environment variables of the deployed API',
+                lifecycleEvents: ['run'],
+                options: {
+                  key: {
+                    usage: 'Environment variable key',
+                    shortcut: 'k',
+                    required: true,
+                    type: 'string',
+                  },
+                  value: {
+                    usage: 'Environment variable value',
+                    shortcut: 'v',
+                    required: true,
+                    type: 'string',
+                  },
+                },
               },
             },
           },
@@ -328,6 +385,9 @@ class ServerlessAppsyncPlugin {
       'appsync:console:run': () => this.openConsole(),
       'appsync:cloudwatch:run': () => this.openCloudWatch(),
       'appsync:logs:run': async () => this.initShowLogs(),
+      'appsync:evaluate:run': async () => this.evaluateResolver(),
+      'appsync:env:get:run': async () => this.envGet(),
+      'appsync:env:set:run': async () => this.envSet(),
       'before:appsync:domain:create:run': async () => this.initDomainCommand(),
       'appsync:domain:create:run': async () => this.createDomain(),
       'before:appsync:domain:delete:run': async () => this.initDomainCommand(),
@@ -377,15 +437,18 @@ class ServerlessAppsyncPlugin {
 
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
 
-    const { StackResources } = await this.provider.request<
-      DescribeStackResourcesInput,
-      DescribeStackResourcesOutput
-    >('CloudFormation', 'describeStackResources', {
-      StackName: this.provider.naming.getStackName(),
-      LogicalResourceId: logicalIdGraphQLApi,
-    });
+    const { StackResources } = await this.clientFactory
+      .getCloudFormationClient()
+      .send(
+        new DescribeStackResourcesCommand({
+          StackName: this.provider.naming.getStackName(),
+          LogicalResourceId: logicalIdGraphQLApi,
+        }),
+      );
 
-    const apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/'));
+    const apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/')) as
+      | string
+      | undefined;
 
     if (!apiId) {
       throw new this.serverless.classes.Error(
@@ -399,12 +462,9 @@ class ServerlessAppsyncPlugin {
   async gatherData() {
     const apiId = await this.getApiId();
 
-    const { graphqlApi } = await this.provider.request<
-      GetGraphqlApiRequest,
-      GetGraphqlApiResponse
-    >('AppSync', 'getGraphqlApi', {
-      apiId,
-    });
+    const { graphqlApi } = await this.clientFactory
+      .getAppSyncClient()
+      .send(new GetGraphqlApiCommand({ apiId }));
 
     forEach(graphqlApi?.uris, (value, type) => {
       this.gatheredData.apis.push({
@@ -414,12 +474,9 @@ class ServerlessAppsyncPlugin {
       });
     });
 
-    const { apiKeys } = await this.provider.request<
-      ListApiKeysRequest,
-      ListApiKeysResponse
-    >('AppSync', 'listApiKeys', {
-      apiId: apiId,
-    });
+    const { apiKeys } = await this.clientFactory
+      .getAppSyncClient()
+      .send(new ListApiKeysCommand({ apiId }));
 
     apiKeys?.forEach((apiKey) => {
       this.gatheredData.apiKeys.push({
@@ -432,13 +489,12 @@ class ServerlessAppsyncPlugin {
   async getIntrospection() {
     const apiId = await this.getApiId();
 
-    const { schema } = await this.provider.request<
-      GetIntrospectionSchemaRequest,
-      GetIntrospectionSchemaResponse
-    >('AppSync', 'getIntrospectionSchema', {
-      apiId,
-      format: (this.options.format || 'JSON').toUpperCase(),
-    });
+    const { schema } = await this.clientFactory.getAppSyncClient().send(
+      new GetIntrospectionSchemaCommand({
+        apiId,
+        format: (this.options.format || 'JSON').toUpperCase() as 'JSON' | 'SDL',
+      }),
+    );
 
     if (!schema) {
       throw new this.serverless.classes.Error('Schema not found');
@@ -447,7 +503,7 @@ class ServerlessAppsyncPlugin {
     if (this.options.output) {
       try {
         const filePath = path.resolve(this.options.output);
-        fs.writeFileSync(filePath, schema.toString());
+        fs.writeFileSync(filePath, Buffer.from(schema).toString());
         this.utils.log.success(`Introspection schema exported to ${filePath}`);
       } catch (error) {
         this.utils.log.error(
@@ -457,12 +513,14 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    this.utils.writeText(schema.toString());
+    this.utils.writeText(Buffer.from(schema).toString());
   }
 
   async flushCache() {
     const apiId = await this.getApiId();
-    await this.provider.request('AppSync', 'flushApiCache', { apiId });
+    await this.clientFactory
+      .getAppSyncClient()
+      .send(new FlushApiCacheCommand({ apiId }));
     this.utils.log.success('Cache flushed successfully');
   }
 
@@ -493,15 +551,16 @@ class ServerlessAppsyncPlugin {
       startTime = DateTime.now().minus({ minutes: 10 });
     }
 
-    const { events, nextToken: newNextToken } = await this.provider.request<
-      FilterLogEventsRequest,
-      FilterLogEventsResponse
-    >('CloudWatchLogs', 'filterLogEvents', {
-      logGroupName,
-      startTime: startTime.toMillis(),
-      nextToken,
-      filterPattern: this.options.filter,
-    });
+    const { events, nextToken: newNextToken } = await this.clientFactory
+      .getCloudWatchLogsClient()
+      .send(
+        new FilterLogEventsCommand({
+          logGroupName,
+          startTime: startTime.toMillis(),
+          nextToken,
+          filterPattern: this.options.filter,
+        }),
+      );
 
     events?.forEach((event) => {
       const { timestamp, message } = event;
@@ -512,7 +571,7 @@ class ServerlessAppsyncPlugin {
       );
     });
 
-    const lastTs = last(events)?.timestamp;
+    const lastTs = (last(events) as any)?.timestamp;
     this.options.startTime = lastTs
       ? DateTime.fromMillis(lastTs + 1).toISO()
       : this.options.startTime;
@@ -565,17 +624,14 @@ class ServerlessAppsyncPlugin {
   }
 
   async getDomainCertificateArn() {
-    const { CertificateSummaryList } = await this.provider.request<
-      ListCertificatesRequest,
-      ListCertificatesResponse
-    >(
-      'ACM',
-      'listCertificates',
-      // only fully issued certificates
-      { CertificateStatuses: ['ISSUED'] },
-      // certificates must always be in us-east-1
-      { region: 'us-east-1' },
-    );
+    const { CertificateSummaryList } = await this.clientFactory
+      .getAcmClient()
+      .send(
+        new ListCertificatesCommand({
+          // only fully issued certificates
+          CertificateStatuses: ['ISSUED'],
+        }),
+      );
 
     const domain = this.getDomain();
 
@@ -607,19 +663,15 @@ class ServerlessAppsyncPlugin {
         );
       }
 
-      await this.provider.request<
-        CreateDomainNameRequest,
-        CreateDomainNameRequest
-      >('AppSync', 'createDomainName', {
-        domainName: domain.name,
-        certificateArn,
-      });
+      await this.clientFactory.getAppSyncClient().send(
+        new CreateDomainNameCommand({
+          domainName: domain.name,
+          certificateArn,
+        }),
+      );
       this.utils.log.success(`Domain '${domain.name}' created successfully`);
     } catch (error) {
-      if (
-        error instanceof this.serverless.classes.Error &&
-        this.options.quiet
-      ) {
+      if (error instanceof Error && this.options.quiet) {
         this.utils.log.error(error.message);
       } else {
         throw error;
@@ -634,18 +686,12 @@ class ServerlessAppsyncPlugin {
       if (!this.options.yes && !(await confirmAction())) {
         return;
       }
-      await this.provider.request<
-        DeleteDomainNameRequest,
-        DeleteDomainNameResponse
-      >('AppSync', 'deleteDomainName', {
-        domainName: domain.name,
-      });
+      await this.clientFactory
+        .getAppSyncClient()
+        .send(new DeleteDomainNameCommand({ domainName: domain.name }));
       this.utils.log.success(`Domain '${domain.name}' deleted successfully`);
     } catch (error) {
-      if (
-        error instanceof this.serverless.classes.Error &&
-        this.options.quiet
-      ) {
+      if (error instanceof Error && this.options.quiet) {
         this.utils.log.error(error.message);
       } else {
         throw error;
@@ -655,19 +701,18 @@ class ServerlessAppsyncPlugin {
 
   async getApiAssocStatus(name: string) {
     try {
-      const result = await this.provider.request<
-        GetApiAssociationRequest,
-        GetApiAssociationResponse
-      >('AppSync', 'getApiAssociation', {
-        domainName: name,
-      });
-      return result.apiAssociation;
+      const result = await this.clientFactory
+        .getAppSyncClient()
+        .send(new GetApiAssociationCommand({ domainName: name }));
+      return result.apiAssociation as
+        | { associationStatus?: string; apiId?: string }
+        | undefined;
     } catch (error) {
-      if (
-        error instanceof this.serverless.classes.Error &&
-        error.providerErrorCodeExtension === 'NOT_FOUND_EXCEPTION'
-      ) {
-        return { associationStatus: 'NOT_FOUND' };
+      if (error instanceof Error && error.name === 'NotFoundException') {
+        return { associationStatus: 'NOT_FOUND' } as {
+          associationStatus?: string;
+          apiId?: string;
+        };
       }
       throw error;
     }
@@ -712,13 +757,11 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    await this.provider.request<AssociateApiRequest, AssociateApiResponse>(
-      'AppSync',
-      'associateApi',
-      {
+    await this.clientFactory.getAppSyncClient().send(
+      new AssociateApiCommand({
         domainName: domain.name,
         apiId,
-      },
+      }),
     );
 
     const message = `Associating API with domain '${domain.name}'`;
@@ -758,12 +801,9 @@ class ServerlessAppsyncPlugin {
       return;
     }
 
-    await this.provider.request<
-      DisassociateApiRequest,
-      DisassociateApiResponse
-    >('AppSync', 'disassociateApi', {
-      domainName: domain.name,
-    });
+    await this.clientFactory
+      .getAppSyncClient()
+      .send(new DisassociateApiCommand({ domainName: domain.name }));
 
     const message = `Disassociating API from domain '${domain.name}'`;
     await this.showApiAssocStatus({
@@ -782,13 +822,12 @@ class ServerlessAppsyncPlugin {
     if (domain.hostedZoneId) {
       return domain.hostedZoneId;
     } else {
-      const { HostedZones } = await this.provider.request<
-        ListHostedZonesByNameRequest,
-        ListHostedZonesByNameResponse
-      >('Route53', 'listHostedZonesByName', {});
+      const { HostedZones } = await this.clientFactory
+        .getRoute53Client()
+        .send(new ListHostedZonesByNameCommand({}));
       const hostedZoneName =
         domain.hostedZoneName || getHostedZoneName(domain.name);
-      const foundHostedZone = HostedZones.find(
+      const foundHostedZone = HostedZones?.find(
         (zone) => zone.Name === hostedZoneName,
       )?.Id;
       if (!foundHostedZone) {
@@ -802,12 +841,9 @@ class ServerlessAppsyncPlugin {
 
   async getAppSyncDomainName() {
     const domain = this.getDomain();
-    const { domainNameConfig } = await this.provider.request<
-      GetDomainNameRequest,
-      GetDomainNameResponse
-    >('AppSync', 'getDomainName', {
-      domainName: domain.name,
-    });
+    const { domainNameConfig } = await this.clientFactory
+      .getAppSyncClient()
+      .send(new GetDomainNameCommand({ domainName: domain.name }));
 
     const { hostedZoneId, appsyncDomainName: dnsName } = domainNameConfig || {};
     if (!hostedZoneId || !dnsName) {
@@ -874,13 +910,11 @@ class ServerlessAppsyncPlugin {
   }
 
   async checkRoute53RecordStatus(changeId: string) {
-    let result: GetChangeResponse;
+    let result: Record<string, any>;
     do {
-      result = await this.provider.request<GetChangeRequest, GetChangeResponse>(
-        'Route53',
-        'getChange',
-        { Id: changeId },
-      );
+      result = await this.clientFactory
+        .getRoute53Client()
+        .send(new GetChangeCommand({ Id: changeId }));
       if (result.ChangeInfo.Status !== 'INSYNC') {
         await wait(1000);
       }
@@ -898,35 +932,31 @@ class ServerlessAppsyncPlugin {
     const domain = this.getDomain();
 
     try {
-      const { ChangeInfo } = await this.provider.request<
-        ChangeResourceRecordSetsRequest,
-        ChangeResourceRecordSetsResponse
-      >('Route53', 'changeResourceRecordSets', {
-        HostedZoneId: hostedZoneId,
-        ChangeBatch: {
-          Changes: [
-            {
-              Action: action,
-              ResourceRecordSet: {
-                Name: domain.name,
-                Type: 'A',
-                AliasTarget: {
-                  HostedZoneId: domainNamConfig.hostedZoneId,
-                  DNSName: domainNamConfig.dnsName,
-                  EvaluateTargetHealth: false,
+      const { ChangeInfo } = await this.clientFactory.getRoute53Client().send(
+        new ChangeResourceRecordSetsCommand({
+          HostedZoneId: hostedZoneId,
+          ChangeBatch: {
+            Changes: [
+              {
+                Action: action,
+                ResourceRecordSet: {
+                  Name: domain.name,
+                  Type: 'A',
+                  AliasTarget: {
+                    HostedZoneId: domainNamConfig.hostedZoneId,
+                    DNSName: domainNamConfig.dnsName,
+                    EvaluateTargetHealth: false,
+                  },
                 },
               },
-            },
-          ],
-        },
-      });
+            ],
+          },
+        }),
+      );
 
-      return ChangeInfo.Id;
+      return ChangeInfo?.Id;
     } catch (error) {
-      if (
-        error instanceof this.serverless.classes.Error &&
-        this.options.quiet
-      ) {
+      if (error instanceof Error && this.options.quiet) {
         this.utils.log.error(error.message);
       } else {
         throw error;
@@ -1065,6 +1095,203 @@ class ServerlessAppsyncPlugin {
       throw new this.serverless.classes.Error(`Unknown address '${address}'`);
     }
   };
+
+  async evaluateResolver() {
+    const {
+      type,
+      field,
+      function: fn,
+      template,
+      context: contextArg,
+    } = this.options;
+
+    // Load context from file or inline JSON
+    let contextJson: string;
+    if (!contextArg) {
+      contextJson = JSON.stringify({});
+    } else if (contextArg.trim().startsWith('{')) {
+      contextJson = contextArg;
+    } else {
+      const contextPath = path.resolve(contextArg);
+      if (!fs.existsSync(contextPath)) {
+        throw new this.serverless.classes.Error(
+          `Context file not found: ${contextPath}`,
+        );
+      }
+      contextJson = fs.readFileSync(contextPath, 'utf8');
+    }
+
+    // VTL template evaluation
+    if (template) {
+      const templatePath = path.resolve(template);
+      if (!fs.existsSync(templatePath)) {
+        throw new this.serverless.classes.Error(
+          `Template file not found: ${templatePath}`,
+        );
+      }
+      const templateContent = fs.readFileSync(templatePath, 'utf8');
+
+      const result = await this.clientFactory.getAppSyncClient().send(
+        new EvaluateMappingTemplateCommand({
+          template: templateContent,
+          context: contextJson,
+        }),
+      );
+
+      if (result.error) {
+        this.utils.log.error(`Evaluation error: ${result.error.message}`);
+      } else {
+        this.utils.writeText(result.evaluationResult || '');
+      }
+      return;
+    }
+
+    // JS resolver evaluation — requires type, field, function
+    if (!type || !field) {
+      throw new this.serverless.classes.Error(
+        'You must specify either --template (VTL) or both --type and --field (JS resolver).',
+      );
+    }
+
+    if (!this.api) {
+      this.loadConfig();
+    }
+    if (!this.api) {
+      throw new this.serverless.classes.Error('Could not load the API.');
+    }
+
+    const resolverKey = `${type}.${field}`;
+    const resolverConfig = this.api.config.resolvers[resolverKey];
+    if (!resolverConfig) {
+      throw new this.serverless.classes.Error(
+        `Resolver '${resolverKey}' not found in configuration.`,
+      );
+    }
+
+    if (resolverConfig.kind !== 'UNIT' || !resolverConfig.code) {
+      throw new this.serverless.classes.Error(
+        `Resolver '${resolverKey}' must be a UNIT resolver with a 'code' property for JS evaluation.`,
+      );
+    }
+
+    const codePath = path.resolve(resolverConfig.code);
+    if (!fs.existsSync(codePath)) {
+      throw new this.serverless.classes.Error(
+        `Resolver code file not found: ${codePath}`,
+      );
+    }
+    let code: string;
+    if (this.api.config.esbuild === false) {
+      // esbuild disabled — read the file as-is (plain JS only)
+      code = fs.readFileSync(codePath, 'utf8');
+    } else {
+      // compile TS/JS through esbuild, same as JsResolver.getResolverContent()
+      const buildResult = buildSync({
+        target: 'esnext',
+        sourcemap: 'inline',
+        sourcesContent: false,
+        treeShaking: true,
+        ...this.api.config.esbuild,
+        platform: 'node',
+        format: 'esm',
+        entryPoints: [codePath],
+        bundle: true,
+        write: false,
+        external: ['@aws-appsync/utils'],
+      });
+
+      if (buildResult.errors.length > 0) {
+        throw new this.serverless.classes.Error(
+          `Failed to compile resolver code '${codePath}': ${buildResult.errors[0].text}`,
+        );
+      }
+
+      if (buildResult.outputFiles.length === 0) {
+        throw new this.serverless.classes.Error(
+          `Failed to compile resolver code '${codePath}': No output files`,
+        );
+      }
+
+      code = buildResult.outputFiles[0].text;
+    }
+    const functionToEval = (fn || 'request') as 'request' | 'response';
+
+    const result = await this.clientFactory.getAppSyncClient().send(
+      new EvaluateCodeCommand({
+        runtime: { name: RuntimeName.APPSYNC_JS, runtimeVersion: '1.0.0' },
+        code,
+        context: contextJson,
+        function: functionToEval,
+      }),
+    );
+
+    if (result.logs && result.logs.length > 0) {
+      this.utils.log.info('Evaluation logs:');
+      result.logs.forEach((log) => this.utils.writeText(`  ${log}`));
+    }
+
+    if (result.error) {
+      this.utils.log.error(`Evaluation error: ${result.error.message}`);
+      if (result.error.codeErrors && result.error.codeErrors.length > 0) {
+        result.error.codeErrors.forEach((ce) => {
+          this.utils.log.error(
+            `  ${ce.value} (line ${ce.location?.line}, col ${ce.location?.column})`,
+          );
+        });
+      }
+    } else {
+      this.utils.writeText(result.evaluationResult || '');
+    }
+  }
+
+  async envGet() {
+    const apiId = await this.getApiId();
+
+    const { environmentVariables } = await this.clientFactory
+      .getAppSyncClient()
+      .send(new GetGraphqlApiEnvironmentVariablesCommand({ apiId }));
+
+    if (
+      !environmentVariables ||
+      Object.keys(environmentVariables).length === 0
+    ) {
+      this.utils.log.info('No environment variables set for this API.');
+      return;
+    }
+
+    const lines = Object.entries(environmentVariables).map(
+      ([key, value]) => `${key}=${value}`,
+    );
+    this.utils.writeText(lines.join('\n'));
+  }
+
+  async envSet() {
+    const { key, value } = this.options;
+
+    if (!key || !value) {
+      throw new this.serverless.classes.Error(
+        'You must specify both --key and --value.',
+      );
+    }
+
+    const apiId = await this.getApiId();
+
+    // Fetch existing variables first so we do a merge, not a full replace
+    const { environmentVariables: existing } = await this.clientFactory
+      .getAppSyncClient()
+      .send(new GetGraphqlApiEnvironmentVariablesCommand({ apiId }));
+
+    const updated = { ...(existing || {}), [key]: value };
+
+    await this.clientFactory.getAppSyncClient().send(
+      new PutGraphqlApiEnvironmentVariablesCommand({
+        apiId,
+        environmentVariables: updated,
+      }),
+    );
+
+    this.utils.log.success(`Environment variable '${key}' set successfully.`);
+  }
 
   handleConfigValidationError(error: AppSyncValidationError) {
     const errors = error.validationErrors.map(

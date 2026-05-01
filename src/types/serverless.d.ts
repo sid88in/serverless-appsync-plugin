@@ -94,7 +94,6 @@ declare module 'serverless/lib/Serverless' {
 
 declare module 'serverless/lib/plugins/aws/provider.js' {
   import Serverless from 'serverless/lib/Serverless';
-  import { ServiceConfigurationOptions } from 'aws-sdk/lib/service';
   declare class Provider {
     constructor(serverless: Serverless);
     naming: {
@@ -105,7 +104,7 @@ declare module 'serverless/lib/plugins/aws/provider.js' {
       service: string,
       method: string,
       params: Input,
-      options?: ServiceConfigurationOptions,
+      options?: Record<string, unknown>,
     ) => Promise<Output>;
   }
 
