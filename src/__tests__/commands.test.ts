@@ -52,11 +52,11 @@ describe('create domain', () => {
     expect(createDomainName).toHaveBeenCalledTimes(1);
     expect(listCertificates).not.toHaveBeenCalled();
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should create a domain and find a matching certificate, exact match', async () => {
@@ -102,15 +102,15 @@ describe('create domain', () => {
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
     expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
     `);
     expect(createDomainName).toHaveBeenCalledTimes(1);
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
-      Object {
+      {
         "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
         "domainName": "api.example.com",
       }
@@ -156,8 +156,8 @@ describe('create domain', () => {
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
     expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
@@ -203,15 +203,15 @@ describe('create domain', () => {
 
     expect(listCertificates).toHaveBeenCalledTimes(1);
     expect(listCertificates.mock.calls[0][0]).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
     `);
     expect(createDomainName).toHaveBeenCalledTimes(1);
     expect(createDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
-      Object {
+      {
         "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507",
         "domainName": "api.example.com",
       }
@@ -246,10 +246,10 @@ describe('delete domain', () => {
 
     expect(deleteDomainName).toHaveBeenCalledTimes(1);
     expect(deleteDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
-        Object {
-          "domainName": "api.example.com",
-        }
-      `);
+      {
+        "domainName": "api.example.com",
+      }
+    `);
     expect(confirmSpy).toHaveBeenCalled();
   });
 
@@ -279,10 +279,10 @@ describe('delete domain', () => {
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(deleteDomainName).toHaveBeenCalledTimes(1);
     expect(deleteDomainName.mock.calls[0][0]).toMatchInlineSnapshot(`
-        Object {
-          "domainName": "api.example.com",
-        }
-      `);
+      {
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should not delete a domain, when not confirmed', async () => {
@@ -352,25 +352,25 @@ describe('assoc domain', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
       ]
     `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "apiId": "123456789",
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "apiId": "123456789",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should handle already associated APIs', async () => {
@@ -400,9 +400,9 @@ describe('assoc domain', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(1);
     expect(associateApi).not.toHaveBeenCalled();
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
@@ -447,25 +447,25 @@ describe('assoc domain', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
       ]
     `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "apiId": "123456789",
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "apiId": "123456789",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should not ask for confirmation when yes flag is passed', async () => {
@@ -507,25 +507,25 @@ describe('assoc domain', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(associateApi).toHaveBeenCalledTimes(1);
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
       ]
     `);
     expect(associateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "apiId": "123456789",
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "apiId": "123456789",
+        "domainName": "api.example.com",
+      }
+    `);
   });
 });
 
@@ -573,24 +573,24 @@ describe('domain disassoc', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(disassociateApi).toHaveBeenCalledTimes(1);
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
       ]
     `);
     expect(disassociateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should disassociate a domain, skipping confirmation when the yes flag is passed', async () => {
@@ -631,24 +631,24 @@ describe('domain disassoc', () => {
     expect(getApiAssociation).toHaveBeenCalledTimes(2);
     expect(disassociateApi).toHaveBeenCalledTimes(1);
     expect(getApiAssociation.mock.calls).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "domainName": "api.example.com",
           },
         ],
       ]
     `);
     expect(disassociateApi.mock.calls[0][0]).toMatchInlineSnapshot(`
-              Object {
-                "domainName": "api.example.com",
-              }
-          `);
+      {
+        "domainName": "api.example.com",
+      }
+    `);
   });
 
   it('should not disassociate a domain, when not confirmed', async () => {
@@ -751,21 +751,21 @@ describe('domain create-record', () => {
     expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
     expect(getChange).toHaveBeenCalledTimes(1);
     expect(getDomainName.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "domainName": "api.example.com",
-          },
-        ]
-      `);
+      [
+        {
+          "domainName": "api.example.com",
+        },
+      ]
+    `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "ChangeBatch": Object {
-            "Changes": Array [
-              Object {
+      [
+        {
+          "ChangeBatch": {
+            "Changes": [
+              {
                 "Action": "CREATE",
-                "ResourceRecordSet": Object {
-                  "AliasTarget": Object {
+                "ResourceRecordSet": {
+                  "AliasTarget": {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
                     "HostedZoneId": "Z111111QQQQQQQ",
@@ -781,12 +781,12 @@ describe('domain create-record', () => {
       ]
     `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "Id": "1234567890",
-          },
-        ]
-      `);
+      [
+        {
+          "Id": "1234567890",
+        },
+      ]
+    `);
   });
 
   it('should handle changeResourceRecordSets errors', async () => {
@@ -967,21 +967,21 @@ describe('domain delete-record', () => {
     expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
     expect(getChange).toHaveBeenCalledTimes(1);
     expect(getDomainName.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "domainName": "api.example.com",
-          },
-        ]
-      `);
+      [
+        {
+          "domainName": "api.example.com",
+        },
+      ]
+    `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "ChangeBatch": Object {
-            "Changes": Array [
-              Object {
+      [
+        {
+          "ChangeBatch": {
+            "Changes": [
+              {
                 "Action": "DELETE",
-                "ResourceRecordSet": Object {
-                  "AliasTarget": Object {
+                "ResourceRecordSet": {
+                  "AliasTarget": {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
                     "HostedZoneId": "Z111111QQQQQQQ",
@@ -997,12 +997,12 @@ describe('domain delete-record', () => {
       ]
     `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "Id": "1234567890",
-          },
-        ]
-      `);
+      [
+        {
+          "Id": "1234567890",
+        },
+      ]
+    `);
   });
 
   it('should not delete a route53 record, when not confirmed', async () => {
@@ -1041,12 +1041,12 @@ describe('domain delete-record', () => {
     expect(changeResourceRecordSets).not.toHaveBeenCalled();
     expect(getChange).not.toHaveBeenCalled();
     expect(getDomainName.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "domainName": "api.example.com",
-          },
-        ]
-      `);
+      [
+        {
+          "domainName": "api.example.com",
+        },
+      ]
+    `);
   });
 
   it('should delete a route53 record, skipping confirmation when the yes flag is passed', async () => {
@@ -1086,21 +1086,21 @@ describe('domain delete-record', () => {
     expect(changeResourceRecordSets).toHaveBeenCalledTimes(1);
     expect(getChange).toHaveBeenCalledTimes(1);
     expect(getDomainName.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "domainName": "api.example.com",
-          },
-        ]
-      `);
+      [
+        {
+          "domainName": "api.example.com",
+        },
+      ]
+    `);
     expect(changeResourceRecordSets.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "ChangeBatch": Object {
-            "Changes": Array [
-              Object {
+      [
+        {
+          "ChangeBatch": {
+            "Changes": [
+              {
                 "Action": "DELETE",
-                "ResourceRecordSet": Object {
-                  "AliasTarget": Object {
+                "ResourceRecordSet": {
+                  "AliasTarget": {
                     "DNSName": "qbcdefghij.cloudfront.net",
                     "EvaluateTargetHealth": false,
                     "HostedZoneId": "Z111111QQQQQQQ",
@@ -1116,12 +1116,12 @@ describe('domain delete-record', () => {
       ]
     `);
     expect(getChange.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "Id": "1234567890",
-          },
-        ]
-      `);
+      [
+        {
+          "Id": "1234567890",
+        },
+      ]
+    `);
   });
 
   it('should handle changeResourceRecordSets errors', async () => {
