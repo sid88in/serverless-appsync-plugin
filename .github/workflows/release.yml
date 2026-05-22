@@ -2,25 +2,66 @@ name: Release
 
 on:
   push:
-    branches:
-      - master
-      - alpha
+    tags:
+      - 'v*.*.*'
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 22
+          registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
         run: npm ci
-      - name: Release
+      - name: Run tests
+        run: npm run test
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Setting package.json version to $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+      - name: Publish to npm
+        run: npm publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log "$PREV_TAG..${GITHUB_REF_NAME}" --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          {
+            echo "changelog<<__END__"
+            echo "$COMMITS"
+            echo "__END__"
+          } >> "$GITHUB_OUTPUT"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            **Full Changelog**: https://github.com/sid88in/serverless-appsync-plugin/compare/${{ github.ref_name }}
+          draft: false
+          prerelease: false
