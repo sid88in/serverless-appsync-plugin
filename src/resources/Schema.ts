@@ -63,7 +63,9 @@ export class Schema {
     const schemaFiles = flatten(
       globby.sync(
         this.schemas.map((schema) =>
-          path.join(this.api.plugin.serverless.config.servicePath, schema),
+          path
+            .join(this.api.plugin.serverless.config.servicePath, schema)
+            .replace(/\\/g, '/'),
         ),
       ),
     );

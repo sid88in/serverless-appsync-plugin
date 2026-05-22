@@ -722,7 +722,7 @@ describe('Resolvers', () => {
       `);
     });
 
-    it('should generate Pipeline Function Resources with VTL mapping tempaltes', () => {
+    it('should generate Pipeline Function Resources with VTL mapping templates', () => {
       const api = new Api(
         given.appSyncConfig({
           dataSources: {
