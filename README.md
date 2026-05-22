@@ -1,4 +1,17 @@
-[![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![npm version](https://img.shields.io/npm/v/serverless-appsync-plugin?color=cb3837&label=npm&logo=npm)](https://www.npmjs.com/package/serverless-appsync-plugin)
+
+[![npm downloads (weekly)](https://img.shields.io/npm/dw/serverless-appsync-plugin?label=downloads%2Fweek&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
+
+[![npm downloads (year)](https://img.shields.io/npm/dy/serverless-appsync-plugin?label=downloads%2Fyear&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
+
+[![license](https://img.shields.io/npm/l/serverless-appsync-plugin?color=green)](https://github.com/sid88in/serverless-appsync-plugin/blob/master/LICENSE)
+
+[![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests)
+
+[![GitHub stars](https://img.shields.io/github/stars/sid88in/serverless-appsync-plugin?style=social)](https://github.com/sid88in/serverless-appsync-plugin/stargazers)
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-69-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
@@ -7,9 +20,27 @@ Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Se
 
 Contact me @[linkedin](https://www.linkedin.com/in/sid88in/)
 
-### Adoption **8M+ total downloads** on npm (see npm totals and charts below):
-  - https://www.npmjs.com/package/serverless-appsync-plugin
-  - https://npm-stat.com/charts.html?package=serverless-appsync-plugin&from=2018-01-27&to=2025-12-31
+## 📈 Adoption
+
+**9.2M+ total downloads since Jan 2018**
+
+<p align="center">
+  <a href="https://npm.chart.dev/serverless-appsync-plugin">
+    <img
+      src="https://nodei.co/npm/serverless-appsync-plugin.svg?downloads=true&downloadRank=true&stars=true"
+      alt="serverless-appsync-plugin — npm download stats"
+    />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Interactive charts</strong> (weekly trends, year-by-year since 2018):
+  <a href="https://npm.chart.dev/serverless-appsync-plugin">npm.chart.dev ↗</a>
+  ·
+  <a href="https://npm-stat.com/charts.html?package=serverless-appsync-plugin&from=2018-01-27">npm-stat (from Jan 2018) ↗</a>
+  ·
+  <a href="https://www.npmjs.com/package/serverless-appsync-plugin">npmjs.com ↗</a>
+</p>
 
 # Minimum requirements
 
