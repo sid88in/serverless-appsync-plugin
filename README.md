@@ -13,7 +13,7 @@ Contact me @[linkedin](https://www.linkedin.com/in/sid88in/)
 
 # Minimum requirements
 
-- [Node.js v16 or higher](https://nodejs.org)
+- [Node.js v20 or higher](https://nodejs.org)
 - [Serverless v3.0.0 or higher](https://github.com/serverless/serverless)
 
 # Installation
