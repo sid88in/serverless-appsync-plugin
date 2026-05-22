@@ -2,8 +2,6 @@
 
 [![npm downloads (weekly)](https://img.shields.io/npm/dw/serverless-appsync-plugin?label=downloads%2Fweek&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
 
-[![npm downloads (total)](https://img.shields.io/npm/dt/serverless-appsync-plugin?label=total%20downloads&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
-
 [![npm downloads (year)](https://img.shields.io/npm/dy/serverless-appsync-plugin?label=downloads%2Fyear&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
 
 [![license](https://img.shields.io/npm/l/serverless-appsync-plugin?color=green)](https://github.com/sid88in/serverless-appsync-plugin/blob/master/LICENSE)
@@ -24,7 +22,7 @@ Contact me @[linkedin](https://www.linkedin.com/in/sid88in/)
 
 ## 📈 Adoption
 
-**9.2M+ total downloads since Jan 2018** (curated; npm’s registry API only exposes shorter windows for live badges).
+**9.2M+ total downloads since Jan 2018**
 
 <p align="center">
   <a href="https://npm.chart.dev/serverless-appsync-plugin">
