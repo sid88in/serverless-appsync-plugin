@@ -11,9 +11,9 @@ describe('variable', () => {
         resolveVariable: () => '',
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "value": Object {
-          "Fn::GetAtt": Array [
+      {
+        "value": {
+          "Fn::GetAtt": [
             "GraphQlApi",
             "ApiId",
           ],
@@ -30,9 +30,9 @@ describe('variable', () => {
         resolveVariable: () => '',
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "value": Object {
-          "Fn::GetAtt": Array [
+      {
+        "value": {
+          "Fn::GetAtt": [
             "GraphQlApi",
             "GraphQLUrl",
           ],
@@ -49,9 +49,9 @@ describe('variable', () => {
         resolveVariable: () => '',
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "value": Object {
-          "Fn::GetAtt": Array [
+      {
+        "value": {
+          "Fn::GetAtt": [
             "GraphQlApi",
             "Arn",
           ],
@@ -68,9 +68,9 @@ describe('variable', () => {
         resolveVariable: () => '',
       }),
     ).toMatchInlineSnapshot(`
-      Object {
-        "value": Object {
-          "Fn::GetAtt": Array [
+      {
+        "value": {
+          "Fn::GetAtt": [
             "GraphQlApifoo",
             "ApiKey",
           ],

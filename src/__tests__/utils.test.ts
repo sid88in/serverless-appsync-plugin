@@ -6,7 +6,7 @@ import {
 } from '../utils';
 
 beforeAll(() => {
-  jest.useFakeTimers('modern');
+  jest.useFakeTimers();
   jest.setSystemTime(new Date('2020-01-01T17:00:00+00:00'));
 });
 
@@ -21,7 +21,7 @@ describe('parseDuration', () => {
   });
 
   it('should throw on invalid duration', () => {
-    expect(() => parseDuration('foo')).toThrowError();
+    expect(() => parseDuration('foo')).toThrow();
   });
 
   it('should auto-fix 1y durations to 365 days', () => {

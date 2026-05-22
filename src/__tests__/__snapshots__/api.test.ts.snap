@@ -1,16 +1,16 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Api compileEndpoint should compile the Api Resource with embedded additional authorizer Lambda function 1`] = `
-Object {
-  "GraphQlApi": Object {
-    "Properties": Object {
-      "AdditionalAuthenticationProviders": Array [
-        Object {
+{
+  "GraphQlApi": {
+    "Properties": {
+      "AdditionalAuthenticationProviders": [
+        {
           "AuthenticationType": "AWS_LAMBDA",
-          "LambdaAuthorizerConfig": Object {
+          "LambdaAuthorizerConfig": {
             "AuthorizerResultTtlInSeconds": undefined,
-            "AuthorizerUri": Object {
-              "Fn::GetAtt": Array [
+            "AuthorizerUri": {
+              "Fn::GetAtt": [
                 "MyApiAuthorizerLambdaFunction",
                 "Arn",
               ],
@@ -22,8 +22,8 @@ Object {
       "AuthenticationType": "API_KEY",
       "EnvironmentVariables": undefined,
       "Name": "MyApi",
-      "Tags": Array [
-        Object {
+      "Tags": [
+        {
           "Key": "stage",
           "Value": "Dev",
         },
@@ -36,23 +36,23 @@ Object {
 `;
 
 exports[`Api compileEndpoint should compile the Api Resource with embedded additional authorizer Lambda function 2`] = `
-Object {
-  "MyApiAuthorizer": Object {
+{
+  "MyApiAuthorizer": {
     "handler": "index.handler",
   },
 }
 `;
 
 exports[`Api compileEndpoint should compile the Api Resource with embedded authorizer Lambda function 1`] = `
-Object {
-  "GraphQlApi": Object {
-    "Properties": Object {
+{
+  "GraphQlApi": {
+    "Properties": {
       "AuthenticationType": "AWS_LAMBDA",
       "EnvironmentVariables": undefined,
-      "LambdaAuthorizerConfig": Object {
+      "LambdaAuthorizerConfig": {
         "AuthorizerResultTtlInSeconds": undefined,
-        "AuthorizerUri": Object {
-          "Fn::GetAtt": Array [
+        "AuthorizerUri": {
+          "Fn::GetAtt": [
             "MyApiAuthorizerLambdaFunction",
             "Arn",
           ],
@@ -60,8 +60,8 @@ Object {
         "IdentityValidationExpression": undefined,
       },
       "Name": "MyApi",
-      "Tags": Array [
-        Object {
+      "Tags": [
+        {
           "Key": "stage",
           "Value": "Dev",
         },
@@ -74,23 +74,23 @@ Object {
 `;
 
 exports[`Api compileEndpoint should compile the Api Resource with embedded authorizer Lambda function 2`] = `
-Object {
-  "MyApiAuthorizer": Object {
+{
+  "MyApiAuthorizer": {
     "handler": "index.handler",
   },
 }
 `;
 
 exports[`Domains should generate domain resources 1`] = `
-Object {
-  "GraphQlDomainAssociation": Object {
+{
+  "GraphQlDomainAssociation": {
     "DeletionPolicy": "Delete",
-    "DependsOn": Array [
+    "DependsOn": [
       "GraphQlDomainName",
     ],
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
+    "Properties": {
+      "ApiId": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "ApiId",
         ],
@@ -99,12 +99,12 @@ Object {
     },
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
-  "GraphQlDomainCertificate": Object {
+  "GraphQlDomainCertificate": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
+    "Properties": {
       "DomainName": "api.example.com",
-      "DomainValidationOptions": Array [
-        Object {
+      "DomainValidationOptions": [
+        {
           "DomainName": "api.example.com",
           "HostedZoneId": "Z111111QQQQQQQ",
         },
@@ -113,29 +113,29 @@ Object {
     },
     "Type": "AWS::CertificateManager::Certificate",
   },
-  "GraphQlDomainName": Object {
+  "GraphQlDomainName": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
-      "CertificateArn": Object {
+    "Properties": {
+      "CertificateArn": {
         "Ref": "GraphQlDomainCertificate",
       },
       "DomainName": "api.example.com",
     },
     "Type": "AWS::AppSync::DomainName",
   },
-  "GraphQlDomainRoute53Record": Object {
+  "GraphQlDomainRoute53Record": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
-      "AliasTarget": Object {
-        "DNSName": Object {
-          "Fn::GetAtt": Array [
+    "Properties": {
+      "AliasTarget": {
+        "DNSName": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
         "EvaluateTargetHealth": false,
-        "HostedZoneId": Object {
-          "Fn::GetAtt": Array [
+        "HostedZoneId": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "HostedZoneId",
           ],
@@ -151,15 +151,15 @@ Object {
 `;
 
 exports[`Domains should generate domain resources with custom certificate ARN 1`] = `
-Object {
-  "GraphQlDomainAssociation": Object {
+{
+  "GraphQlDomainAssociation": {
     "DeletionPolicy": "Delete",
-    "DependsOn": Array [
+    "DependsOn": [
       "GraphQlDomainName",
     ],
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
+    "Properties": {
+      "ApiId": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "ApiId",
         ],
@@ -168,27 +168,27 @@ Object {
     },
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
-  "GraphQlDomainName": Object {
+  "GraphQlDomainName": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
+    "Properties": {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "api.example.com",
     },
     "Type": "AWS::AppSync::DomainName",
   },
-  "GraphQlDomainRoute53Record": Object {
+  "GraphQlDomainRoute53Record": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
-      "AliasTarget": Object {
-        "DNSName": Object {
-          "Fn::GetAtt": Array [
+    "Properties": {
+      "AliasTarget": {
+        "DNSName": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
         "EvaluateTargetHealth": false,
-        "HostedZoneId": Object {
-          "Fn::GetAtt": Array [
+        "HostedZoneId": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "HostedZoneId",
           ],
@@ -204,15 +204,15 @@ Object {
 `;
 
 exports[`Domains should generate domain resources with custom hostedZoneId 1`] = `
-Object {
-  "GraphQlDomainAssociation": Object {
+{
+  "GraphQlDomainAssociation": {
     "DeletionPolicy": "Delete",
-    "DependsOn": Array [
+    "DependsOn": [
       "GraphQlDomainName",
     ],
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
+    "Properties": {
+      "ApiId": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "ApiId",
         ],
@@ -221,27 +221,27 @@ Object {
     },
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
-  "GraphQlDomainName": Object {
+  "GraphQlDomainName": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
+    "Properties": {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "api.example.com",
     },
     "Type": "AWS::AppSync::DomainName",
   },
-  "GraphQlDomainRoute53Record": Object {
+  "GraphQlDomainRoute53Record": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
-      "AliasTarget": Object {
-        "DNSName": Object {
-          "Fn::GetAtt": Array [
+    "Properties": {
+      "AliasTarget": {
+        "DNSName": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
         "EvaluateTargetHealth": false,
-        "HostedZoneId": Object {
-          "Fn::GetAtt": Array [
+        "HostedZoneId": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "HostedZoneId",
           ],
@@ -257,15 +257,15 @@ Object {
 `;
 
 exports[`Domains should generate domain resources with custom hostedZoneName 1`] = `
-Object {
-  "GraphQlDomainAssociation": Object {
+{
+  "GraphQlDomainAssociation": {
     "DeletionPolicy": "Delete",
-    "DependsOn": Array [
+    "DependsOn": [
       "GraphQlDomainName",
     ],
-    "Properties": Object {
-      "ApiId": Object {
-        "Fn::GetAtt": Array [
+    "Properties": {
+      "ApiId": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "ApiId",
         ],
@@ -274,27 +274,27 @@ Object {
     },
     "Type": "AWS::AppSync::DomainNameApiAssociation",
   },
-  "GraphQlDomainName": Object {
+  "GraphQlDomainName": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
+    "Properties": {
       "CertificateArn": "arn:aws:acm:us-east-1:1234567890:certificate/e4b6e9be-1aa7-458d-880e-069622e5be52",
       "DomainName": "foo.api.example.com",
     },
     "Type": "AWS::AppSync::DomainName",
   },
-  "GraphQlDomainRoute53Record": Object {
+  "GraphQlDomainRoute53Record": {
     "DeletionPolicy": "Delete",
-    "Properties": Object {
-      "AliasTarget": Object {
-        "DNSName": Object {
-          "Fn::GetAtt": Array [
+    "Properties": {
+      "AliasTarget": {
+        "DNSName": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "AppSyncDomainName",
           ],
         },
         "EvaluateTargetHealth": false,
-        "HostedZoneId": Object {
-          "Fn::GetAtt": Array [
+        "HostedZoneId": {
+          "Fn::GetAtt": [
             "GraphQlDomainName",
             "HostedZoneId",
           ],

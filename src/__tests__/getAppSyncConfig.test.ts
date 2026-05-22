@@ -56,15 +56,15 @@ describe('Api Keys', () => {
         ],
       }).apiKeys,
     ).toMatchInlineSnapshot(`
-      Object {
-        "InlineKey": Object {
+      {
+        "InlineKey": {
           "name": "InlineKey",
         },
-        "Jane": Object {
+        "Jane": {
           "expiresAfter": "1y",
           "name": "Jane",
         },
-        "John": Object {
+        "John": {
           "description": "John's key",
           "expiresAt": "2021-03-09T16:00:00+00:00",
           "name": "John",

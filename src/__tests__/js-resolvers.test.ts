@@ -37,26 +37,26 @@ describe('Mapping Templates', () => {
        const unknonw = '#unknown#'`;
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      Object {
-        "Fn::Join": Array [
+      {
+        "Fn::Join": [
           "",
-          Array [
+          [
             "const foo = '",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${foo}",
-                Object {
+                {
                   "foo": "bar",
                 },
               ],
             },
             "';
              const var = '",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${var}",
-                Object {
-                  "var": Object {
+                {
+                  "var": {
                     "Ref": "MyReference",
                   },
                 },
@@ -90,25 +90,25 @@ describe('Mapping Templates', () => {
     const var = '#var#';`;
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      Object {
-        "Fn::Join": Array [
+      {
+        "Fn::Join": [
           "",
-          Array [
+          [
             "const foo = '",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${foo}",
-                Object {
+                {
                   "foo": "fuzz",
                 },
               ],
             },
             "';
           const var = '",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${var}",
-                Object {
+                {
                   "var": "bizz",
                 },
               ],
