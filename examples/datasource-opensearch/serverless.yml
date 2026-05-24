@@ -1,0 +1,43 @@
+service: appsync-datasource-opensearch
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: datasource-opensearch
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.search:
+      kind: UNIT
+      dataSource: search
+
+  dataSources:
+    search:
+      type: AMAZON_OPENSEARCH_SERVICE
+      description: Search index
+      config:
+        endpoint: !GetAtt SearchDomain.DomainEndpoint
+        domain: SearchDomain
+
+resources:
+  Resources:
+    SearchDomain:
+      Type: AWS::OpenSearchService::Domain
+      Properties:
+        DomainName: ${self:service}-${sls:stage}
+        EngineVersion: OpenSearch_2.11
+        ClusterConfig:
+          InstanceType: t3.small.search
+          InstanceCount: 1
+        EBSOptions:
+          EBSEnabled: true
+          VolumeType: gp3
+          VolumeSize: 10

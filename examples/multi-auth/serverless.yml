@@ -1,0 +1,41 @@
+service: appsync-multi-auth
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: multi-auth
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+      description: Default API key
+  additionalAuthentications:
+    - type: AMAZON_COGNITO_USER_POOLS
+      config:
+        userPoolId: !Ref CognitoUserPool
+        awsRegion: us-east-1
+    - type: AWS_IAM
+    - type: OPENID_CONNECT
+      config:
+        issuer: https://example.auth0.com/
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE
+
+resources:
+  Resources:
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-${sls:stage}-pool

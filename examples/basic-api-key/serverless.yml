@@ -1,0 +1,44 @@
+service: appsync-basic-api-key
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: basic-api-key
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+      description: Default API key
+      expiresAfter: 365d
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: users
+      code: ./resolvers/getUser.js
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      description: Users table
+      config:
+        tableName: !Ref UsersTable
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

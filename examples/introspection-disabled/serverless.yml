@@ -1,0 +1,31 @@
+service: appsync-introspection-disabled
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: introspection-disabled
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  # Hardening for production APIs: disable schema introspection so
+  # the schema isn't queryable by anonymous clients, and cap query
+  # depth + resolver count to prevent resource-exhaustion DoS.
+  introspection: false
+  queryDepthLimit: 10
+  resolverCountLimit: 50
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

@@ -1,0 +1,45 @@
+service: appsync-waf
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: waf-protected
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  waf:
+    enabled: true
+    name: AppSyncWaf
+    defaultAction: Allow
+    description: WAF rules for the GraphQL API
+    rules:
+      - throttle: 200
+      - disableIntrospection
+      - name: BlockBadBots
+        action: Block
+        statement:
+          ByteMatchStatement:
+            FieldToMatch:
+              SingleHeader:
+                Name: user-agent
+            PositionalConstraint: CONTAINS
+            SearchString: BadBot
+            TextTransformations:
+              - Priority: 0
+                Type: LOWERCASE
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

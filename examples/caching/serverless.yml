@@ -1,0 +1,52 @@
+service: appsync-caching
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: caching-enabled
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  caching:
+    behavior: PER_RESOLVER_CACHING
+    type: SMALL
+    ttl: 600
+    atRestEncryption: true
+    transitEncryption: true
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: users
+      caching:
+        ttl: 60
+        keys:
+          - '$context.identity.username'
+          - '$context.arguments.id'
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

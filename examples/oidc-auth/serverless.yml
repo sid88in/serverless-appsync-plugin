@@ -1,0 +1,27 @@
+service: appsync-oidc-auth
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: oidc-auth
+  authentication:
+    type: OPENID_CONNECT
+    config:
+      issuer: https://example.auth0.com/
+      clientId: my-client-id
+      iatTTL: 3600
+      authTTL: 3600
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

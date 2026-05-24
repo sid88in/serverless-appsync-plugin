@@ -1,0 +1,30 @@
+service: appsync-datasource-none
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# NONE data sources are useful for local resolvers (e.g. data transformations,
+# subscription publishing, or stitching results from other resolvers in a
+# PIPELINE) where no AWS service call is needed.
+
+appSync:
+  name: datasource-none
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Mutation.publishMessage:
+      kind: UNIT
+      dataSource: noop
+      code: ./resolvers/publishMessage.js
+
+  dataSources:
+    noop:
+      type: NONE
+      description: Pass-through data source for subscription publishing

@@ -1,0 +1,57 @@
+service: appsync-lambda-resolvers-js
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+functions:
+  createUser:
+    handler: functions/createUser.handler
+
+appSync:
+  name: lambda-resolvers-js
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: users_table
+      code: ./resolvers/getUser.js
+    Mutation.createUser:
+      kind: UNIT
+      dataSource: createUser_lambda
+    Query.listUsers:
+      kind: UNIT
+      dataSource: users_table
+      code: ./resolvers/listUsers.js
+
+  dataSources:
+    users_table:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+    createUser_lambda:
+      type: AWS_LAMBDA
+      config:
+        function:
+          handler: functions/createUser.handler
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

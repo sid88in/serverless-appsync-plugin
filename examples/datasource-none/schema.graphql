@@ -1,0 +1,17 @@
+type Message {
+  id: ID!
+  text: String!
+}
+
+type Mutation {
+  publishMessage(text: String!): Message
+}
+
+type Subscription {
+  onMessagePublished: Message
+    @aws_subscribe(mutations: ["publishMessage"])
+}
+
+type Query {
+  _empty: String
+}

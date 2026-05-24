@@ -1,0 +1,44 @@
+service: appsync-datasource-http
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: datasource-http
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getWeather:
+      kind: UNIT
+      dataSource: weather_api
+
+  dataSources:
+    weather_api:
+      type: HTTP
+      description: External weather API
+      config:
+        endpoint: https://api.weather.example.com
+    signed_api:
+      type: HTTP
+      description: AWS API Gateway with IAM signing
+      config:
+        endpoint:
+          Fn::Sub: 'https://${AWS::Region}.execute-api.${AWS::Region}.amazonaws.com'
+        authorizationConfig:
+          authorizationType: AWS_IAM
+          awsIamConfig:
+            signingRegion: us-east-1
+            signingServiceName: execute-api
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - execute-api:Invoke
+            Resource:
+              - '*'

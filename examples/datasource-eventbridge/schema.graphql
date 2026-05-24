@@ -1,0 +1,11 @@
+type EventResult {
+  success: Boolean!
+}
+
+type Mutation {
+  publishEvent(name: String!, detail: String): EventResult
+}
+
+type Query {
+  _empty: String
+}

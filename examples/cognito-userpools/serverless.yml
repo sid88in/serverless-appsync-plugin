@@ -1,0 +1,51 @@
+service: appsync-cognito-userpools
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: cognito-userpools
+  authentication:
+    type: AMAZON_COGNITO_USER_POOLS
+    config:
+      userPoolId: !Ref CognitoUserPool
+      awsRegion: us-east-1
+      defaultAction: ALLOW
+
+  resolvers:
+    Query.me:
+      kind: UNIT
+      dataSource: users
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+
+resources:
+  Resources:
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-${sls:stage}-pool
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        UserPoolId: !Ref CognitoUserPool
+        ClientName: ${self:service}-${sls:stage}-client
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
