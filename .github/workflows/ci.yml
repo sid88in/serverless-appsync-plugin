@@ -17,11 +17,11 @@ jobs:
       matrix:
         node: [20, 22, 24, 26]
     steps:
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: npm ci
       - name: Lint
@@ -49,8 +49,8 @@ jobs:
     needs: tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+        uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install dependencies

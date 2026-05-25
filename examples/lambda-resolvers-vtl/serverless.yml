@@ -2,7 +2,7 @@ service: appsync-lambda-resolvers-vtl
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs22.x
 
 plugins:
   - serverless-appsync-plugin

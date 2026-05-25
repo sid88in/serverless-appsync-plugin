@@ -1,4 +1,5 @@
 import { CfnResource, CfnTemplate } from './synthesize';
+import type { AuthenticationType } from '../../src/types/common';
 
 /**
  * Find all resources of a given CloudFormation type.
@@ -96,12 +97,7 @@ function matchesProperties(actual: unknown, expected: unknown): boolean {
  */
 export function expectAuthenticationType(
   template: CfnTemplate,
-  type:
-    | 'API_KEY'
-    | 'AWS_IAM'
-    | 'AMAZON_COGNITO_USER_POOLS'
-    | 'OPENID_CONNECT'
-    | 'AWS_LAMBDA',
+  type: AuthenticationType,
 ): void {
   const { resource } = findOneResourceByType(
     template,
