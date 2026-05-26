@@ -1,0 +1,27 @@
+service: appsync-visibility-private
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: visibility-private
+  authentication:
+    type: AWS_IAM
+
+  # PRIVATE visibility makes the API reachable only from VPC endpoints,
+  # not from the public internet. Used for internal APIs that need to
+  # be accessible from inside a VPC but never directly from the internet.
+  visibility: PRIVATE
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

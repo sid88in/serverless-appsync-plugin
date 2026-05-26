@@ -1,0 +1,9 @@
+type Order {
+  id: ID!
+  customerId: ID!
+  total: Float!
+}
+
+type Query {
+  listOrders: [Order!]!
+}

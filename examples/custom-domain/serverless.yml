@@ -1,0 +1,34 @@
+service: appsync-custom-domain
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: custom-domain
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  # Custom domain managed by CloudFormation. Requires a pre-existing
+  # ACM certificate and Route 53 hosted zone.
+  domain:
+    name: api.example.com
+    useCloudFormation: true
+    certificateArn:
+      Fn::Sub: 'arn:${AWS::Partition}:acm:us-east-1:${AWS::AccountId}:certificate/abc-123'
+    hostedZoneId: Z1234567890ABC
+    retain: false
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

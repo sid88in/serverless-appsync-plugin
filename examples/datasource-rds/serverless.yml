@@ -1,0 +1,31 @@
+service: appsync-datasource-rds
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: datasource-rds
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.listOrders:
+      kind: UNIT
+      dataSource: orders_db
+
+  dataSources:
+    orders_db:
+      type: RELATIONAL_DATABASE
+      description: Aurora Serverless v1 (Data API)
+      config:
+        databaseName: orders
+        dbClusterIdentifier:
+          Fn::Sub: 'arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:cluster:ordersdb'
+        awsSecretStoreArn:
+          Fn::Sub: 'arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:OrdersDbCredentials'

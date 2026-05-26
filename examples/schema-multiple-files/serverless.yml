@@ -1,0 +1,34 @@
+service: appsync-schema-multiple-files
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# Schema can be split across multiple .graphql files using a glob pattern.
+# The plugin concatenates them at synthesis time, preserving each file's
+# definitions. This is the recommended pattern for any schema bigger than
+# ~100 lines.
+
+appSync:
+  name: schema-multiple-files
+  schema:
+    - 'schemas/*.graphql'
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: none_ds
+    Query.getPost:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

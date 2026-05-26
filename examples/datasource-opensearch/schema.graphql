@@ -1,0 +1,8 @@
+type SearchResult {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  search(query: String!): [SearchResult!]!
+}

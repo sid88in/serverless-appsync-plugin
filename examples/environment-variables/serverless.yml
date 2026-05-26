@@ -1,0 +1,33 @@
+service: appsync-environment-variables
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: environment-variables
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  # Environment variables are exposed to JS resolvers at runtime via
+  # `ctx.env.<NAME>`. Useful for parameterizing resolver behavior per
+  # stage without committing values to resolver code.
+  environment:
+    LOG_LEVEL: info
+    FEATURE_FLAG_NEW_AUTH: 'true'
+    EXTERNAL_API_URL: https://api.example.com
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: none_ds
+      code: ./resolvers/getUser.js
+
+  dataSources:
+    none_ds:
+      type: NONE

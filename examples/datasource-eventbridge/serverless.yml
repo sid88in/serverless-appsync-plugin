@@ -1,0 +1,28 @@
+service: appsync-datasource-eventbridge
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: datasource-eventbridge
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Mutation.publishEvent:
+      kind: UNIT
+      dataSource: event_bus
+
+  dataSources:
+    event_bus:
+      type: AMAZON_EVENTBRIDGE
+      description: Publishes events to the default EventBridge bus
+      config:
+        eventBusArn:
+          Fn::Sub: 'arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:event-bus/default'

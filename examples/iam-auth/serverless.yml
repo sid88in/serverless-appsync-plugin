@@ -1,0 +1,22 @@
+service: appsync-iam-auth
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: iam-auth
+  authentication:
+    type: AWS_IAM
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE
