@@ -12,8 +12,6 @@
   "scripts": {
     "test": "jest src/__tests__/.*\\.test\\.ts",
     "test:watch": "jest src/__tests__/.*\\.test\\.ts --watch",
-    "test:e2e": "npm run build && jest --config jest.e2e.config.ts",
-    "test:all": "npm run test && npm run test:e2e",
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
@@ -21,12 +19,12 @@
   },
   "engines": {
     "node": ">=20.0.0",
-    "npm": ">=8.0.0"
+    "npm": ">=10.0.0"
   },
   "devDependencies": {
-    "@serverless/test": "^11.1.1",
+    "@serverless/test": "^9.0.0",
     "@serverless/typescript": "^2.71.0",
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^27.5.2",
     "@types/luxon": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -35,32 +33,30 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "fast-check": "^3.23.2",
     "husky": "^9.1.7",
-    "jest": "^30.4.2",
+    "jest": "^27.5.1",
     "lint-staged": "^16.2.3",
     "prettier": "^2.8.0",
-    "semantic-release": "^25.0.3",
+    "semantic-release": "^19.0.5",
     "serverless": "^3.25.1",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^27.1.5",
     "ts-node": "^10.9.1",
-    "typescript": "~4.9.5"
-  },
-  "overrides": {
-    "cosmiconfig": {
-      "typescript": "~4.9.5"
-    },
-    "ajv-merge-patch": {
-      "fast-json-patch": "3.1.1"
-    }
+    "typescript": "^4.9.3"
   },
   "dependencies": {
+    "@aws-sdk/client-acm": "3.1039.0",
+    "@aws-sdk/client-appsync": "3.1039.0",
+    "@aws-sdk/client-cloudformation": "3.1039.0",
+    "@aws-sdk/client-cloudwatch-logs": "3.1039.0",
+    "@aws-sdk/client-route-53": "3.1039.0",
+    "@aws-sdk/credential-providers": "3.1039.0",
     "@graphql-tools/merge": "^8.3.12",
     "@serverless/utils": "^6.8.2",
     "ajv": "^8.11.2",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
     "ajv-merge-patch": "^5.0.1",
-    "aws-sdk": "^2.1265.0",
     "chalk": "^4.1.2",
     "esbuild": "^0.17.11",
     "globby": "^11.1.0",
