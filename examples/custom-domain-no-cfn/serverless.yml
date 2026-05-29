@@ -1,0 +1,44 @@
+service: appsync-custom-domain-no-cfn
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# When useCloudFormation is false, the plugin does NOT create
+# AWS::AppSync::DomainName, AWS::AppSync::DomainNameApiAssociation,
+# or AWS::Route53::RecordSet resources. Domain lifecycle (creation,
+# certificate validation, Route53 record) is managed outside the
+# stack — typically via the plugin's CLI commands:
+#
+#   sls appsync domain create-domain
+#   sls appsync domain associate-api
+#   sls appsync domain create-record
+#
+# This is the right choice when the domain is shared across stacks,
+# managed by a separate team, or needs to outlive any single deploy.
+
+appSync:
+  name: custom-domain-no-cfn
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  domain:
+    name: api.example.com
+    useCloudFormation: false
+    certificateArn:
+      Fn::Sub: 'arn:${AWS::Partition}:acm:us-east-1:${AWS::AccountId}:certificate/abc-123'
+    hostedZoneId: Z1234567890ABC
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

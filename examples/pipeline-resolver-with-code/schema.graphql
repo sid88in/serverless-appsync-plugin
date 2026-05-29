@@ -1,0 +1,15 @@
+type User {
+  id: ID!
+  name: String!
+  profile: Profile
+}
+
+type Profile {
+  userId: ID!
+  bio: String
+  avatar: String
+}
+
+type Query {
+  getUserDetails(id: ID!): User
+}
