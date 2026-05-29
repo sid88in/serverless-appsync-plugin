@@ -1,0 +1,94 @@
+# CodeRabbit configuration for serverless-appsync-plugin
+# Reference: https://docs.coderabbit.ai
+# Inspect the live, parsed config on any PR with: @coderabbitai configuration
+language: en-US
+
+reviews:
+  # Start conservative: surface bugs, security, and CFN/logic-correctness
+  # issues; stay quiet on style (ESLint + Prettier already enforce that in CI).
+  # Revisit "assertive" after a few weeks if the team wants broader feedback.
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  changed_files_summary: true
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    incremental_reviews: true
+
+  # Project-wide guidance. The biggest noise-reducer is telling CodeRabbit what
+  # NOT to repeat — formatting/style is already handled by Prettier + ESLint.
+  instructions: |
+    This is a TypeScript plugin for the Serverless Framework that compiles an
+    `appSync` config block into AWS AppSync CloudFormation. Prioritise, in order:
+      1. Correctness of the generated CloudFormation — valid resource shapes,
+         Ref/Fn::GetAtt that resolve, no missing or duplicated logical IDs.
+      2. AWS AppSync semantics — auth modes, data sources, resolvers/pipeline
+         functions, WAF, custom domains, API keys, caching, logging.
+      3. Serverless integration — throw errors via this.serverless.classes.Error;
+         never add a runtime require of 'serverless/lib/...' (it breaks on
+         Serverless v4, see #632 — such imports must be `import type` only);
+         use the injected serverless/options/utils rather than framework internals.
+      4. Backwards compatibility of the public `appSync` config schema and of the
+         emitted CloudFormation — changes there can break users' live stacks.
+    Do NOT comment on code formatting, import ordering, or line length — Prettier
+    and ESLint enforce those in CI. Skip missing JSDoc unless a symbol is
+    exported. Prefer substantive findings over nits.
+
+  path_filters:
+    - '!lib/**'
+    - '!**/node_modules/**'
+    - '!package-lock.json'
+    - '!**/__snapshots__/**'
+    - '!**/*.snap'
+    - '!coverage/**'
+    - '!**/.serverless/**'
+    # Transient config written by the e2e synthesis harness
+    - '!examples/**/serverless.e2e.yml'
+
+  path_instructions:
+    - path: 'src/**/*.ts'
+      instructions: |
+        Plugin source. Verify the emitted CloudFormation is valid and complete,
+        AWS resource properties are correct, and errors use
+        this.serverless.classes.Error. Flag any runtime require of
+        'serverless/lib/...' (must be `import type`). Call out changes that alter
+        the public `appSync` schema or the emitted template shape — those can
+        break existing users.
+    - path: 'src/types/**'
+      instructions: |
+        Public/shared type definitions. Flag changes that narrow or remove
+        existing config options; those are breaking for consumers.
+    - path: 'src/__tests__/**/*.ts'
+      instructions: |
+        Unit tests. Check edge-case coverage (null/undefined/empty/boundary) and
+        that fakes/mocks stay isolated between tests.
+    - path: 'e2e/**/*.ts'
+      instructions: |
+        CFN-synthesis tests. Assertions should target concrete values and
+        resource shapes (not just truthiness) and be explicit about cardinality.
+    - path: 'integration/**/*.ts'
+      instructions: |
+        Real-AWS integration tests. They deploy live resources — verify they are
+        opt-in/gated and always tear down in afterAll, even on failure.
+    - path: 'examples/**'
+      instructions: |
+        Examples double as user-facing documentation and as test fixtures, so
+        they must stay deployable. Flag config a user couldn't actually deploy.
+
+  tools:
+    enabled: true
+    # ESLint already runs in CI (`npm run lint`); don't duplicate its findings.
+    eslint:
+      enabled: false
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: auto
