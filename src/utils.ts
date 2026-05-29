@@ -17,7 +17,7 @@ export const timeUnits = {
 } as const;
 
 const units = values(timeUnits);
-export type TimeUnit = (typeof units)[number];
+export type TimeUnit = typeof units[number];
 
 const isRecord = (value?: unknown): value is Record<string, unknown> => {
   return typeof value === 'object';
