@@ -36,25 +36,25 @@ describe('Mapping Templates', () => {
       'Foo: ${foo}, Var: ${var}, Context: ${ctx.args.id}, Unknonw: ${unknown}';
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      {
-        "Fn::Join": [
+      Object {
+        "Fn::Join": Array [
           "",
-          [
+          Array [
             "Foo: ",
-            {
-              "Fn::Sub": [
+            Object {
+              "Fn::Sub": Array [
                 "\${foo}",
-                {
+                Object {
                   "foo": "bar",
                 },
               ],
             },
             ", Var: ",
-            {
-              "Fn::Sub": [
+            Object {
+              "Fn::Sub": Array [
                 "\${var}",
-                {
-                  "var": {
+                Object {
+                  "var": Object {
                     "Ref": "MyReference",
                   },
                 },
@@ -86,24 +86,24 @@ describe('Mapping Templates', () => {
     const template = 'Foo: ${foo}, Var: ${var}';
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      {
-        "Fn::Join": [
+      Object {
+        "Fn::Join": Array [
           "",
-          [
+          Array [
             "Foo: ",
-            {
-              "Fn::Sub": [
+            Object {
+              "Fn::Sub": Array [
                 "\${foo}",
-                {
+                Object {
                   "foo": "fuzz",
                 },
               ],
             },
             ", Var: ",
-            {
-              "Fn::Sub": [
+            Object {
+              "Fn::Sub": Array [
                 "\${var}",
-                {
+                Object {
                   "var": "bizz",
                 },
               ],

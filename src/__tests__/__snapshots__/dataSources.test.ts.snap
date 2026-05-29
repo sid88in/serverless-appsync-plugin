@@ -1,27 +1,27 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DataSource AWS Lambda should generate Resource with default role 1`] = `
-{
-  "GraphQlDsmyFunction": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsmyFunction": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My lambda resolver",
-      "LambdaConfig": {
-        "LambdaFunctionArn": {
-          "Fn::GetAtt": [
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::GetAtt": Array [
             "MyFunctionLambdaFunction",
             "Arn",
           ],
         },
       },
       "Name": "myFunction",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsmyFunctionRole",
           "Arn",
         ],
@@ -30,17 +30,17 @@ exports[`DataSource AWS Lambda should generate Resource with default role 1`] = 
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsmyFunctionRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsmyFunctionRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -48,28 +48,28 @@ exports[`DataSource AWS Lambda should generate Resource with default role 1`] = 
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "lambda:invokeFunction",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::GetAtt": [
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "MyFunctionLambdaFunction",
                       "Arn",
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
-                        {
-                          "Fn::GetAtt": [
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
                             "MyFunctionLambdaFunction",
                             "Arn",
                           ],
@@ -93,27 +93,27 @@ exports[`DataSource AWS Lambda should generate Resource with default role 1`] = 
 `;
 
 exports[`DataSource AWS Lambda should generate Resource with embedded function 1`] = `
-{
-  "GraphQlDsmyDataSource": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsmyDataSource": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My lambda resolver",
-      "LambdaConfig": {
-        "LambdaFunctionArn": {
-          "Fn::GetAtt": [
+      "LambdaConfig": Object {
+        "LambdaFunctionArn": Object {
+          "Fn::GetAtt": Array [
             "MyDataSourceLambdaFunction",
             "Arn",
           ],
         },
       },
       "Name": "myDataSource",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsmyDataSourceRole",
           "Arn",
         ],
@@ -122,17 +122,17 @@ exports[`DataSource AWS Lambda should generate Resource with embedded function 1
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsmyDataSourceRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsmyDataSourceRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -140,28 +140,28 @@ exports[`DataSource AWS Lambda should generate Resource with embedded function 1
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "lambda:invokeFunction",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::GetAtt": [
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "MyDataSourceLambdaFunction",
                       "Arn",
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
-                        {
-                          "Fn::GetAtt": [
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
                             "MyDataSourceLambdaFunction",
                             "Arn",
                           ],
@@ -185,26 +185,26 @@ exports[`DataSource AWS Lambda should generate Resource with embedded function 1
 `;
 
 exports[`DataSource AWS Lambda should generate Resource with embedded function 2`] = `
-{
-  "myDataSource": {
+Object {
+  "myDataSource": Object {
     "handler": "index.handler",
   },
 }
 `;
 
 exports[`DataSource AWS Lambda should generate default role with custom statements 1`] = `
-{
-  "GraphQlDsmyFunctionRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDsmyFunctionRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -212,17 +212,17 @@ exports[`DataSource AWS Lambda should generate default role with custom statemen
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "lambda:invokeFunction",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
+                "Resource": Array [
+                  Object {
                     "Ref": "MyFunction",
                   },
                 ],
@@ -240,21 +240,21 @@ exports[`DataSource AWS Lambda should generate default role with custom statemen
 `;
 
 exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`] = `
-{
-  "GraphQlDsdynamo": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsdynamo": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My dynamo table",
-      "DynamoDBConfig": {
-        "AwsRegion": {
+      "DynamoDBConfig": Object {
+        "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
-        "DeltaSyncConfig": {
+        "DeltaSyncConfig": Object {
           "BaseTableTTL": 60,
           "DeltaSyncTableName": "syncTable",
           "DeltaSyncTableTTL": 120,
@@ -264,8 +264,8 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
         "Versioned": true,
       },
       "Name": "dynamo",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsdynamoRole",
           "Arn",
         ],
@@ -274,17 +274,17 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsdynamoRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsdynamoRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -292,12 +292,12 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "dynamodb:DeleteItem",
                   "dynamodb:GetItem",
                   "dynamodb:PutItem",
@@ -309,22 +309,22 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
                   "dynamodb:ConditionCheckItem",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -335,21 +335,21 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
                       ],
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -376,26 +376,26 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
 `;
 
 exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
-{
-  "GraphQlDsdynamo": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsdynamo": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My dynamo table",
-      "DynamoDBConfig": {
-        "AwsRegion": {
+      "DynamoDBConfig": Object {
+        "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
         "TableName": "data",
         "UseCallerCredentials": false,
       },
       "Name": "dynamo",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsdynamoRole",
           "Arn",
         ],
@@ -404,17 +404,17 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsdynamoRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsdynamoRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -422,12 +422,12 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "dynamodb:DeleteItem",
                   "dynamodb:GetItem",
                   "dynamodb:PutItem",
@@ -439,22 +439,22 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
                   "dynamodb:ConditionCheckItem",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -465,21 +465,21 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
                       ],
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -506,28 +506,28 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
 `;
 
 exports[`DataSource DynamoDB should generate default role with a Ref for the table name 1`] = `
-{
-  "GraphQlDsdynamo": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsdynamo": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My dynamo table",
-      "DynamoDBConfig": {
-        "AwsRegion": {
+      "DynamoDBConfig": Object {
+        "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
-        "TableName": {
+        "TableName": Object {
           "Ref": "MyTable",
         },
         "UseCallerCredentials": false,
       },
       "Name": "dynamo",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsdynamoRole",
           "Arn",
         ],
@@ -536,17 +536,17 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsdynamoRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsdynamoRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -554,12 +554,12 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "dynamodb:DeleteItem",
                   "dynamodb:GetItem",
                   "dynamodb:PutItem",
@@ -571,56 +571,56 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
                   "dynamodb:ConditionCheckItem",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
                             ],
                           ],
                         },
-                        {
+                        Object {
                           "Ref": "MyTable",
                         },
                       ],
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
                             ],
                           ],
                         },
-                        {
+                        Object {
                           "Ref": "MyTable",
                         },
                         "*",
@@ -642,24 +642,24 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
 `;
 
 exports[`DataSource DynamoDB should generate default role with custom region 1`] = `
-{
-  "GraphQlDsdynamo": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsdynamo": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My dynamo table",
-      "DynamoDBConfig": {
+      "DynamoDBConfig": Object {
         "AwsRegion": "us-east-2",
         "TableName": "data",
         "UseCallerCredentials": false,
       },
       "Name": "dynamo",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsdynamoRole",
           "Arn",
         ],
@@ -668,17 +668,17 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsdynamoRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsdynamoRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -686,12 +686,12 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "dynamodb:DeleteItem",
                   "dynamodb:GetItem",
                   "dynamodb:PutItem",
@@ -703,20 +703,20 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
                   "dynamodb:ConditionCheckItem",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
                               "us-east-2",
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -727,19 +727,19 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
                       ],
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "dynamodb",
                               "us-east-2",
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "table",
@@ -766,18 +766,18 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
 `;
 
 exports[`DataSource DynamoDB should generate default role with custom statement 1`] = `
-{
-  "GraphQlDsdynamoRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDsdynamoRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -785,16 +785,16 @@ exports[`DataSource DynamoDB should generate default role with custom statement 
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "dynamodb:GetItem",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "arn:aws:dynamodb:us-east-1:12345678:myTable",
                 ],
               },
@@ -811,22 +811,22 @@ exports[`DataSource DynamoDB should generate default role with custom statement 
 `;
 
 exports[`DataSource EventBridge should generate Resource with default role 1`] = `
-{
-  "GraphQlDseventBridge": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDseventBridge": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My eventBridge bus",
-      "EventBridgeConfig": {
+      "EventBridgeConfig": Object {
         "EventBusArn": "arn:aws:events:us-east-1:123456789012:event-bus/default",
       },
       "Name": "eventBridge",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDseventBridgeRole",
           "Arn",
         ],
@@ -835,17 +835,17 @@ exports[`DataSource EventBridge should generate Resource with default role 1`] =
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDseventBridgeRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDseventBridgeRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -853,16 +853,16 @@ exports[`DataSource EventBridge should generate Resource with default role 1`] =
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "events:PutEvents",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "arn:aws:events:us-east-1:123456789012:event-bus/default",
                 ],
               },
@@ -879,27 +879,27 @@ exports[`DataSource EventBridge should generate Resource with default role 1`] =
 `;
 
 exports[`DataSource EventBridge should generate default role with a Ref for the bus ARN 1`] = `
-{
-  "GraphQlDseventBridge": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDseventBridge": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My eventBridge bus",
-      "EventBridgeConfig": {
-        "EventBusArn": {
-          "Fn::GetAtt": [
+      "EventBridgeConfig": Object {
+        "EventBusArn": Object {
+          "Fn::GetAtt": Array [
             "MyEventBus",
             "Arn",
           ],
         },
       },
       "Name": "eventBridge",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDseventBridgeRole",
           "Arn",
         ],
@@ -908,17 +908,17 @@ exports[`DataSource EventBridge should generate default role with a Ref for the 
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDseventBridgeRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDseventBridgeRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -926,18 +926,18 @@ exports[`DataSource EventBridge should generate default role with a Ref for the 
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "events:PutEvents",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::GetAtt": [
+                "Resource": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "MyEventBus",
                       "Arn",
                     ],
@@ -957,18 +957,18 @@ exports[`DataSource EventBridge should generate default role with a Ref for the 
 `;
 
 exports[`DataSource EventBridge should generate default role with custom statement 1`] = `
-{
-  "GraphQlDseventBridgeRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDseventBridgeRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -976,16 +976,16 @@ exports[`DataSource EventBridge should generate default role with custom stateme
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "events:PutEvents",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "arn:aws:events:us-east-1:123456789012:event-bus/default",
                   "arn:aws:events:us-east-1:123456789012:event-bus/other",
                 ],
@@ -1003,21 +1003,21 @@ exports[`DataSource EventBridge should generate default role with custom stateme
 `;
 
 exports[`DataSource HTTP should generate Resource with IAM authorization config 1`] = `
-{
-  "GraphQlDsmyEndpoint": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsmyEndpoint": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My HTTP resolver",
-      "HttpConfig": {
-        "AuthorizationConfig": {
+      "HttpConfig": Object {
+        "AuthorizationConfig": Object {
           "AuthorizationType": "AWS_IAM",
-          "AwsIamConfig": {
-            "SigningRegion": {
+          "AwsIamConfig": Object {
+            "SigningRegion": Object {
               "Ref": "AWS::Region",
             },
             "SigningServiceName": "events",
@@ -1026,8 +1026,8 @@ exports[`DataSource HTTP should generate Resource with IAM authorization config 
         "Endpoint": "https://events.us-east-1.amazonaws.com/",
       },
       "Name": "myEndpoint",
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsmyEndpointRole",
           "Arn",
         ],
@@ -1036,17 +1036,17 @@ exports[`DataSource HTTP should generate Resource with IAM authorization config 
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsmyEndpointRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsmyEndpointRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1054,16 +1054,16 @@ exports[`DataSource HTTP should generate Resource with IAM authorization config 
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "events:PutEvents",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "*",
                 ],
               },
@@ -1080,18 +1080,18 @@ exports[`DataSource HTTP should generate Resource with IAM authorization config 
 `;
 
 exports[`DataSource HTTP should generate default role with custom statements 1`] = `
-{
-  "GraphQlDsmyEndpointRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDsmyEndpointRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1099,16 +1099,16 @@ exports[`DataSource HTTP should generate default role with custom statements 1`]
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "events:PutEvents",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "*",
                 ],
               },
@@ -1125,25 +1125,25 @@ exports[`DataSource HTTP should generate default role with custom statements 1`]
 `;
 
 exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
-{
-  "GraphQlDsopensearch": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsopensearch": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "OpenSearch resolver",
       "Name": "opensearch",
-      "OpenSearchServiceConfig": {
-        "AwsRegion": {
+      "OpenSearchServiceConfig": Object {
+        "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
         "Endpoint": "https://mydomain.us-east-1.es.amazonaws.com",
       },
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsopensearchRole",
           "Arn",
         ],
@@ -1152,17 +1152,17 @@ exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsopensearchRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsopensearchRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1170,12 +1170,12 @@ exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "es:ESHttpDelete",
                   "es:ESHttpGet",
                   "es:ESHttpHead",
@@ -1184,16 +1184,16 @@ exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
                   "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
+                      Array [
                         "arn",
                         "aws",
                         "es",
                         "us-east-1",
-                        {
+                        Object {
                           "Ref": "AWS::AccountId",
                         },
                         "domain/mydomain.us-east-1.es.amazonaws.com/*",
@@ -1215,28 +1215,28 @@ exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
 `;
 
 exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
-{
-  "GraphQlDsopensearch": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsopensearch": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "OpenSearch resolver",
       "Name": "opensearch",
-      "OpenSearchServiceConfig": {
-        "AwsRegion": {
+      "OpenSearchServiceConfig": Object {
+        "AwsRegion": Object {
           "Ref": "AWS::Region",
         },
-        "Endpoint": {
-          "Fn::Join": [
+        "Endpoint": Object {
+          "Fn::Join": Array [
             "",
-            [
+            Array [
               "https://",
-              {
-                "Fn::GetAtt": [
+              Object {
+                "Fn::GetAtt": Array [
                   "myDomain",
                   "DomainEndpoint",
                 ],
@@ -1245,8 +1245,8 @@ exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
           ],
         },
       },
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsopensearchRole",
           "Arn",
         ],
@@ -1255,17 +1255,17 @@ exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsopensearchRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsopensearchRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1273,12 +1273,12 @@ exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "es:ESHttpDelete",
                   "es:ESHttpGet",
                   "es:ESHttpHead",
@@ -1287,13 +1287,13 @@ exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
                   "es:ESHttpPatch",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       "/",
-                      [
-                        {
-                          "Fn::GetAtt": [
+                      Array [
+                        Object {
+                          "Fn::GetAtt": Array [
                             "myDomain",
                             "Arn",
                           ],
@@ -1317,18 +1317,18 @@ exports[`DataSource OpenSearch should generate Resource without roles 1`] = `
 `;
 
 exports[`DataSource OpenSearch should generate default role with custom statements 1`] = `
-{
-  "GraphQlDsopensearchRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDsopensearchRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1336,16 +1336,16 @@ exports[`DataSource OpenSearch should generate default role with custom statemen
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "es:ESHttpGet",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "arn:aws:es:us-east-1:12345678:domain/myDomain",
                 ],
               },
@@ -1362,18 +1362,18 @@ exports[`DataSource OpenSearch should generate default role with custom statemen
 `;
 
 exports[`DataSource Relational Databases should generate DynamoDB default role with custom statement 1`] = `
-{
-  "GraphQlDsmyDatabaseRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+Object {
+  "GraphQlDsmyDatabaseRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1381,16 +1381,16 @@ exports[`DataSource Relational Databases should generate DynamoDB default role w
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "rds-data:DeleteItems",
                 ],
                 "Effect": "Allow",
-                "Resource": [
+                "Resource": Array [
                   "arn:aws:rds:us-east-1:12345678:cluster:myCluster",
                 ],
               },
@@ -1407,37 +1407,37 @@ exports[`DataSource Relational Databases should generate DynamoDB default role w
 `;
 
 exports[`DataSource Relational Databases should generate Resource with default role 1`] = `
-{
-  "GraphQlDsmyDatabase": {
-    "Properties": {
-      "ApiId": {
-        "Fn::GetAtt": [
+Object {
+  "GraphQlDsmyDatabase": Object {
+    "Properties": Object {
+      "ApiId": Object {
+        "Fn::GetAtt": Array [
           "GraphQlApi",
           "ApiId",
         ],
       },
       "Description": "My RDS database",
       "Name": "myDatabase",
-      "RelationalDatabaseConfig": {
-        "RdsHttpEndpointConfig": {
-          "AwsRegion": {
+      "RelationalDatabaseConfig": Object {
+        "RdsHttpEndpointConfig": Object {
+          "AwsRegion": Object {
             "Ref": "AWS::Region",
           },
-          "AwsSecretStoreArn": {
+          "AwsSecretStoreArn": Object {
             "Ref": "MyRdsCluster",
           },
           "DatabaseName": "myDatabase",
-          "DbClusterIdentifier": {
-            "Fn::Join": [
+          "DbClusterIdentifier": Object {
+            "Fn::Join": Array [
               ":",
-              [
+              Array [
                 "arn",
                 "aws",
                 "rds",
-                {
+                Object {
                   "Ref": "AWS::Region",
                 },
-                {
+                Object {
                   "Ref": "AWS::AccountId",
                 },
                 "cluster",
@@ -1449,8 +1449,8 @@ exports[`DataSource Relational Databases should generate Resource with default r
         },
         "RelationalDatabaseSourceType": "RDS_HTTP_ENDPOINT",
       },
-      "ServiceRoleArn": {
-        "Fn::GetAtt": [
+      "ServiceRoleArn": Object {
+        "Fn::GetAtt": Array [
           "GraphQlDsmyDatabaseRole",
           "Arn",
         ],
@@ -1459,17 +1459,17 @@ exports[`DataSource Relational Databases should generate Resource with default r
     },
     "Type": "AWS::AppSync::DataSource",
   },
-  "GraphQlDsmyDatabaseRole": {
-    "Properties": {
-      "AssumeRolePolicyDocument": {
-        "Statement": [
-          {
-            "Action": [
+  "GraphQlDsmyDatabaseRole": Object {
+    "Properties": Object {
+      "AssumeRolePolicyDocument": Object {
+        "Statement": Array [
+          Object {
+            "Action": Array [
               "sts:AssumeRole",
             ],
             "Effect": "Allow",
-            "Principal": {
-              "Service": [
+            "Principal": Object {
+              "Service": Array [
                 "appsync.amazonaws.com",
               ],
             },
@@ -1477,12 +1477,12 @@ exports[`DataSource Relational Databases should generate Resource with default r
         ],
         "Version": "2012-10-17",
       },
-      "Policies": [
-        {
-          "PolicyDocument": {
-            "Statement": [
-              {
-                "Action": [
+      "Policies": Array [
+        Object {
+          "PolicyDocument": Object {
+            "Statement": Array [
+              Object {
+                "Action": Array [
                   "rds-data:DeleteItems",
                   "rds-data:ExecuteSql",
                   "rds-data:ExecuteStatement",
@@ -1491,18 +1491,18 @@ exports[`DataSource Relational Databases should generate Resource with default r
                   "rds-data:UpdateItems",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
-                    "Fn::Join": [
+                "Resource": Array [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
+                      Array [
                         "arn",
                         "aws",
                         "rds",
-                        {
+                        Object {
                           "Ref": "AWS::Region",
                         },
-                        {
+                        Object {
                           "Ref": "AWS::AccountId",
                         },
                         "cluster",
@@ -1510,21 +1510,21 @@ exports[`DataSource Relational Databases should generate Resource with default r
                       ],
                     ],
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
-                        {
-                          "Fn::Join": [
+                      Array [
+                        Object {
+                          "Fn::Join": Array [
                             ":",
-                            [
+                            Array [
                               "arn",
                               "aws",
                               "rds",
-                              {
+                              Object {
                                 "Ref": "AWS::Region",
                               },
-                              {
+                              Object {
                                 "Ref": "AWS::AccountId",
                               },
                               "cluster",
@@ -1538,20 +1538,20 @@ exports[`DataSource Relational Databases should generate Resource with default r
                   },
                 ],
               },
-              {
-                "Action": [
+              Object {
+                "Action": Array [
                   "secretsmanager:GetSecretValue",
                 ],
                 "Effect": "Allow",
-                "Resource": [
-                  {
+                "Resource": Array [
+                  Object {
                     "Ref": "MyRdsCluster",
                   },
-                  {
-                    "Fn::Join": [
+                  Object {
+                    "Fn::Join": Array [
                       ":",
-                      [
-                        {
+                      Array [
+                        Object {
                           "Ref": "MyRdsCluster",
                         },
                         "*",

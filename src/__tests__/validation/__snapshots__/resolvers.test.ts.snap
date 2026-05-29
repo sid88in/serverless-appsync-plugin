@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Basic Invalid should validate: Invalid 1`] = `
 "/resolvers/myResolver/functions: must be array
-/resolvers/myResolver/kind: must be "UNIT" or "PIPELINE"
+/resolvers/myResolver/kind: must be \\"UNIT\\" or \\"PIPELINE\\"
 /resolvers/myResolver/type: must be string
 /resolvers/myResolver/field: must be string
 /resolvers/myResolver/maxBatchSize: must be <= 2000

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Valdiation Invalid should validate a Cognito empty config 1`] = `"/authentication/config: must have required property 'userPoolId'"`;
 
@@ -7,7 +7,7 @@ exports[`Valdiation Invalid should validate a Cognito missing config 1`] = `"/au
 exports[`Valdiation Invalid should validate a Cognito with invalid userPoolId 1`] = `
 "/authentication/config/userPoolId: must be a string or a CloudFormation intrinsic function
 /authentication/config/awsRegion: must be a string or a CloudFormation intrinsic function
-/authentication/config/defaultAction: must be "ALLOW" or "DENY"
+/authentication/config/defaultAction: must be \\"ALLOW\\" or \\"DENY\\"
 /authentication/config/appIdClientRegex: must be a string or a CloudFormation intrinsic function"
 `;
 

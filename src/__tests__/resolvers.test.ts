@@ -87,18 +87,18 @@ describe('Resolvers', () => {
           name: 'my-function',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationmyfunction": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationmyfunction": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
               "Code": "Content of path/to/my-resolver.js",
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -107,7 +107,7 @@ describe('Resolvers', () => {
               "FunctionVersion": "2018-05-29",
               "MaxBatchSize": undefined,
               "Name": "my-function",
-              "Runtime": {
+              "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
               },
@@ -143,20 +143,20 @@ describe('Resolvers', () => {
           response: 'path/to/mappingTemplates/Query.user.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -196,21 +196,21 @@ describe('Resolvers', () => {
           code: 'resolvers/getUserFunction.js',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
               "Code": "Bundled content of resolvers/getUserFunction.js",
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -218,7 +218,7 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
-              "Runtime": {
+              "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
               },
@@ -251,20 +251,20 @@ describe('Resolvers', () => {
           field: 'user',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyLambdaFunction",
                   "Name",
                 ],
@@ -302,20 +302,20 @@ describe('Resolvers', () => {
           maxBatchSize: 200,
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyFunction",
                   "Name",
                 ],
@@ -359,20 +359,20 @@ describe('Resolvers', () => {
           },
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyLambdaFunction",
                   "Name",
                 ],
@@ -380,12 +380,12 @@ describe('Resolvers', () => {
               "FieldName": "user",
               "Kind": "UNIT",
               "MaxBatchSize": undefined,
-              "SyncConfig": {
+              "SyncConfig": Object {
                 "ConflictDetection": "VERSION",
                 "ConflictHandler": "LAMBDA",
-                "LambdaConflictHandlerConfig": {
-                  "LambdaConflictHandlerArn": {
-                    "Fn::GetAtt": [
+                "LambdaConflictHandlerConfig": Object {
+                  "LambdaConflictHandlerArn": Object {
+                    "Fn::GetAtt": Array [
                       "QueryUnderscoreuserUnderscoreSyncLambdaFunction",
                       "Arn",
                     ],
@@ -399,8 +399,8 @@ describe('Resolvers', () => {
         }
       `);
       expect(api.functions).toMatchInlineSnapshot(`
-        {
-          "Query_user_Sync": {
+        Object {
+          "Query_user_Sync": Object {
             "handler": "index.handler",
           },
         }
@@ -455,14 +455,14 @@ describe('Resolvers', () => {
           functions: ['getUser'],
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
@@ -478,17 +478,17 @@ describe('Resolvers', () => {
         ",
               "FieldName": "user",
               "Kind": "PIPELINE",
-              "PipelineConfig": {
-                "Functions": [
-                  {
-                    "Fn::GetAtt": [
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "GraphQlFunctionConfigurationgetUser",
                       "FunctionId",
                     ],
                   },
                 ],
               },
-              "Runtime": {
+              "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
               },
@@ -533,30 +533,30 @@ describe('Resolvers', () => {
           functions: ['function1', 'function2'],
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
               "FieldName": "user",
               "Kind": "PIPELINE",
-              "PipelineConfig": {
-                "Functions": [
-                  {
-                    "Fn::GetAtt": [
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "GraphQlFunctionConfigurationfunction1",
                       "FunctionId",
                     ],
                   },
-                  {
-                    "Fn::GetAtt": [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "GraphQlFunctionConfigurationfunction2",
                       "FunctionId",
                     ],
@@ -600,14 +600,14 @@ describe('Resolvers', () => {
           code: 'resolvers/getUserFunction.js',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
@@ -615,17 +615,17 @@ describe('Resolvers', () => {
               "Code": "Bundled content of resolvers/getUserFunction.js",
               "FieldName": "user",
               "Kind": "PIPELINE",
-              "PipelineConfig": {
-                "Functions": [
-                  {
-                    "Fn::GetAtt": [
+              "PipelineConfig": Object {
+                "Functions": Array [
+                  Object {
+                    "Fn::GetAtt": Array [
                       "GraphQlFunctionConfigurationgetUser",
                       "FunctionId",
                     ],
                   },
                 ],
               },
-              "Runtime": {
+              "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
               },
@@ -691,18 +691,18 @@ describe('Resolvers', () => {
           code: 'funciton1.js',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationfunction1": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
               "Code": "Bundled content of funciton1.js",
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -711,7 +711,7 @@ describe('Resolvers', () => {
               "FunctionVersion": "2018-05-29",
               "MaxBatchSize": undefined,
               "Name": "function1",
-              "Runtime": {
+              "Runtime": Object {
                 "Name": "APPSYNC_JS",
                 "RuntimeVersion": "1.0.0",
               },
@@ -744,17 +744,17 @@ describe('Resolvers', () => {
           response: 'path/to/mappingTemplates/function1.response.vtl',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationfunction1": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -792,17 +792,17 @@ describe('Resolvers', () => {
           description: 'Function1 Pipeline Resolver',
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationfunction1": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyLambdaFunction",
                   "Name",
                 ],
@@ -846,17 +846,17 @@ describe('Resolvers', () => {
           },
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationmyFunction": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationmyFunction": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyLambdaFunction",
                   "Name",
                 ],
@@ -867,12 +867,12 @@ describe('Resolvers', () => {
               "Name": "myFunction",
               "RequestMappingTemplate": "Content of myFunction.request.vtl",
               "ResponseMappingTemplate": "Content of myFunction.response.vtl",
-              "SyncConfig": {
+              "SyncConfig": Object {
                 "ConflictDetection": "VERSION",
                 "ConflictHandler": "LAMBDA",
-                "LambdaConflictHandlerConfig": {
-                  "LambdaConflictHandlerArn": {
-                    "Fn::GetAtt": [
+                "LambdaConflictHandlerConfig": Object {
+                  "LambdaConflictHandlerArn": Object {
+                    "Fn::GetAtt": Array [
                       "MyFunctionUnderscoreSyncLambdaFunction",
                       "Arn",
                     ],
@@ -909,17 +909,17 @@ describe('Resolvers', () => {
           maxBatchSize: 200,
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlFunctionConfigurationfunction1": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlFunctionConfigurationfunction1": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyFunction",
                   "Name",
                 ],
@@ -982,23 +982,23 @@ describe('Resolvers', () => {
           caching: true,
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "CachingConfig": {
+              "CachingConfig": Object {
                 "Ttl": 3600,
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -1042,27 +1042,27 @@ describe('Resolvers', () => {
           },
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "CachingConfig": {
-                "CachingKeys": [
+              "CachingConfig": Object {
+                "CachingKeys": Array [
                   "$context.identity.sub",
                   "$context.arguments.id",
                 ],
                 "Ttl": 200,
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],
@@ -1106,27 +1106,27 @@ describe('Resolvers', () => {
           },
         }),
       ).toMatchInlineSnapshot(`
-        {
-          "GraphQlResolverQueryuser": {
-            "DependsOn": [
+        Object {
+          "GraphQlResolverQueryuser": Object {
+            "DependsOn": Array [
               "GraphQlSchema",
             ],
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
-              "CachingConfig": {
-                "CachingKeys": [
+              "CachingConfig": Object {
+                "CachingKeys": Array [
                   "$context.identity.sub",
                   "$context.arguments.id",
                 ],
                 "Ttl": 300,
               },
-              "DataSourceName": {
-                "Fn::GetAtt": [
+              "DataSourceName": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlDsmyTable",
                   "Name",
                 ],

@@ -14,11 +14,11 @@ describe('schema', () => {
     );
 
     expect(api.compileSchema()).toMatchInlineSnapshot(`
-      {
-        "GraphQlSchema": {
-          "Properties": {
-            "ApiId": {
-              "Fn::GetAtt": [
+      Object {
+        "GraphQlSchema": Object {
+          "Properties": Object {
+            "ApiId": Object {
+              "Fn::GetAtt": Array [
                 "GraphQlApi",
                 "ApiId",
               ],
@@ -31,9 +31,9 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      """
+      \\"\\"\\"
       A User
-      """
+      \\"\\"\\"
       type User {
         id: ID!
         name: String!
@@ -71,7 +71,7 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      \\"\\"\\"This is a description\\"\\"\\"
       input PostInput {
         title: String!
       }
@@ -113,7 +113,7 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      \\"\\"\\"This is a description\\"\\"\\"
       input PostInput {
         title: String!
       }
@@ -155,7 +155,7 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      \\"\\"\\"This is a description\\"\\"\\"
       input PostInput {
         title: String!
       }
@@ -191,7 +191,7 @@ describe('schema', () => {
     );
     expect(() => api.compileSchema()).toThrowErrorMatchingInlineSnapshot(`
       "Invalid GraphQL schema:
-           Unknown type "Post"."
+           Unknown type \\"Post\\"."
     `);
   });
 
@@ -221,9 +221,9 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      """
+      \\"\\"\\"
       A User
-      """
+      \\"\\"\\"
       type User {
         id: ID!
         name: String!

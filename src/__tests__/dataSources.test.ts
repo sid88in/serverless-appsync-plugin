@@ -260,17 +260,17 @@ describe('DataSource', () => {
       });
 
       expect(dataSource.compile()).toMatchInlineSnapshot(`
-        {
-          "GraphQlDsmyEndpoint": {
-            "Properties": {
-              "ApiId": {
-                "Fn::GetAtt": [
+        Object {
+          "GraphQlDsmyEndpoint": Object {
+            "Properties": Object {
+              "ApiId": Object {
+                "Fn::GetAtt": Array [
                   "GraphQlApi",
                   "ApiId",
                 ],
               },
               "Description": "My HTTP resolver",
-              "HttpConfig": {
+              "HttpConfig": Object {
                 "Endpoint": "https://api.example.com",
               },
               "Name": "myEndpoint",
