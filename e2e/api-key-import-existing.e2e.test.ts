@@ -25,7 +25,7 @@ describe('examples/api-key-import-existing', () => {
     const keys = findResourcesByType(result.template, 'AWS::AppSync::ApiKey');
     const stable = keys.find(
       (k) =>
-        (k.resource.Properties?.Description as string) ===
+        k.resource.Properties?.Description ===
         'Stable key migrated from previous infrastructure',
     );
     if (!stable) throw new Error('stable api key not found');
@@ -38,7 +38,7 @@ describe('examples/api-key-import-existing', () => {
     const keys = findResourcesByType(result.template, 'AWS::AppSync::ApiKey');
     const rotating = keys.find(
       (k) =>
-        (k.resource.Properties?.Description as string) ===
+        k.resource.Properties?.Description ===
         'Net-new key created by this stack',
     );
     if (!rotating) throw new Error('rotating api key not found');
