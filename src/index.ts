@@ -1,5 +1,11 @@
-import Serverless from 'serverless/lib/Serverless';
-import Provider from 'serverless/lib/plugins/aws/provider.js';
+// NOTE: these MUST stay `import type`. They reference internal Serverless
+// paths that exist in v3 but NOT in the Serverless v4 npm package (v4 ships a
+// thin installer with no `lib/` tree). `import type` is fully erased at
+// compile time, so it never becomes a runtime `require('serverless/lib/...')`.
+// A plain `import` here is what caused issue #632
+// (`Cannot find module 'serverless/lib/serverless-error'`) on v4.
+import type Serverless from 'serverless/lib/Serverless';
+import type Provider from 'serverless/lib/plugins/aws/provider.js';
 import { forEach, last, merge } from 'lodash';
 import { getAppSyncConfig } from './getAppSyncConfig';
 import { GraphQLError } from 'graphql';
@@ -31,7 +37,7 @@ import {
   ListApiKeysRequest,
   ListApiKeysResponse,
 } from 'aws-sdk/clients/appsync';
-import {
+import type {
   CommandsDefinition,
   Hook,
   VariablesSourcesDefinition,

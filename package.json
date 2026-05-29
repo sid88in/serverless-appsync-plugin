@@ -14,7 +14,8 @@
     "test:watch": "jest src/__tests__/.*\\.test\\.ts --watch",
     "test:e2e": "npm run build && jest --config jest.e2e.config.ts",
     "test:all": "npm run test && npm run test:e2e",
-    "build": "tsc",
+    "build": "tsc && npm run verify:imports",
+    "verify:imports": "node scripts/check-no-serverless-deep-imports.js",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
     "prepare": "husky && rm -rf lib & npm run build"
@@ -27,6 +28,7 @@
     "@serverless/test": "^11.1.1",
     "@serverless/typescript": "^2.71.0",
     "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.0",
     "@types/luxon": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -40,7 +42,7 @@
     "lint-staged": "^16.2.3",
     "prettier": "^2.8.0",
     "semantic-release": "^25.0.3",
-    "serverless": "^3.25.1",
+    "serverless": "^4.0.0",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.1",
     "typescript": "~4.9.5"
@@ -71,7 +73,7 @@
     "terminal-link": "^2.1.1"
   },
   "peerDependencies": {
-    "serverless": ">=3.0.0"
+    "serverless": "^4.0.0"
   },
   "lint-staged": {
     "*.{ts,js}": [

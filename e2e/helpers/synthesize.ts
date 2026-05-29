@@ -93,14 +93,33 @@ export function synthesize(exampleDir: string): SynthesizeResult {
     );
   }
 
-  const templatePath = path.join(
+  // Serverless writes the synthesized template as
+  // `cloudformation-template-update-stack.json`. We look it up defensively
+  // (preferring the canonical name, then falling back to any
+  // `cloudformation-template-*-stack.json`) so the harness is resilient to
+  // any path/name nuance across Serverless Framework major versions.
+  const canonical = path.join(
     packageDir,
     'cloudformation-template-update-stack.json',
   );
+  let templatePath = canonical;
+  if (!fs.existsSync(templatePath)) {
+    const fallback = fs
+      .readdirSync(packageDir)
+      .find(
+        (f) =>
+          /^cloudformation-template-.*-stack\.json$/.test(f) &&
+          f.endsWith('.json'),
+      );
+    if (fallback) {
+      templatePath = path.join(packageDir, fallback);
+    }
+  }
   if (!fs.existsSync(templatePath)) {
     fs.rmSync(packageDir, { recursive: true, force: true });
     throw new Error(
-      `CloudFormation template was not produced at ${templatePath}.`,
+      `CloudFormation template was not produced in ${packageDir} ` +
+        `(expected ${canonical} or a cloudformation-template-*-stack.json).`,
     );
   }
 
