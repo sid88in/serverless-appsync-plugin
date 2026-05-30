@@ -11,6 +11,11 @@ import fs from 'fs';
 import {
   DescribeStackResourcesInput,
   DescribeStackResourcesOutput,
+  DescribeStacksInput,
+  DescribeStacksOutput,
+  ListStackResourcesInput,
+  ListStackResourcesOutput,
+  Outputs,
 } from 'aws-sdk/clients/cloudformation';
 import {
   AssociateApiRequest,
@@ -102,6 +107,10 @@ class ServerlessAppsyncPlugin {
   public readonly configurationVariablesSources?: VariablesSourcesDefinition;
   private api?: Api;
   private naming?: Naming;
+  // this should instan
+  private cachedValues: {
+    apiId: string | null;
+  };
 
   constructor(
     public serverless: Serverless,
@@ -116,6 +125,9 @@ class ServerlessAppsyncPlugin {
     this.options = options;
     this.provider = this.serverless.getProvider('aws');
     this.utils = utils;
+    this.cachedValues = {
+      apiId: null,
+    };
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
@@ -374,24 +386,85 @@ class ServerlessAppsyncPlugin {
         'Could not find the naming service. This should not happen.',
       );
     }
+    // The loading is quite involved so caching is helpful
+    // And the ApiId shouldn't change during a class lifecycle
+    if (this.cachedValues.apiId) {
+      return this.cachedValues.apiId;
+    }
 
     const logicalIdGraphQLApi = this.naming.getApiLogicalId();
+    const stackOutputKey = `${logicalIdGraphQLApi}ApiId`;
+    const mainStackName = this.provider.naming.getStackName();
 
-    const { StackResources } = await this.provider.request<
+    // First check the main stack resources directly for the API resource
+    const mainStackApiCheck = await this.provider.request<
       DescribeStackResourcesInput,
       DescribeStackResourcesOutput
     >('CloudFormation', 'describeStackResources', {
-      StackName: this.provider.naming.getStackName(),
+      StackName: mainStackName,
       LogicalResourceId: logicalIdGraphQLApi,
     });
 
-    const apiId = last(StackResources?.[0]?.PhysicalResourceId?.split('/'));
+    const StackResources = mainStackApiCheck.StackResources || [];
+    let apiId: string | undefined | null = last(
+      StackResources?.[0]?.PhysicalResourceId?.split('/'),
+    );
+
+    // If not found, we need to search through all stack resources (with pagination)
+    // and then check nested stacks
+    if (!apiId) {
+      let nextToken: string | undefined;
+
+      do {
+        const mainStackResources: ListStackResourcesOutput =
+          await this.provider.request<
+            ListStackResourcesInput,
+            ListStackResourcesOutput
+          >('CloudFormation', 'listStackResources', {
+            StackName: mainStackName,
+            NextToken: nextToken,
+          } as ListStackResourcesInput);
+        const resources = mainStackResources.StackResourceSummaries || [];
+
+        const nestedStacks =
+          resources.filter(
+            (resource) =>
+              resource.ResourceType === 'AWS::CloudFormation::Stack',
+          ) || [];
+        // If not found in main stack resources, check each nested stack
+        if (!apiId && nestedStacks.length > 0) {
+          for (const nestedStack of nestedStacks) {
+            if (!nestedStack.PhysicalResourceId) continue;
+
+            const nestedStackResult = await this.provider.request<
+              DescribeStacksInput,
+              DescribeStacksOutput
+            >('CloudFormation', 'describeStacks', {
+              StackName: nestedStack.PhysicalResourceId,
+            });
+
+            const outputs: Outputs =
+              nestedStackResult.Stacks?.[0]?.Outputs ?? [];
+            apiId = outputs.find(
+              (output) => output.OutputKey === stackOutputKey,
+            )?.OutputValue;
+            if (apiId) {
+              break; // Found it, no need to check other nested stacks
+            }
+          }
+        }
+
+        nextToken = mainStackResources.NextToken;
+      } while (nextToken && !apiId); // Stop pagination if we found the API ID
+    }
 
     if (!apiId) {
       throw new this.serverless.classes.Error(
         'AppSync Api not found in stack. Did you forget to deploy?',
       );
     }
+
+    this.cachedValues.apiId = apiId;
 
     return apiId;
   }
