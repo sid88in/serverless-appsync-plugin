@@ -94,7 +94,6 @@ declare module 'serverless/lib/Serverless' {
 
 declare module 'serverless/lib/plugins/aws/provider.js' {
   import Serverless from 'serverless/lib/Serverless';
-  import { ServiceConfigurationOptions } from 'aws-sdk/lib/service';
   declare class Provider {
     constructor(serverless: Serverless);
     naming: {
@@ -105,8 +104,27 @@ declare module 'serverless/lib/plugins/aws/provider.js' {
       service: string,
       method: string,
       params: Input,
-      options?: ServiceConfigurationOptions,
+      options?: Record<string, unknown>,
     ) => Promise<Output>;
+    // Resolves the region honoring the --region CLI option, serverless config
+    // and provider.region (in that order), falling back to us-east-1.
+    getRegion: () => string;
+    // Resolves credentials the same way the Serverless Framework does for its
+    // own AWS calls: default profile, provider.profile, environment creds
+    // (incl. stage-specific) and the --aws-profile CLI option. The nested
+    // `credentials` object is an aws-sdk (v2) credentials instance which may
+    // resolve lazily (shared-ini, SSO, assume-role, MFA).
+    getCredentials: () => {
+      credentials?: {
+        accessKeyId?: string;
+        secretAccessKey?: string;
+        sessionToken?: string;
+        expireTime?: Date | string | number;
+        getPromise?: () => Promise<void>;
+      };
+      region?: string;
+      signatureVersion?: string;
+    };
   }
 
   export default Provider;
