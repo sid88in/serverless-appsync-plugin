@@ -14,11 +14,11 @@ describe('schema', () => {
     );
 
     expect(api.compileSchema()).toMatchInlineSnapshot(`
-      Object {
-        "GraphQlSchema": Object {
-          "Properties": Object {
-            "ApiId": Object {
-              "Fn::GetAtt": Array [
+      {
+        "GraphQlSchema": {
+          "Properties": {
+            "ApiId": {
+              "Fn::GetAtt": [
                 "GraphQlApi",
                 "ApiId",
               ],
@@ -31,9 +31,9 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      \\"\\"\\"
+      """
       A User
-      \\"\\"\\"
+      """
       type User {
         id: ID!
         name: String!
@@ -71,7 +71,7 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      \\"\\"\\"This is a description\\"\\"\\"
+      """This is a description"""
       input PostInput {
         title: String!
       }
@@ -113,7 +113,49 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      \\"\\"\\"This is a description\\"\\"\\"
+      """This is a description"""
+      input PostInput {
+        title: String!
+      }
+
+      type Query {
+        getPost(id: ID!): Post!
+        getUser: User!
+      }
+
+      type User {
+        id: ID!
+        name: String!
+        role: String! @aws_oidc
+        email: AWSEmail!
+        posts: [Post!]!
+      }
+
+      input UserInput {
+        name: String!
+      }"
+    `);
+  });
+
+  it('should merge glob schemas with Windows paths', () => {
+    const api = new Api(given.appSyncConfig(), plugin);
+    const schema = new Schema(api, [
+      'src\\__tests__\\fixtures\\schemas\\multiple\\*.graphql',
+    ]);
+    expect(schema.generateSchema()).toMatchInlineSnapshot(`
+      "type Mutation {
+        createPost(post: PostInput!): Post!
+        createUser(post: UserInput!): User!
+      }
+
+      type Post @aws_oidc {
+        id: ID!
+        title: String!
+        createdAt: AWSDateTime!
+        updatedAt: AWSDateTime!
+      }
+
+      """This is a description"""
       input PostInput {
         title: String!
       }
@@ -149,8 +191,20 @@ describe('schema', () => {
     );
     expect(() => api.compileSchema()).toThrowErrorMatchingInlineSnapshot(`
       "Invalid GraphQL schema:
-           Unknown type \\"Post\\"."
+           Unknown type "Post"."
     `);
+  });
+
+  it('should accept merged-API directives on OBJECT and FIELD_DEFINITION', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        schema: [
+          'src/__tests__/fixtures/schemas/merge-directives/schema.graphql',
+        ],
+      }),
+      plugin,
+    );
+    expect(() => api.compileSchema()).not.toThrow();
   });
 
   it('should return single files schemas as-is', () => {
@@ -167,9 +221,9 @@ describe('schema', () => {
         createUser(post: UserInput!): User!
       }
 
-      \\"\\"\\"
+      """
       A User
-      \\"\\"\\"
+      """
       type User {
         id: ID!
         name: String!

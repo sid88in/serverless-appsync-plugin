@@ -113,6 +113,8 @@ export type ApiKeyAuth = {
 
 export type Auth = CognitoAuth | LambdaAuth | OidcAuth | ApiKeyAuth | IamAuth;
 
+export type AuthenticationType = Auth['type'];
+
 export type DomainConfig = {
   enabled?: boolean;
   useCloudFormation?: boolean;

@@ -1,0 +1,65 @@
+service: appsync-pipeline-resolvers
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: pipeline-resolvers
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUserWithPosts:
+      kind: PIPELINE
+      functions:
+        - getUser
+        - getPosts
+
+  pipelineFunctions:
+    getUser:
+      dataSource: users
+      code: ./functions/getUser.js
+    getPosts:
+      dataSource: posts
+      code: ./functions/getPosts.js
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+    posts:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref PostsTable
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+    PostsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-posts
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

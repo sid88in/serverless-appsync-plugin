@@ -1,0 +1,30 @@
+service: appsync-lambda-authorizer
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+functions:
+  authorizer:
+    handler: handler.authorize
+
+appSync:
+  name: lambda-authorizer
+  authentication:
+    type: AWS_LAMBDA
+    config:
+      authorizerResultTtlInSeconds: 300
+      functionName: authorizer
+      identityValidationExpression: '^Bearer .*'
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

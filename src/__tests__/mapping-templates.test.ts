@@ -36,25 +36,25 @@ describe('Mapping Templates', () => {
       'Foo: ${foo}, Var: ${var}, Context: ${ctx.args.id}, Unknonw: ${unknown}';
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      Object {
-        "Fn::Join": Array [
+      {
+        "Fn::Join": [
           "",
-          Array [
+          [
             "Foo: ",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${foo}",
-                Object {
+                {
                   "foo": "bar",
                 },
               ],
             },
             ", Var: ",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${var}",
-                Object {
-                  "var": Object {
+                {
+                  "var": {
                     "Ref": "MyReference",
                   },
                 },
@@ -86,24 +86,24 @@ describe('Mapping Templates', () => {
     const template = 'Foo: ${foo}, Var: ${var}';
     expect(mapping.processTemplateSubstitutions(template))
       .toMatchInlineSnapshot(`
-      Object {
-        "Fn::Join": Array [
+      {
+        "Fn::Join": [
           "",
-          Array [
+          [
             "Foo: ",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${foo}",
-                Object {
+                {
                   "foo": "fuzz",
                 },
               ],
             },
             ", Var: ",
-            Object {
-              "Fn::Sub": Array [
+            {
+              "Fn::Sub": [
                 "\${var}",
-                Object {
+                {
                   "var": "bizz",
                 },
               ],
@@ -128,7 +128,7 @@ describe('Mapping Templates', () => {
     expect(function () {
       mapping.compile();
     }).toThrowErrorMatchingInlineSnapshot(
-      `"Mapping tempalte file 'foo.vtl' does not exist"`,
+      `"Mapping template file 'foo.vtl' does not exist"`,
     );
   });
 });

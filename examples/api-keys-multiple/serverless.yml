@@ -1,0 +1,36 @@
+service: appsync-api-keys-multiple
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: api-keys-multiple
+  authentication:
+    type: API_KEY
+
+  # Multiple keys let you give different clients separate credentials
+  # that you can revoke independently — e.g. mobile app key vs web app
+  # key vs internal-testing key, each with its own expiry.
+  apiKeys:
+    - name: mobile
+      description: Mobile app key
+      expiresAfter: 30d
+    - name: web
+      description: Web app key
+      expiresAfter: 365d
+    - name: internal
+      description: Internal testing
+      expiresAfter: 7d
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

@@ -5,7 +5,6 @@ import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { flatten } from 'lodash';
 import { parse, print } from 'graphql';
-import ServerlessError from 'serverless/lib/serverless-error';
 import { validateSDL } from 'graphql/validation/validate';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 
@@ -19,6 +18,9 @@ directive @aws_cognito_user_pools(
   cognito_groups: [String]
 ) on FIELD_DEFINITION | OBJECT
 directive @aws_subscribe(mutations: [String]) on FIELD_DEFINITION
+directive @canonical on OBJECT | FIELD_DEFINITION
+directive @hidden on OBJECT | FIELD_DEFINITION
+directive @renamed on OBJECT | FIELD_DEFINITION
 scalar AWSDate
 scalar AWSTime
 scalar AWSDateTime
@@ -58,13 +60,18 @@ export class Schema {
   }
 
   generateSchema() {
-    const schemaFiles = flatten(globby.sync(this.schemas));
+    const schemaFiles = flatten(
+      globby.sync(
+        this.schemas.map((schema) =>
+          path
+            .join(this.api.plugin.serverless.config.servicePath, schema)
+            .replace(/\\/g, '/'),
+        ),
+      ),
+    );
 
     const schemas = schemaFiles.map((file) => {
-      return fs.readFileSync(
-        path.join(this.api.plugin.serverless.config.servicePath, file),
-        'utf8',
-      );
+      return fs.readFileSync(file, 'utf8');
     });
 
     this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));

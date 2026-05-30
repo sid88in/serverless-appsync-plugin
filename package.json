@@ -12,14 +12,21 @@
   "scripts": {
     "test": "jest src/__tests__/.*\\.test\\.ts",
     "test:watch": "jest src/__tests__/.*\\.test\\.ts --watch",
+    "test:e2e": "npm run build && jest --config jest.e2e.config.ts",
+    "test:all": "npm run test && npm run test:e2e",
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
-    "prepare": "rm -rf lib && npm run build"
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky && rm -rf lib & npm run build"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=8.0.0"
   },
   "devDependencies": {
-    "@serverless/test": "^9.0.0",
+    "@serverless/test": "^11.1.1",
     "@serverless/typescript": "^2.71.0",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^30.0.0",
     "@types/luxon": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -28,13 +35,23 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "^27.5.1",
+    "husky": "^9.1.7",
+    "jest": "^30.4.2",
+    "lint-staged": "^16.2.3",
     "prettier": "^2.8.0",
-    "semantic-release": "^19.0.5",
+    "semantic-release": "^25.0.3",
     "serverless": "^3.25.1",
-    "ts-jest": "^27.1.5",
+    "ts-jest": "^29.4.11",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.3"
+    "typescript": "~4.9.5"
+  },
+  "overrides": {
+    "cosmiconfig": {
+      "typescript": "~4.9.5"
+    },
+    "ajv-merge-patch": {
+      "fast-json-patch": "3.1.1"
+    }
   },
   "dependencies": {
     "@graphql-tools/merge": "^8.3.12",
@@ -55,5 +72,14 @@
   },
   "peerDependencies": {
     "serverless": ">=3.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

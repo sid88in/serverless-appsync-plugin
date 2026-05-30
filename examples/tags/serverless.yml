@@ -1,0 +1,33 @@
+service: appsync-tags
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: tags
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  # Tags propagate to the AppSync API and (where supported) to associated
+  # resources like the WAF ACL. Useful for cost allocation, ownership,
+  # and compliance metadata.
+  tags:
+    owner: platform-team
+    environment: ${sls:stage}
+    cost-center: '1234'
+    project: my-product
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

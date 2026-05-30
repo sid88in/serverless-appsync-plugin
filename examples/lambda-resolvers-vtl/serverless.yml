@@ -1,0 +1,42 @@
+service: appsync-lambda-resolvers-vtl
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: lambda-resolvers-vtl
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUser:
+      kind: UNIT
+      dataSource: users
+      request: ./resolvers/getUser.request.vtl
+      response: ./resolvers/getUser.response.vtl
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S

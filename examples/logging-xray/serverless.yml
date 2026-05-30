@@ -1,0 +1,33 @@
+service: appsync-logging-xray
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: logging-xray
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  # Field-level logging via CloudWatch Logs
+  logging:
+    level: ALL
+    retentionInDays: 14
+    excludeVerboseContent: false
+
+  # AWS X-Ray tracing for resolver-level performance insight
+  xrayEnabled: true
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE
