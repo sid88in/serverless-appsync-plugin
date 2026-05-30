@@ -1142,4 +1142,60 @@ describe('Resolvers', () => {
       `);
     });
   });
+
+  describe('MetricsConfig', () => {
+    const baseResolver = {
+      dataSource: 'myTable',
+      kind: 'UNIT' as const,
+      type: 'Query',
+      field: 'user',
+      request: 'path/to/mappingTemplates/Query.user.request.vtl',
+      response: 'path/to/mappingTemplates/Query.user.response.vtl',
+    };
+
+    const enhancedMetrics = {
+      DataSourceLevelMetricsBehavior: 'PER_DATA_SOURCE_METRICS' as const,
+      OperationLevelMetricsConfig: 'ENABLED' as const,
+      ResolverLevelMetricsBehavior: 'PER_RESOLVER_METRICS' as const,
+    };
+
+    const dataSources = {
+      myTable: {
+        name: 'myTable',
+        type: 'AMAZON_DYNAMODB' as const,
+        config: { tableName: 'data' },
+      },
+    };
+
+    const getProps = (cfn: unknown) =>
+      Object.values(
+        cfn as Record<string, { Properties: Record<string, unknown> }>,
+      )[0].Properties;
+
+    it('omits MetricsConfig when enhanced metrics are not enabled', () => {
+      const api = new Api(given.appSyncConfig({ dataSources }), plugin);
+      const props = getProps(api.compileResolver(baseResolver));
+      expect('MetricsConfig' in props).toBe(false);
+    });
+
+    it('defaults resolver MetricsConfig to DISABLED when enhanced metrics are enabled', () => {
+      const api = new Api(
+        given.appSyncConfig({ dataSources, enhancedMetrics }),
+        plugin,
+      );
+      const props = getProps(api.compileResolver(baseResolver));
+      expect(props.MetricsConfig).toBe('DISABLED');
+    });
+
+    it('honors a per-resolver metricsConfig override', () => {
+      const api = new Api(
+        given.appSyncConfig({ dataSources, enhancedMetrics }),
+        plugin,
+      );
+      const props = getProps(
+        api.compileResolver({ ...baseResolver, metricsConfig: 'ENABLED' }),
+      );
+      expect(props.MetricsConfig).toBe('ENABLED');
+    });
+  });
 });

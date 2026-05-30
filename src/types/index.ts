@@ -61,6 +61,7 @@ export type BaseResolverConfig = {
     | boolean;
   sync?: SyncConfig;
   substitutions?: Substitutions;
+  metricsConfig?: 'ENABLED' | 'DISABLED';
 };
 
 export type ResolverConfig = UnitResolverConfig | PipelineResolverConfig;
