@@ -24,6 +24,8 @@ jobs:
         uses: actions/checkout@v6
       - name: Install dependencies
         run: npm ci
+      - name: Verify no deep serverless/lib imports (guards #632)
+        run: npm run verify:imports
       - name: Lint
         run: npm run lint
       - name: Tests
@@ -47,6 +49,13 @@ jobs:
     name: CFN Synthesis Tests
     runs-on: ubuntu-latest
     needs: tests
+    # Serverless Framework v4 requires authentication for every CLI invocation,
+    # including non-interactive CI. The e2e harness spawns `serverless package`,
+    # so a license/access key must be present or the run will fail/prompt.
+    # Add SERVERLESS_ACCESS_KEY (Dashboard > Settings > Access Keys) as a repo
+    # secret. Free for individual developers / orgs under the revenue threshold.
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

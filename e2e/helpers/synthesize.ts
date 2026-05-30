@@ -65,20 +65,60 @@ export function synthesize(exampleDir: string): SynthesizeResult {
 
   const packageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sls-appsync-e2e-'));
 
+  // Serverless v4's `package` resolves a deployment bucket and, when none is
+  // configured, calls getOrCreateDefaultBucket() — which reads/writes a shared
+  // SSM parameter on AWS. That makes `package` require AWS connectivity and
+  // race across parallel workers (`TooManyUpdates` on the shared parameter).
+  // Setting `provider.deploymentBucket` short-circuits that path
+  // (getServerlessDeploymentBucketName() returns early, before any AWS call),
+  // keeping synthesis fully offline and deterministic. We inject it into a
+  // temporary config copy via `--config` so the committed examples stay clean
+  // and deployable.
+  const baseConfig = fs.readFileSync(
+    path.join(absoluteExampleDir, 'serverless.yml'),
+    'utf8',
+  );
+  if (!/^provider:[ \t]*\n/m.test(baseConfig)) {
+    fs.rmSync(packageDir, { recursive: true, force: true });
+    throw new Error(
+      `Expected a block-style "provider:" in ${absoluteExampleDir}/serverless.yml ` +
+        `to inject a deploymentBucket for offline synthesis.`,
+    );
+  }
+  const e2eConfigName = 'serverless.e2e.yml';
+  const e2eConfigPath = path.join(absoluteExampleDir, e2eConfigName);
+  fs.writeFileSync(
+    e2eConfigPath,
+    baseConfig.replace(
+      /^(provider:[ \t]*\n)/m,
+      '$1  deploymentBucket: serverless-appsync-e2e\n',
+    ),
+  );
+
   try {
-    execFileSync(SERVERLESS_BIN, ['package', '--package', packageDir], {
-      cwd: absoluteExampleDir,
-      env: {
-        ...process.env,
-        // Suppress framework prompts and analytics
-        SLS_NOTIFICATIONS_MODE: 'off',
-        SLS_INTERACTIVE_SETUP_ENABLE: '0',
-        // Set a stable region so tests are deterministic
-        AWS_REGION: 'us-east-1',
-        AWS_DEFAULT_REGION: 'us-east-1',
+    execFileSync(
+      SERVERLESS_BIN,
+      ['package', '--config', e2eConfigName, '--package', packageDir],
+      {
+        cwd: absoluteExampleDir,
+        env: {
+          ...process.env,
+          // Suppress framework prompts and analytics
+          SLS_NOTIFICATIONS_MODE: 'off',
+          SLS_INTERACTIVE_SETUP_ENABLE: '0',
+          // Stable region for deterministic output
+          AWS_REGION: 'us-east-1',
+          AWS_DEFAULT_REGION: 'us-east-1',
+          // Dummy credential fallback so CI (no real creds) can satisfy v4's
+          // credentials check. With deploymentBucket set above, `package` makes
+          // no real AWS calls, so these are never used against AWS.
+          AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ?? 'e2e-dummy',
+          AWS_SECRET_ACCESS_KEY:
+            process.env.AWS_SECRET_ACCESS_KEY ?? 'e2e-dummy',
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
       },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
+    );
   } catch (err) {
     // Surface stderr in test output so failures are diagnosable
     const e = err as { stderr?: Buffer; stdout?: Buffer; message: string };
@@ -91,16 +131,37 @@ export function synthesize(exampleDir: string): SynthesizeResult {
         `STDERR:\n${stderr}\n` +
         `MESSAGE: ${e.message}`,
     );
+  } finally {
+    fs.rmSync(e2eConfigPath, { force: true });
   }
 
-  const templatePath = path.join(
+  // Serverless writes the synthesized template as
+  // `cloudformation-template-update-stack.json`. We look it up defensively
+  // (preferring the canonical name, then falling back to any
+  // `cloudformation-template-*-stack.json`) so the harness is resilient to
+  // any path/name nuance across Serverless Framework major versions.
+  const canonical = path.join(
     packageDir,
     'cloudformation-template-update-stack.json',
   );
+  let templatePath = canonical;
+  if (!fs.existsSync(templatePath)) {
+    const fallback = fs
+      .readdirSync(packageDir)
+      .find(
+        (f) =>
+          /^cloudformation-template-.*-stack\.json$/.test(f) &&
+          f.endsWith('.json'),
+      );
+    if (fallback) {
+      templatePath = path.join(packageDir, fallback);
+    }
+  }
   if (!fs.existsSync(templatePath)) {
     fs.rmSync(packageDir, { recursive: true, force: true });
     throw new Error(
-      `CloudFormation template was not produced at ${templatePath}.`,
+      `CloudFormation template was not produced in ${packageDir} ` +
+        `(expected ${canonical} or a cloudformation-template-*-stack.json).`,
     );
   }
 

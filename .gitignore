@@ -16,3 +16,6 @@ users.json
 *.swp
 .vscode/settings.json
 lib
+
+# transient config written by e2e synthesize helper
+examples/**/serverless.e2e.yml
