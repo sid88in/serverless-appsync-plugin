@@ -21,6 +21,14 @@ appSync:
     description: WAF rules for the GraphQL API
     rules:
       - throttle: 200
+      - throttle:
+          name: ThrottleForwarded
+          limit: 100
+          evaluationWindowSec: 60
+          aggregateKeyType: FORWARDED_IP
+          forwardedIPConfig:
+            headerName: X-Forwarded-For
+            fallbackBehavior: MATCH
       - disableIntrospection
       - name: BlockBadBots
         action: Block

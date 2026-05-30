@@ -53,4 +53,45 @@ describe('examples/waf', () => {
     });
     expect(throttleRule).toBeDefined();
   });
+
+  it('omits EvaluationWindowSec for a throttle rule that does not set it', () => {
+    const { resource } = findOneResourceByType(
+      result.template,
+      'AWS::WAFv2::WebACL',
+    );
+    const rules = (resource.Properties as Record<string, unknown>)
+      .Rules as Array<Record<string, unknown>>;
+    // The `throttle: 200` shorthand rule sets no evaluationWindowSec, so the
+    // synthesized template must NOT contain the property (AWS applies its own
+    // default of 300). This guards against template churn for existing stacks.
+    const defaultThrottle = rules.find((r) => {
+      const stmt = (r.Statement as Record<string, unknown>)
+        ?.RateBasedStatement as Record<string, unknown> | undefined;
+      return stmt?.Limit === 200;
+    });
+    expect(defaultThrottle).toBeDefined();
+    const stmt = (defaultThrottle!.Statement as Record<string, unknown>)
+      .RateBasedStatement as Record<string, unknown>;
+    expect('EvaluationWindowSec' in stmt).toBe(false);
+  });
+
+  it('emits EvaluationWindowSec when explicitly configured', () => {
+    const { resource } = findOneResourceByType(
+      result.template,
+      'AWS::WAFv2::WebACL',
+    );
+    const rules = (resource.Properties as Record<string, unknown>)
+      .Rules as Array<Record<string, unknown>>;
+    // The object-form throttle rule sets evaluationWindowSec: 60 explicitly.
+    const forwarded = rules.find((r) => {
+      const stmt = (r.Statement as Record<string, unknown>)
+        ?.RateBasedStatement as Record<string, unknown> | undefined;
+      return stmt?.AggregateKeyType === 'FORWARDED_IP';
+    });
+    expect(forwarded).toBeDefined();
+    const stmt = (forwarded!.Statement as Record<string, unknown>)
+      .RateBasedStatement as Record<string, unknown>;
+    expect(stmt.EvaluationWindowSec).toBe(60);
+    expect(stmt.Limit).toBe(100);
+  });
 });

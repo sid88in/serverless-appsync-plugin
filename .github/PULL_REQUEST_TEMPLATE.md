@@ -13,13 +13,16 @@ Your Pull Request name should start with one of the following tags
 -->
 
 ## Proposed changes
+
 <!--
   Describe the big picture of your changes here to communicate to the maintainers why we should accept this pull request.
   If it fixes a bug or resolves a feature request, be sure to link to that issue below.
 -->
 
 ## Issue(s)
+
 <!-- Link the issues being closed by or related to this PR. For example, you can use #333 if this PR closes issue number 333 -->
 
 ## Steps to test or reproduce
+
 <!-- Mention how you would reproduce the bug if not mentioned on the issue page already. -->
