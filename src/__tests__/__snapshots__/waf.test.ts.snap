@@ -183,7 +183,7 @@ exports[`Waf ApiKey rules should generate a rule for throttle 1`] = `
     "Statement": {
       "RateBasedStatement": {
         "AggregateKeyType": "IP",
-        "EvaluationWindowSec": 300,
+        "EvaluationWindowSec": undefined,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": {
@@ -230,7 +230,7 @@ exports[`Waf ApiKey rules should generate a rule for throttleWithStatements 1`] 
     "Statement": {
       "RateBasedStatement": {
         "AggregateKeyType": "IP",
-        "EvaluationWindowSec": 300,
+        "EvaluationWindowSec": undefined,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": {
@@ -546,7 +546,7 @@ exports[`Waf Throttle rules should generate a preset rule 1`] = `
   "Statement": {
     "RateBasedStatement": {
       "AggregateKeyType": "IP",
-      "EvaluationWindowSec": 300,
+      "EvaluationWindowSec": undefined,
       "ForwardedIPConfig": undefined,
       "Limit": 100,
       "ScopeDownStatement": undefined,
@@ -597,7 +597,7 @@ exports[`Waf Throttle rules should generate a preset rule with limit 1`] = `
   "Statement": {
     "RateBasedStatement": {
       "AggregateKeyType": "IP",
-      "EvaluationWindowSec": 300,
+      "EvaluationWindowSec": undefined,
       "ForwardedIPConfig": undefined,
       "Limit": 500,
       "ScopeDownStatement": undefined,

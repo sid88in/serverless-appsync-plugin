@@ -294,7 +294,10 @@ export class Waf {
   ): CfnWafRule {
     let Name = `${defaultNamePrefix || ''}Throttle`;
     let Limit = 100;
-    let EvaluationWindowSec = 300;
+    // Only emit EvaluationWindowSec when the user explicitly sets it.
+    // AWS WAF defaults this to 300 (5 minutes); leaving it undefined keeps the
+    // generated CloudFormation byte-identical for existing throttle rules.
+    let EvaluationWindowSec: number | undefined;
     let AggregateKeyType = 'IP';
     let ForwardedIPConfig;
     let Priority;
@@ -306,7 +309,7 @@ export class Waf {
       Name = config.name || Name;
       AggregateKeyType = config.aggregateKeyType || AggregateKeyType;
       Limit = config.limit || Limit;
-      EvaluationWindowSec = config.evaluationWindowSec || EvaluationWindowSec;
+      EvaluationWindowSec = config.evaluationWindowSec;
       Priority = config.priority;
       ScopeDownStatement = config.scopeDownStatement;
       if (AggregateKeyType === 'FORWARDED_IP') {

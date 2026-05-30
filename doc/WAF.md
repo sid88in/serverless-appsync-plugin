@@ -69,7 +69,7 @@ waf:
     - throttle: 200 # limit to 200 requests per 5 minutes period
     - throttle:
         limit: 200
-        evaluationWindowSec: 300 # count requests in last 5 minutes, one of 60 | 120 | 300 | 600
+        evaluationWindowSec: 300 # optional; window over which requests are counted, one of 60 | 120 | 300 | 600 (AWS default: 300)
         priority: 10
         aggregateKeyType: FORWARDED_IP
         forwardedIPConfig:
@@ -126,14 +126,14 @@ waf:
   defaultAction: Block
   rules:
     # using ManagedRuleGroup
-    - name: "AWSManagedRulesCommonRuleSet"
+    - name: 'AWSManagedRulesCommonRuleSet'
       priority: 20
       overrideAction:
         None: {}
       statement:
         ManagedRuleGroupStatement:
-          VendorName: "AWS"
-          Name: "AWSManagedRulesCommonRuleSet"
+          VendorName: 'AWS'
+          Name: 'AWSManagedRulesCommonRuleSet'
 ```
 
 ### Per API Key rules
