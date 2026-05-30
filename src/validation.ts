@@ -288,6 +288,11 @@ export const appSyncSchema = {
         sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },
+        metricsConfig: {
+          type: 'string',
+          enum: ['ENABLED', 'DISABLED'],
+          errorMessage: "must be 'ENABLED' or 'DISABLED'",
+        },
       },
       if: { properties: { kind: { const: 'UNIT' } }, required: ['kind'] },
       then: {
@@ -810,6 +815,34 @@ export const appSyncSchema = {
         enabled: { type: 'boolean' },
       },
       required: ['level'],
+    },
+    enhancedMetrics: {
+      type: 'object',
+      properties: {
+        DataSourceLevelMetricsBehavior: {
+          type: 'string',
+          enum: ['FULL_REQUEST_DATA_SOURCE_METRICS', 'PER_DATA_SOURCE_METRICS'],
+          errorMessage:
+            "must be 'FULL_REQUEST_DATA_SOURCE_METRICS' or 'PER_DATA_SOURCE_METRICS'",
+        },
+        OperationLevelMetricsConfig: {
+          type: 'string',
+          enum: ['ENABLED', 'DISABLED'],
+          errorMessage: "must be 'ENABLED' or 'DISABLED'",
+        },
+        ResolverLevelMetricsBehavior: {
+          type: 'string',
+          enum: ['FULL_REQUEST_RESOLVER_METRICS', 'PER_RESOLVER_METRICS'],
+          errorMessage:
+            "must be 'FULL_REQUEST_RESOLVER_METRICS' or 'PER_RESOLVER_METRICS'",
+        },
+      },
+      required: [
+        'DataSourceLevelMetricsBehavior',
+        'OperationLevelMetricsConfig',
+        'ResolverLevelMetricsBehavior',
+      ],
+      additionalProperties: false,
     },
     dataSources: {
       oneOf: [

@@ -31,6 +31,15 @@ export class Resolver {
       FieldName: this.config.field,
     };
 
+    // Only emit MetricsConfig when enhanced metrics are enabled on the API.
+    // This keeps the generated CloudFormation unchanged for stacks that don't
+    // use enhanced metrics. When enabled, resolvers default to DISABLED (AWS's
+    // default) but can opt in per-resolver via `metricsConfig: ENABLED`, which
+    // is what makes ResolverLevelMetricsBehavior: PER_RESOLVER_METRICS useful.
+    if (this.api.config.enhancedMetrics) {
+      Properties.MetricsConfig = this.config.metricsConfig || 'DISABLED';
+    }
+
     const isVTLResolver = 'request' in this.config || 'response' in this.config;
     const isJsResolver =
       'code' in this.config || (!isVTLResolver && this.config.kind !== 'UNIT');

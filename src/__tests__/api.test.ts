@@ -93,6 +93,39 @@ describe('Api', () => {
       `);
     });
 
+    it('should compile EnhancedMetricsConfig when configured', () => {
+      const api = new Api(
+        given.appSyncConfig({
+          enhancedMetrics: {
+            DataSourceLevelMetricsBehavior: 'FULL_REQUEST_DATA_SOURCE_METRICS',
+            OperationLevelMetricsConfig: 'ENABLED',
+            ResolverLevelMetricsBehavior: 'PER_RESOLVER_METRICS',
+          },
+        }),
+        plugin,
+      );
+      const props = (
+        api.compileEndpoint().GraphQlApi as {
+          Properties: Record<string, unknown>;
+        }
+      ).Properties;
+      expect(props.EnhancedMetricsConfig).toEqual({
+        DataSourceLevelMetricsBehavior: 'FULL_REQUEST_DATA_SOURCE_METRICS',
+        OperationLevelMetricsConfig: 'ENABLED',
+        ResolverLevelMetricsBehavior: 'PER_RESOLVER_METRICS',
+      });
+    });
+
+    it('should not emit EnhancedMetricsConfig when not configured', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const props = (
+        api.compileEndpoint().GraphQlApi as {
+          Properties: Record<string, unknown>;
+        }
+      ).Properties;
+      expect(props.EnhancedMetricsConfig).toBeUndefined();
+    });
+
     it('should compile the Api Resource with Environments', () => {
       const api = new Api(
         given.appSyncConfig({
