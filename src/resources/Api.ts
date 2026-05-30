@@ -34,7 +34,7 @@ export class Api {
     public config: AppSyncConfig,
     public plugin: ServerlessAppsyncPlugin,
   ) {
-    this.naming = new Naming(this.config.name);
+    this.naming = new Naming(this.config);
   }
 
   compile() {
