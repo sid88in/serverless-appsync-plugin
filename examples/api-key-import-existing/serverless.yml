@@ -1,0 +1,43 @@
+service: appsync-api-key-import-existing
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# When `apiKeyId` is specified on an API key config, AppSync retains
+# the existing key value (the literal API key string) on next deploy
+# rather than rotating it. This is the right path when:
+#
+#   - Migrating from another AppSync setup that already issued keys
+#     to clients you can't easily re-key
+#   - Doing blue/green deployments where consumers need a stable key
+#   - Importing an AppSync stack that was previously managed manually
+#
+# Note: the API key VALUE itself is not in CFN. You'd typically
+# resolve it from a Secrets Manager parameter or env var. Here we
+# show the apiKeyId being passed through deterministically.
+
+appSync:
+  name: api-key-import-existing
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: stable
+      description: Stable key migrated from previous infrastructure
+      apiKeyId: da2-rotated-stable-key-id-abc123
+      expiresAfter: 365d
+    - name: rotating
+      description: Net-new key created by this stack
+      expiresAfter: 90d
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

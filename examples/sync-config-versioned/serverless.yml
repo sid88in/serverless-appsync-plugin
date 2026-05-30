@@ -1,0 +1,81 @@
+service: appsync-sync-config-versioned
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# DynamoDB versioned conflict detection is used for offline-capable
+# mobile apps that need to sync data with the server and resolve
+# conflicts when the same item is edited offline by multiple clients.
+# AppSync stores a _version attribute on each item; client mutations
+# include the version they read, and AppSync rejects mutations whose
+# version is stale (OPTIMISTIC_CONCURRENCY) or automatically merges
+# them (AUTOMERGE) or delegates to a Lambda (LAMBDA).
+
+appSync:
+  name: sync-config-versioned
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Mutation.updatePost:
+      kind: UNIT
+      dataSource: posts
+      sync:
+        conflictDetection: VERSION
+        conflictHandler: OPTIMISTIC_CONCURRENCY
+
+    Mutation.mergePost:
+      kind: UNIT
+      dataSource: posts
+      sync:
+        conflictDetection: VERSION
+        conflictHandler: AUTOMERGE
+
+  dataSources:
+    posts:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref PostsTable
+        versioned: true
+        deltaSyncConfig:
+          deltaSyncTableName: !Ref PostsDeltaTable
+          baseTableTTL: 43200
+          deltaSyncTableTTL: 1440
+
+resources:
+  Resources:
+    PostsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-posts
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+    PostsDeltaTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-posts-delta
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: ds_pk
+            KeyType: HASH
+          - AttributeName: ds_sk
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: ds_pk
+            AttributeType: S
+          - AttributeName: ds_sk
+            AttributeType: S
+        TimeToLiveSpecification:
+          AttributeName: _ttl
+          Enabled: true

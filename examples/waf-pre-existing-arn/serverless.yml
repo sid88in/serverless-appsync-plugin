@@ -1,0 +1,37 @@
+service: appsync-waf-pre-existing-arn
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# When `waf.arn` is set, the plugin assumes the WebACL was created
+# elsewhere (e.g. in a shared security stack or via Terraform) and
+# only emits the WebACLAssociation tying the existing ACL to this
+# API. No WAFv2::WebACL resource is created.
+#
+# This is the right shape for organizations with centralized WAF rules
+# applied across multiple APIs/services.
+
+appSync:
+  name: waf-pre-existing-arn
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  waf:
+    enabled: true
+    arn:
+      Fn::ImportValue: SharedWafAclArn
+
+  resolvers:
+    Query.hello:
+      kind: UNIT
+      dataSource: none_ds
+
+  dataSources:
+    none_ds:
+      type: NONE

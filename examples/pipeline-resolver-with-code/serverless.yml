@@ -1,0 +1,77 @@
+service: appsync-pipeline-resolver-with-code
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# Pipeline resolvers can have their own top-level `code:` file that
+# defines a request() handler running BEFORE the function chain and
+# a response() handler running AFTER. This is useful for:
+#   - Authorization / argument validation before the pipeline runs
+#   - Stitching / transforming the final result after all functions
+#   - Selecting which functions to run conditionally
+#
+# This is a different code path than pipeline functions WITH their
+# own code (which the pipeline-resolvers example already exercises).
+# Here, BOTH the pipeline resolver AND each function have code.
+
+appSync:
+  name: pipeline-resolver-with-code
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUserDetails:
+      kind: PIPELINE
+      code: ./resolvers/getUserDetails.js
+      functions:
+        - fetchUser
+        - fetchProfile
+
+  pipelineFunctions:
+    fetchUser:
+      dataSource: users
+      code: ./functions/fetchUser.js
+    fetchProfile:
+      dataSource: profiles
+      code: ./functions/fetchProfile.js
+
+  dataSources:
+    users:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
+    profiles:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref ProfilesTable
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-users
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+    ProfilesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${sls:stage}-profiles
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
