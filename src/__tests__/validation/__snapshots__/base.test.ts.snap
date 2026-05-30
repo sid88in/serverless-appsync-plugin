@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Valdiation Caching Invalid should validate a Invalid 1`] = `
 "/caching/enabled: must be boolean
@@ -56,7 +56,7 @@ exports[`Valdiation should validate  1`] = `
 : must have required property 'authentication'
 /unknownPorp: invalid (unknown) property
 /xrayEnabled: must be boolean
-/visibility: must be \\"GLOBAL\\" or \\"PRIVATE\\"
+/visibility: must be "GLOBAL" or "PRIVATE"
 /introspection: must be boolean
 /queryDepthLimit: must be integer
 /resolverCountLimit: must be integer

@@ -26,7 +26,7 @@ import { Api } from './resources/Api';
 import { Naming } from './resources/Naming';
 import { buildSync } from 'esbuild';
 import terminalLink from 'terminal-link';
-import { AwsClientFactory } from './aws-client-factory';
+import { AwsClientFactory, AwsCredentials } from './aws-client-factory';
 import { fromNodeProviderChain } from '@aws-sdk/credential-providers';
 import {
   GetGraphqlApiCommand,
@@ -55,6 +55,51 @@ import {
 import { ListCertificatesCommand } from '@aws-sdk/client-acm';
 
 const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
+
+/**
+ * Build an AWS SDK v3 credential provider from the credentials the Serverless
+ * Framework resolves for this service (default profile, provider.profile,
+ * environment credentials, --aws-profile, etc.), so the live commands use the
+ * same identity the Framework uses for deploys instead of the bare default
+ * chain. Resolution is fully lazy: the Framework's `getCredentials()` is only
+ * consulted when a client actually makes a request, so credential-free commands
+ * (eg: package / offline synthesis) never trigger it. The Framework returns an
+ * aws-sdk (v2) credentials object which may itself resolve lazily (shared-ini,
+ * SSO, assume-role, MFA), so we await it. If the Framework resolves no explicit
+ * credentials (or resolution fails), we defer to the standard v3 default chain.
+ */
+const resolveCredentials = (provider: Provider): AwsCredentials => {
+  return async () => {
+    let credentials;
+    try {
+      ({ credentials } = provider.getCredentials());
+    } catch {
+      // Credential resolution can throw in minimal/standalone contexts; fall
+      // back to the default chain rather than crashing the command.
+      credentials = undefined;
+    }
+    if (!credentials) {
+      return fromNodeProviderChain()();
+    }
+    if (typeof credentials.getPromise === 'function') {
+      await credentials.getPromise();
+    }
+    if (!credentials.accessKeyId || !credentials.secretAccessKey) {
+      // Serverless returned a credentials object but it could not be resolved
+      // to concrete keys; defer to the default chain rather than handing the
+      // SDK an empty identity.
+      return fromNodeProviderChain()();
+    }
+    return {
+      accessKeyId: credentials.accessKeyId,
+      secretAccessKey: credentials.secretAccessKey,
+      sessionToken: credentials.sessionToken,
+      expiration: credentials.expireTime
+        ? new Date(credentials.expireTime)
+        : undefined,
+    };
+  };
+};
 
 type Progress = {
   remove: () => void;
@@ -107,8 +152,15 @@ class ServerlessAppsyncPlugin {
     this.provider = this.serverless.getProvider('aws');
     this.utils = utils;
 
-    const region = this.serverless.service.provider.region || 'us-east-1';
-    const credentials = fromNodeProviderChain();
+    // Resolve region and credentials the same way the Serverless Framework
+    // does for its own AWS calls, so the live commands honor the --region /
+    // --aws-profile CLI options, provider.region / provider.profile from the
+    // service config, and any assumed-role / environment credentials. Falling
+    // back to the bare default credential chain (as a plain
+    // `fromNodeProviderChain()` would) silently ignores all of the above and
+    // breaks profile-based and multi-account setups.
+    const region = this.provider.getRegion();
+    const credentials = resolveCredentials(this.provider);
     this.clientFactory = new AwsClientFactory(region, credentials);
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)

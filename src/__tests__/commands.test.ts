@@ -86,7 +86,7 @@ describe('create domain', () => {
     expect(createCall).toBeDefined();
     expect(listCertCall).toBeUndefined();
     expect(createCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
         "domainName": "api.example.com",
       }
@@ -140,15 +140,15 @@ describe('create domain', () => {
 
     expect(listCertCalls).toHaveLength(1);
     expect(listCertCalls[0][0].input).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
     `);
     expect(createCall).toBeDefined();
     expect(createCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/8acd9c69-1704-462c-be91-b5d7ce45c493",
         "domainName": "api.example.com",
       }
@@ -196,8 +196,8 @@ describe('create domain', () => {
 
     expect(listCertCalls).toHaveLength(1);
     expect(listCertCalls[0][0].input).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
@@ -247,15 +247,15 @@ describe('create domain', () => {
 
     expect(listCertCalls).toHaveLength(1);
     expect(listCertCalls[0][0].input).toMatchInlineSnapshot(`
-      Object {
-        "CertificateStatuses": Array [
+      {
+        "CertificateStatuses": [
           "ISSUED",
         ],
       }
     `);
     expect(createCall).toBeDefined();
     expect(createCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/fd8f67f7-bf19-4894-80db-0c49bf5dd507",
         "domainName": "api.example.com",
       }
@@ -285,7 +285,7 @@ describe('delete domain', () => {
     );
     expect(deleteCall).toBeDefined();
     expect(deleteCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
@@ -317,7 +317,7 @@ describe('delete domain', () => {
     );
     expect(deleteCall).toBeDefined();
     expect(deleteCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
@@ -387,17 +387,17 @@ describe('assoc domain', () => {
     expect(assocCalls).toHaveLength(2);
     expect(associateCall).toBeDefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
-        Object {
+        {
           "domainName": "api.example.com",
         },
       ]
     `);
     expect(associateCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "apiId": "123456789",
         "domainName": "api.example.com",
       }
@@ -437,8 +437,8 @@ describe('assoc domain', () => {
     expect(assocCalls).toHaveLength(1);
     expect(associateCall).toBeUndefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
       ]
@@ -485,17 +485,17 @@ describe('assoc domain', () => {
     expect(assocCalls).toHaveLength(2);
     expect(associateCall).toBeDefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
-        Object {
+        {
           "domainName": "api.example.com",
         },
       ]
     `);
     expect(associateCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "apiId": "123456789",
         "domainName": "api.example.com",
       }
@@ -545,17 +545,17 @@ describe('assoc domain', () => {
     expect(assocCalls).toHaveLength(2);
     expect(associateCall).toBeDefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
-        Object {
+        {
           "domainName": "api.example.com",
         },
       ]
     `);
     expect(associateCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "apiId": "123456789",
         "domainName": "api.example.com",
       }
@@ -604,17 +604,17 @@ describe('domain disassoc', () => {
     expect(assocCalls).toHaveLength(2);
     expect(disassocCall).toBeDefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
-        Object {
+        {
           "domainName": "api.example.com",
         },
       ]
     `);
     expect(disassocCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
@@ -663,17 +663,17 @@ describe('domain disassoc', () => {
     expect(assocCalls).toHaveLength(2);
     expect(disassocCall).toBeDefined();
     expect(assocCalls.map(([cmd]) => cmd.input)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
-        Object {
+        {
           "domainName": "api.example.com",
         },
       ]
     `);
     expect(disassocCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
@@ -776,18 +776,18 @@ describe('domain create-record', () => {
     expect(changeRecordCall).toBeDefined();
     expect(getChangeCall).toBeDefined();
     expect(getDomainCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
     expect(changeRecordCall![0].input).toMatchInlineSnapshot(`
-      Object {
-        "ChangeBatch": Object {
-          "Changes": Array [
-            Object {
+      {
+        "ChangeBatch": {
+          "Changes": [
+            {
               "Action": "CREATE",
-              "ResourceRecordSet": Object {
-                "AliasTarget": Object {
+              "ResourceRecordSet": {
+                "AliasTarget": {
                   "DNSName": "qbcdefghij.cloudfront.net",
                   "EvaluateTargetHealth": false,
                   "HostedZoneId": "Z111111QQQQQQQ",
@@ -802,7 +802,7 @@ describe('domain create-record', () => {
       }
     `);
     expect(getChangeCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "Id": "1234567890",
       }
     `);
@@ -995,18 +995,18 @@ describe('domain delete-record', () => {
     expect(changeRecordCall).toBeDefined();
     expect(getChangeCall).toBeDefined();
     expect(getDomainCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
     expect(changeRecordCall![0].input).toMatchInlineSnapshot(`
-      Object {
-        "ChangeBatch": Object {
-          "Changes": Array [
-            Object {
+      {
+        "ChangeBatch": {
+          "Changes": [
+            {
               "Action": "DELETE",
-              "ResourceRecordSet": Object {
-                "AliasTarget": Object {
+              "ResourceRecordSet": {
+                "AliasTarget": {
                   "DNSName": "qbcdefghij.cloudfront.net",
                   "EvaluateTargetHealth": false,
                   "HostedZoneId": "Z111111QQQQQQQ",
@@ -1021,7 +1021,7 @@ describe('domain delete-record', () => {
       }
     `);
     expect(getChangeCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "Id": "1234567890",
       }
     `);
@@ -1068,8 +1068,8 @@ describe('domain delete-record', () => {
         .filter(([cmd]) => cmd instanceof GetDomainNameCommand)
         .map(([cmd]) => cmd.input),
     ).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "domainName": "api.example.com",
         },
       ]
@@ -1122,18 +1122,18 @@ describe('domain delete-record', () => {
     expect(changeRecordCall).toBeDefined();
     expect(getChangeCall).toBeDefined();
     expect(getDomainCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "domainName": "api.example.com",
       }
     `);
     expect(changeRecordCall![0].input).toMatchInlineSnapshot(`
-      Object {
-        "ChangeBatch": Object {
-          "Changes": Array [
-            Object {
+      {
+        "ChangeBatch": {
+          "Changes": [
+            {
               "Action": "DELETE",
-              "ResourceRecordSet": Object {
-                "AliasTarget": Object {
+              "ResourceRecordSet": {
+                "AliasTarget": {
                   "DNSName": "qbcdefghij.cloudfront.net",
                   "EvaluateTargetHealth": false,
                   "HostedZoneId": "Z111111QQQQQQQ",
@@ -1148,7 +1148,7 @@ describe('domain delete-record', () => {
       }
     `);
     expect(getChangeCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "Id": "1234567890",
       }
     `);
@@ -1483,7 +1483,7 @@ describe('env get', () => {
     );
     expect(envCall).toBeDefined();
     expect(envCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "apiId": "123456789",
       }
     `);
@@ -1528,9 +1528,9 @@ describe('env set', () => {
     );
     expect(putCall).toBeDefined();
     expect(putCall![0].input).toMatchInlineSnapshot(`
-      Object {
+      {
         "apiId": "123456789",
-        "environmentVariables": Object {
+        "environmentVariables": {
           "EXISTING_KEY": "existing-value",
           "NEW_KEY": "new-value",
         },

@@ -1,39 +1,39 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Waf ApiKey rules should generate a rule for customRule 1`] = `
-Array [
-  Object {
-    "Action": Object {
-      "Allow": Object {},
+[
+  {
+    "Action": {
+      "Allow": {},
     },
     "Name": "MyCustomRule",
     "Priority": undefined,
-    "Statement": Object {
-      "AndStatement": Object {
-        "Statements": Array [
-          Object {
-            "GeoMatchStatement": Object {
-              "CountryCodes": Array [
+    "Statement": {
+      "AndStatement": {
+        "Statements": [
+          {
+            "GeoMatchStatement": {
+              "CountryCodes": [
                 "US",
               ],
             },
           },
-          Object {
-            "ByteMatchStatement": Object {
-              "FieldToMatch": Object {
-                "SingleHeader": Object {
+          {
+            "ByteMatchStatement": {
+              "FieldToMatch": {
+                "SingleHeader": {
                   "Name": "X-Api-key",
                 },
               },
               "PositionalConstraint": "EXACTLY",
-              "SearchString": Object {
-                "Fn::GetAtt": Array [
+              "SearchString": {
+                "Fn::GetAtt": [
                   "GraphQlApiMyKey",
                   "ApiKey",
                 ],
               },
-              "TextTransformations": Array [
-                Object {
+              "TextTransformations": [
+                {
                   "Priority": 0,
                   "Type": "LOWERCASE",
                 },
@@ -43,7 +43,7 @@ Array [
         ],
       },
     },
-    "VisibilityConfig": Object {
+    "VisibilityConfig": {
       "CloudWatchMetricsEnabled": true,
       "MetricName": "MyCustomRule",
       "SampledRequestsEnabled": true,
@@ -53,43 +53,43 @@ Array [
 `;
 
 exports[`Waf ApiKey rules should generate a rule for disableIntrospection 1`] = `
-Array [
-  Object {
-    "Action": Object {
-      "Block": Object {},
+[
+  {
+    "Action": {
+      "Block": {},
     },
     "Name": "MyKeyDisableIntrospection",
     "Priority": undefined,
-    "Statement": Object {
-      "AndStatement": Object {
-        "Statements": Array [
-          Object {
-            "OrStatement": Object {
-              "Statements": Array [
-                Object {
-                  "SizeConstraintStatement": Object {
+    "Statement": {
+      "AndStatement": {
+        "Statements": [
+          {
+            "OrStatement": {
+              "Statements": [
+                {
+                  "SizeConstraintStatement": {
                     "ComparisonOperator": "GT",
-                    "FieldToMatch": Object {
-                      "Body": Object {},
+                    "FieldToMatch": {
+                      "Body": {},
                     },
                     "Size": 8192,
-                    "TextTransformations": Array [
-                      Object {
+                    "TextTransformations": [
+                      {
                         "Priority": 0,
                         "Type": "NONE",
                       },
                     ],
                   },
                 },
-                Object {
-                  "ByteMatchStatement": Object {
-                    "FieldToMatch": Object {
-                      "Body": Object {},
+                {
+                  "ByteMatchStatement": {
+                    "FieldToMatch": {
+                      "Body": {},
                     },
                     "PositionalConstraint": "CONTAINS",
                     "SearchString": "__schema",
-                    "TextTransformations": Array [
-                      Object {
+                    "TextTransformations": [
+                      {
                         "Priority": 0,
                         "Type": "COMPRESS_WHITE_SPACE",
                       },
@@ -99,22 +99,22 @@ Array [
               ],
             },
           },
-          Object {
-            "ByteMatchStatement": Object {
-              "FieldToMatch": Object {
-                "SingleHeader": Object {
+          {
+            "ByteMatchStatement": {
+              "FieldToMatch": {
+                "SingleHeader": {
                   "Name": "X-Api-key",
                 },
               },
               "PositionalConstraint": "EXACTLY",
-              "SearchString": Object {
-                "Fn::GetAtt": Array [
+              "SearchString": {
+                "Fn::GetAtt": [
                   "GraphQlApiMyKey",
                   "ApiKey",
                 ],
               },
-              "TextTransformations": Array [
-                Object {
+              "TextTransformations": [
+                {
                   "Priority": 0,
                   "Type": "LOWERCASE",
                 },
@@ -124,7 +124,7 @@ Array [
         ],
       },
     },
-    "VisibilityConfig": Object {
+    "VisibilityConfig": {
       "CloudWatchMetricsEnabled": true,
       "MetricName": "MyKeyDisableIntrospection",
       "SampledRequestsEnabled": true,
@@ -134,36 +134,36 @@ Array [
 `;
 
 exports[`Waf ApiKey rules should generate a rule for emptyStatements 1`] = `
-Array [
-  Object {
-    "Action": Object {
-      "Allow": Object {},
+[
+  {
+    "Action": {
+      "Allow": {},
     },
     "Name": "rulesWithoutStatements",
     "Priority": undefined,
-    "Statement": Object {
-      "ByteMatchStatement": Object {
-        "FieldToMatch": Object {
-          "SingleHeader": Object {
+    "Statement": {
+      "ByteMatchStatement": {
+        "FieldToMatch": {
+          "SingleHeader": {
             "Name": "X-Api-key",
           },
         },
         "PositionalConstraint": "EXACTLY",
-        "SearchString": Object {
-          "Fn::GetAtt": Array [
+        "SearchString": {
+          "Fn::GetAtt": [
             "GraphQlApiMyKey",
             "ApiKey",
           ],
         },
-        "TextTransformations": Array [
-          Object {
+        "TextTransformations": [
+          {
             "Priority": 0,
             "Type": "LOWERCASE",
           },
         ],
       },
     },
-    "VisibilityConfig": Object {
+    "VisibilityConfig": {
       "CloudWatchMetricsEnabled": true,
       "MetricName": "rulesWithoutStatements",
       "SampledRequestsEnabled": true,
@@ -173,34 +173,34 @@ Array [
 `;
 
 exports[`Waf ApiKey rules should generate a rule for throttle 1`] = `
-Array [
-  Object {
-    "Action": Object {
-      "Block": Object {},
+[
+  {
+    "Action": {
+      "Block": {},
     },
     "Name": "MyKeyThrottle",
     "Priority": undefined,
-    "Statement": Object {
-      "RateBasedStatement": Object {
+    "Statement": {
+      "RateBasedStatement": {
         "AggregateKeyType": "IP",
         "ForwardedIPConfig": undefined,
         "Limit": 100,
-        "ScopeDownStatement": Object {
-          "ByteMatchStatement": Object {
-            "FieldToMatch": Object {
-              "SingleHeader": Object {
+        "ScopeDownStatement": {
+          "ByteMatchStatement": {
+            "FieldToMatch": {
+              "SingleHeader": {
                 "Name": "X-Api-key",
               },
             },
             "PositionalConstraint": "EXACTLY",
-            "SearchString": Object {
-              "Fn::GetAtt": Array [
+            "SearchString": {
+              "Fn::GetAtt": [
                 "GraphQlApiMyKey",
                 "ApiKey",
               ],
             },
-            "TextTransformations": Array [
-              Object {
+            "TextTransformations": [
+              {
                 "Priority": 0,
                 "Type": "LOWERCASE",
               },
@@ -209,7 +209,7 @@ Array [
         },
       },
     },
-    "VisibilityConfig": Object {
+    "VisibilityConfig": {
       "CloudWatchMetricsEnabled": true,
       "MetricName": "MyKeyThrottle",
       "SampledRequestsEnabled": true,
@@ -219,54 +219,54 @@ Array [
 `;
 
 exports[`Waf ApiKey rules should generate a rule for throttleWithStatements 1`] = `
-Array [
-  Object {
-    "Action": Object {
-      "Block": Object {},
+[
+  {
+    "Action": {
+      "Block": {},
     },
     "Name": "Throttle rule with custom ScopeDownStatement",
     "Priority": undefined,
-    "Statement": Object {
-      "RateBasedStatement": Object {
+    "Statement": {
+      "RateBasedStatement": {
         "AggregateKeyType": "IP",
         "ForwardedIPConfig": undefined,
         "Limit": 100,
-        "ScopeDownStatement": Object {
-          "AndStatement": Object {
-            "Statements": Array [
-              Object {
-                "ByteMatchStatement": Object {
-                  "FieldToMatch": Object {
-                    "SingleHeader": Object {
+        "ScopeDownStatement": {
+          "AndStatement": {
+            "Statements": [
+              {
+                "ByteMatchStatement": {
+                  "FieldToMatch": {
+                    "SingleHeader": {
                       "Name": "X-Foo",
                     },
                   },
                   "PositionalConstraint": "EXACTLY",
                   "SearchString": "Bar",
-                  "TextTransformations": Array [
-                    Object {
+                  "TextTransformations": [
+                    {
                       "Priority": 0,
                       "Type": "LOWERCASE",
                     },
                   ],
                 },
               },
-              Object {
-                "ByteMatchStatement": Object {
-                  "FieldToMatch": Object {
-                    "SingleHeader": Object {
+              {
+                "ByteMatchStatement": {
+                  "FieldToMatch": {
+                    "SingleHeader": {
                       "Name": "X-Api-key",
                     },
                   },
                   "PositionalConstraint": "EXACTLY",
-                  "SearchString": Object {
-                    "Fn::GetAtt": Array [
+                  "SearchString": {
+                    "Fn::GetAtt": [
                       "GraphQlApiMyKey",
                       "ApiKey",
                     ],
                   },
-                  "TextTransformations": Array [
-                    Object {
+                  "TextTransformations": [
+                    {
                       "Priority": 0,
                       "Type": "LOWERCASE",
                     },
@@ -278,7 +278,7 @@ Array [
         },
       },
     },
-    "VisibilityConfig": Object {
+    "VisibilityConfig": {
       "CloudWatchMetricsEnabled": true,
       "MetricName": "Throttle rule with custom ScopeDownStatement",
       "SampledRequestsEnabled": true,
@@ -288,11 +288,11 @@ Array [
 `;
 
 exports[`Waf Base Resources should generate only the waf association 1`] = `
-Object {
-  "GraphQlWafAssoc": Object {
-    "Properties": Object {
-      "ResourceArn": Object {
-        "Fn::GetAtt": Array [
+{
+  "GraphQlWafAssoc": {
+    "Properties": {
+      "ResourceArn": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "Arn",
         ],
@@ -305,23 +305,23 @@ Object {
 `;
 
 exports[`Waf Base Resources should generate waf Resources 1`] = `
-Object {
-  "GraphQlWaf": Object {
-    "Properties": Object {
-      "DefaultAction": Object {
-        "Allow": Object {},
+{
+  "GraphQlWaf": {
+    "Properties": {
+      "DefaultAction": {
+        "Allow": {},
       },
       "Description": "My Waf ACL",
       "Name": "Waf",
-      "Rules": Array [],
+      "Rules": [],
       "Scope": "REGIONAL",
-      "Tags": Array [
-        Object {
+      "Tags": [
+        {
           "Key": "stage",
           "Value": "Dev",
         },
       ],
-      "VisibilityConfig": Object {
+      "VisibilityConfig": {
         "CloudWatchMetricsEnabled": true,
         "MetricName": "MyVisibilityConfig",
         "SampledRequestsEnabled": true,
@@ -329,16 +329,16 @@ Object {
     },
     "Type": "AWS::WAFv2::WebACL",
   },
-  "GraphQlWafAssoc": Object {
-    "Properties": Object {
-      "ResourceArn": Object {
-        "Fn::GetAtt": Array [
+  "GraphQlWafAssoc": {
+    "Properties": {
+      "ResourceArn": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "Arn",
         ],
       },
-      "WebACLArn": Object {
-        "Fn::GetAtt": Array [
+      "WebACLArn": {
+        "Fn::GetAtt": [
           "GraphQlWaf",
           "Arn",
         ],
@@ -350,18 +350,18 @@ Object {
 `;
 
 exports[`Waf Base Resources should generate waf Resources without tags 1`] = `
-Object {
-  "GraphQlWaf": Object {
-    "Properties": Object {
-      "DefaultAction": Object {
-        "Allow": Object {},
+{
+  "GraphQlWaf": {
+    "Properties": {
+      "DefaultAction": {
+        "Allow": {},
       },
       "Description": "My Waf ACL",
       "Name": "Waf",
-      "Rules": Array [],
+      "Rules": [],
       "Scope": "REGIONAL",
       "Tags": undefined,
-      "VisibilityConfig": Object {
+      "VisibilityConfig": {
         "CloudWatchMetricsEnabled": true,
         "MetricName": "MyVisibilityConfig",
         "SampledRequestsEnabled": true,
@@ -369,16 +369,16 @@ Object {
     },
     "Type": "AWS::WAFv2::WebACL",
   },
-  "GraphQlWafAssoc": Object {
-    "Properties": Object {
-      "ResourceArn": Object {
-        "Fn::GetAtt": Array [
+  "GraphQlWafAssoc": {
+    "Properties": {
+      "ResourceArn": {
+        "Fn::GetAtt": [
           "GraphQlApi",
           "Arn",
         ],
       },
-      "WebACLArn": Object {
-        "Fn::GetAtt": Array [
+      "WebACLArn": {
+        "Fn::GetAtt": [
           "GraphQlWaf",
           "Arn",
         ],
@@ -390,20 +390,20 @@ Object {
 `;
 
 exports[`Waf Custom rules should generate a custom rule 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "disable US",
   "Priority": 200,
-  "Statement": Object {
-    "GeoMatchStatement": Object {
-      "CountryCodes": Array [
+  "Statement": {
+    "GeoMatchStatement": {
+      "CountryCodes": [
         "US",
       ],
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": true,
     "MetricName": "disable US",
     "SampledRequestsEnabled": true,
@@ -412,19 +412,19 @@ Object {
 `;
 
 exports[`Waf Custom rules should generate a custom rule with ManagedRuleGroup 1`] = `
-Object {
+{
   "Name": "MyRule1",
-  "OverrideAction": Object {
-    "None": Object {},
+  "OverrideAction": {
+    "None": {},
   },
   "Priority": 200,
-  "Statement": Object {
-    "ManagedRuleGroupStatement": Object {
+  "Statement": {
+    "ManagedRuleGroupStatement": {
       "Name": "AWSManagedRulesCommonRuleSet",
       "VendorName": "AWS",
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": true,
     "MetricName": "MyRule1",
     "SampledRequestsEnabled": true,
@@ -433,39 +433,39 @@ Object {
 `;
 
 exports[`Waf Disable introspection should generate a preset rule 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "BaseDisableIntrospection",
   "Priority": undefined,
-  "Statement": Object {
-    "OrStatement": Object {
-      "Statements": Array [
-        Object {
-          "SizeConstraintStatement": Object {
+  "Statement": {
+    "OrStatement": {
+      "Statements": [
+        {
+          "SizeConstraintStatement": {
             "ComparisonOperator": "GT",
-            "FieldToMatch": Object {
-              "Body": Object {},
+            "FieldToMatch": {
+              "Body": {},
             },
             "Size": 8192,
-            "TextTransformations": Array [
-              Object {
+            "TextTransformations": [
+              {
                 "Priority": 0,
                 "Type": "NONE",
               },
             ],
           },
         },
-        Object {
-          "ByteMatchStatement": Object {
-            "FieldToMatch": Object {
-              "Body": Object {},
+        {
+          "ByteMatchStatement": {
+            "FieldToMatch": {
+              "Body": {},
             },
             "PositionalConstraint": "CONTAINS",
             "SearchString": "__schema",
-            "TextTransformations": Array [
-              Object {
+            "TextTransformations": [
+              {
                 "Priority": 0,
                 "Type": "COMPRESS_WHITE_SPACE",
               },
@@ -475,7 +475,7 @@ Object {
       ],
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": true,
     "MetricName": "BaseDisableIntrospection",
     "SampledRequestsEnabled": true,
@@ -484,39 +484,39 @@ Object {
 `;
 
 exports[`Waf Disable introspection should generate a preset rule with custon config 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "BaseDisableIntrospection",
   "Priority": 200,
-  "Statement": Object {
-    "OrStatement": Object {
-      "Statements": Array [
-        Object {
-          "SizeConstraintStatement": Object {
+  "Statement": {
+    "OrStatement": {
+      "Statements": [
+        {
+          "SizeConstraintStatement": {
             "ComparisonOperator": "GT",
-            "FieldToMatch": Object {
-              "Body": Object {},
+            "FieldToMatch": {
+              "Body": {},
             },
             "Size": 8192,
-            "TextTransformations": Array [
-              Object {
+            "TextTransformations": [
+              {
                 "Priority": 0,
                 "Type": "NONE",
               },
             ],
           },
         },
-        Object {
-          "ByteMatchStatement": Object {
-            "FieldToMatch": Object {
-              "Body": Object {},
+        {
+          "ByteMatchStatement": {
+            "FieldToMatch": {
+              "Body": {},
             },
             "PositionalConstraint": "CONTAINS",
             "SearchString": "__schema",
-            "TextTransformations": Array [
-              Object {
+            "TextTransformations": [
+              {
                 "Priority": 0,
                 "Type": "COMPRESS_WHITE_SPACE",
               },
@@ -526,7 +526,7 @@ Object {
       ],
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": false,
     "MetricName": "DisableIntrospection",
     "SampledRequestsEnabled": false,
@@ -535,21 +535,21 @@ Object {
 `;
 
 exports[`Waf Throttle rules should generate a preset rule 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "BaseThrottle",
   "Priority": undefined,
-  "Statement": Object {
-    "RateBasedStatement": Object {
+  "Statement": {
+    "RateBasedStatement": {
       "AggregateKeyType": "IP",
       "ForwardedIPConfig": undefined,
       "Limit": 100,
       "ScopeDownStatement": undefined,
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": true,
     "MetricName": "BaseThrottle",
     "SampledRequestsEnabled": true,
@@ -558,16 +558,16 @@ Object {
 `;
 
 exports[`Waf Throttle rules should generate a preset rule with config 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "BaseThrottle",
   "Priority": 300,
-  "Statement": Object {
-    "RateBasedStatement": Object {
+  "Statement": {
+    "RateBasedStatement": {
       "AggregateKeyType": "FORWARDED_IP",
-      "ForwardedIPConfig": Object {
+      "ForwardedIPConfig": {
         "FallbackBehavior": "MATCH",
         "HeaderName": "X-Forwarded-To",
       },
@@ -575,7 +575,7 @@ Object {
       "ScopeDownStatement": undefined,
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": false,
     "MetricName": "ThrottleRule",
     "SampledRequestsEnabled": false,
@@ -584,21 +584,21 @@ Object {
 `;
 
 exports[`Waf Throttle rules should generate a preset rule with limit 1`] = `
-Object {
-  "Action": Object {
-    "Block": Object {},
+{
+  "Action": {
+    "Block": {},
   },
   "Name": "BaseThrottle",
   "Priority": undefined,
-  "Statement": Object {
-    "RateBasedStatement": Object {
+  "Statement": {
+    "RateBasedStatement": {
       "AggregateKeyType": "IP",
       "ForwardedIPConfig": undefined,
       "Limit": 500,
       "ScopeDownStatement": undefined,
     },
   },
-  "VisibilityConfig": Object {
+  "VisibilityConfig": {
     "CloudWatchMetricsEnabled": true,
     "MetricName": "BaseThrottle",
     "SampledRequestsEnabled": true,
