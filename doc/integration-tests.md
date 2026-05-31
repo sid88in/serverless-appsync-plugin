@@ -41,12 +41,12 @@ default credential chain.
 
 ## Tiers and gating
 
-| Tier               | Switch (in addition to `APPSYNC_PLUGIN_INTEGRATION=1`)  | Cost profile                                  |
-| ------------------ | ------------------------------------------------------- | --------------------------------------------- |
-| A — evaluate       | none                                                    | negligible (a few AppSync requests)           |
-| B — minimal deploy | none                                                    | cents (no hourly charge; 1-day log retention) |
-| C — caching        | `APPSYNC_PLUGIN_INTEGRATION_CACHING=1`                  | **hourly** caching instance while it exists   |
-| D — custom domain  | `APPSYNC_PLUGIN_INTEGRATION_DOMAIN` + `_HOSTED_ZONE_ID` | minimal (reuses existing zone + cert)         |
+| Tier               | Switch (in addition to `APPSYNC_PLUGIN_INTEGRATION=1`)                            | Cost profile                                  |
+| ------------------ | --------------------------------------------------------------------------------- | --------------------------------------------- |
+| A — evaluate       | none                                                                              | negligible (a few AppSync requests)           |
+| B — minimal deploy | none                                                                              | cents (no hourly charge; 1-day log retention) |
+| C — caching        | `APPSYNC_PLUGIN_INTEGRATION_CACHING=1`                                            | **hourly** caching instance while it exists   |
+| D — custom domain  | `APPSYNC_PLUGIN_INTEGRATION_DOMAIN` + `APPSYNC_PLUGIN_INTEGRATION_HOSTED_ZONE_ID` | minimal (reuses existing zone + cert)         |
 
 Tiers are independently skippable: with only credentials set you get A and B;
 caching and domain stay skipped until you opt in.

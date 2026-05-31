@@ -84,6 +84,9 @@ export function runServerless(args: string[], options: RunOptions): SlsResult {
     const stdout = execFileSync(SERVERLESS_BIN, fullArgs, {
       cwd: options.cwd,
       timeout: options.timeout ?? 240_000,
+      // Verbose CloudFormation output from deploy/remove/info can exceed the
+      // 1 MB default and surface as a spurious ENOBUFS SlsCommandError.
+      maxBuffer: 64 * 1024 * 1024,
       env: {
         ...process.env,
         SLS_NOTIFICATIONS_MODE: 'off',

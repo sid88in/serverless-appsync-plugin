@@ -36,6 +36,7 @@ async function main(): Promise<void> {
   }
 
   const { region } = integrationConfig;
+  let failures = 0;
   log(
     `sweeping region ${region}` +
       (integrationConfig.profile
@@ -53,6 +54,7 @@ async function main(): Promise<void> {
     try {
       await deleteApi(region, api.apiId);
     } catch (err) {
+      failures++;
       log(`  failed: ${(err as Error).message}`);
     }
   }
@@ -63,6 +65,7 @@ async function main(): Promise<void> {
     try {
       await cleanupDomainName(region, integrationConfig.domain.name);
     } catch (err) {
+      failures++;
       log(`  failed: ${(err as Error).message}`);
     }
   }
@@ -77,11 +80,18 @@ async function main(): Promise<void> {
     try {
       await deleteStack(region, name);
     } catch (err) {
+      failures++;
       log(`  failed: ${(err as Error).message}`);
     }
   }
 
   log('done (stack deletions are asynchronous; verify in the console)');
+  if (failures > 0) {
+    // Surface delete failures so the CI backstop doesn't report success while
+    // leaving billable resources behind.
+    log(`${failures} deletion(s) failed`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {

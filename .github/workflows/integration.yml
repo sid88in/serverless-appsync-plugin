@@ -40,6 +40,10 @@ jobs:
     environment: integration # add manual approval / scoped secrets here
     steps:
       - uses: actions/checkout@v4
+        with:
+          # OIDC-only job that never pushes git; don't persist GITHUB_TOKEN
+          # into .git/config, since npm ci + the suite run third-party code.
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:

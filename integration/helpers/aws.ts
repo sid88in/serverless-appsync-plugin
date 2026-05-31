@@ -159,10 +159,22 @@ export async function cleanupDomainName(
   domainName: string,
 ): Promise<void> {
   const client = appSyncClient(region);
-  const { domainNameConfigs } = await client.send(
-    new ListDomainNamesCommand({ maxResults: 25 }),
-  );
-  const exists = domainNameConfigs?.some((d) => d.domainName === domainName);
+
+  // Paginate: a domain beyond the first page would otherwise be missed,
+  // silently skipping cleanup and leaking it.
+  let exists = false;
+  let nextToken: string | undefined;
+  do {
+    const { domainNameConfigs, nextToken: next } = await client.send(
+      new ListDomainNamesCommand({ maxResults: 25, nextToken }),
+    );
+    if (domainNameConfigs?.some((d) => d.domainName === domainName)) {
+      exists = true;
+      break;
+    }
+    nextToken = next;
+  } while (nextToken);
+
   if (!exists) {
     return;
   }
@@ -170,10 +182,11 @@ export async function cleanupDomainName(
     await client.send(new GetApiAssociationCommand({ domainName }));
     await client.send(new DisassociateApiCommand({ domainName }));
   } catch (err) {
-    // NotFoundException => no association to remove; anything else we let the
-    // delete below surface.
+    // NotFoundException => no association to remove. Re-throw anything else
+    // (permissions, throttling, ...) so real failures surface rather than
+    // leaving the domain leaked.
     if (!(err instanceof Error) || err.name !== 'NotFoundException') {
-      // swallow: best-effort cleanup
+      throw err;
     }
   }
   await client.send(new DeleteDomainNameCommand({ domainName }));
