@@ -76,6 +76,25 @@ describe('Basic', () => {
         },
       },
       {
+        name: 'Disabled mapping templates (request/response: false)',
+        config: {
+          resolvers: {
+            'Query.noTemplates': {
+              kind: 'UNIT',
+              dataSource: 'myDs',
+              request: false,
+              response: false,
+            },
+            'Query.onlyResponse': {
+              kind: 'UNIT',
+              dataSource: 'myDs',
+              request: false,
+              response: 'response.vtl',
+            },
+          },
+        },
+      },
+      {
         name: 'Valid config, as array of maps',
         config: {
           resolvers: [
@@ -147,6 +166,19 @@ describe('Basic', () => {
               request: 123,
               response: 456,
               maxBatchSize: 5000,
+            },
+          },
+        },
+      },
+      {
+        name: 'Mapping template true (only string or false allowed)',
+        config: {
+          resolvers: {
+            'Query.user': {
+              kind: 'UNIT',
+              dataSource: 'myDs',
+              request: true,
+              response: true,
             },
           },
         },

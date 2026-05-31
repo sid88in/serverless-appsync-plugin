@@ -36,6 +36,11 @@ export const appSyncSchema = {
       ],
       errorMessage: 'must be a string or a CloudFormation intrinsic function',
     },
+    mappingTemplate: {
+      oneOf: [{ type: 'string' }, { const: false }],
+      errorMessage:
+        'must be a string (path to the template) or false to omit the mapping template',
+    },
     lambdaFunctionConfig: {
       oneOf: [
         {
@@ -283,8 +288,8 @@ export const appSyncSchema = {
         field: { type: 'string' },
         maxBatchSize: { type: 'number', minimum: 1, maximum: 2000 },
         code: { type: 'string' },
-        request: { type: 'string' },
-        response: { type: 'string' },
+        request: { $ref: '#/definitions/mappingTemplate' },
+        response: { $ref: '#/definitions/mappingTemplate' },
         sync: { $ref: '#/definitions/syncConfig' },
         substitutions: { $ref: '#/definitions/substitutions' },
         caching: { $ref: '#/definitions/resolverCachingConfig' },

@@ -6,8 +6,8 @@ exports[`Basic Invalid should validate: Invalid 1`] = `
 /resolvers/myResolver/type: must be string
 /resolvers/myResolver/field: must be string
 /resolvers/myResolver/maxBatchSize: must be <= 2000
-/resolvers/myResolver/request: must be string
-/resolvers/myResolver/response: must be string
+/resolvers/myResolver/request: must be a string (path to the template) or false to omit the mapping template
+/resolvers/myResolver/response: must be a string (path to the template) or false to omit the mapping template
 /resolvers: contains invalid resolver definitions"
 `;
 
@@ -18,6 +18,12 @@ exports[`Basic Invalid should validate: Invalid datasource 1`] = `
 
 exports[`Basic Invalid should validate: Invalid embedded datasource 1`] = `
 "/resolvers/Query.getUser/dataSource/config: must specify functionName, functionArn or function (all exclusives)
+/resolvers: contains invalid resolver definitions"
+`;
+
+exports[`Basic Invalid should validate: Mapping template true (only string or false allowed) 1`] = `
+"/resolvers/Query.user/request: must be a string (path to the template) or false to omit the mapping template
+/resolvers/Query.user/response: must be a string (path to the template) or false to omit the mapping template
 /resolvers: contains invalid resolver definitions"
 `;
 
