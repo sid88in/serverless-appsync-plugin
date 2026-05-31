@@ -207,6 +207,28 @@ describe('schema', () => {
     expect(() => api.compileSchema()).not.toThrow();
   });
 
+  it('should accept and strip schemas that redeclare AWS directives/scalars', () => {
+    const api = new Api(
+      given.appSyncConfig({
+        schema: ['src/__tests__/fixtures/schemas/reserved/schema.graphql'],
+      }),
+      plugin,
+    );
+    // Previously threw: There can be only one directive named "@aws_cognito_user_pools".
+    expect(() => api.compileSchema()).not.toThrow();
+
+    const output = new Schema(api, [
+      'src/__tests__/fixtures/schemas/reserved/schema.graphql',
+    ]).generateSchema();
+
+    // The redeclarations are removed (AppSync provides them)...
+    expect(output).not.toMatch(/directive @aws_cognito_user_pools/);
+    expect(output).not.toMatch(/scalar AWSJSON/);
+    // ...but their usage is preserved.
+    expect(output).toContain('@aws_cognito_user_pools');
+    expect(output).toContain('AWSJSON');
+  });
+
   it('should return single files schemas as-is', () => {
     const api = new Api(given.appSyncConfig(), plugin);
     const schema = new Schema(api, [

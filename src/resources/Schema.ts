@@ -4,7 +4,7 @@ import path from 'path';
 import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { flatten } from 'lodash';
-import { parse, print } from 'graphql';
+import { parse, print, Kind, DefinitionNode } from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 
@@ -31,6 +31,27 @@ scalar AWSURL
 scalar AWSPhone
 scalar AWSIPAddress
 `;
+
+// The directive and scalar names AppSync provides itself (derived from
+// AWS_TYPES so the two never drift). User schemas that redeclare any of these
+// — often to satisfy a schema linter — must have the redeclaration stripped,
+// otherwise validation sees a duplicate definition and AppSync rejects the
+// upload.
+const reservedNames = ((): {
+  directives: Set<string>;
+  types: Set<string>;
+} => {
+  const directives = new Set<string>();
+  const types = new Set<string>();
+  for (const def of parse(AWS_TYPES).definitions) {
+    if (def.kind === Kind.DIRECTIVE_DEFINITION) {
+      directives.add(def.name.value);
+    } else if ('name' in def && def.name) {
+      types.add(def.name.value);
+    }
+  }
+  return { directives, types };
+})();
 
 export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
@@ -71,12 +92,12 @@ export class Schema {
     );
 
     const schemas = schemaFiles.map((file) => {
-      return fs.readFileSync(file, 'utf8');
+      return this.stripReservedDefinitions(fs.readFileSync(file, 'utf8'));
     });
 
     this.valdiateSchema(AWS_TYPES + '\n' + schemas.join('\n'));
 
-    // Return single files as-is.
+    // Return single (already stripped) files as-is.
     if (schemas.length === 1) {
       return schemas[0];
     }
@@ -93,4 +114,31 @@ export class Schema {
       }),
     );
   }
+
+  // AppSync provides its own directives (@aws_*, plus the plugin's merge
+  // directives) and scalars (AWSJSON, AWSDateTime, ...). Users sometimes also
+  // declare them — e.g. to satisfy a schema linter — which collides with the
+  // definitions we prepend for validation and is rejected by AppSync on
+  // deploy. Strip any such redeclaration, leaving the original text untouched
+  // when there is nothing to remove.
+  stripReservedDefinitions(schema: string): string {
+    const doc = parse(schema);
+    const definitions = doc.definitions.filter(
+      (def) => !isReservedDefinition(def),
+    );
+    if (definitions.length === doc.definitions.length) {
+      return schema;
+    }
+    return print({ ...doc, definitions });
+  }
+}
+
+function isReservedDefinition(def: DefinitionNode): boolean {
+  if (def.kind === Kind.DIRECTIVE_DEFINITION) {
+    return reservedNames.directives.has(def.name.value);
+  }
+  if ('name' in def && def.name) {
+    return reservedNames.types.has(def.name.value);
+  }
+  return false;
 }
