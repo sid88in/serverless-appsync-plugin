@@ -202,6 +202,10 @@ export const appSyncSchema = {
                       enum: ['IP', 'FORWARDED_IP'],
                     },
                     limit: { type: 'integer', minimum: 100 },
+                    evaluationWindowSec: {
+                      type: 'integer',
+                      enum: [60, 120, 300, 600],
+                    },
                     priority: { type: 'integer' },
                     scopeDownStatement: { type: 'object' },
                     forwardedIPConfig: {

@@ -143,6 +143,7 @@ describe('Valdiation', () => {
                     name: 'Throttle',
                     action: 'Block',
                     limit: 200,
+                    evaluationWindowSec: 300,
                     priority: 200,
                     aggregateKeyType: 'IP',
                     forwardedIPConfig: {
@@ -256,6 +257,23 @@ describe('Valdiation', () => {
                   throttle: {
                     name: 'Throttle',
                     limit: 99,
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          name: 'Throttle evaluationWindowSec',
+          config: {
+            ...basicConfig,
+            waf: {
+              rules: [
+                {
+                  throttle: {
+                    name: 'Throttle',
+                    limit: 200,
+                    evaluationWindowSec: 301,
                   },
                 },
               ],

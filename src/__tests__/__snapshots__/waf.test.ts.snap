@@ -183,6 +183,7 @@ exports[`Waf ApiKey rules should generate a rule for throttle 1`] = `
     "Statement": {
       "RateBasedStatement": {
         "AggregateKeyType": "IP",
+        "EvaluationWindowSec": undefined,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": {
@@ -229,6 +230,7 @@ exports[`Waf ApiKey rules should generate a rule for throttleWithStatements 1`] 
     "Statement": {
       "RateBasedStatement": {
         "AggregateKeyType": "IP",
+        "EvaluationWindowSec": undefined,
         "ForwardedIPConfig": undefined,
         "Limit": 100,
         "ScopeDownStatement": {
@@ -483,7 +485,7 @@ exports[`Waf Disable introspection should generate a preset rule 1`] = `
 }
 `;
 
-exports[`Waf Disable introspection should generate a preset rule with custon config 1`] = `
+exports[`Waf Disable introspection should generate a preset rule with custom config 1`] = `
 {
   "Action": {
     "Block": {},
@@ -544,6 +546,7 @@ exports[`Waf Throttle rules should generate a preset rule 1`] = `
   "Statement": {
     "RateBasedStatement": {
       "AggregateKeyType": "IP",
+      "EvaluationWindowSec": undefined,
       "ForwardedIPConfig": undefined,
       "Limit": 100,
       "ScopeDownStatement": undefined,
@@ -567,6 +570,7 @@ exports[`Waf Throttle rules should generate a preset rule with config 1`] = `
   "Statement": {
     "RateBasedStatement": {
       "AggregateKeyType": "FORWARDED_IP",
+      "EvaluationWindowSec": 60,
       "ForwardedIPConfig": {
         "FallbackBehavior": "MATCH",
         "HeaderName": "X-Forwarded-To",
@@ -593,6 +597,7 @@ exports[`Waf Throttle rules should generate a preset rule with limit 1`] = `
   "Statement": {
     "RateBasedStatement": {
       "AggregateKeyType": "IP",
+      "EvaluationWindowSec": undefined,
       "ForwardedIPConfig": undefined,
       "Limit": 500,
       "ScopeDownStatement": undefined,

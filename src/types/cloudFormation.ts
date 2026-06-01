@@ -181,6 +181,7 @@ type CfnWafRuleRateBasedStatement = {
     HeaderName: string;
   };
   Limit: number;
+  EvaluationWindowSec?: number;
   ScopeDownStatement?: CfnWafRuleStatement;
 };
 

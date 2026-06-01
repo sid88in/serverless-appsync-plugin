@@ -4,7 +4,6 @@ about: Report a bug or a functional regression
 title: 'Example: Variable substitution does not work for variable $x'
 labels: ['type: bug']
 assignees: ''
-
 ---
 
 ## Bug Description

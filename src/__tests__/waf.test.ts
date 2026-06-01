@@ -93,6 +93,7 @@ describe('Waf', () => {
             throttle: {
               priority: 300,
               limit: 200,
+              evaluationWindowSec: 60,
               aggregateKeyType: 'FORWARDED_IP',
               forwardedIPConfig: {
                 headerName: 'X-Forwarded-To',
@@ -125,7 +126,7 @@ describe('Waf', () => {
       ).toMatchSnapshot();
     });
 
-    it('should generate a preset rule with custon config', () => {
+    it('should generate a preset rule with custom config', () => {
       expect(
         waf.buildWafRule(
           {
