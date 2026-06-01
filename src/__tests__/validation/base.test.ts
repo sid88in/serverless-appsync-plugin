@@ -49,6 +49,15 @@ describe('Valdiation', () => {
     }).toThrowErrorMatchingSnapshot();
   });
 
+  it('should allow intrinsic functions for xrayEnabled', () => {
+    expect(
+      validateConfig({
+        ...basicConfig,
+        xrayEnabled: { 'Fn::ImportValue': 'XrayEnabled' },
+      } as AppSyncConfig),
+    ).toBe(true);
+  });
+
   describe('Log', () => {
     describe('Valid', () => {
       const assertions = [
@@ -70,6 +79,16 @@ describe('Valdiation', () => {
               retentionInDays: 14,
               excludeVerboseContent: true,
               loggingRoleArn: { Ref: 'MyLogGorupArn' },
+            },
+          } as AppSyncConfig,
+        },
+        {
+          name: 'Intrinsic excludeVerboseContent',
+          config: {
+            ...basicConfig,
+            logging: {
+              level: 'ALL',
+              excludeVerboseContent: { 'Fn::ImportValue': 'ExcludeVerbose' },
             },
           } as AppSyncConfig,
         },

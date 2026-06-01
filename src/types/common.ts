@@ -100,7 +100,7 @@ export type LambdaAuth = {
 export type OidcAuth = {
   type: 'OPENID_CONNECT';
   config: {
-    issuer: string;
+    issuer: string | IntrinsicFunction;
     clientId: string;
     iatTTL?: number;
     authTTL?: number;
@@ -243,7 +243,7 @@ export type VisibilityConfig = {
 export type LoggingConfig = {
   level: 'ERROR' | 'NONE' | 'ALL' | 'DEBUG' | 'INFO';
   enabled?: boolean;
-  excludeVerboseContent?: boolean;
+  excludeVerboseContent?: boolean | IntrinsicFunction;
   retentionInDays?: number;
   roleArn?: string | IntrinsicFunction;
 };
