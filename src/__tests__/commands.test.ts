@@ -93,6 +93,32 @@ describe('create domain', () => {
     `);
   });
 
+  it('should reject an intrinsic-function certificateArn (CLI cannot resolve it)', async () => {
+    mockSend.mockResolvedValue({});
+
+    await expect(
+      runServerless({
+        fixture: 'appsync',
+        command: 'appsync domain create',
+        configExt: {
+          appSync: {
+            domain: {
+              useCloudFormation: false,
+              certificateArn: { 'Fn::ImportValue': 'exportedCertArn' },
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow(
+      /the `appsync domain` CLI commands require a plain ARN string/,
+    );
+
+    const createCall = mockSend.mock.calls.find(
+      ([cmd]) => cmd instanceof CreateDomainNameCommand,
+    );
+    expect(createCall).toBeUndefined();
+  });
+
   it('should create a domain and find a matching certificate, exact match', async () => {
     mockSend.mockImplementation((cmd) => {
       if (cmd instanceof ListCertificatesCommand) {

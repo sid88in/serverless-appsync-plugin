@@ -120,7 +120,7 @@ export type DomainConfig = {
   useCloudFormation?: boolean;
   retain?: boolean;
   name: string;
-  certificateArn?: string;
+  certificateArn?: string | IntrinsicFunction;
   hostedZoneId?: string;
   hostedZoneName?: string;
   route53?: boolean;

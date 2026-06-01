@@ -54,6 +54,8 @@ For example, if you want to use blue/green deployments, you might need to associ
 
 For more information about managing domains with the CLI, see the [Commands](commands.md#domain) section.
 
+⚠️ The CLI commands resolve values themselves rather than through CloudFormation, so `certificateArn` must be a literal ARN string when using them. CloudFormation intrinsic functions (e.g. `Fn::ImportValue`) are only resolved when the domain is managed by CloudFormation (`useCloudFormation: true`).
+
 ## Ejecting from CloudFormation
 
 If you started to manage your domain through CloudFormation and want to eject from it, follow the following steps:
