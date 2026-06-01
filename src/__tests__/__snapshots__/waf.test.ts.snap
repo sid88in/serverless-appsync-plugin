@@ -70,7 +70,9 @@ exports[`Waf ApiKey rules should generate a rule for disableIntrospection 1`] = 
                   "SizeConstraintStatement": {
                     "ComparisonOperator": "GT",
                     "FieldToMatch": {
-                      "Body": {},
+                      "Body": {
+                        "OversizeHandling": "MATCH",
+                      },
                     },
                     "Size": 8192,
                     "TextTransformations": [
@@ -84,7 +86,9 @@ exports[`Waf ApiKey rules should generate a rule for disableIntrospection 1`] = 
                 {
                   "ByteMatchStatement": {
                     "FieldToMatch": {
-                      "Body": {},
+                      "Body": {
+                        "OversizeHandling": "CONTINUE",
+                      },
                     },
                     "PositionalConstraint": "CONTAINS",
                     "SearchString": "__schema",
@@ -446,7 +450,9 @@ exports[`Waf Disable introspection should generate a preset rule 1`] = `
           "SizeConstraintStatement": {
             "ComparisonOperator": "GT",
             "FieldToMatch": {
-              "Body": {},
+              "Body": {
+                "OversizeHandling": "MATCH",
+              },
             },
             "Size": 8192,
             "TextTransformations": [
@@ -460,7 +466,9 @@ exports[`Waf Disable introspection should generate a preset rule 1`] = `
         {
           "ByteMatchStatement": {
             "FieldToMatch": {
-              "Body": {},
+              "Body": {
+                "OversizeHandling": "CONTINUE",
+              },
             },
             "PositionalConstraint": "CONTAINS",
             "SearchString": "__schema",
@@ -497,7 +505,9 @@ exports[`Waf Disable introspection should generate a preset rule with custon con
           "SizeConstraintStatement": {
             "ComparisonOperator": "GT",
             "FieldToMatch": {
-              "Body": {},
+              "Body": {
+                "OversizeHandling": "MATCH",
+              },
             },
             "Size": 8192,
             "TextTransformations": [
@@ -511,7 +521,9 @@ exports[`Waf Disable introspection should generate a preset rule with custon con
         {
           "ByteMatchStatement": {
             "FieldToMatch": {
-              "Body": {},
+              "Body": {
+                "OversizeHandling": "CONTINUE",
+              },
             },
             "PositionalConstraint": "CONTAINS",
             "SearchString": "__schema",

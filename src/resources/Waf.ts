@@ -252,7 +252,13 @@ export class Waf {
               SizeConstraintStatement: {
                 ComparisonOperator: 'GT',
                 FieldToMatch: {
-                  Body: {},
+                  // AppSync only forwards the first 8kb of the body to WAF,
+                  // so an oversized body must be treated as a match in order
+                  // to actually block it (CONTINUE would cap the measured
+                  // size at the inspection limit and never exceed it).
+                  Body: {
+                    OversizeHandling: 'MATCH',
+                  },
                 },
                 Size: 8 * 1024,
                 TextTransformations: [
@@ -266,7 +272,12 @@ export class Waf {
             {
               ByteMatchStatement: {
                 FieldToMatch: {
-                  Body: {},
+                  // Inspect the available (first 8kb) body for the
+                  // introspection query. Larger bodies are caught by the
+                  // SizeConstraintStatement above.
+                  Body: {
+                    OversizeHandling: 'CONTINUE',
+                  },
                 },
                 PositionalConstraint: 'CONTAINS',
                 SearchString: '__schema',
