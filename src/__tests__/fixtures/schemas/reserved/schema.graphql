@@ -1,0 +1,12 @@
+directive @aws_cognito_user_pools on OBJECT | FIELD_DEFINITION
+
+scalar AWSJSON
+
+type Query {
+  getAccount: Account
+}
+
+type Account @aws_cognito_user_pools {
+  id: ID!
+  metadata: AWSJSON
+}
