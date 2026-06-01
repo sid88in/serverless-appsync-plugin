@@ -112,6 +112,19 @@ export class Api {
       });
     }
 
+    if (this.config.enhancedMetrics) {
+      merge(endpointResource.Properties, {
+        EnhancedMetricsConfig: {
+          DataSourceLevelMetricsBehavior:
+            this.config.enhancedMetrics.DataSourceLevelMetricsBehavior,
+          OperationLevelMetricsConfig:
+            this.config.enhancedMetrics.OperationLevelMetricsConfig,
+          ResolverLevelMetricsBehavior:
+            this.config.enhancedMetrics.ResolverLevelMetricsBehavior,
+        },
+      });
+    }
+
     if (this.config.introspection !== undefined) {
       merge(endpointResource.Properties, {
         IntrospectionConfig: this.config.introspection ? 'ENABLED' : 'DISABLED',
