@@ -143,6 +143,32 @@ describe('Waf', () => {
         ),
       ).toMatchSnapshot();
     });
+
+    it('sets OversizeHandling on the body field matches (required by WAF)', () => {
+      const rule = waf.buildWafRule('disableIntrospection', 'Base');
+
+      // FieldToMatch is intentionally loosely typed in production, so narrow
+      // to the shape this assertion cares about.
+      type BodyMatch = { FieldToMatch: { Body: { OversizeHandling: string } } };
+      const { Statements } = rule.Statement.OrStatement as unknown as {
+        Statements: {
+          SizeConstraintStatement?: BodyMatch;
+          ByteMatchStatement?: BodyMatch;
+        }[];
+      };
+
+      // The size guard must MATCH oversized bodies, otherwise bodies larger
+      // than the 8kb inspection limit are never blocked.
+      expect(
+        Statements[0].SizeConstraintStatement?.FieldToMatch.Body
+          .OversizeHandling,
+      ).toBe('MATCH');
+      // The __schema lookup inspects the available body and lets the size
+      // guard handle anything oversized.
+      expect(
+        Statements[1].ByteMatchStatement?.FieldToMatch.Body.OversizeHandling,
+      ).toBe('CONTINUE');
+    });
   });
 
   describe('Custom rules', () => {
