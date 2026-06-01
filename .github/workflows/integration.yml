@@ -1,0 +1,80 @@
+# OPTIONAL live AWS integration tests.
+#
+# This workflow is intentionally isolated from the offline CI (build/lint/unit/
+# e2e). It costs money and uses real credentials, so it NEVER runs on pushes or
+# pull requests (especially not fork PRs). It runs only:
+#   - manually (workflow_dispatch), or
+#   - on a schedule (weekly), if you enable the cron below.
+#
+# Credentials are obtained via GitHub OIDC role assumption (no long-lived keys).
+# Configure the repo variables/secrets referenced below, or switch to static
+# secrets if you prefer (see the commented block).
+name: integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      caching:
+        description: 'Run the caching tier (billed hourly)'
+        type: boolean
+        default: false
+  # schedule:
+  #   - cron: '0 6 * * 1' # Mondays 06:00 UTC
+
+# Required for OIDC role assumption.
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  # Never run two live suites against the same account at once.
+  group: integration-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    # Extra guard: only runs from the canonical repo, never a fork.
+    if: github.repository == 'sid88in/serverless-appsync-plugin'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: integration # add manual approval / scoped secrets here
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # OIDC-only job that never pushes git; don't persist GITHUB_TOKEN
+          # into .git/config, since npm ci + the suite run third-party code.
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.INTEGRATION_AWS_ROLE_ARN }}
+          aws-region: ${{ vars.INTEGRATION_AWS_REGION || 'us-west-2' }}
+
+      # Static-secrets alternative (use instead of the OIDC step above):
+      # - uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.INTEGRATION_AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.INTEGRATION_AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ vars.INTEGRATION_AWS_REGION || 'us-west-2' }}
+
+      - name: Run integration tests
+        env:
+          APPSYNC_PLUGIN_INTEGRATION: '1'
+          APPSYNC_PLUGIN_INTEGRATION_REGION: ${{ vars.INTEGRATION_AWS_REGION || 'us-west-2' }}
+          APPSYNC_PLUGIN_INTEGRATION_CACHING: ${{ inputs.caching && '1' || '0' }}
+        run: npm run test:integration
+
+      - name: Sweep leaked resources (always)
+        if: always()
+        env:
+          APPSYNC_PLUGIN_INTEGRATION: '1'
+          APPSYNC_PLUGIN_INTEGRATION_REGION: ${{ vars.INTEGRATION_AWS_REGION || 'us-west-2' }}
+        run: npm run test:integration:sweep
