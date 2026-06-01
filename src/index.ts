@@ -715,6 +715,14 @@ class ServerlessAppsyncPlugin {
         );
       }
 
+      if (typeof certificateArn !== 'string') {
+        throw new this.serverless.classes.Error(
+          `Invalid \`certificateArn\`: the \`appsync domain\` CLI commands require a plain ARN string. ` +
+            `CloudFormation intrinsic functions (e.g. Fn::ImportValue) can only be resolved by CloudFormation, not by the CLI. ` +
+            `Either pass a literal ARN, or manage the domain through CloudFormation (the default, \`domain.useCloudFormation: true\`), where the intrinsic function will be resolved.`,
+        );
+      }
+
       await this.clientFactory.getAppSyncClient().send(
         new CreateDomainNameCommand({
           domainName: domain.name,
