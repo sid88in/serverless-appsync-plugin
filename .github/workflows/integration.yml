@@ -36,18 +36,18 @@ jobs:
     # Extra guard: only runs from the canonical repo, never a fork.
     if: github.repository == 'sid88in/serverless-appsync-plugin'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     environment: integration # add manual approval / scoped secrets here
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # OIDC-only job that never pushes git; don't persist GITHUB_TOKEN
           # into .git/config, since npm ci + the suite run third-party code.
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
