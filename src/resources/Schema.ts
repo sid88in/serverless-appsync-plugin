@@ -85,7 +85,10 @@ export class Schema {
       globby.sync(
         this.schemas.map((schema) =>
           path
-            .join(this.api.plugin.serverless.config.servicePath, schema)
+            // `path.resolve` keeps relative paths resolved against the
+            // service directory while leaving absolute paths untouched
+            // (`path.join` would incorrectly prefix them with servicePath).
+            .resolve(this.api.plugin.serverless.config.servicePath, schema)
             .replace(/\\/g, '/'),
         ),
       ),

@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Api } from '../resources/Api';
 import { Schema } from '../resources/Schema';
 import * as given from './given';
@@ -227,6 +228,29 @@ describe('schema', () => {
     // ...but their usage is preserved.
     expect(output).toContain('@aws_cognito_user_pools');
     expect(output).toContain('AWSJSON');
+  });
+
+  it('should support absolute schema paths regardless of servicePath', () => {
+    const plugin = given.plugin();
+    // servicePath deliberately points somewhere the schema is NOT;
+    // an absolute schema path must still be read correctly.
+    plugin.serverless.config.servicePath = path.resolve('does', 'not', 'exist');
+    const api = new Api(given.appSyncConfig(), plugin);
+    const absolutePath = path.resolve(
+      'src/__tests__/fixtures/schemas/single/schema.graphql',
+    );
+    const schema = new Schema(api, [absolutePath]);
+    expect(schema.generateSchema()).toContain('type Query');
+  });
+
+  it('should resolve relative schema paths against servicePath', () => {
+    const plugin = given.plugin();
+    plugin.serverless.config.servicePath = process.cwd();
+    const api = new Api(given.appSyncConfig(), plugin);
+    const schema = new Schema(api, [
+      'src/__tests__/fixtures/schemas/single/schema.graphql',
+    ]);
+    expect(schema.generateSchema()).toContain('type Query');
   });
 
   it('should return single files schemas as-is', () => {
