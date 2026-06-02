@@ -319,7 +319,9 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -344,7 +346,9 @@ exports[`DataSource DynamoDB should generate Resource with default deltaSync 1`]
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -449,7 +453,9 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -474,7 +480,9 @@ exports[`DataSource DynamoDB should generate Resource with default role 1`] = `
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -581,7 +589,9 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -608,7 +618,9 @@ exports[`DataSource DynamoDB should generate default role with a Ref for the tab
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               {
                                 "Ref": "AWS::Region",
@@ -713,7 +725,9 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               "us-east-2",
                               {
@@ -736,7 +750,9 @@ exports[`DataSource DynamoDB should generate default role with custom region 1`]
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "dynamodb",
                               "us-east-2",
                               {
@@ -1190,7 +1206,9 @@ exports[`DataSource OpenSearch should generate Resource with endpoint 1`] = `
                       ":",
                       [
                         "arn",
-                        "aws",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
                         "es",
                         "us-east-1",
                         {
@@ -1432,7 +1450,9 @@ exports[`DataSource Relational Databases should generate Resource with default r
               ":",
               [
                 "arn",
-                "aws",
+                {
+                  "Ref": "AWS::Partition",
+                },
                 "rds",
                 {
                   "Ref": "AWS::Region",
@@ -1497,7 +1517,9 @@ exports[`DataSource Relational Databases should generate Resource with default r
                       ":",
                       [
                         "arn",
-                        "aws",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
                         "rds",
                         {
                           "Ref": "AWS::Region",
@@ -1519,7 +1541,9 @@ exports[`DataSource Relational Databases should generate Resource with default r
                             ":",
                             [
                               "arn",
-                              "aws",
+                              {
+                                "Ref": "AWS::Partition",
+                              },
                               "rds",
                               {
                                 "Ref": "AWS::Region",

@@ -6,6 +6,24 @@ const plugin = given.plugin();
 
 describe('DataSource', () => {
   describe('DynamoDB', () => {
+    // Regression guard for #352: generated resource ARNs must derive the
+    // partition from CloudFormation (`AWS::Partition`) so they are valid in
+    // the aws-cn (China) and aws-us-gov (GovCloud) partitions, not hardcoded
+    // to "aws".
+    it('should derive the resource ARN partition from AWS::Partition', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_DYNAMODB',
+        name: 'dynamo',
+        config: {
+          tableName: 'data',
+        },
+      });
+      const role = JSON.stringify(dataSource.compileDataSourceIamRole());
+      expect(role).toContain('"Ref":"AWS::Partition"');
+      expect(role).not.toContain('"arn","aws"');
+    });
+
     it('should generate Resource with default role', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {
