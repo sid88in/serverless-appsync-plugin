@@ -35,7 +35,7 @@ exports[`Valdiation Invalid should validate a Lambda with missing config 1`] = `
 exports[`Valdiation Invalid should validate a OIDC with empty config 1`] = `"/authentication/config: must have required property 'issuer'"`;
 
 exports[`Valdiation Invalid should validate a OIDC with invalid config 1`] = `
-"/authentication/config/issuer: must be string
+"/authentication/config/issuer: must be a string or a CloudFormation intrinsic function
 /authentication/config/clientId: must be string
 /authentication/config/iatTTL: must be number
 /authentication/config/authTTL: must be number"

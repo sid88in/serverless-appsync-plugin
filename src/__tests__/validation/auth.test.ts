@@ -76,6 +76,19 @@ describe('Valdiation', () => {
         } as AppSyncConfig,
       },
       {
+        name: 'OIDC with an intrinsic function issuer',
+        config: {
+          ...basicConfig,
+          authentication: {
+            type: 'OPENID_CONNECT',
+            config: {
+              issuer: { 'Fn::ImportValue': 'IssuerUrl' },
+              clientId: '90941906-004b-4cc5-9685-6864a8e08835',
+            },
+          },
+        } as AppSyncConfig,
+      },
+      {
         name: 'IAM',
         config: {
           ...basicConfig,

@@ -39,7 +39,7 @@ exports[`Valdiation EnhancedMetrics Invalid should validate a Missing required f
 exports[`Valdiation Log Invalid should validate a Invalid 1`] = `
 "/logging/level: must be one of 'ALL', 'INFO', 'DEBUG', 'ERROR' or 'NONE'
 /logging/retentionInDays: must be integer
-/logging/excludeVerboseContent: must be boolean"
+/logging/excludeVerboseContent: must be a boolean or a CloudFormation intrinsic function"
 `;
 
 exports[`Valdiation Waf Invalid should validate a Invalid 1`] = `
@@ -64,7 +64,7 @@ exports[`Valdiation should validate  1`] = `
 ": must have required property 'name'
 : must have required property 'authentication'
 /unknownPorp: invalid (unknown) property
-/xrayEnabled: must be boolean
+/xrayEnabled: must be a boolean or a CloudFormation intrinsic function
 /visibility: must be "GLOBAL" or "PRIVATE"
 /introspection: must be boolean
 /queryDepthLimit: must be integer

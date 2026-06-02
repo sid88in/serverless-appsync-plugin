@@ -1,4 +1,5 @@
 import { BuildOptions } from 'esbuild';
+import { IntrinsicFunction } from './cloudFormation';
 import {
   Auth,
   DomainConfig,
@@ -33,7 +34,7 @@ export type AppSyncConfig = {
   substitutions?: Substitutions;
   environment?: EnvironmentVariables;
   enhancedMetrics?: EnhancedMetricsConfig;
-  xrayEnabled?: boolean;
+  xrayEnabled?: boolean | IntrinsicFunction;
   logging?: LoggingConfig;
   caching?: CachingConfig;
   waf?: WafConfig;
