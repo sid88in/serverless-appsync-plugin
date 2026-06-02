@@ -146,7 +146,7 @@ export class DataSource {
             ':',
             [
               'arn',
-              'aws',
+              { Ref: 'AWS::Partition' },
               'rds',
               config.config.region || { Ref: 'AWS::Region' },
               { Ref: 'AWS::AccountId' },
@@ -277,7 +277,7 @@ export class DataSource {
             ':',
             [
               'arn',
-              'aws',
+              { Ref: 'AWS::Partition' },
               'dynamodb',
               this.config.config.region || { Ref: 'AWS::Region' },
               { Ref: 'AWS::AccountId' },
@@ -324,7 +324,7 @@ export class DataSource {
             ':',
             [
               'arn',
-              'aws',
+              { Ref: 'AWS::Partition' },
               'rds',
               this.config.config.region || { Ref: 'AWS::Region' },
               { Ref: 'AWS::AccountId' },
@@ -380,7 +380,7 @@ export class DataSource {
               ':',
               [
                 'arn',
-                'aws',
+                { Ref: 'AWS::Partition' },
                 'es',
                 result[2],
                 { Ref: 'AWS::AccountId' },
