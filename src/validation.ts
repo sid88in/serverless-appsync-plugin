@@ -20,6 +20,7 @@ const DATASOURCE_TYPES = [
   'NONE',
   'RELATIONAL_DATABASE',
   'AMAZON_EVENTBRIDGE',
+  'AMAZON_BEDROCK_RUNTIME',
 ] as const;
 
 export const appSyncSchema = {
@@ -506,6 +507,18 @@ export const appSyncSchema = {
                   },
                   required: ['config'],
                 },
+                else: {
+                  if: {
+                    properties: { type: { const: 'AMAZON_BEDROCK_RUNTIME' } },
+                  },
+                  then: {
+                    properties: {
+                      config: {
+                        $ref: '#/definitions/datasourceBedrockConfig',
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -654,6 +667,19 @@ export const appSyncSchema = {
         eventBusArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
       },
       required: ['eventBusArn'],
+    },
+    datasourceBedrockConfig: {
+      type: 'object',
+      properties: {
+        serviceRoleArn: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        iamRoleStatements: { $ref: '#/definitions/iamRoleStatements' },
+        region: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        models: {
+          type: 'array',
+          items: { $ref: '#/definitions/stringOrIntrinsicFunction' },
+        },
+      },
+      required: [],
     },
   },
   properties: {

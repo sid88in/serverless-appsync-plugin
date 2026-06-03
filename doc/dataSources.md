@@ -139,6 +139,30 @@ appSync:
 
 - `eventBusArn`: The ARN of the event bus
 
+## Bedrock
+
+```yaml
+appSync:
+  dataSources:
+    myBedrock:
+      type: 'AMAZON_BEDROCK_RUNTIME'
+      config:
+        models:
+          - amazon.titan-text-lite-v1
+          - arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0
+```
+
+### config
+
+All fields are optional. When `config` is omitted entirely, the plugin still creates the data source and generates a default service role.
+
+- `models`: Optional list of foundation model IDs or full model/inference-profile ARNs. Bare model IDs are expanded to `arn:${AWS::Partition}:bedrock:${region}::foundation-model/<id>` in the generated IAM policy. When omitted, the default role allows `bedrock:InvokeModel` and `bedrock:Converse` on `*`.
+- `region`: AWS region used when expanding bare model IDs. Defaults to the stack region.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
+- `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
+
+Resolvers invoke Bedrock through the `APPSYNC_JS` runtime using `InvokeModel` or `Converse` request objects. AppSync only supports synchronous invocations that complete within 10 seconds; streaming APIs are not supported. See the [AWS AppSync Bedrock resolver reference](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-bedrock-js.html) for request/response shapes and helper utilities.
+
 ## NONE
 
 ```yaml

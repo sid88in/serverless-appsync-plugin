@@ -307,6 +307,89 @@ describe('EventBridge', () => {
   });
 });
 
+describe('Bedrock', () => {
+  describe('Valid', () => {
+    const assertions = [
+      {
+        name: 'Valid config with type only',
+        config: {
+          dataSources: {
+            myBedrockSource1: {
+              type: 'AMAZON_BEDROCK_RUNTIME',
+            },
+          },
+        },
+      },
+      {
+        name: 'Valid config with models',
+        config: {
+          dataSources: {
+            myBedrockSource1: {
+              type: 'AMAZON_BEDROCK_RUNTIME',
+              config: {
+                models: ['amazon.titan-text-lite-v1'],
+              },
+            },
+          },
+        },
+      },
+      {
+        name: 'Valid config, as array of maps',
+        config: {
+          dataSources: [
+            {
+              myBedrockSource1: {
+                type: 'AMAZON_BEDROCK_RUNTIME',
+                config: {
+                  models: [
+                    'amazon.titan-text-lite-v1',
+                    'arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-text-lite-v1',
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    assertions.forEach((config) => {
+      it(`should validate a ${config.name}`, () => {
+        expect(validateConfig({ ...basicConfig, ...config.config })).toBe(true);
+      });
+    });
+  });
+
+  describe('Invalid', () => {
+    const assertions = [
+      {
+        name: 'Invalid models type',
+        config: {
+          dataSources: {
+            myBedrockSource1: {
+              type: 'AMAZON_BEDROCK_RUNTIME',
+              config: {
+                models: 'amazon.titan-text-lite-v1',
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    assertions.forEach((config) => {
+      it(`should not validate: ${config.name}`, () => {
+        expect(function () {
+          validateConfig({
+            ...basicConfig,
+            ...config.config,
+          });
+        }).toThrowErrorMatchingSnapshot();
+      });
+    });
+  });
+});
+
 describe('Lambda', () => {
   describe('Valid', () => {
     const assertions = [

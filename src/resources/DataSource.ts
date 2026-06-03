@@ -60,7 +60,7 @@ export class DataSource {
       [logicalId]: resource,
     };
 
-    if ('config' in this.config && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config?.serviceRoleArn) {
       resource.Properties.ServiceRoleArn = this.config.config.serviceRoleArn;
     } else {
       const role = this.compileDataSourceIamRole();
@@ -191,7 +191,7 @@ export class DataSource {
   }
 
   compileDataSourceIamRole(): CfnResources | undefined {
-    if ('config' in this.config && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config?.serviceRoleArn) {
       return;
     }
 
@@ -209,7 +209,7 @@ export class DataSource {
       );
     }
 
-    if ('config' in this.config && this.config.config.iamRoleStatements) {
+    if ('config' in this.config && this.config.config?.iamRoleStatements) {
       statements = this.config.config.iamRoleStatements;
     } else {
       // Try to generate default statements for the given this.config.
@@ -427,6 +427,45 @@ export class DataSource {
 
         return [defaultEventBridgeStatement];
       }
+      case 'AMAZON_BEDROCK_RUNTIME': {
+        const region = this.config.config?.region || { Ref: 'AWS::Region' };
+        const models = this.config.config?.models;
+        const resources: (string | IntrinsicFunction)[] =
+          models && models.length > 0
+            ? models.map((model) => this.getBedrockModelResource(model, region))
+            : ['*'];
+
+        const defaultBedrockStatement: IamStatement = {
+          Action: ['bedrock:InvokeModel', 'bedrock:Converse'],
+          Effect: 'Allow',
+          Resource: resources,
+        };
+
+        return [defaultBedrockStatement];
+      }
     }
+  }
+
+  getBedrockModelResource(
+    model: string | IntrinsicFunction,
+    region: string | IntrinsicFunction,
+  ): string | IntrinsicFunction {
+    if (typeof model !== 'string' || model.startsWith('arn:')) {
+      return model;
+    }
+
+    return {
+      'Fn::Join': [
+        ':',
+        [
+          'arn',
+          { Ref: 'AWS::Partition' },
+          'bedrock',
+          region,
+          '',
+          `foundation-model/${model}`,
+        ],
+      ],
+    };
   }
 }

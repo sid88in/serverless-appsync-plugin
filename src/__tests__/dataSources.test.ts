@@ -196,6 +196,70 @@ describe('DataSource', () => {
     });
   });
 
+  describe('Bedrock', () => {
+    it('should generate Resource with default role', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_BEDROCK_RUNTIME',
+        name: 'bedrock',
+        description: 'My Bedrock data source',
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+    });
+
+    it('should generate default role with scoped models', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_BEDROCK_RUNTIME',
+        name: 'bedrock',
+        description: 'My Bedrock data source',
+        config: {
+          models: [
+            'amazon.titan-text-lite-v1',
+            'arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0',
+          ],
+        },
+      });
+
+      expect(dataSource.compile()).toMatchSnapshot();
+    });
+
+    it('should generate default role with custom statement', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_BEDROCK_RUNTIME',
+        name: 'bedrock',
+        description: 'My Bedrock data source',
+        config: {
+          iamRoleStatements: [
+            {
+              Effect: 'Allow',
+              Action: ['bedrock:InvokeModel'],
+              Resource: ['*'],
+            },
+          ],
+        },
+      });
+
+      expect(dataSource.compileDataSourceIamRole()).toMatchSnapshot();
+    });
+
+    it('should not generate default role when a service role arn is passed', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_BEDROCK_RUNTIME',
+        name: 'bedrock',
+        description: 'My Bedrock data source',
+        config: {
+          serviceRoleArn: 'arn:aws:iam:',
+        },
+      });
+
+      expect(dataSource.compileDataSourceIamRole()).toBeUndefined();
+    });
+  });
+
   describe('AWS Lambda', () => {
     it('should generate Resource with default role', () => {
       const api = new Api(given.appSyncConfig(), plugin);

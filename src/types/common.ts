@@ -169,6 +169,16 @@ export type DsEventBridgeConfig = {
   };
 };
 
+export type DsBedrockConfig = {
+  type: 'AMAZON_BEDROCK_RUNTIME';
+  config?: {
+    serviceRoleArn?: string | IntrinsicFunction;
+    iamRoleStatements?: IamStatement[];
+    models?: (string | IntrinsicFunction)[];
+    region?: string | IntrinsicFunction;
+  };
+};
+
 export type DsRelationalDbConfig = {
   type: 'RELATIONAL_DATABASE';
   config: {

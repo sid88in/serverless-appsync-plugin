@@ -49,7 +49,8 @@ export type CfnDataSource = {
       | 'NONE'
       | 'HTTP'
       | 'RELATIONAL_DATABASE'
-      | 'AMAZON_EVENTBRIDGE';
+      | 'AMAZON_EVENTBRIDGE'
+      | 'AMAZON_BEDROCK_RUNTIME';
     ServiceRoleArn?: string | IntrinsicFunction;
     LambdaConfig?: {
       LambdaFunctionArn: string | IntrinsicFunction;

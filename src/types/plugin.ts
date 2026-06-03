@@ -14,6 +14,7 @@ import {
   DsOpenSearchConfig,
   DsLambdaConfig,
   DsEventBridgeConfig,
+  DsBedrockConfig,
   DsNone,
   Substitutions,
   EnvironmentVariables,
@@ -86,6 +87,7 @@ export type DataSourceConfig = {
   | DsOpenSearchConfig
   | DsLambdaConfig
   | DsEventBridgeConfig
+  | DsBedrockConfig
   | DsNone
 );
 
