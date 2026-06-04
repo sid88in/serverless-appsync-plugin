@@ -1,20 +1,20 @@
-[![npm version](https://img.shields.io/npm/v/serverless-appsync-plugin?color=cb3837&label=npm&logo=npm)](https://www.npmjs.com/package/serverless-appsync-plugin)
+<p>
+  <a href="https://www.npmjs.com/package/serverless-appsync-plugin"><img alt="npm downloads (weekly)" src="https://img.shields.io/npm/dw/serverless-appsync-plugin?label=downloads%2Fweek&color=blue"></a>
+  <a href="https://www.npmjs.com/package/serverless-appsync-plugin"><img alt="npm downloads (year)" src="https://img.shields.io/npm/dy/serverless-appsync-plugin?label=downloads%2Fyear&color=blue"></a>
+</p>
 
-[![npm downloads (weekly)](https://img.shields.io/npm/dw/serverless-appsync-plugin?label=downloads%2Fweek&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
+<p>
+  <a href="https://github.com/sid88in/serverless-appsync-plugin/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/sid88in/serverless-appsync-plugin?style=social"></a>
+  <a href="https://www.npmjs.com/package/serverless-appsync-plugin"><img alt="npm version" src="https://img.shields.io/npm/v/serverless-appsync-plugin?color=cb3837&label=npm&logo=npm"></a>
+  <a href="https://github.com/sid88in/serverless-appsync-plugin/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/npm/l/serverless-appsync-plugin?color=green"></a>
+</p>
 
-[![npm downloads (year)](https://img.shields.io/npm/dy/serverless-appsync-plugin?label=downloads%2Fyear&color=blue)](https://www.npmjs.com/package/serverless-appsync-plugin)
-
-[![license](https://img.shields.io/npm/l/serverless-appsync-plugin?color=green)](https://github.com/sid88in/serverless-appsync-plugin/blob/master/LICENSE)
-
-[![Tests](https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg)](https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests)
-
-[![GitHub stars](https://img.shields.io/github/stars/sid88in/serverless-appsync-plugin?style=social)](https://github.com/sid88in/serverless-appsync-plugin/stargazers)
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-69-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+<p>
+  <a href="https://github.com/sid88in/serverless-appsync-plugin/actions?query=workflow%3ATests"><img alt="Tests" src="https://github.com/sid88in/serverless-appsync-plugin/workflows/Tests/badge.svg"></a>
+  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+  <a href="#contributors-"><img alt="All Contributors" src="https://img.shields.io/badge/all_contributors-93-orange.svg?style=flat-square"></a>
+  <!-- ALL-CONTRIBUTORS-BADGE:END -->
+</p>
 
 Deploy [AppSync](https://aws.amazon.com/appsync) API's in minutes using this [Serverless](https://www.serverless.com/) plugin.
 
@@ -79,6 +79,67 @@ appSync:
       config:
         tableName: ${sls:stage}-data
 ```
+
+# Testing
+
+The test suite is split into three independent layers. The first two run
+offline and need no AWS account; the third is opt-in and talks to a real AWS
+account.
+
+## Unit tests
+
+Pure logic, schema validation and CloudFormation snapshots under
+`src/__tests__/`. No AWS credentials required.
+
+```bash
+npm test
+
+# Re-run on change
+npm run test:watch
+```
+
+## End-to-end (CloudFormation synthesis) tests
+
+The tests in `e2e/` apply the plugin to the example projects under
+`examples/`, run `serverless package`, and assert on the generated
+CloudFormation. They build the plugin first and **do not deploy anything to
+AWS**, so they need no credentials and are safe to run on every PR. See
+[`e2e/README.md`](e2e/README.md) for details.
+
+```bash
+# Run all synthesis tests (runs `npm run build` first)
+npm run test:e2e
+
+# Unit + e2e together
+npm run test:all
+
+# A single fixture
+npx jest --config jest.e2e.config.ts basic-api-key
+```
+
+## AWS integration tests
+
+The suite in `integration/` exercises the live AWS code paths against a **real
+AWS account**, so it **costs money and requires credentials**. It is gated
+behind `APPSYNC_PLUGIN_INTEGRATION=1` — without it every suite resolves to
+`describe.skip` and the run exits green, which is why it never runs as part of
+`npm test`, `npm run test:e2e`, `npm run test:all`, or the default CI.
+
+```bash
+# Cheapest useful run (evaluate + minimal deploy tiers)
+APPSYNC_PLUGIN_INTEGRATION=1 \
+APPSYNC_PLUGIN_INTEGRATION_REGION=us-west-2 \
+AWS_PROFILE=my-sandbox \
+npm run test:integration
+```
+
+Higher-cost tiers are opt-in on top of the master switch: set
+`APPSYNC_PLUGIN_INTEGRATION_CACHING=1` for the caching tier, and
+`APPSYNC_PLUGIN_INTEGRATION_DOMAIN` + `APPSYNC_PLUGIN_INTEGRATION_HOSTED_ZONE_ID`
+for the custom-domain tier. After a run, sweep any leftover stacks with
+`npm run test:integration:sweep`. See
+[`doc/integration-tests.md`](doc/integration-tests.md) for the full tier
+breakdown, environment variables, and cost profile.
 
 # Configuration
 
