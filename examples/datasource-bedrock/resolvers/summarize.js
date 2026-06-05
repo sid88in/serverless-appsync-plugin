@@ -2,7 +2,7 @@ import { invokeModel } from '@aws-appsync/utils/ai';
 
 export function request(ctx) {
   return invokeModel({
-    modelId: 'amazon.nova-micro-v1:0',
+    modelId: 'eu.amazon.nova-micro-v1:0',
     body: {
       messages: [
         {
@@ -15,5 +15,5 @@ export function request(ctx) {
 }
 
 export function response(ctx) {
-  return ctx.result.output;
+  return ctx.result.output.message.content[0].text;
 }

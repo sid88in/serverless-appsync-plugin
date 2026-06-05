@@ -225,6 +225,20 @@ describe('DataSource', () => {
       expect(dataSource.compile()).toMatchSnapshot();
     });
 
+    it('should expand a cross-region inference profile id into the profile and foundation-model ARNs', () => {
+      const api = new Api(given.appSyncConfig(), plugin);
+      const dataSource = new DataSource(api, {
+        type: 'AMAZON_BEDROCK_RUNTIME',
+        name: 'bedrock',
+        description: 'My Bedrock data source',
+        config: {
+          models: ['eu.amazon.nova-2-lite-v1:0'],
+        },
+      });
+
+      expect(dataSource.compileDataSourceIamRole()).toMatchSnapshot();
+    });
+
     it('should generate default role with custom statement', () => {
       const api = new Api(given.appSyncConfig(), plugin);
       const dataSource = new DataSource(api, {

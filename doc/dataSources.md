@@ -149,6 +149,7 @@ appSync:
       config:
         models:
           - amazon.titan-text-lite-v1
+          - eu.amazon.nova-2-lite-v1:0
           - arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0
 ```
 
@@ -156,7 +157,10 @@ appSync:
 
 All fields are optional. When `config` is omitted entirely, the plugin still creates the data source and generates a default service role.
 
-- `models`: Optional list of foundation model IDs or full model/inference-profile ARNs. Bare model IDs are expanded to `arn:${AWS::Partition}:bedrock:${region}::foundation-model/<id>` in the generated IAM policy. When omitted, the default role allows `bedrock:InvokeModel` and `bedrock:Converse` on `*`.
+- `models`: Optional list of model identifiers used to scope the generated IAM policy. When omitted, the default role allows `bedrock:InvokeModel` and `bedrock:Converse` on `*`. Each entry is expanded as follows:
+  - A **bare foundation model ID** (e.g. `amazon.titan-text-lite-v1`) becomes `arn:${AWS::Partition}:bedrock:${region}::foundation-model/<id>`.
+  - A **cross-region inference profile ID** (prefixed with a geographic code such as `us.`, `eu.`, `apac.`, or `us-gov.` — e.g. `eu.amazon.nova-2-lite-v1:0`) is expanded into **two** ARNs: the inference profile in this account/region (`arn:${AWS::Partition}:bedrock:${region}:${AWS::AccountId}:inference-profile/<id>`) and the underlying foundation model across all regions the profile can route to (`arn:${AWS::Partition}:bedrock:*::foundation-model/<base-id>`). Models like Amazon Nova are only invokable through an inference profile, so use the profile ID here (and as the `modelId` in your resolver).
+  - A **full ARN** (or CloudFormation intrinsic function) is used as-is.
 - `region`: AWS region used when expanding bare model IDs. Defaults to the stack region.
 - `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
 - `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.

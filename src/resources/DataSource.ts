@@ -431,8 +431,10 @@ export class DataSource {
         const region = this.config.config?.region || { Ref: 'AWS::Region' };
         const models = this.config.config?.models;
         const resources: (string | IntrinsicFunction)[] =
-          models && models.length > 0
-            ? models.map((model) => this.getBedrockModelResource(model, region))
+          models && models.length
+            ? models.flatMap((model) =>
+                this.getBedrockModelResources(model, region),
+              )
             : ['*'];
 
         const defaultBedrockStatement: IamStatement = {
@@ -446,26 +448,71 @@ export class DataSource {
     }
   }
 
-  getBedrockModelResource(
+  getBedrockModelResources(
     model: string | IntrinsicFunction,
     region: string | IntrinsicFunction,
-  ): string | IntrinsicFunction {
+  ): (string | IntrinsicFunction)[] {
+    // Full ARNs (and intrinsic functions) are used as-is.
     if (typeof model !== 'string' || model.startsWith('arn:')) {
-      return model;
+      return [model];
     }
 
-    return {
-      'Fn::Join': [
-        ':',
-        [
-          'arn',
-          { Ref: 'AWS::Partition' },
-          'bedrock',
-          region,
-          '',
-          `foundation-model/${model}`,
+    // Cross-region inference profile IDs are prefixed with a geographic
+    // region code (e.g. `us.`, `eu.`, `apac.`). Such models can only be
+    // invoked through their inference profile, which routes to the underlying
+    // foundation model in any of the profile's regions. We therefore grant
+    // access to both the inference profile (in this account/region) and the
+    // foundation model across all regions.
+    const inferenceProfilePrefix = /^(us-gov|us|eu|apac)\./;
+    const match = inferenceProfilePrefix.exec(model);
+    if (match) {
+      const baseModelId = model.slice(match[0].length);
+
+      return [
+        {
+          'Fn::Join': [
+            ':',
+            [
+              'arn',
+              { Ref: 'AWS::Partition' },
+              'bedrock',
+              region,
+              { Ref: 'AWS::AccountId' },
+              `inference-profile/${model}`,
+            ],
+          ],
+        },
+        {
+          'Fn::Join': [
+            ':',
+            [
+              'arn',
+              { Ref: 'AWS::Partition' },
+              'bedrock',
+              '*',
+              '',
+              `foundation-model/${baseModelId}`,
+            ],
+          ],
+        },
+      ];
+    }
+
+    // Bare foundation model ID.
+    return [
+      {
+        'Fn::Join': [
+          ':',
+          [
+            'arn',
+            { Ref: 'AWS::Partition' },
+            'bedrock',
+            region,
+            '',
+            `foundation-model/${model}`,
+          ],
         ],
-      ],
-    };
+      },
+    ];
   }
 }
