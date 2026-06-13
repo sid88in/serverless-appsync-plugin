@@ -71,7 +71,7 @@
     "ajv-formats": "^2.1.1",
     "ajv-merge-patch": "^5.0.1",
     "chalk": "^4.1.2",
-    "esbuild": "^0.17.11",
+    "esbuild": "^0.28.1",
     "globby": "^11.1.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
