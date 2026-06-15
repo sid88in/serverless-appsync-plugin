@@ -463,7 +463,7 @@ export class DataSource {
     // foundation model in any of the profile's regions. We therefore grant
     // access to both the inference profile (in this account/region) and the
     // foundation model across all regions.
-    const inferenceProfilePrefix = /^(us-gov|us|eu|apac)\./;
+    const inferenceProfilePrefix = /^(us-gov|us|eu|apac|global)\./;
     const match = inferenceProfilePrefix.exec(model);
     if (match) {
       const baseModelId = model.slice(match[0].length);

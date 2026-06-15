@@ -26,4 +26,4 @@ appSync:
       description: Amazon Bedrock runtime for synchronous model invocations
       config:
         models:
-          - amazon.nova-micro-v1:0
+          - eu.amazon.nova-micro-v1:0
