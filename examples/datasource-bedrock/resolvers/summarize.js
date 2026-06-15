@@ -4,6 +4,7 @@ export function request(ctx) {
   return invokeModel({
     modelId: 'eu.amazon.nova-micro-v1:0',
     body: {
+      schemaVersion: 'messages-v1',
       messages: [
         {
           role: 'user',
