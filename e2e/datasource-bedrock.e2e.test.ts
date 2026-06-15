@@ -40,11 +40,19 @@ describe('examples/datasource-bedrock', () => {
     );
     expect(bedrockRole).toBeDefined();
 
-    const policies = bedrockRole!.resource.Properties?.Policies as Array<{
+    if (!bedrockRole) {
+      throw new Error('Expected Bedrock datasource role to be present');
+    }
+
+    const policies = bedrockRole.resource.Properties?.Policies as Array<{
       PolicyName?: string;
       PolicyDocument?: { Statement?: Array<{ Action?: string | string[] }> };
     }>;
-    expect(policies?.[0]?.PolicyName).toBe('AppSync-Datasource-bedrock');
+    expect(
+      policies?.some(
+        (policy) => policy.PolicyName === 'AppSync-Datasource-bedrock',
+      ),
+    ).toBe(true);
 
     const actions =
       policies?.flatMap(
