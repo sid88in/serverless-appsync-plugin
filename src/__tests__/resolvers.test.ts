@@ -20,6 +20,7 @@ jest.mock('esbuild', () => ({
             /\\/g,
             '/',
           )}`,
+          hash: '',
         },
       ],
     };
@@ -53,6 +54,7 @@ describe('Resolvers', () => {
                 /\\/g,
                 '/',
               )}`,
+              hash: '',
             },
           ],
         };
