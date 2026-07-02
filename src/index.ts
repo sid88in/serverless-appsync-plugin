@@ -120,7 +120,7 @@ type ServerlessPluginUtils = {
 
 class ServerlessAppsyncPlugin {
   private provider: Provider;
-  private clientFactory: AwsClientFactory;
+  private _clientFactory?: AwsClientFactory;
   private gatheredData: {
     apis: {
       id: string;
@@ -152,16 +152,6 @@ class ServerlessAppsyncPlugin {
     this.provider = this.serverless.getProvider('aws');
     this.utils = utils;
 
-    // Resolve region and credentials the same way the Serverless Framework
-    // does for its own AWS calls, so the live commands honor the --region /
-    // --aws-profile CLI options, provider.region / provider.profile from the
-    // service config, and any assumed-role / environment credentials. Falling
-    // back to the bare default credential chain (as a plain
-    // `fromNodeProviderChain()` would) silently ignores all of the above and
-    // breaks profile-based and multi-account setups.
-    const region = this.provider.getRegion();
-    const credentials = resolveCredentials(this.provider);
-    this.clientFactory = new AwsClientFactory(region, credentials);
     // We are using a newer version of AJV than Serverless Framework
     // and some customizations (eg: custom errors, $merge, filter irrelevant errors)
     // For SF, just validate the type of input to allow us to use a custom
@@ -1058,6 +1048,32 @@ class ServerlessAppsyncPlugin {
     if (!conceal) {
       this.serverless.addServiceOutputSection('appsync api keys', apiKeys);
     }
+  }
+
+  /**
+   * AWS client factory, built lazily on first access.
+   *
+   * Region and credentials are resolved the same way the Serverless Framework
+   * does for its own AWS calls, so the live commands honor the --region /
+   * --aws-profile CLI options, provider.region / provider.profile from the
+   * service config, and any assumed-role / environment credentials. Falling
+   * back to the bare default credential chain (as a plain
+   * `fromNodeProviderChain()` would) silently ignores all of the above and
+   * breaks profile-based and multi-account setups.
+   *
+   * Resolution is deferred to first use (inside command / deploy hooks) rather
+   * than the constructor: Serverless instantiates plugins before it resolves
+   * `${...}` variables, so resolving the region eagerly would capture the
+   * literal unresolved string (eg: `${opt:region, param:provider_region}`) and
+   * bake it into the SDK client => "Region not accepted".
+   */
+  private get clientFactory(): AwsClientFactory {
+    if (!this._clientFactory) {
+      const region = this.provider.getRegion();
+      const credentials = resolveCredentials(this.provider);
+      this._clientFactory = new AwsClientFactory(region, credentials);
+    }
+    return this._clientFactory;
   }
 
   loadConfig() {
