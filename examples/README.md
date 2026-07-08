@@ -28,6 +28,7 @@ stay current with the plugin's actual behavior — if they break, CI fails.
 | [datasource-http](./datasource-http/)                         | HTTP data source with optional IAM signing                                                 |
 | [datasource-none](./datasource-none/)                         | NONE data source (local resolvers)                                                         |
 | [datasource-eventbridge](./datasource-eventbridge/)           | EventBridge data source                                                                    |
+| [datasource-bedrock](./datasource-bedrock/)                   | Amazon Bedrock runtime data source for synchronous model invocations                       |
 | [datasource-opensearch](./datasource-opensearch/)             | Amazon OpenSearch Service data source                                                      |
 | [datasource-rds](./datasource-rds/)                           | Relational Database (Aurora Serverless) data source                                        |
 | [caching](./caching/)                                         | Server-side caching configuration                                                          |

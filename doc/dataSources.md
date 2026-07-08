@@ -139,6 +139,36 @@ appSync:
 
 - `eventBusArn`: The ARN of the event bus
 
+## Bedrock
+
+```yaml
+appSync:
+  dataSources:
+    myBedrock:
+      type: 'AMAZON_BEDROCK_RUNTIME'
+      config:
+        models:
+          - amazon.titan-text-lite-v1
+          - eu.amazon.nova-2-lite-v1:0
+          - arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0
+```
+
+### config
+
+All fields are optional. When `config` is omitted entirely, the plugin still creates the data source and generates a default service role.
+
+**Prerequisite:** Your AWS account must have access enabled for each Bedrock foundation model you plan to use, in the same region as your AppSync API (and, for cross-region inference profiles, in the regions the profile can route to). Request access in the Amazon Bedrock console before deploying or copying this example; otherwise invocations fail at runtime even when IAM is correct. See [Manage access to Amazon Bedrock foundation models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) and [Prerequisites for inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-prereq.html) (required for models such as Amazon Nova).
+
+- `models`: Optional list of model identifiers used to scope the generated IAM policy. When omitted, the default role allows `bedrock:InvokeModel` and `bedrock:Converse` on `*`. Each entry is expanded as follows:
+  - A **bare foundation model ID** (e.g. `amazon.titan-text-lite-v1`) becomes `arn:${AWS::Partition}:bedrock:${region}::foundation-model/<id>`.
+  - A **cross-region inference profile ID** (prefixed with a geographic code such as `us.`, `eu.`, `apac.`, `us-gov.`, or `global.` — e.g. `eu.amazon.nova-2-lite-v1:0`) is expanded into **two** ARNs: the inference profile in this account/region (`arn:${AWS::Partition}:bedrock:${region}:${AWS::AccountId}:inference-profile/<id>`) and the underlying foundation model across all regions the profile can route to (`arn:${AWS::Partition}:bedrock:*::foundation-model/<base-id>`). Models like Amazon Nova are only invokable through an inference profile, so use the profile ID here (and as the `modelId` in your resolver).
+  - A **full ARN** (or CloudFormation intrinsic function) is used as-is.
+- `region`: AWS region used when expanding model identifiers (foundation-model and inference-profile ARNs). Defaults to the stack region.
+- `serviceRoleArn`: The service role ARN for this DataSource. If not provided, a new one will be created.
+- `iamRoleStatements`: Statements to use for the generated IAM Role. If not provided, default statements will be used.
+
+Resolvers invoke Bedrock through the `APPSYNC_JS` runtime using `InvokeModel` or `Converse` request objects. AppSync only supports synchronous invocations that complete within 10 seconds; streaming APIs are not supported. See the [AWS AppSync Bedrock resolver reference](https://docs.aws.amazon.com/appsync/latest/devguide/resolver-reference-bedrock-js.html) for request/response shapes and helper utilities.
+
 ## NONE
 
 ```yaml

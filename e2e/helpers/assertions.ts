@@ -126,6 +126,7 @@ export function expectDataSourceOfType(
     | 'HTTP'
     | 'RELATIONAL_DATABASE'
     | 'AMAZON_EVENTBRIDGE'
+    | 'AMAZON_BEDROCK_RUNTIME'
     | 'NONE',
 ): { logicalId: string; resource: CfnResource } {
   return expectResourceWithProperties(template, 'AWS::AppSync::DataSource', {

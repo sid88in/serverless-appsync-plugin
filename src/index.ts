@@ -1257,7 +1257,7 @@ class ServerlessAppsyncPlugin {
         entryPoints: [codePath],
         bundle: true,
         write: false,
-        external: ['@aws-appsync/utils'],
+        external: ['@aws-appsync/utils', '@aws-appsync/utils/ai'],
       });
 
       if (buildResult.errors.length > 0) {

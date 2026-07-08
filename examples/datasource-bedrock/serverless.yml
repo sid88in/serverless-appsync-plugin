@@ -1,0 +1,29 @@
+service: appsync-datasource-bedrock
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+appSync:
+  name: datasource-bedrock
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.summarize:
+      kind: UNIT
+      dataSource: bedrock
+      code: ./resolvers/summarize.js
+
+  dataSources:
+    bedrock:
+      type: AMAZON_BEDROCK_RUNTIME
+      description: Amazon Bedrock runtime for synchronous model invocations
+      config:
+        models:
+          - eu.amazon.nova-micro-v1:0

@@ -60,7 +60,7 @@ export class DataSource {
       [logicalId]: resource,
     };
 
-    if ('config' in this.config && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config?.serviceRoleArn) {
       resource.Properties.ServiceRoleArn = this.config.config.serviceRoleArn;
     } else {
       const role = this.compileDataSourceIamRole();
@@ -191,7 +191,7 @@ export class DataSource {
   }
 
   compileDataSourceIamRole(): CfnResources | undefined {
-    if ('config' in this.config && this.config.config.serviceRoleArn) {
+    if ('config' in this.config && this.config.config?.serviceRoleArn) {
       return;
     }
 
@@ -209,7 +209,7 @@ export class DataSource {
       );
     }
 
-    if ('config' in this.config && this.config.config.iamRoleStatements) {
+    if ('config' in this.config && this.config.config?.iamRoleStatements) {
       statements = this.config.config.iamRoleStatements;
     } else {
       // Try to generate default statements for the given this.config.
@@ -427,6 +427,92 @@ export class DataSource {
 
         return [defaultEventBridgeStatement];
       }
+      case 'AMAZON_BEDROCK_RUNTIME': {
+        const region = this.config.config?.region || { Ref: 'AWS::Region' };
+        const models = this.config.config?.models;
+        const resources: (string | IntrinsicFunction)[] =
+          models && models.length
+            ? models.flatMap((model) =>
+                this.getBedrockModelResources(model, region),
+              )
+            : ['*'];
+
+        const defaultBedrockStatement: IamStatement = {
+          Action: ['bedrock:InvokeModel', 'bedrock:Converse'],
+          Effect: 'Allow',
+          Resource: resources,
+        };
+
+        return [defaultBedrockStatement];
+      }
     }
+  }
+
+  getBedrockModelResources(
+    model: string | IntrinsicFunction,
+    region: string | IntrinsicFunction,
+  ): (string | IntrinsicFunction)[] {
+    // Full ARNs (and intrinsic functions) are used as-is.
+    if (typeof model !== 'string' || model.startsWith('arn:')) {
+      return [model];
+    }
+
+    // Cross-region inference profile IDs are prefixed with a geographic
+    // region code (e.g. `us.`, `eu.`, `apac.`). Such models can only be
+    // invoked through their inference profile, which routes to the underlying
+    // foundation model in any of the profile's regions. We therefore grant
+    // access to both the inference profile (in this account/region) and the
+    // foundation model across all regions.
+    const inferenceProfilePrefix = /^(us-gov|us|eu|apac|global)\./;
+    const match = inferenceProfilePrefix.exec(model);
+    if (match) {
+      const baseModelId = model.slice(match[0].length);
+
+      return [
+        {
+          'Fn::Join': [
+            ':',
+            [
+              'arn',
+              { Ref: 'AWS::Partition' },
+              'bedrock',
+              region,
+              { Ref: 'AWS::AccountId' },
+              `inference-profile/${model}`,
+            ],
+          ],
+        },
+        {
+          'Fn::Join': [
+            ':',
+            [
+              'arn',
+              { Ref: 'AWS::Partition' },
+              'bedrock',
+              '*',
+              '',
+              `foundation-model/${baseModelId}`,
+            ],
+          ],
+        },
+      ];
+    }
+
+    // Bare foundation model ID.
+    return [
+      {
+        'Fn::Join': [
+          ':',
+          [
+            'arn',
+            { Ref: 'AWS::Partition' },
+            'bedrock',
+            region,
+            '',
+            `foundation-model/${model}`,
+          ],
+        ],
+      },
+    ];
   }
 }

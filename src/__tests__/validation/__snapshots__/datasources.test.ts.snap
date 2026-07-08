@@ -1,7 +1,12 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Basic Invalid should validate: Invalid Datasource 1`] = `
-"/dataSources/myDynamoSource1/type: must be one of AMAZON_DYNAMODB, AMAZON_OPENSEARCH_SERVICE, AWS_LAMBDA, HTTP, NONE, RELATIONAL_DATABASE, AMAZON_EVENTBRIDGE
+"/dataSources/myDynamoSource1/type: must be one of AMAZON_DYNAMODB, AMAZON_OPENSEARCH_SERVICE, AWS_LAMBDA, HTTP, NONE, RELATIONAL_DATABASE, AMAZON_EVENTBRIDGE, AMAZON_BEDROCK_RUNTIME
+/dataSources: contains invalid data source definitions"
+`;
+
+exports[`Bedrock Invalid should not validate: Invalid models type 1`] = `
+"/dataSources/myBedrockSource1/config/models: must be array
 /dataSources: contains invalid data source definitions"
 `;
 
