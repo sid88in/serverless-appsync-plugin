@@ -58,6 +58,9 @@
     },
     "serverless": {
       "tar": "^7.5.8"
+    },
+    "external-editor": {
+      "tmp": "^0.2.6"
     }
   },
   "dependencies": {
