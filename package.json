@@ -55,6 +55,9 @@
     },
     "ajv-merge-patch": {
       "fast-json-patch": "3.1.1"
+    },
+    "serverless": {
+      "tar": "^7.5.8"
     }
   },
   "dependencies": {
