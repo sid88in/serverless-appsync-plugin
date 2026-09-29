@@ -70,6 +70,17 @@ const CONSOLE_BASE_URL = 'https://console.aws.amazon.com';
  */
 const resolveCredentials = (provider: Provider): AwsCredentials => {
   return async () => {
+    // osls 4 removed `getCredentials()` (it throws AWS_SDK_V2_SURFACE_REMOVED)
+    // and exposes its resolved SDK v3 client config instead.
+    if (typeof provider.getAwsSdkV3Config === 'function') {
+      const { credentials: v3Credentials } = await provider.getAwsSdkV3Config();
+      if (!v3Credentials) {
+        return fromNodeProviderChain()();
+      }
+      return typeof v3Credentials === 'function'
+        ? v3Credentials()
+        : v3Credentials;
+    }
     let credentials;
     try {
       ({ credentials } = provider.getCredentials());

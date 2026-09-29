@@ -125,6 +125,14 @@ declare module 'serverless/lib/plugins/aws/provider.js' {
       region?: string;
       signatureVersion?: string;
     };
+    // osls 4 only: client config (region, credentials, retries, proxy) for
+    // plugin-built SDK v3 clients. Replaces request() and getCredentials().
+    getAwsSdkV3Config?: () => Promise<{
+      region?: string;
+      credentials?:
+        | import('@aws-sdk/types').AwsCredentialIdentity
+        | import('@aws-sdk/types').AwsCredentialIdentityProvider;
+    }>;
   }
 
   export default Provider;
