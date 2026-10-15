@@ -22,8 +22,7 @@ import {
   parseDateTimeOrDuration,
   wait,
 } from './utils';
-import { Api } from './resources/Api';
-import { getSchemaS3Key, SCHEMA_FILE_NAME } from './resources/Schema';
+import { Api, getS3Key, S3_FILES_DIR } from './resources/Api';
 import { Naming } from './resources/Naming';
 import { buildSync } from 'esbuild';
 import terminalLink from 'terminal-link';
@@ -458,9 +457,9 @@ class ServerlessAppsyncPlugin {
       'before:appsync:domain:delete-record:run': async () =>
         this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
-      'before:package:finalize': () => this.writeSchemaFile(),
+      'before:package:finalize': () => this.writeS3Files(),
       'after:aws:deploy:deploy:uploadArtifacts': async () =>
-        this.uploadSchema(),
+        this.uploadS3Files(),
       finalize: () => {
         this.utils.writeText(
           '\nLooking for a better AppSync development experience? Have you tried GraphBolt? https://graphbolt.dev',
@@ -1132,21 +1131,28 @@ class ServerlessAppsyncPlugin {
 
   // The Framework builds the package in `.serverless` and moves it to the
   // `--package` directory at the end.
-  writeSchemaFile() {
-    if (this.api?.schemaFileContent === undefined) {
+  writeS3Files() {
+    if (
+      !this.api ||
+      !(this.api.config.uploadSchemaToS3 || this.api.config.uploadCodeToS3)
+    ) {
       return;
     }
-    const dir = path.join(this.serverless.serviceDir || '.', '.serverless');
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(
-      path.join(dir, SCHEMA_FILE_NAME),
-      this.api.schemaFileContent,
+    const dir = path.join(
+      this.serverless.serviceDir || '.',
+      '.serverless',
+      S3_FILES_DIR,
     );
+    fs.mkdirSync(dir, { recursive: true });
+    forEach(this.api.s3Files, (content, fileName) => {
+      fs.writeFileSync(path.join(dir, fileName), content);
+    });
   }
 
-  async uploadSchema() {
+  async uploadS3Files() {
+    const { appSync } = this.serverless.configurationInput;
     if (
-      !this.serverless.configurationInput.appSync?.uploadSchemaToS3 ||
+      !(appSync?.uploadSchemaToS3 || appSync?.uploadCodeToS3) ||
       this.serverless.service.provider.shouldNotDeploy
     ) {
       return;
@@ -1155,30 +1161,42 @@ class ServerlessAppsyncPlugin {
       this.options.package ||
       this.serverless.service.package?.path ||
       path.join(this.serverless.serviceDir || '.', '.serverless');
-    const file = path.join(packagePath, SCHEMA_FILE_NAME);
-    if (!fs.existsSync(file)) {
+    const dir = path.join(packagePath, S3_FILES_DIR);
+    if (!fs.existsSync(dir)) {
       throw new this.serverless.classes.Error(
-        `The AppSync schema file ${file} is missing. Package the service again.`,
+        `The AppSync files directory ${dir} is missing. Package the service again.`,
       );
     }
-    const definition = fs.readFileSync(file, 'utf8');
-    const params: PutObjectCommandInput = {
-      Bucket: await this.provider.getServerlessDeploymentBucketName(),
-      Key: getSchemaS3Key(this, definition),
-      Body: definition,
-      ContentType: 'application/graphql',
-    };
+    const bucket = await this.provider.getServerlessDeploymentBucketName();
     const encryption = this.serverless.service.provider.deploymentBucketObject;
-    if (encryption) {
-      // No SSE-C: CloudFormation reads DefinitionS3Location without the
-      // customer key, so the object gets the bucket's default encryption.
-      Object.assign(params, {
-        ServerSideEncryption: encryption.serverSideEncryption,
-        SSEKMSKeyId: encryption.sseKMSKeyId,
-      });
+    const s3 = this.clientFactory.getS3Client();
+    const fileNames = fs.readdirSync(dir);
+    this.utils.log.info(
+      `Uploading ${fileNames.length} AppSync files to the deployment bucket`,
+    );
+    const upload = (fileName: string) => {
+      const params: PutObjectCommandInput = {
+        Bucket: bucket,
+        Key: getS3Key(this, fileName),
+        Body: fs.readFileSync(path.join(dir, fileName), 'utf8'),
+        ContentType: fileName.endsWith('.js')
+          ? 'application/javascript'
+          : 'application/graphql',
+      };
+      if (encryption) {
+        // No SSE-C: CloudFormation reads the S3 locations without the
+        // customer key, so the object gets the bucket's default encryption.
+        Object.assign(params, {
+          ServerSideEncryption: encryption.serverSideEncryption,
+          SSEKMSKeyId: encryption.sseKMSKeyId,
+        });
+      }
+      return s3.send(new PutObjectCommand(params));
+    };
+    // In batches, so a large API does not open hundreds of connections.
+    for (let i = 0; i < fileNames.length; i += 20) {
+      await Promise.all(fileNames.slice(i, i + 20).map(upload));
     }
-    this.utils.log.info(`Uploading the AppSync schema to ${params.Key}`);
-    await this.clientFactory.getS3Client().send(new PutObjectCommand(params));
   }
 
   buildAndAppendResources() {

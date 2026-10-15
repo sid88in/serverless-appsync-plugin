@@ -19,6 +19,7 @@ import {
 } from '../types/plugin';
 import { getHostedZoneName, parseDuration } from '../utils';
 import { DateTime, Duration } from 'luxon';
+import crypto from 'crypto';
 import { Naming } from './Naming';
 import { DataSource } from './DataSource';
 import { Resolver } from './Resolver';
@@ -26,11 +27,30 @@ import { PipelineFunction } from './PipelineFunction';
 import { Schema } from './Schema';
 import { Waf } from './Waf';
 
+// The directory of the uploaded files, in the package and in the bucket.
+export const S3_FILES_DIR = 'appsync';
+
+// The key is outside the timestamped deployment directories, so the Framework
+// never prunes it and a rollback still finds the previous version.
+export const getS3Key = (
+  plugin: ServerlessAppsyncPlugin,
+  fileName: string,
+): string => {
+  const { provider, serverless } = plugin;
+  return [
+    provider.getDeploymentPrefix(),
+    serverless.service.service,
+    provider.getStage(),
+    S3_FILES_DIR,
+    fileName,
+  ].join('/');
+};
+
 export class Api {
   public naming: Naming;
   public functions: Record<string, Record<string, unknown>> = {};
-  // The schema to write to the package directory, set when it goes to S3.
-  public schemaFileContent?: string;
+  // Files to upload to the deployment bucket, by file name.
+  public s3Files: Record<string, string> = {};
 
   constructor(
     public config: AppSyncConfig,
@@ -242,6 +262,39 @@ export class Api {
         },
       },
     };
+  }
+
+  // The file name holds the hash of the content, so the location changes only
+  // with the content and CloudFormation updates the resource only then.
+  getS3Location(
+    name: string,
+    extension: string,
+    content: string,
+  ): IntrinsicFunction {
+    const hash = crypto.createHash('sha256').update(content).digest('hex');
+    const fileName = `${name}-${hash}.${extension}`;
+    this.s3Files[fileName] = content;
+    // The Framework replaces the object form of deploymentBucket with its name.
+    const bucket = (this.plugin.serverless.service.provider.deploymentBucket as
+      | string
+      | undefined) || {
+      Ref: 'ServerlessDeploymentBucket',
+    };
+    return {
+      'Fn::Join': ['', ['s3://', bucket, '/', getS3Key(this.plugin, fileName)]],
+    };
+  }
+
+  // Code with substitutions is an intrinsic function, which a file cannot
+  // hold, so it stays in the template.
+  getCodeProperties(
+    code: string | IntrinsicFunction,
+  ):
+    | { Code: string | IntrinsicFunction }
+    | { CodeS3Location: IntrinsicFunction } {
+    return this.config.uploadCodeToS3 && typeof code === 'string'
+      ? { CodeS3Location: this.getS3Location('code', 'js', code) }
+      : { Code: code };
   }
 
   compileSchema() {

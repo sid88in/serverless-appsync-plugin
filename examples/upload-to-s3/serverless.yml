@@ -1,0 +1,36 @@
+service: appsync-upload-to-s3
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+
+plugins:
+  - serverless-appsync-plugin
+
+# The schema and the resolver code go to the deployment bucket instead of the
+# CloudFormation template, which keeps a large API clear of the template size
+# limit.
+
+appSync:
+  name: upload-to-s3
+  schema: schema.graphql
+  uploadSchemaToS3: true
+  uploadCodeToS3: true
+  authentication:
+    type: API_KEY
+  apiKeys:
+    - name: default
+
+  resolvers:
+    Query.getUser:
+      functions:
+        - getUser
+
+  pipelineFunctions:
+    getUser:
+      dataSource: none_ds
+      code: ./resolvers/getUser.js
+
+  dataSources:
+    none_ds:
+      type: NONE

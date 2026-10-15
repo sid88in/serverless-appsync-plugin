@@ -47,6 +47,7 @@ export type AppSyncConfig = {
   queryDepthLimit?: number;
   resolverCountLimit?: number;
   uploadSchemaToS3?: boolean;
+  uploadCodeToS3?: boolean;
 };
 
 export type BaseResolverConfig = {

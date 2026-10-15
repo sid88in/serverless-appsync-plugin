@@ -1,5 +1,4 @@
 import globby from 'globby';
-import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { CfnResources } from '../types/cloudFormation';
@@ -66,29 +65,6 @@ const reservedNames = ((): {
   return { directives, types };
 })();
 
-// The file in the package directory that holds the schema to upload when
-// `uploadSchemaToS3` is enabled.
-export const SCHEMA_FILE_NAME = 'appsync-schema.graphql';
-
-// The key is outside the timestamped deployment directories, so the
-// Framework never prunes it and a rollback still finds the previous schema.
-// The content hash keeps the location stable while the schema does not
-// change, so CloudFormation updates the schema only when it changes.
-export const getSchemaS3Key = (
-  plugin: Api['plugin'],
-  definition: string,
-): string => {
-  const { provider, serverless } = plugin;
-  const hash = crypto.createHash('sha256').update(definition).digest('hex');
-  return [
-    provider.getDeploymentPrefix(),
-    serverless.service.service,
-    provider.getStage(),
-    'appsync',
-    `schema-${hash}.graphql`,
-  ].join('/');
-};
-
 export class Schema {
   constructor(private api: Api, private schemas: string[]) {}
 
@@ -101,23 +77,17 @@ export class Schema {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
           ...(this.api.config.uploadSchemaToS3
-            ? { DefinitionS3Location: this.getS3Location(definition) }
+            ? {
+                DefinitionS3Location: this.api.getS3Location(
+                  'schema',
+                  'graphql',
+                  definition,
+                ),
+              }
             : { Definition: definition }),
           ApiId: this.api.getApiId(),
         },
       },
-    };
-  }
-
-  getS3Location(definition: string) {
-    this.api.schemaFileContent = definition;
-    const bucket = this.api.plugin.serverless.service.provider
-      .deploymentBucket || { Ref: 'ServerlessDeploymentBucket' };
-    return {
-      'Fn::Join': [
-        '',
-        ['s3://', bucket, '/', getSchemaS3Key(this.api.plugin, definition)],
-      ],
     };
   }
 

@@ -46,10 +46,16 @@ export class Resolver {
 
     if (isJsResolver) {
       if (this.config.code) {
-        Properties.Code = this.resolveJsCode(this.config.code);
+        Object.assign(
+          Properties,
+          this.api.getCodeProperties(this.resolveJsCode(this.config.code)),
+        );
       } else {
         // default for pipeline JS resolvers
-        Properties.Code = DEFAULT_JS_RESOLVERS;
+        Object.assign(
+          Properties,
+          this.api.getCodeProperties(DEFAULT_JS_RESOLVERS),
+        );
       }
       Properties.Runtime = {
         Name: 'APPSYNC_JS',

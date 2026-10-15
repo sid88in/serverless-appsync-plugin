@@ -12,6 +12,7 @@ describe('Valdiation', () => {
         queryDepthLimit: 10,
         resolverCountLimit: 10,
         uploadSchemaToS3: true,
+        uploadCodeToS3: true,
         xrayEnabled: true,
         environment: {
           MY_TABLE: 'my-table',
@@ -35,6 +36,7 @@ describe('Valdiation', () => {
         queryDepthLimit: 'foo',
         resolverCountLimit: 'bar',
         uploadSchemaToS3: 'yes',
+        uploadCodeToS3: 'yes',
         xrayEnabled: 'BAR',
         unknownPorp: 'foo',
         esbuild: 'bad',
