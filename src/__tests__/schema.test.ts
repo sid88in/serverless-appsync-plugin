@@ -349,4 +349,61 @@ describe('schema', () => {
       "
     `);
   });
+
+  describe('uploadSchemaToS3', () => {
+    const compile = (deploymentBucket?: string) => {
+      const s3Plugin = given.plugin();
+      s3Plugin.serverless.service.service = 'my-service';
+      s3Plugin.serverless.service.provider.deploymentBucket = deploymentBucket;
+      const api = new Api(
+        given.appSyncConfig({
+          schema: ['src/__tests__/fixtures/schemas/reserved/schema.graphql'],
+          uploadSchemaToS3: true,
+        }),
+        s3Plugin,
+      );
+      return { resources: api.compileSchema() };
+    };
+
+    it('should reference the schema in the deployment bucket', () => {
+      expect(compile().resources).toMatchInlineSnapshot(`
+        {
+          "GraphQlSchema": {
+            "Properties": {
+              "ApiId": {
+                "Fn::GetAtt": [
+                  "GraphQlApi",
+                  "ApiId",
+                ],
+              },
+              "DefinitionS3Location": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "s3://",
+                    {
+                      "Ref": "ServerlessDeploymentBucket",
+                    },
+                    "/",
+                    "serverless/my-service/dev/appsync/schema-5404a38be4b4e6011f4ae0e457630a4a3bb05b29226cc0f1c5c929dab72f7da6.graphql",
+                  ],
+                ],
+              },
+            },
+            "Type": "AWS::AppSync::GraphQLSchema",
+          },
+        }
+      `);
+    });
+
+    it('should use provider.deploymentBucket when it is set', () => {
+      const { resources } = compile('my-bucket');
+
+      expect(
+        resources.GraphQlSchema.Properties?.DefinitionS3Location,
+      ).toMatchObject({
+        'Fn::Join': ['', ['s3://', 'my-bucket', '/', expect.any(String)]],
+      });
+    });
+  });
 });

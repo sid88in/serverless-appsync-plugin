@@ -37,6 +37,7 @@ appSync:
 
 - `name`: The name of this AppSync API
 - `schema`: The filename of the schema file. Defaults to `schema.graphql`. [Read more](#Schema)
+- `uploadSchemaToS3`: Boolean. Upload the schema to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#Large-schemas)
 - `authentication`: See [Authentication](authentication.md)
 - `additionalAuthentications`: See [Authentication](authentication.md)
 - `apiKeys`: See [API Keys](API-keys.md)
@@ -87,6 +88,18 @@ appSync:
   name: my-api
   schema: 'schemas/*.graphql' # include all graphql files in the `schemas` directory
 ```
+
+### Large schemas
+
+The schema is part of the CloudFormation template, which can hold at most 1 MB. A large schema can make the deployment fail. Set `uploadSchemaToS3` to keep the schema out of the template:
+
+```yaml
+appSync:
+  schema: 'schemas/*.graphql'
+  uploadSchemaToS3: true
+```
+
+`serverless package` writes the merged schema to `appsync-schema.graphql` in the package directory. `serverless deploy` uploads it to the deployment bucket at `<deploymentPrefix>/<service>/<stage>/appsync/schema-<sha256>.graphql`, and the template points to it with `DefinitionS3Location`. The key changes only when the schema changes, so CloudFormation updates the schema only then. The Framework does not delete these files, so a rollback always finds the previous schema.
 
 ### Schema stitching
 

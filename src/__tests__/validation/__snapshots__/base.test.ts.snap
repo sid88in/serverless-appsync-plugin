@@ -69,6 +69,7 @@ exports[`Valdiation should validate  1`] = `
 /introspection: must be boolean
 /queryDepthLimit: must be integer
 /resolverCountLimit: must be integer
+/uploadSchemaToS3: must be boolean
 /environment: must be a valid environment definition
 /esbuild: must be an esbuild config object or false"
 `;

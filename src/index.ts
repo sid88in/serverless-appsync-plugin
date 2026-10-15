@@ -23,6 +23,7 @@ import {
   wait,
 } from './utils';
 import { Api } from './resources/Api';
+import { getSchemaS3Key, SCHEMA_FILE_NAME } from './resources/Schema';
 import { Naming } from './resources/Naming';
 import { buildSync } from 'esbuild';
 import terminalLink from 'terminal-link';
@@ -46,6 +47,7 @@ import {
   RuntimeName,
 } from '@aws-sdk/client-appsync';
 import { DescribeStackResourcesCommand } from '@aws-sdk/client-cloudformation';
+import { PutObjectCommand, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { FilterLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import {
   ListHostedZonesByNameCommand,
@@ -130,7 +132,7 @@ type ServerlessPluginUtils = {
 };
 
 class ServerlessAppsyncPlugin {
-  private provider: Provider;
+  public provider: Provider;
   private _clientFactory?: AwsClientFactory;
   private gatheredData: {
     apis: {
@@ -456,6 +458,9 @@ class ServerlessAppsyncPlugin {
       'before:appsync:domain:delete-record:run': async () =>
         this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
+      'before:package:finalize': () => this.writeSchemaFile(),
+      'after:aws:deploy:deploy:uploadArtifacts': async () =>
+        this.uploadSchema(),
       finalize: () => {
         this.utils.writeText(
           '\nLooking for a better AppSync development experience? Have you tried GraphBolt? https://graphbolt.dev',
@@ -1123,6 +1128,57 @@ class ServerlessAppsyncPlugin {
 
       throw error;
     }
+  }
+
+  // The Framework builds the package in `.serverless` and moves it to the
+  // `--package` directory at the end.
+  writeSchemaFile() {
+    if (this.api?.schemaFileContent === undefined) {
+      return;
+    }
+    const dir = path.join(this.serverless.serviceDir || '.', '.serverless');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, SCHEMA_FILE_NAME),
+      this.api.schemaFileContent,
+    );
+  }
+
+  async uploadSchema() {
+    if (
+      !this.serverless.configurationInput.appSync?.uploadSchemaToS3 ||
+      this.serverless.service.provider.shouldNotDeploy
+    ) {
+      return;
+    }
+    const packagePath =
+      this.options.package ||
+      this.serverless.service.package?.path ||
+      path.join(this.serverless.serviceDir || '.', '.serverless');
+    const file = path.join(packagePath, SCHEMA_FILE_NAME);
+    if (!fs.existsSync(file)) {
+      throw new this.serverless.classes.Error(
+        `The AppSync schema file ${file} is missing. Package the service again.`,
+      );
+    }
+    const definition = fs.readFileSync(file, 'utf8');
+    const params: PutObjectCommandInput = {
+      Bucket: await this.provider.getServerlessDeploymentBucketName(),
+      Key: getSchemaS3Key(this, definition),
+      Body: definition,
+      ContentType: 'application/graphql',
+    };
+    const encryption = this.serverless.service.provider.deploymentBucketObject;
+    if (encryption) {
+      // No SSE-C: CloudFormation reads DefinitionS3Location without the
+      // customer key, so the object gets the bucket's default encryption.
+      Object.assign(params, {
+        ServerSideEncryption: encryption.serverSideEncryption,
+        SSEKMSKeyId: encryption.sseKMSKeyId,
+      });
+    }
+    this.utils.log.info(`Uploading the AppSync schema to ${params.Key}`);
+    await this.clientFactory.getS3Client().send(new PutObjectCommand(params));
   }
 
   buildAndAppendResources() {

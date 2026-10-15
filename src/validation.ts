@@ -745,6 +745,7 @@ export const appSyncSchema = {
     introspection: { type: 'boolean' },
     queryDepthLimit: { type: 'integer', minimum: 1, maximum: 75 },
     resolverCountLimit: { type: 'integer', minimum: 1, maximum: 1000 },
+    uploadSchemaToS3: { type: 'boolean' },
     substitutions: { $ref: '#/definitions/substitutions' },
     environment: { $ref: '#/definitions/environment' },
     waf: {

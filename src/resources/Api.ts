@@ -29,6 +29,8 @@ import { Waf } from './Waf';
 export class Api {
   public naming: Naming;
   public functions: Record<string, Record<string, unknown>> = {};
+  // The schema to write to the package directory, set when it goes to S3.
+  public schemaFileContent?: string;
 
   constructor(
     public config: AppSyncConfig,
