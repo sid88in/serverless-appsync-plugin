@@ -167,9 +167,12 @@ This plugin intends to use modern schemas for future-proofing. Incompatibilities
 
 **Descriptions**
 
-[Descriptions](https://spec.graphql.org/October2021/#sec-Descriptions) with three double quotes (`"""`) are not supported by AppSync and will be removed.
+AppSync ignores [descriptions](https://spec.graphql.org/October2021/#sec-Descriptions) in quotes (`"` or `"""`) and reads `#` comments instead. The plugin converts each description to `#` comments:
 
-Old-style descriptions (using `#`) are supported by AppSync but will be removed by the [stitching procedure](#schema-stitching) which does not support them\*. Comments are also not supported on [enums](https://spec.graphql.org/October2021/#sec-Enums) by AppSync.
+- It removes blank lines, because AppSync keeps only the text after the last empty comment line.
+- AppSync drops argument and enum value descriptions. The plugin appends them to the description of the field, as an `Arguments:` list, or of the enum, as a `Values:` list.
+
+Old-style descriptions (using `#`) are removed by the [stitching procedure](#schema-stitching) which does not support them\*.
 
 \* If you want to retain `#` comments, the workaround is to skip schema stitching by putting your whole schema into one single file.
 

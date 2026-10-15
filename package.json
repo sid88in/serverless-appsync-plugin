@@ -1,6 +1,6 @@
 {
   "name": "@monei-js/serverless-appsync-plugin",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

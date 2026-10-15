@@ -1,9 +1,26 @@
 type Query {
   getUser: User!
+  """
+  Users with a role.
+
+  Sorted by name.
+  """
+  listUsers(
+    "Only users with this role."
+    role: Role!
+    limit: Int
+  ): [User!]!
 }
 
 type Mutation {
-  createUser(post: UserInput!): User!
+  createUser(
+    """
+    The new user.
+
+    Name is required.
+    """
+    post: UserInput!
+  ): User!
 }
 
 """
@@ -12,6 +29,15 @@ A User
 type User {
   id: ID!
   name: String!
+}
+
+"""
+Access level.
+"""
+enum Role {
+  "Full access."
+  ADMIN
+  USER
 }
 
 # Input for user

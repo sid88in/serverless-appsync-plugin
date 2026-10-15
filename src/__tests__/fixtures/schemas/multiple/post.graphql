@@ -9,6 +9,8 @@ extend type Mutation {
   """
   This is a description
   that includes multiple lines
+
+  and a second paragraph
   """
   createPost(post: PostInput!): Post!
 }
@@ -26,4 +28,10 @@ This is a description
 """
 input PostInput {
   title: String!
+}
+
+enum PostStatus {
+  "Visible to everyone."
+  PUBLISHED
+  DRAFT
 }

@@ -4,7 +4,19 @@ import path from 'path';
 import { CfnResources } from '../types/cloudFormation';
 import { Api } from './Api';
 import { flatten } from 'lodash';
-import { parse, print, Kind, DefinitionNode } from 'graphql';
+import {
+  parse,
+  print,
+  visit,
+  Kind,
+  TokenKind,
+  ASTNode,
+  DefinitionNode,
+  DirectiveDefinitionNode,
+  FieldDefinitionNode,
+  StringValueNode,
+  Token,
+} from 'graphql';
 import { validateSDL } from 'graphql/validation/validate';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 
@@ -80,45 +92,33 @@ export class Schema {
     }
   }
 
-  // AppSync does not support descriptions from June 2018 spec
-  // https://spec.graphql.org/June2018/#sec-Descriptions
-  // so they need to be converted to comments, the space after the # will also be included
-  // by AppSync in the generated description so we remove it
+  // AppSync ignores spec descriptions (https://spec.graphql.org/June2018/#sec-Descriptions)
+  // and reads `#` comments instead, with these rules:
+  // - an empty comment line resets the description, so blank lines are removed;
+  // - argument and enum value descriptions are dropped, so they are folded
+  //   into the description of their field, directive or enum.
   convertDescriptions(schema: string): string {
-    const lines = schema.split('\n');
-    const singleLineComment = /^(?<indent> *)"(?<comment>[^"]+?)"$/;
-    const singleLineMultilineComment = /^(?<indent> *)"""(?<comment>.+?)"""$/;
-    const multilineCommentDelimiter = /^(?<indent> *)"""$/;
-
-    let inComment = false;
-    let result = '';
-
-    for (const line of lines) {
-      switch (true) {
-        case singleLineComment.test(line):
-          result += `${line.match(singleLineComment)?.groups?.indent}#${
-            line.match(singleLineComment)?.groups?.comment
-          }\n`;
-          break;
-        case singleLineMultilineComment.test(line):
-          result += `${
-            line.match(singleLineMultilineComment)?.groups?.indent
-          }#${line.match(singleLineMultilineComment)?.groups?.comment}\n`;
-          break;
-        case multilineCommentDelimiter.test(line):
-          inComment = !inComment;
-          break;
-        case inComment:
-          result += `${
-            line.match(/^(?<indent> *)/)?.groups?.indent
-          }#${line.trimStart()}\n`;
-          break;
-        default:
-          result += line + '\n';
-      }
-    }
-
-    return result;
+    const doc = visit(parse(schema), {
+      enter(node) {
+        if (!('description' in node) || node.description || !node.loc) {
+          return undefined;
+        }
+        const comment = leadingComment(node.loc.startToken);
+        return comment === undefined
+          ? undefined
+          : { ...node, description: toStringValue(comment) };
+      },
+      FieldDefinition: { leave: foldArguments },
+      DirectiveDefinition: { leave: foldArguments },
+      EnumTypeDefinition: {
+        leave: (node) => ({
+          ...node,
+          description: fold(node.description, 'Values', node.values),
+          values: node.values?.map(withoutDescription),
+        }),
+      },
+    });
+    return doc.definitions.map(printWithComments).join('\n\n') + '\n';
   }
 
   generateSchema() {
@@ -187,4 +187,95 @@ function isReservedDefinition(def: DefinitionNode): boolean {
     return reservedNames.types.has(def.name.value);
   }
   return false;
+}
+
+type Described = { readonly description?: StringValueNode };
+type Named = Described & { readonly name: { readonly value: string } };
+
+function descriptionLines(description?: StringValueNode): string[] {
+  return (description?.value ?? '')
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== '');
+}
+
+function toStringValue(value: string): StringValueNode {
+  return { kind: Kind.STRING, value, block: true };
+}
+
+function withoutDescription<T extends Described>(node: T): T {
+  return { ...node, description: undefined };
+}
+
+// Appends `- \`name\`: description` for each item that has a description.
+function fold(
+  description: StringValueNode | undefined,
+  title: string,
+  items: readonly Named[] | undefined,
+): StringValueNode | undefined {
+  const entries = (items ?? []).flatMap((item) => {
+    const lines = descriptionLines(item.description);
+    return lines.length
+      ? [`- \`${item.name.value}\`: ${lines.join('\n  ')}`]
+      : [];
+  });
+  if (!entries.length) {
+    return description;
+  }
+  return toStringValue(
+    [...descriptionLines(description), `${title}:`, ...entries].join('\n'),
+  );
+}
+
+function foldArguments<T extends FieldDefinitionNode | DirectiveDefinitionNode>(
+  node: T,
+): T {
+  return {
+    ...node,
+    description: fold(node.description, 'Arguments', node.arguments),
+    arguments: node.arguments?.map(withoutDescription),
+  };
+}
+
+// The `#` comment block directly above a token, as graphql-tools reads it with
+// `commentDescriptions`. Only a single-file schema still has its comments: the
+// merged schema is printed by graphql-tools, which drops them.
+function leadingComment(token: Token): string | undefined {
+  const lines: string[] = [];
+  let comment = token.prev;
+  while (
+    comment?.kind === TokenKind.COMMENT &&
+    comment.next?.line === comment.line + 1 &&
+    comment.prev?.line !== comment.line
+  ) {
+    lines.unshift(comment.value);
+    comment = comment.prev;
+  }
+  return lines.length ? lines.join('\n') : undefined;
+}
+
+function commentBlock(node: ASTNode): string {
+  const lines = descriptionLines((node as Described).description);
+  return lines.map((line) => `#${line}\n`).join('');
+}
+
+function printWithoutDescription(node: ASTNode): string {
+  return (
+    commentBlock(node) + print(withoutDescription(node as Described & ASTNode))
+  );
+}
+
+function indent(text: string): string {
+  return '  ' + text.replace(/\n/g, '\n  ');
+}
+
+// `print` would emit the remaining descriptions as strings, so the
+// definitions and their fields are printed one by one, each after its comment.
+function printWithComments(def: DefinitionNode): string {
+  if (!('fields' in def) || !def.fields?.length) {
+    return printWithoutDescription(def);
+  }
+  const fields: readonly ASTNode[] = def.fields;
+  const head = printWithoutDescription({ ...def, fields: [] } as ASTNode);
+  const body = fields.map((field) => indent(printWithoutDescription(field)));
+  return `${head} {\n${body.join('\n')}\n}`;
 }

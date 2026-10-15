@@ -26,9 +26,17 @@ describe('schema', () => {
             },
             "Definition": "type Query {
         getUser: User!
+        #Users with a role.
+        #Sorted by name.
+        #Arguments:
+        #- \`role\`: Only users with this role.
+        listUsers(role: Role!, limit: Int): [User!]!
       }
 
       type Mutation {
+        #Arguments:
+        #- \`post\`: The new user.
+        #  Name is required.
         createUser(post: UserInput!): User!
       }
 
@@ -38,11 +46,18 @@ describe('schema', () => {
         name: String!
       }
 
+      #Access level.
+      #Values:
+      #- \`ADMIN\`: Full access.
+      enum Role {
+        ADMIN
+        USER
+      }
+
       # Input for user
       input UserInput {
         name: String!
       }
-
       ",
           },
           "Type": "AWS::AppSync::GraphQLSchema",
@@ -62,6 +77,7 @@ describe('schema', () => {
       "type Mutation {
         #This is a description
         #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -78,11 +94,17 @@ describe('schema', () => {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
-        getPost(
-          #This is an inline description
-          id: ID!
-        ): Post!
+        #Arguments:
+        #- \`id\`: This is an inline description
+        getPost(id: ID!): Post!
         getUser: User!
       }
 
@@ -110,6 +132,7 @@ describe('schema', () => {
       "type Mutation {
         #This is a description
         #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -126,11 +149,17 @@ describe('schema', () => {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
-        getPost(
-          #This is an inline description
-          id: ID!
-        ): Post!
+        #Arguments:
+        #- \`id\`: This is an inline description
+        getPost(id: ID!): Post!
         getUser: User!
       }
 
@@ -158,6 +187,7 @@ describe('schema', () => {
       "type Mutation {
         #This is a description
         #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -174,11 +204,17 @@ describe('schema', () => {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
-        getPost(
-          #This is an inline description
-          id: ID!
-        ): Post!
+        #Arguments:
+        #- \`id\`: This is an inline description
+        getPost(id: ID!): Post!
         getUser: User!
       }
 
@@ -278,9 +314,17 @@ describe('schema', () => {
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Query {
         getUser: User!
+        #Users with a role.
+        #Sorted by name.
+        #Arguments:
+        #- \`role\`: Only users with this role.
+        listUsers(role: Role!, limit: Int): [User!]!
       }
 
       type Mutation {
+        #Arguments:
+        #- \`post\`: The new user.
+        #  Name is required.
         createUser(post: UserInput!): User!
       }
 
@@ -290,11 +334,18 @@ describe('schema', () => {
         name: String!
       }
 
+      #Access level.
+      #Values:
+      #- \`ADMIN\`: Full access.
+      enum Role {
+        ADMIN
+        USER
+      }
+
       # Input for user
       input UserInput {
         name: String!
       }
-
       "
     `);
   });
