@@ -37,6 +37,8 @@ appSync:
 
 - `name`: The name of this AppSync API
 - `schema`: The filename of the schema file. Defaults to `schema.graphql`. [Read more](#Schema)
+- `uploadSchemaToS3`: Boolean. Upload the schema to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#Large-APIs)
+- `uploadCodeToS3`: Boolean. Upload the JS code of resolvers and pipeline functions to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#Large-APIs)
 - `authentication`: See [Authentication](authentication.md)
 - `additionalAuthentications`: See [Authentication](authentication.md)
 - `apiKeys`: See [API Keys](API-keys.md)
@@ -87,6 +89,21 @@ appSync:
   name: my-api
   schema: 'schemas/*.graphql' # include all graphql files in the `schemas` directory
 ```
+
+### Large APIs
+
+The schema and the JS code of resolvers and pipeline functions are part of the CloudFormation templates, and a template can hold at most 1 MB. A large API can make the deployment fail. These options keep them out of the templates:
+
+```yaml
+appSync:
+  schema: 'schemas/*.graphql'
+  uploadSchemaToS3: true # DefinitionS3Location
+  uploadCodeToS3: true # CodeS3Location
+```
+
+`serverless package` writes each file to the `appsync` directory of the package, as `schema-<sha256>.graphql` or `code-<sha256>.js`. `serverless deploy` uploads them to the deployment bucket at `<deploymentPrefix>/<service>/<stage>/appsync/`, and the templates point to them. A file name changes only when its content changes, so CloudFormation updates a resource only then. The Framework does not delete these files, so a rollback always finds the previous version.
+
+Code that uses [substitutions](substitutions.md) stays in the template, because a file cannot hold the CloudFormation functions that resolve them. VTL mapping templates also stay in the template.
 
 ### Schema stitching
 

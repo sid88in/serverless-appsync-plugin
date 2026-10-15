@@ -58,12 +58,21 @@ export class Schema {
 
   compile(): CfnResources {
     const logicalId = this.api.naming.getSchemaLogicalId();
+    const definition = this.generateSchema();
 
     return {
       [logicalId]: {
         Type: 'AWS::AppSync::GraphQLSchema',
         Properties: {
-          Definition: this.generateSchema(),
+          ...(this.api.config.uploadSchemaToS3
+            ? {
+                DefinitionS3Location: this.api.getS3Location(
+                  'schema',
+                  'graphql',
+                  definition,
+                ),
+              }
+            : { Definition: definition }),
           ApiId: this.api.getApiId(),
         },
       },
