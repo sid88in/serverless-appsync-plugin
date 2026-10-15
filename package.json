@@ -1,10 +1,10 @@
 {
-  "name": "serverless-appsync-plugin",
-  "version": "0.0.0-development",
+  "name": "@monei-js/serverless-appsync-plugin",
+  "version": "2.17.0",
   "description": "AWS AppSync support for the Serverless Framework",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
-  "repository": "https://github.com/sid88in/serverless-appsync-plugin",
+  "repository": "https://github.com/MONEI/serverless-appsync-plugin",
   "license": "MIT",
   "files": [
     "/lib"
@@ -69,6 +69,7 @@
     "@aws-sdk/client-cloudformation": "3.1039.0",
     "@aws-sdk/client-cloudwatch-logs": "3.1039.0",
     "@aws-sdk/client-route-53": "3.1039.0",
+    "@aws-sdk/client-s3": "3.1039.0",
     "@aws-sdk/credential-providers": "3.1039.0",
     "@graphql-tools/merge": "^8.3.12",
     "ajv": "^8.11.2",
@@ -95,5 +96,8 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

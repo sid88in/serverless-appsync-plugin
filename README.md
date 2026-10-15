@@ -1,3 +1,7 @@
+> **MONEI fork**, published as `@monei-js/serverless-appsync-plugin`. On top of upstream it converts GraphQL descriptions to comments (AppSync rejects descriptions) and uses the osls v4 AWS credentials.
+>
+> Releasing: bump `version` in `package.json`, merge to `master`, then publish a GitHub release for that version. The `Publish` workflow publishes to npm with trusted publishing.
+
 <p>
   <a href="https://www.npmjs.com/package/serverless-appsync-plugin"><img alt="npm downloads (weekly)" src="https://img.shields.io/npm/dw/serverless-appsync-plugin?label=downloads%2Fweek&color=blue"></a>
   <a href="https://www.npmjs.com/package/serverless-appsync-plugin"><img alt="npm downloads (year)" src="https://img.shields.io/npm/dy/serverless-appsync-plugin?label=downloads%2Fyear&color=blue"></a>

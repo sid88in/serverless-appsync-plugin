@@ -63,6 +63,16 @@ declare module 'serverless/lib/Serverless' {
     };
     service: AWS & {
       setFunctionNames(rawOptions: Record<string, unknown>): void;
+      provider: AWS['provider'] & {
+        // Set by the Framework when nothing changed since the last deploy.
+        shouldNotDeploy?: boolean;
+        // The object form of `provider.deploymentBucket`, which the Framework
+        // replaces with the bucket name.
+        deploymentBucketObject?: {
+          serverSideEncryption?: string;
+          sseKMSKeyId?: string;
+        };
+      };
     };
     configSchemaHandler: {
       defineTopLevelProperty: (
@@ -109,6 +119,9 @@ declare module 'serverless/lib/plugins/aws/provider.js' {
     // Resolves the region honoring the --region CLI option, serverless config
     // and provider.region (in that order), falling back to us-east-1.
     getRegion: () => string;
+    getStage: () => string;
+    getDeploymentPrefix: () => string;
+    getServerlessDeploymentBucketName: () => Promise<string>;
     // Resolves credentials the same way the Serverless Framework does for its
     // own AWS calls: default profile, provider.profile, environment creds
     // (incl. stage-specific) and the --aws-profile CLI option. The nested
@@ -125,6 +138,14 @@ declare module 'serverless/lib/plugins/aws/provider.js' {
       region?: string;
       signatureVersion?: string;
     };
+    // osls 4 only: client config (region, credentials, retries, proxy) for
+    // plugin-built SDK v3 clients. Replaces request() and getCredentials().
+    getAwsSdkV3Config?: () => Promise<{
+      region?: string;
+      credentials?:
+        | import('@aws-sdk/types').AwsCredentialIdentity
+        | import('@aws-sdk/types').AwsCredentialIdentityProvider;
+    }>;
   }
 
   export default Provider;
