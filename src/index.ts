@@ -22,7 +22,7 @@ import {
   parseDateTimeOrDuration,
   wait,
 } from './utils';
-import { Api } from './resources/Api';
+import { Api, getS3Key, S3_FILES_DIR } from './resources/Api';
 import { Naming } from './resources/Naming';
 import { buildSync } from 'esbuild';
 import terminalLink from 'terminal-link';
@@ -46,6 +46,7 @@ import {
   RuntimeName,
 } from '@aws-sdk/client-appsync';
 import { DescribeStackResourcesCommand } from '@aws-sdk/client-cloudformation';
+import { PutObjectCommand, PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { FilterLogEventsCommand } from '@aws-sdk/client-cloudwatch-logs';
 import {
   ListHostedZonesByNameCommand,
@@ -119,7 +120,7 @@ type ServerlessPluginUtils = {
 };
 
 class ServerlessAppsyncPlugin {
-  private provider: Provider;
+  public provider: Provider;
   private _clientFactory?: AwsClientFactory;
   private gatheredData: {
     apis: {
@@ -445,6 +446,9 @@ class ServerlessAppsyncPlugin {
       'before:appsync:domain:delete-record:run': async () =>
         this.initDomainCommand(),
       'appsync:domain:delete-record:run': async () => this.deleteRecord(),
+      'before:package:finalize': () => this.writeS3Files(),
+      'after:aws:deploy:deploy:uploadArtifacts': async () =>
+        this.uploadS3Files(),
       finalize: () => {
         this.utils.writeText(
           '\nLooking for a better AppSync development experience? Have you tried GraphBolt? https://graphbolt.dev',
@@ -1111,6 +1115,76 @@ class ServerlessAppsyncPlugin {
       }
 
       throw error;
+    }
+  }
+
+  // The Framework builds the package in `.serverless` and moves it to the
+  // `--package` directory at the end.
+  writeS3Files() {
+    if (
+      !this.api ||
+      !(this.api.config.uploadSchemaToS3 || this.api.config.uploadCodeToS3)
+    ) {
+      return;
+    }
+    const dir = path.join(
+      this.serverless.serviceDir || '.',
+      '.serverless',
+      S3_FILES_DIR,
+    );
+    fs.mkdirSync(dir, { recursive: true });
+    forEach(this.api.s3Files, (content, fileName) => {
+      fs.writeFileSync(path.join(dir, fileName), content);
+    });
+  }
+
+  async uploadS3Files() {
+    const { appSync } = this.serverless.configurationInput;
+    if (
+      !(appSync?.uploadSchemaToS3 || appSync?.uploadCodeToS3) ||
+      this.serverless.service.provider.shouldNotDeploy
+    ) {
+      return;
+    }
+    const packagePath =
+      this.options.package ||
+      this.serverless.service.package?.path ||
+      path.join(this.serverless.serviceDir || '.', '.serverless');
+    const dir = path.join(packagePath, S3_FILES_DIR);
+    if (!fs.existsSync(dir)) {
+      throw new this.serverless.classes.Error(
+        `The AppSync files directory ${dir} is missing. Package the service again.`,
+      );
+    }
+    const bucket = await this.provider.getServerlessDeploymentBucketName();
+    const encryption = this.serverless.service.provider.deploymentBucketObject;
+    const s3 = this.clientFactory.getS3Client();
+    const fileNames = fs.readdirSync(dir);
+    this.utils.log.info(
+      `Uploading ${fileNames.length} AppSync files to the deployment bucket`,
+    );
+    const upload = (fileName: string) => {
+      const params: PutObjectCommandInput = {
+        Bucket: bucket,
+        Key: getS3Key(this, fileName),
+        Body: fs.readFileSync(path.join(dir, fileName), 'utf8'),
+        ContentType: fileName.endsWith('.js')
+          ? 'application/javascript'
+          : 'application/graphql',
+      };
+      if (encryption) {
+        // No SSE-C: CloudFormation reads the S3 locations without the
+        // customer key, so the object gets the bucket's default encryption.
+        Object.assign(params, {
+          ServerSideEncryption: encryption.serverSideEncryption,
+          SSEKMSKeyId: encryption.sseKMSKeyId,
+        });
+      }
+      return s3.send(new PutObjectCommand(params));
+    };
+    // In batches, so a large API does not open hundreds of connections.
+    for (let i = 0; i < fileNames.length; i += 20) {
+      await Promise.all(fileNames.slice(i, i + 20).map(upload));
     }
   }
 
