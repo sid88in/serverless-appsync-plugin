@@ -3,6 +3,7 @@ import { CloudFormationClient } from '@aws-sdk/client-cloudformation';
 import { CloudWatchLogsClient } from '@aws-sdk/client-cloudwatch-logs';
 import { Route53Client } from '@aws-sdk/client-route-53';
 import { ACMClient } from '@aws-sdk/client-acm';
+import { S3Client } from '@aws-sdk/client-s3';
 import type { AwsCredentialIdentityProvider } from '@aws-sdk/types';
 
 // ACM certificates for CloudFront must always be in us-east-1
@@ -30,6 +31,7 @@ export class AwsClientFactory {
   private cloudWatchLogsClient?: CloudWatchLogsClient;
   private route53Client?: Route53Client;
   private acmClient?: ACMClient;
+  private s3Client?: S3Client;
 
   constructor(
     private readonly region: string,
@@ -74,6 +76,16 @@ export class AwsClientFactory {
       });
     }
     return this.route53Client;
+  }
+
+  getS3Client(): S3Client {
+    if (!this.s3Client) {
+      this.s3Client = new S3Client({
+        region: this.region,
+        credentials: this.credentials,
+      });
+    }
+    return this.s3Client;
   }
 
   /**

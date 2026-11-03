@@ -109,6 +109,7 @@ export type CfnResolver = {
     Description?: string;
     FunctionVersion?: string;
     Code?: string | IntrinsicFunction;
+    CodeS3Location?: IntrinsicFunction;
     Runtime?: CfnAppSyncRuntime;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;
@@ -140,6 +141,7 @@ export type CfnFunctionResolver = {
     Description?: string;
     FunctionVersion?: string;
     Code?: string | IntrinsicFunction;
+    CodeS3Location?: IntrinsicFunction;
     Runtime?: CfnAppSyncRuntime;
     RequestMappingTemplate?: string | IntrinsicFunction;
     ResponseMappingTemplate?: string | IntrinsicFunction;

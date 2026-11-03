@@ -38,7 +38,10 @@ export class PipelineFunction {
     };
 
     if (code) {
-      Properties.Code = this.resolveJsCode(code);
+      Object.assign(
+        Properties,
+        this.api.getCodeProperties(this.resolveJsCode(code)),
+      );
       Properties.Runtime = {
         Name: 'APPSYNC_JS',
         RuntimeVersion: '1.0.0',
