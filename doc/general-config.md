@@ -37,8 +37,8 @@ appSync:
 
 - `name`: The name of this AppSync API
 - `schema`: The filename of the schema file. Defaults to `schema.graphql`. [Read more](#Schema)
-- `uploadSchemaToS3`: Boolean. Upload the schema to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#Large-APIs)
-- `uploadCodeToS3`: Boolean. Upload the JS code of resolvers and pipeline functions to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#Large-APIs)
+- `uploadSchemaToS3`: Boolean. Upload the schema to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#large-apis)
+- `uploadCodeToS3`: Boolean. Upload the JS code of resolvers and pipeline functions to the deployment bucket instead of putting it in the CloudFormation template. Defaults to `false`. [Read more](#large-apis)
 - `authentication`: See [Authentication](authentication.md)
 - `additionalAuthentications`: See [Authentication](authentication.md)
 - `apiKeys`: See [API Keys](API-keys.md)
