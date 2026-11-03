@@ -1,4 +1,6 @@
 type Query {
+  # Not part of the description.
+  #
   # The signed-in user.
   getUser: User!
   """

@@ -264,11 +264,14 @@ function foldValues<T extends EnumTypeDefinitionNode | EnumTypeExtensionNode>(
 // The `#` comment block directly above a token, as graphql-tools reads it with
 // `commentDescriptions`. Only a single-file schema still has its comments: the
 // merged schema is printed by graphql-tools, which drops them.
+// It stops at an empty comment line, because AppSync keeps only the text after
+// it.
 function leadingComment(token: Token): string | undefined {
   const lines: string[] = [];
   let comment = token.prev;
   while (
     comment?.kind === TokenKind.COMMENT &&
+    comment.value.trim() !== '' &&
     comment.next?.line === comment.line + 1 &&
     comment.prev?.line !== comment.line
   ) {
