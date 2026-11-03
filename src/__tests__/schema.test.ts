@@ -25,6 +25,7 @@ describe('schema', () => {
               ],
             },
             "Definition": "type Query {
+        # The signed-in user.
         getUser: User!
         #Users with a role.
         #Sorted by name.
@@ -54,6 +55,7 @@ describe('schema', () => {
         USER
       }
 
+      # More roles.
       #Values:
       #- \`GUEST\`: Read only.
       extend enum Role {
@@ -319,6 +321,7 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Query {
+        # The signed-in user.
         getUser: User!
         #Users with a role.
         #Sorted by name.
@@ -348,6 +351,7 @@ describe('schema', () => {
         USER
       }
 
+      # More roles.
       #Values:
       #- \`GUEST\`: Read only.
       extend enum Role {

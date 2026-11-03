@@ -1,4 +1,5 @@
 type Query {
+  # The signed-in user.
   getUser: User!
   """
   Users with a role.
@@ -40,6 +41,7 @@ enum Role {
   USER
 }
 
+# More roles.
 extend enum Role {
   "Read only."
   GUEST

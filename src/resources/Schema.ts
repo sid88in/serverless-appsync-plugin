@@ -10,6 +10,7 @@ import {
   visit,
   Kind,
   TokenKind,
+  isTypeExtensionNode,
   ASTNode,
   DefinitionNode,
   DirectiveDefinitionNode,
@@ -102,7 +103,10 @@ export class Schema {
   convertDescriptions(schema: string): string {
     const doc = visit(parse(schema), {
       enter(node) {
-        if (!('description' in node) || node.description || !node.loc) {
+        // Type extensions have no `description` field, but their leading
+        // comment must still be printed.
+        const describable = 'description' in node || isTypeExtensionNode(node);
+        if (!describable || (node as Described).description || !node.loc) {
           return undefined;
         }
         const comment = leadingComment(node.loc.startToken);
@@ -110,10 +114,20 @@ export class Schema {
           ? undefined
           : { ...node, description: toStringValue(comment) };
       },
-      FieldDefinition: { leave: foldArguments },
-      DirectiveDefinition: { leave: foldArguments },
-      EnumTypeDefinition: { leave: foldValues },
-      EnumTypeExtension: { leave: foldValues },
+      // A per-kind visitor (`FieldDefinition: { leave }`) would replace
+      // `enter` for that kind, so one `leave` handles all kinds.
+      leave(node) {
+        switch (node.kind) {
+          case Kind.FIELD_DEFINITION:
+          case Kind.DIRECTIVE_DEFINITION:
+            return foldArguments(node);
+          case Kind.ENUM_TYPE_DEFINITION:
+          case Kind.ENUM_TYPE_EXTENSION:
+            return foldValues(node);
+          default:
+            return undefined;
+        }
+      },
     });
     return doc.definitions.map(printWithComments).join('\n\n') + '\n';
   }
