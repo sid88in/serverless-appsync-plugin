@@ -26,18 +26,38 @@ describe('schema', () => {
             },
             "Definition": "type Query {
         getUser: User!
+        #Users with a role.
+        #Sorted by name.
+        #Arguments:
+        #- \`role\`: Only users with this role.
+        listUsers(role: Role!, limit: Int): [User!]!
       }
 
       type Mutation {
+        #Arguments:
+        #- \`post\`: The new user.
+        #  Name is required.
         createUser(post: UserInput!): User!
       }
 
-      """
-      A User
-      """
+      #A User
       type User {
         id: ID!
         name: String!
+      }
+
+      #Access level.
+      #Values:
+      #- \`ADMIN\`: Full access.
+      enum Role {
+        ADMIN
+        USER
+      }
+
+      #Values:
+      #- \`GUEST\`: Read only.
+      extend enum Role {
+        GUEST
       }
 
       # Input for user
@@ -61,6 +81,9 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Mutation {
+        #This is a description
+        #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -72,12 +95,21 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      #This is a description
       input PostInput {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
+        #Arguments:
+        #- \`id\`: This is an inline description
         getPost(id: ID!): Post!
         getUser: User!
       }
@@ -92,7 +124,8 @@ describe('schema', () => {
 
       input UserInput {
         name: String!
-      }"
+      }
+      "
     `);
   });
 
@@ -103,6 +136,9 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Mutation {
+        #This is a description
+        #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -114,12 +150,21 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      #This is a description
       input PostInput {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
+        #Arguments:
+        #- \`id\`: This is an inline description
         getPost(id: ID!): Post!
         getUser: User!
       }
@@ -134,7 +179,8 @@ describe('schema', () => {
 
       input UserInput {
         name: String!
-      }"
+      }
+      "
     `);
   });
 
@@ -145,6 +191,9 @@ describe('schema', () => {
     ]);
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Mutation {
+        #This is a description
+        #that includes multiple lines
+        #and a second paragraph
         createPost(post: PostInput!): Post!
         createUser(post: UserInput!): User!
       }
@@ -156,12 +205,21 @@ describe('schema', () => {
         updatedAt: AWSDateTime!
       }
 
-      """This is a description"""
+      #This is a description
       input PostInput {
         title: String!
       }
 
+      #Values:
+      #- \`PUBLISHED\`: Visible to everyone.
+      enum PostStatus {
+        PUBLISHED
+        DRAFT
+      }
+
       type Query {
+        #Arguments:
+        #- \`id\`: This is an inline description
         getPost(id: ID!): Post!
         getUser: User!
       }
@@ -176,7 +234,8 @@ describe('schema', () => {
 
       input UserInput {
         name: String!
-      }"
+      }
+      "
     `);
   });
 
@@ -253,7 +312,7 @@ describe('schema', () => {
     expect(schema.generateSchema()).toContain('type Query');
   });
 
-  it('should return single files schemas as-is', () => {
+  it('should return single files schemas with converted descriptions', () => {
     const api = new Api(given.appSyncConfig(), plugin);
     const schema = new Schema(api, [
       'src/__tests__/fixtures/schemas/single/schema.graphql',
@@ -261,18 +320,38 @@ describe('schema', () => {
     expect(schema.generateSchema()).toMatchInlineSnapshot(`
       "type Query {
         getUser: User!
+        #Users with a role.
+        #Sorted by name.
+        #Arguments:
+        #- \`role\`: Only users with this role.
+        listUsers(role: Role!, limit: Int): [User!]!
       }
 
       type Mutation {
+        #Arguments:
+        #- \`post\`: The new user.
+        #  Name is required.
         createUser(post: UserInput!): User!
       }
 
-      """
-      A User
-      """
+      #A User
       type User {
         id: ID!
         name: String!
+      }
+
+      #Access level.
+      #Values:
+      #- \`ADMIN\`: Full access.
+      enum Role {
+        ADMIN
+        USER
+      }
+
+      #Values:
+      #- \`GUEST\`: Read only.
+      extend enum Role {
+        GUEST
       }
 
       # Input for user
