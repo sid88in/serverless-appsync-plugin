@@ -40,6 +40,11 @@ enum Role {
   USER
 }
 
+extend enum Role {
+  "Read only."
+  GUEST
+}
+
 # Input for user
 input UserInput {
   name: String!

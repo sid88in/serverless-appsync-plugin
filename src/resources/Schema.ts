@@ -13,6 +13,8 @@ import {
   ASTNode,
   DefinitionNode,
   DirectiveDefinitionNode,
+  EnumTypeDefinitionNode,
+  EnumTypeExtensionNode,
   FieldDefinitionNode,
   StringValueNode,
   Token,
@@ -119,13 +121,8 @@ export class Schema {
       },
       FieldDefinition: { leave: foldArguments },
       DirectiveDefinition: { leave: foldArguments },
-      EnumTypeDefinition: {
-        leave: (node) => ({
-          ...node,
-          description: fold(node.description, 'Values', node.values),
-          values: node.values?.map(withoutDescription),
-        }),
-      },
+      EnumTypeDefinition: { leave: foldValues },
+      EnumTypeExtension: { leave: foldValues },
     });
     return doc.definitions.map(printWithComments).join('\n\n') + '\n';
   }
@@ -242,6 +239,20 @@ function foldArguments<T extends FieldDefinitionNode | DirectiveDefinitionNode>(
     ...node,
     description: fold(node.description, 'Arguments', node.arguments),
     arguments: node.arguments?.map(withoutDescription),
+  };
+}
+
+function foldValues<T extends EnumTypeDefinitionNode | EnumTypeExtensionNode>(
+  node: T,
+): T {
+  return {
+    ...node,
+    description: fold(
+      'description' in node ? node.description : undefined,
+      'Values',
+      node.values,
+    ),
+    values: node.values?.map(withoutDescription),
   };
 }
 

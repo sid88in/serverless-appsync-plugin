@@ -54,6 +54,12 @@ describe('schema', () => {
         USER
       }
 
+      #Values:
+      #- \`GUEST\`: Read only.
+      extend enum Role {
+        GUEST
+      }
+
       # Input for user
       input UserInput {
         name: String!
@@ -340,6 +346,12 @@ describe('schema', () => {
       enum Role {
         ADMIN
         USER
+      }
+
+      #Values:
+      #- \`GUEST\`: Read only.
+      extend enum Role {
+        GUEST
       }
 
       # Input for user
